@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+
+  omnibus-dev:
+    build: '.'
+    image: 'omnibus/omnibus-dev:latest'
+    restart: 'always'
+    cap_add:
+      - 'SYS_PTRACE'
+    security_opt:
+      - 'apparmor:unconfined'
+    volumes:
+      - '..:/omnibus'

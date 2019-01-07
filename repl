@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+VENV_PATH="${BASH_SOURCE%/*}/.venv"
+if [ -f "$VENV_PATH" ] ; then
+    source "$VENV_PATH/bin/activate"
+fi
+
+if [ -f "$VENV_PATH/bin/ipython" ] ; then
+    exec "$VENV_PATH/bin/ipython" "$@"
+else
+    exec python "$@"
+fi

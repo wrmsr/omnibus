@@ -1,0 +1,12 @@
+#!/bin/bash
+if [ -t 1 ] ; then
+    TTY_ENV_ARGS="-e LINES=$(tput lines) -e COLUMNS=$(tput cols)"
+else
+    TTY_ENV_ARGS=""
+fi
+docker exec \
+    $TTY_ENV_ARGS \
+    --privileged \
+    --detach-keys 'ctrl-o,ctrl-d' \
+    -it docker_omnibus_1 \
+    bash --login -c "$*"

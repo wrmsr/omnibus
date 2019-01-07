@@ -1,0 +1,7 @@
+README.md
+setup.py
+omnibus/__init__.py
+omnibus.egg-info/PKG-INFO
+omnibus.egg-info/SOURCES.txt
+omnibus.egg-info/dependency_links.txt
+omnibus.egg-info/top_level.txt

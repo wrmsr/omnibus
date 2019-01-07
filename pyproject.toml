@@ -1,0 +1,7 @@
+[build-system]
+requires = [
+    "python_version>='3.6'",
+    "setuptools",
+    "wheel",
+    "Cython>=0.27",
+]
