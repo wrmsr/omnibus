@@ -22,6 +22,7 @@ clean:
 	-rm -rf .pytest_cache
 	-rm -rf .venv
 	-rm -rf .venv-install
+	-rm -rf .venv-pypi
 	-rm -rf build
 	-rm -rf dist
 	-rm -rf omnibus.egg-info
@@ -156,6 +157,19 @@ test_install: dist
 		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup;e=setup.EXTRAS_REQUIRE;print(("["+",".join(e)+"]") if e else "")')
 
 	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
+
+.PHONY: test_pypi
+test_pypi:
+	rm -rf .venv-pypi
+
+	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
+		virtualenv .venv-pypi ; \
+	else \
+		$(PYENV_BIN) pypi -s $(PYTHON_VERSION) ; \
+		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-pypi ; \
+	fi ; \
+
+	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
 
 .PHONY: depupdates
 depupdates: venv
