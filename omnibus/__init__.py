@@ -12,3 +12,8 @@ def _test_install():
         pass
     else:
         raise EnvironmentError
+
+    from . import revision
+    rev = revision.get_revision()
+    if not isinstance(rev, str) or len(rev) != 40:
+        raise ValueError(rev)

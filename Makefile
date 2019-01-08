@@ -130,6 +130,11 @@ dist: build flake test
 
 .PHONY:
 upload: dist
+	if [ -z $(git status -s) ]; then \
+		echo dirty; \
+		exit 1; \
+	fi
+
 	.venv/bin/twine upload dist/*
 
 .PHONY: test_install

@@ -9,7 +9,7 @@ from .lang import cached_nullary
 @cached_nullary
 def get_revision() -> ta.Optional[str]:
     try:
-        return pkg_resources.resource_string(__package__.rpartition('.')[0], '.revision').decode('utf-8').strip()
+        return pkg_resources.resource_string(__package__, '.revision').decode('utf-8').strip()
     except OSError as e:
         if e.errno != errno.ENOENT:
             raise
@@ -18,4 +18,9 @@ def get_revision() -> ta.Optional[str]:
 
 
 if __name__ == '__main__':
-    print(get_revision())
+    revision = get_revision()
+    if revision is not None:
+        print(revision)
+        exit(0)
+    else:
+        exit(1)
