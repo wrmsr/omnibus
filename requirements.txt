@@ -13,7 +13,7 @@ sortedcontainers==2.1.0
 wrapt==1.10.11
 
 cbor==1.0.0
-lz4==2.0.1
+lz4==2.1.6
 msgpack==0.6.0
 mypy==0.650
 pyrsistent==0.14.9
