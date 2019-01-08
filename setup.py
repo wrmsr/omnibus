@@ -3,8 +3,6 @@ import glob
 import os
 import sys
 
-import Cython.Build
-import Cython.Compiler.Options
 import setuptools.command.build_ext
 
 
@@ -54,62 +52,64 @@ INSTALL_REQUIRES = [
 ]
 
 EXTRAS_REQUIRE = {
-    'bintrees': ['bintrees>=2.0.0'],
-    'cbor': ['cbor>=1.0.0'],
     'cytoolz': ['cytoolz>=0.9.0'],
-    'lz4': ['lz4>=0.23'],
-    'msgpack': ['msgpack>=0.5.0'],
-    'mypy': ['mypy>=0.560'],
-    'pyginx': ['pyginx'],
-    'pyrsistent': ['pyrsistent>=0.14'],
-    'ujson': ['ujson>=1.35'],
-    'wrapt': ['wrapt>=1.10'],
 }
 
 
 DEBUG = 'DEBUG' in os.environ
 
 
-EXT_MODULES = [
-    *[
-        setuptools.Extension(
-            'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
-            sources=[fpath]
-        )
-        for fpath in glob.glob('omnibus/_ext/cc/*.cc')
-    ],
-    *Cython.Build.cythonize(
-        [
-            setuptools.Extension(
-                'omnibus._ext.cy.' + os.path.basename(fpath).rpartition('.')[0],
-                sources=[fpath],
-                language='c++',
-            )
-            for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
-        ],
-        language_level=3,
-        gdb_debug=DEBUG,
-        compiler_directives={
-            **Cython.Compiler.Options.get_directive_defaults(),
-            'embedsignature': True,
-            'binding': True,
-        },
-    ),
-]
+EXT_MODULES = []
 
+try:
+    import Cython
 
-if APPLE:
+except ImportError:
+    pass
+
+else:
+    import Cython.Build
+    import Cython.Compiler.Options
+
     EXT_MODULES.extend([
-        setuptools.Extension(
-            'omnibus._ext.m.' + os.path.basename(fpath).rpartition('.')[0],
-            sources=[fpath],
-            extra_link_args=[
-                '-framework', 'AppKit',
-                '-framework', 'CoreFoundation',
-            ]
-        )
-        for fpath in glob.glob('omnibus/_ext/m/*.m')
+        *[
+            setuptools.Extension(
+                'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
+                sources=[fpath]
+            )
+            for fpath in glob.glob('omnibus/_ext/cc/*.cc')
+        ],
+        *Cython.Build.cythonize(
+            [
+                setuptools.Extension(
+                    'omnibus._ext.cy.' + os.path.basename(fpath).rpartition('.')[0],
+                    sources=[fpath],
+                    language='c++',
+                )
+                for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
+            ],
+            language_level=3,
+            gdb_debug=DEBUG,
+            compiler_directives={
+                **Cython.Compiler.Options.get_directive_defaults(),
+                'embedsignature': True,
+                'binding': True,
+            },
+        ),
     ])
+
+    if APPLE:
+        EXT_MODULES.extend([
+            setuptools.Extension(
+                'omnibus._ext.m.' + os.path.basename(fpath).rpartition('.')[0],
+                sources=[fpath],
+                extra_link_args=[
+                    '-framework', 'AppKit',
+                    '-framework', 'CoreFoundation',
+                ]
+            )
+            for fpath in glob.glob('omnibus/_ext/m/*.m')
+        ])
 
 
 if __name__ == '__main__':
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         author=ABOUT['__author__'],
         url=ABOUT['__url__'],
 
-        python_requires='>=3.6',
+        python_requires='>=3.7',
 
         classifiers=[
             'Intended Audience :: Developers',
