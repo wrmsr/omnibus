@@ -125,12 +125,24 @@ def cached_class(fn: ta.Callable[..., T]) -> T:
 
 class MethodRegistryProperty(Property[ta.Callable]):
 
-    def __init__(self, *, singledispatch: bool = False, unbound: bool = False) -> None:
+    def __init__(
+            self,
+            *,
+            descriptor: bool = None,
+            singledispatch: bool = False,
+            unbound: bool = False,
+    ) -> None:
         super().__init__()
 
         if unbound and singledispatch:
             raise TypeError
-        self._singledispatch = singledispatch
+        if singledispatch:
+            if descriptor is not None and descriptor is not True:
+                raise ValueError(descriptor)
+            self._descriptor = self._singledispatch = True
+        else:
+            self._descriptor = descriptor
+            self._singledispatch = False
         self._unbound = unbound
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
@@ -150,7 +162,10 @@ class MethodRegistryProperty(Property[ta.Callable]):
             self._cls = cls
 
         def __getitem__(self, key):
-            return self._lookup[key].__get__(self._obj, self._cls)
+            ret = self._lookup[key]
+            if self._owner._descriptor:
+                ret = ret.__get__(self._obj, self._cls)
+            return ret
 
         def __iter__(self):
             return iter(self._lookup)
@@ -231,8 +246,17 @@ class MethodRegistryProperty(Property[ta.Callable]):
         self._cache = weakref.WeakKeyDictionary()
 
 
-def method_registry(*, singledispatch: bool = False, unbound: bool = False) -> MethodRegistryProperty:
-    return MethodRegistryProperty(singledispatch=singledispatch, unbound=unbound)
+def method_registry(
+        *,
+        descriptor: bool = None,
+        singledispatch: bool = False,
+        unbound: bool = False,
+) -> MethodRegistryProperty:
+    return MethodRegistryProperty(
+        descriptor=descriptor,
+        singledispatch=singledispatch,
+        unbound=unbound,
+    )
 
 
 class MethodRegistryMeta(abc.ABCMeta):

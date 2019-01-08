@@ -20,7 +20,7 @@ def test_set_once_property():
 
 def test_method_registry_property():
     class C:
-        fns = properties.method_registry()
+        fns = properties.method_registry(descriptor=True)
 
         @fns.register('a')
         def _a(self):
