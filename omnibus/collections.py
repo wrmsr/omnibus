@@ -776,11 +776,7 @@ class SortedContainersDict(SortedMutableMapping[K, V]):
         return reversed(self._tree.items())
 
     def itemsfrom(self, key: K) -> ta.Iterator[Item]:
-        return itertools.islice(self._tree.items(), self._tree.bisect_left(key), None)
+        yield from itertools.islice(self._tree.items(), self._tree.bisect_left(key), None)
 
     def ritemsfrom(self, key: K) -> ta.Iterator[Item]:
-        try:
-            yield (key, self._tree[key])
-        except KeyError:
-            pass
-        yield from self._tree.iter_items(None, key, reverse=True)
+        yield from itertools.islice(reversed(self._tree.items()), len(self._tree) - self._tree.bisect_right(key), None)
