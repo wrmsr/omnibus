@@ -123,7 +123,7 @@ def cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn)
 
 
-class MethodRegistryProperty(Property[ta.Callable]):
+class RegistryProperty(Property[ta.Callable]):
 
     def __init__(
             self,
@@ -246,24 +246,24 @@ class MethodRegistryProperty(Property[ta.Callable]):
         self._cache = weakref.WeakKeyDictionary()
 
 
-def method_registry(
+def registry(
         *,
         descriptor: bool = None,
         singledispatch: bool = False,
         unbound: bool = False,
-) -> MethodRegistryProperty:
-    return MethodRegistryProperty(
+) -> RegistryProperty:
+    return RegistryProperty(
         descriptor=descriptor,
         singledispatch=singledispatch,
         unbound=unbound,
     )
 
 
-class MethodRegistryMeta(abc.ABCMeta):
+class RegistryMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
 
-        def __init__(self, regs: ta.Mapping[str, MethodRegistryProperty]) -> None:
+        def __init__(self, regs: ta.Mapping[str, RegistryProperty]) -> None:
             super().__init__()
             self._dict = {}
             self._regs = dict(regs)
@@ -279,7 +279,7 @@ class MethodRegistryMeta(abc.ABCMeta):
                 reg = self._regs[key]
             except KeyError:
                 self._dict[key] = value
-                if isinstance(value, MethodRegistryProperty):
+                if isinstance(value, RegistryProperty):
                     self._regs[key] = value
             else:
                 if not callable(value) or not reg.singledispatch:
@@ -309,7 +309,7 @@ class MethodRegistryMeta(abc.ABCMeta):
         mro = functools._c3_merge([list(b.__mro__) for b in bases])  # noqa
         for bmro in reversed(mro):
             for k, v in bmro.__dict__.items():
-                if isinstance(v, MethodRegistryProperty):
+                if isinstance(v, RegistryProperty):
                     regs[k] = v
         return cls.RegisteringNamespace(regs)
 
@@ -320,5 +320,5 @@ class MethodRegistryMeta(abc.ABCMeta):
         return super().__new__(mcls, name, bases, namespace, **kwargs)
 
 
-class MethodRegistryClass(metaclass=MethodRegistryMeta):
+class RegistryClass(metaclass=RegistryMeta):
     pass

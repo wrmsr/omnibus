@@ -18,9 +18,9 @@ def test_set_once_property():
     assert a.value == 1
 
 
-def test_method_registry_property():
+def test_registry_property():
     class C:
-        fns = properties.method_registry(descriptor=True)
+        fns = properties.registry(descriptor=True)
 
         @fns.register('a')
         def _a(self):
@@ -44,9 +44,9 @@ def test_method_registry_property():
     assert D().fns['c']() == 2
 
 
-def test_method_registry_dispatch():
+def test_registry_dispatch():
     class A:
-        fn = properties.method_registry(singledispatch=True)
+        fn = properties.registry(singledispatch=True)
 
         @fn.register(object)
         def fn_object(self, o):
@@ -95,9 +95,9 @@ def test_method_registry_dispatch():
     assert D().fn('hi') == 'Dstr'
 
 
-def test_method_registry_class():
-    class A(properties.MethodRegistryClass):
-        fn = properties.method_registry(singledispatch=True)
+def test_registry_class():
+    class A(properties.RegistryClass):
+        fn = properties.registry(singledispatch=True)
 
         def fn(self, o: object):  # noqa
             return 'object'
