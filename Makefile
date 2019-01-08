@@ -18,13 +18,14 @@ all: build test test_install
 .PHONY: clean
 clean:
 	-rm -rf .cache
+	-rm -rf .mypy_cache
+	-rm -rf .pytest_cache
 	-rm -rf .venv
 	-rm -rf .venv-install
 	-rm -rf build
 	-rm -rf dist
 	-rm -rf omnibus.egg-info
-	-rm -rf .mypy_cache
-	-rm -rf .pytest_cache
+
 	find omnibus \
 		-name '*.pyc' -delete -or \
 		-name '*.pyo' -delete -or \
@@ -33,9 +34,12 @@ clean:
 		-name '*.dylib' -delete -or \
 		-name '*.exe' -delete -or \
 		-name '.revision' -delete
-	find omnibus/_ext/cy \
-		-name '*.c' -delete -or \
-		-name '*.cpp' -delete
+
+	if [ -d omnibus/_ext/cy ]; then \
+		find omnibus/_ext/cy \
+			-name '*.c' -delete -or \
+			-name '*.cpp' -delete ; \
+	fi
 
 .PHONY: brew
 brew:
@@ -129,10 +133,10 @@ dist: build flake test
 	cp -rv "$(DIST_BUILD_DIR)/dist" ./
 
 .PHONY:
-upload: dist
-	if [ -z $(git status -s) ]; then \
-		echo dirty; \
-		exit 1; \
+upload: clean dist
+	if [ -z $(git status -s) ] ; then \
+		echo dirty ; \
+		exit 1 ; \
 	fi
 
 	.venv/bin/twine upload dist/*
