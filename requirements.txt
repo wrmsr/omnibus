@@ -5,8 +5,10 @@ Cython==0.29.2
 cytoolz==0.9.0.1
 toolz==0.9.0
 
-# bintrees==2.0.7
-git+https://github.com/mozman/bintrees@667002ae109498bad217fd0ebcdf5af7c4a34ebb
+bintrees==2.0.7
+# git+https://github.com/mozman/bintrees@667002ae109498bad217fd0ebcdf5af7c4a34ebb
+
+sortedcontainers==2.1.0
 
 wrapt==1.10.11
 

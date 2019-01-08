@@ -140,6 +140,11 @@ def unwrap_instance_weakproxy(proxy: weakref.ProxyType, cls: ta.Type[T]) -> T:
     return inst
 
 
+def exhaust(it: ta.Iterable[ta.Any]) -> None:
+    for _ in it:
+        pass
+
+
 def singleton(*args, **kwargs) -> ta.Callable[[ta.Type[T]], ta.Callable[..., T]]:
     def inner(cls):
         obj = cls(*args, **kwargs)
