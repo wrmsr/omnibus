@@ -165,7 +165,7 @@ test_pypi:
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
 		virtualenv .venv-pypi ; \
 	else \
-		$(PYENV_BIN) pypi -s $(PYTHON_VERSION) ; \
+		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
 		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-pypi ; \
 	fi ; \
 
