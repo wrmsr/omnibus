@@ -187,7 +187,7 @@ class Accessor(ta.Generic[T]):
             )
 
     @classmethod
-    def from_dict(cls, dct: ta.Dict[str, T]) -> 'AttrAccessor[T]':
+    def from_dict(cls, dct: ta.Dict[str, T]) -> 'Accessor[T]':
         return cls(dct.__getitem__, (KeyError,))
 
 
