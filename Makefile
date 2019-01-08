@@ -106,7 +106,7 @@ test_verbose: build
 	.venv/bin/pytest -svvv omnibus
 
 .PHONY: dist
-dist: build
+dist: build flake test
 	rm -rf dist
 
 	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
