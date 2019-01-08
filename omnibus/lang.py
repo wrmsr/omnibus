@@ -589,6 +589,10 @@ class AccessForbiddenDescriptor:
         raise AttrAccessForbiddenException(self._name)
 
 
+def access_forbidden():
+    return AccessForbiddenDescriptor()
+
+
 class VoidException(Exception):
     pass
 
