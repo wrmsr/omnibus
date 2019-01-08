@@ -5,9 +5,9 @@ import time
 import typing as ta
 
 import pytest
-import toolz
 
 from .. import lang
+from .. import toolz
 
 
 def test_public():
