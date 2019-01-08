@@ -16,8 +16,8 @@
 /.venv-install/
 /.venv/
 /__pycache__/
-/baseband.egg-info/
 /build/
 /dist/
 /MANIFEST
+/omnibus.egg-info/
 /profiles

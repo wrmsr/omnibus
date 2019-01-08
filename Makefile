@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
 
-PYTHON_VERSION:=3.7.1
+PYTHON_VERSION:=3.7.2
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
 PYENV_BIN:=$(shell if [ -f "$${HOME}/.pyenv/bin/pyenv" ] ; then echo "$${HOME}/.pyenv/bin/pyenv" ; else echo pyenv ; fi)
@@ -109,7 +109,11 @@ test_verbose: build
 dist: build
 	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "omnibus/.revision"
 
-	.venv/bin/python setup.py bdist_wheel
+	.venv/bin/python setup.py sdist bdist_wheel
+
+.PHONY:
+upload: dist
+	.venv/bin/twine upload dist/*
 
 .PHONY: test_install
 test_install: dist
