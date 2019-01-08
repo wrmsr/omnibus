@@ -13,7 +13,7 @@ PYENV_BREW_DEPS:= \
 	sqlite3 \
 	zlib \
 
-all: build test test_install
+all: build flake test
 
 .PHONY: clean
 clean:
@@ -21,6 +21,7 @@ clean:
 	-rm -rf .mypy_cache
 	-rm -rf .pytest_cache
 	-rm -rf .venv
+	-rm -rf .venv-dist
 	-rm -rf .venv-install
 	-rm -rf .venv-pypi
 	-rm -rf build
@@ -110,8 +111,24 @@ test: build
 test_verbose: build
 	.venv/bin/pytest -svvv omnibus
 
+.PHONY: test_install
+test_install: dist
+	rm -rf .venv-install
+
+	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
+		virtualenv .venv-install ; \
+	else \
+		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
+		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-install ; \
+	fi ; \
+
+	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
+		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup;e=setup.EXTRAS_REQUIRE;print(("["+",".join(e)+"]") if e else "")')
+
+	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
+
 .PHONY: dist
-dist: build flake test
+dist: build flake test test_install
 	rm -rf dist
 
 	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
@@ -133,30 +150,27 @@ dist: build flake test
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
 	cp -rv "$(DIST_BUILD_DIR)/dist" ./
 
+.PHONY: test_dist
+test_dist: dist
+	rm -rf .venv-dist
+
+	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
+		virtualenv .venv-dist ; \
+	else \
+		$(PYENV_BIN) dist -s $(PYTHON_VERSION) ; \
+		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-dist ; \
+	fi ; \
+
+	cd .venv-dist && bin/pip install omnibus && bin/python -m omnibus.revision
+
 .PHONY:
-publish: clean dist
+publish: clean dist test_dist
 	if [ ! -z "$$(git status -s)" ] ; then \
 		echo dirty ; \
 		exit 1 ; \
 	fi
 
 	.venv/bin/twine upload dist/*
-
-.PHONY: test_install
-test_install: dist
-	rm -rf .venv-install
-
-	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
-		virtualenv .venv-install ; \
-	else \
-		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
-		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-install ; \
-	fi ; \
-
-	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
-		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup;e=setup.EXTRAS_REQUIRE;print(("["+",".join(e)+"]") if e else "")')
-
-	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
 
 .PHONY: test_pypi
 test_pypi:

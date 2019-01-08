@@ -3,7 +3,7 @@
 
 # packaging deps
 
-wheel==0.31.0
+wheel==0.32.3
 
 
 ## actual code deps
@@ -16,8 +16,8 @@ twine==1.11.0
 
 ## useful tools
 
-flake8==3.5.0
+flake8==3.6.0
 ipdb==0.11
-ipython==6.4.0
-pipdeptree==0.12.1
+ipython==7.2.0
+pipdeptree==0.13.1
 pyrasite==2.0
