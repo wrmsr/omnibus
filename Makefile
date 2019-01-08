@@ -133,7 +133,7 @@ dist: build flake test
 	cp -rv "$(DIST_BUILD_DIR)/dist" ./
 
 .PHONY:
-upload: clean dist
+publish: clean dist
 	if [ -z $(git status -s) ] ; then \
 		echo dirty ; \
 		exit 1 ; \
