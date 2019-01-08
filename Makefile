@@ -161,7 +161,7 @@ test_dist: dist
 		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-dist ; \
 	fi ; \
 
-	cd .venv-dist && bin/pip install omnibus && bin/python -m omnibus.revision
+	cd .venv-dist && bin/pip install dist/omnibus-*-none-any.whl && bin/python -m omnibus.revision
 
 .PHONY:
 publish: clean dist test_dist
