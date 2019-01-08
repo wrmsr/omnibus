@@ -153,17 +153,23 @@ def singleton(*args, **kwargs) -> ta.Callable[[ta.Type[T]], ta.Callable[..., T]]
     return inner
 
 
-class AttrAccessor(ta.Generic[T]):
+class Accessor(ta.Generic[T]):
 
     def __init__(
             self,
             getter: ta.Callable[[str], T],
-            translated_exceptions: ta.Iterable[ta.Type[Exception]] = [],
+            translated_exceptions: ta.Iterable[ta.Type[Exception]] = (),
     ) -> None:
         super().__init__()
 
         self.__getter = getter
         self.__translated_exceptions = tuple(translated_exceptions)
+
+    def __getitem__(self, name: str) -> T:
+        try:
+            return self.__getter(name)
+        except self.__translated_exceptions:
+            raise KeyError(name)
 
     def __getattr__(self, name: str) -> T:
         try:
@@ -175,7 +181,7 @@ class AttrAccessor(ta.Generic[T]):
         if instance is None:
             return self
         else:
-            return AttrAccessor(
+            return Accessor(
                 self.__getter.__get__(instance, owner),
                 self.__translated_exceptions
             )
