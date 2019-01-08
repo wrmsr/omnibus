@@ -65,7 +65,7 @@ def test_bintrees():
 
 @helpers.skip_if_cant_import('sortedcontainers')
 def test_sortedcontainers():
-    _test_sorteddict(col.BintreesDict.new())
+    _test_sorteddict(col.SortedContainersDict.new())
 
 
 def test_identity_hashable_set():
