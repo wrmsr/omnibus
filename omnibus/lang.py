@@ -519,6 +519,13 @@ class staticfunction(staticmethod):
         TypeError: 'staticmethod' object is not callable
     """
 
+    def __init__(self, fn: ta.Callable) -> None:
+        super().__init__(fn)
+        functools.update_wrapper(self, fn)
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}({self.__func__})'
+
     def __call__(self, *args, **kwargs):
         return self.__func__(*args, **kwargs)
 
