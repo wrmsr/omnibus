@@ -134,7 +134,7 @@ dist: build flake test
 
 .PHONY:
 publish: clean dist
-	if [ -z $(git status -s) ] ; then \
+	if [ -n $(git status -s) ] ; then \
 		echo dirty ; \
 		exit 1 ; \
 	fi
