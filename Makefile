@@ -107,9 +107,26 @@ test_verbose: build
 
 .PHONY: dist
 dist: build
-	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "omnibus/.revision"
+	rm -rf dist
 
-	.venv/bin/python setup.py sdist bdist_wheel
+	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
+	$(eval DIST_BUILD_PYTHON:=$(realpath .venv/bin/python))
+
+	cp -rv \
+		setup.py \
+		README.md \
+		MANIFEST.in \
+		omnibus \
+	\
+		"$(DIST_BUILD_DIR)"
+
+	if [ ! -f "omnibus/.revision" ] ; then \
+		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision" ; \
+	fi
+
+	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip
+	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
+	cp -rv "$(DIST_BUILD_DIR)/dist" ./
 
 .PHONY:
 upload: dist
@@ -140,3 +157,7 @@ deptree: test_install
 	.venv-install/bin/pip install pipdeptree
 	echo ; echo ; echo
 	.venv-install/bin/pipdeptree
+
+.PHONY: docker_invalidate
+docker_invalidate:
+	date +%s > .dockertimestamp
