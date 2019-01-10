@@ -54,6 +54,7 @@ INSTALL_REQUIRES = [
 EXTRAS_REQUIRE = {
     'bintrees': ['bintrees>=0.2.7'],
     'cytoolz': ['cytoolz>=0.9.0'],
+    'docker': ['docker>=3.7.0'],
     'sortedcontainers': ['sortedcontainers>=2.1.0'],
 }
 
