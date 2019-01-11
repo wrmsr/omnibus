@@ -128,7 +128,7 @@ def hash_eq(cls_dct, *attrs):
 @lang.cls_dct_fn()
 def getter(cls_dct, *attrs):
     for attr in attrs:
-        cls_dct[attr[1:]] = property(operator.attrgetter('_' + attr))
+        cls_dct[attr] = property(operator.attrgetter('_' + attr))
 
 
 @lang.cls_dct_fn()
