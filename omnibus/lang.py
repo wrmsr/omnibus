@@ -601,6 +601,10 @@ def void(*args, **kwargs) -> ta.NoReturn:
     raise VoidException
 
 
+def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
+    raise exc
+
+
 # region ContextManagers
 
 
