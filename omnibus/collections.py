@@ -139,7 +139,7 @@ class IdentityKeyDict(ta.MutableMapping[K, V]):
         super().__init__()
         self._dict = {}
         for k, v in yield_dict_init(*args, **kwargs):
-            self[id(k)] = (k, v)
+            self[k] = v
 
     def __repr__(self) -> str:
         return lang.attr_repr(self, '_dict')
@@ -198,21 +198,22 @@ class IdentitySet(ta.MutableSet[T]):
         return iter(self._dict.values())
 
 
-class FrozenDict(ta.Mapping[K, V]):
-    __slots__ = ('_dct', '_hash')
+class _FrozenDict:
+    pass
 
-    def __new__(cls, *args, **kwargs):
-        if len(args) == 1:
-            [arg] = args
-            if isinstance(arg, cls):
-                return arg
-        return super().__new__(cls)
+
+class FrozenDict(ta.Mapping[K, V], _FrozenDict):
+
+    def __new__(cls, *args, **kwargs) -> 'FrozenDict[K, V]':
+        if len(args) == 1 and _FrozenDict in type(args[0]).__bases__:
+            return args[0]
+        return super().__new__(cls, dict(*args, **kwargs))
 
     def __init__(self, *args, **kwargs):
         super().__init__()
         self._hash = None
         if len(args) > 1:
-            raise TypeError()
+            raise TypeError(args)
         self._dct = {}
         self._dct.update(yield_dict_init(*args, **kwargs))
 
@@ -230,7 +231,7 @@ class FrozenDict(ta.Mapping[K, V]):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            self._hash = hash(frozenset(self._dct.items()))
+            self._hash = hash((k, self[k]) for k in sorted(self))
         return self._hash
 
     def __eq__(self, other) -> bool:
