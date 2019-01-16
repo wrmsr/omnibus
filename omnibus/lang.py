@@ -650,9 +650,14 @@ class ExitStacked:
         return self._exit_stack.enter_context(context_manager)
 
     def __enter__(self: Self) -> Self:
-        super().__enter__()
+        try:
+            superfn = super().__enter__
+        except AttributeError:
+            ret = self
+        else:
+            ret = superfn()
         self._exit_stack.__enter__()
-        return self
+        return ret
 
     def __exit__(
             self,
@@ -660,8 +665,13 @@ class ExitStacked:
             exc_val: ta.Optional[Exception],
             exc_tb: ta.Optional[types.TracebackType]
     ) -> ta.Optional[bool]:
-        self._exit_stack().__exit__(exc_type, exc_val, exc_tb)
-        return super().__exit__(exc_type, exc_val, exc_tb)
+        self._exit_stack.__exit__(exc_type, exc_val, exc_tb)
+        try:
+            superfn = super().__exit__
+        except AttributeError:
+            return None
+        else:
+            return superfn(exc_type, exc_val, exc_tb)
 
 
 @contextlib.contextmanager
