@@ -404,3 +404,20 @@ def test_await_futures():
 
     idxs = [t[0] for t in sorted(list(enumerate(futures)), key=lambda t: t[1].result())]
     assert pairs(idxs) == pairs(range(10))
+
+
+def test_exit_stacked():
+    class A(lang.ExitStacked):
+        pass
+
+    with A() as a:
+        assert isinstance(a, A)
+        assert isinstance(a._exit_stack, contextlib.ExitStack)
+
+    class B(lang.ExitStacked):
+
+        def __enter__(self):
+            return 'hi'
+
+    with B() as b:
+        assert b == 'hi'
