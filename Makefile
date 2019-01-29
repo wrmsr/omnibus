@@ -71,9 +71,9 @@ venv:
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
 				PYTHON_CONFIGURE_OPTS="--enable-framework" \
-				$(PYENV_BIN) install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
+				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
 			else \
-				$(PYENV_BIN) install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
+				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
 			fi ; \
 			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
 		fi ; \
@@ -141,8 +141,8 @@ test_install: dist
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
 		virtualenv .venv-install ; \
 	else \
-		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
-		$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python -m venv .venv-install ; \
+		"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
+		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-install ; \
 	fi ; \
 
 	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
@@ -166,8 +166,8 @@ test_pypi:
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
 		virtualenv .venv-pypi ; \
 	else \
-		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
-		$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python -m venv .venv-pypi ; \
+		"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
+		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-pypi ; \
 	fi ; \
 
 	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
