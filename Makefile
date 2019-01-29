@@ -75,7 +75,7 @@ venv:
 			else \
 				$(PYENV_BIN) install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
 			fi ; \
-			virtualenv -p "$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" .venv ; \
+			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
 		fi ; \
 		\
 		.venv/bin/pip install --upgrade pip setuptools ; \
@@ -142,7 +142,7 @@ test_install: dist
 		virtualenv .venv-install ; \
 	else \
 		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
-		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-install ; \
+		$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python -m venv .venv-install ; \
 	fi ; \
 
 	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
@@ -167,7 +167,7 @@ test_pypi:
 		virtualenv .venv-pypi ; \
 	else \
 		$(PYENV_BIN) install -s $(PYTHON_VERSION) ; \
-		virtualenv -p $(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python .venv-pypi ; \
+		$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python -m venv .venv-pypi ; \
 	fi ; \
 
 	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
