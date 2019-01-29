@@ -70,7 +70,7 @@ venv:
 				CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
-				PYTHON_CONFIGURE_OPT="--enable-framework" \
+				PYTHON_CONFIGURE_OPTS="--enable-framework" \
 				$(PYENV_BIN) install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
 			else \
 				$(PYENV_BIN) install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
