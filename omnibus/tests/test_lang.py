@@ -421,3 +421,15 @@ def test_exit_stacked():
 
     with B() as b:
         assert b == 'hi'
+
+
+def test_is_abstract():
+    class A(lang.Abstract):
+        pass
+
+    assert lang.is_abstract(A)
+
+    class B(A):
+        pass
+
+    assert not lang.is_abstract(B)

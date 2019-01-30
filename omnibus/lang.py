@@ -131,6 +131,10 @@ def is_descriptor(obj: ta.Any) -> bool:
     )
 
 
+def is_abstract(obj: ta.Any) -> bool:
+    return bool(getattr(obj, '__abstractmethods__', []))
+
+
 def unwrap_instance_weakproxy(proxy: weakref.ProxyType, cls: ta.Type[T]) -> T:
     if not isinstance(proxy, weakref.ProxyType):
         raise TypeError(proxy)
