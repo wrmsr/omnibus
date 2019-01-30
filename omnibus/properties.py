@@ -5,6 +5,8 @@ import types
 import typing as ta
 import weakref
 
+from . import c3
+
 
 T = ta.TypeVar('T')
 K = ta.TypeVar('K')
@@ -306,7 +308,7 @@ class RegistryMeta(abc.ABCMeta):
     @classmethod
     def __prepare__(cls, name, bases, **kwargs):
         regs = {}
-        mro = functools._c3_merge([list(b.__mro__) for b in bases])  # noqa
+        mro = c3.merge([list(b.__mro__) for b in bases])
         for bmro in reversed(mro):
             for k, v in bmro.__dict__.items():
                 if isinstance(v, RegistryProperty):
