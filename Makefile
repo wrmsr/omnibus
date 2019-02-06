@@ -130,6 +130,7 @@ dist: build flake test
 		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision" ; \
 	fi
 
+	"$(DIST_BUILD_PYTHON)" -m pip install wheel
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
 	cp -rv "$(DIST_BUILD_DIR)/dist" ./
