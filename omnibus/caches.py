@@ -90,7 +90,7 @@ class LruCache(ta.MutableMapping[K, V]):
             weak_keys: bool = False,
             weak_values: bool = False,
             weigher: ta.Callable[[V], float] = lambda _: 1.,
-            unlocked: bool = False,
+            nolock: bool = False,
             raise_overweight: bool = False,
     ) -> None:
         super().__init__()
@@ -113,7 +113,7 @@ class LruCache(ta.MutableMapping[K, V]):
         self._weigher = weigher
         self._raise_overweight = raise_overweight
 
-        if not unlocked:
+        if not nolock:
             self._lock = threading.RLock()
         else:
             self._lock = None
