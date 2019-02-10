@@ -92,7 +92,7 @@ def bare_repr(cls_dct, *attrs):
     cls_dct['__repr__'] = __repr__
 
 
-@lang.cls_dct_fn
+@lang.cls_dct_fn()
 def name_repr(cls_dct):
     def __repr__(self):
         return self.__name__
@@ -104,6 +104,22 @@ def ne(cls_dct):
     def __ne__(self, other):
         return not (self == other)
     cls_dct['__ne__'] = __ne__
+
+
+@lang.cls_dct_fn()
+def no_order(cls_dct, *, raise_=None):
+    def fn(self, other):
+        if raise_ is None:
+            return NotImplemented
+        else:
+            raise raise_
+    for att in [
+        '__lt__',
+        '__le__',
+        '__gt__',
+        '__ge__',
+    ]:
+        cls_dct[att] = fn
 
 
 @_basic
