@@ -252,6 +252,7 @@ class Spec(lang.Sealed, lang.Abstract):
     defs.repr('cls')
     defs.hash_eq('cls')
     defs.ne()
+    defs.no_order()
 
     @property
     def cls(self) -> Specable:
