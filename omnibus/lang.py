@@ -195,6 +195,15 @@ class Accessor(ta.Generic[T]):
         return cls(dct.__getitem__, (KeyError,))
 
 
+def maybe_call(obj: ta.Any, att: str, *args, default: ta.Any = None, **kwargs) -> ta.Any:
+    try:
+        fn = getattr(obj, att)
+    except AttributeError:
+        return default
+    else:
+        return fn(*args, **kwargs)
+
+
 def anon_object(name: str) -> ta.Any:
     return new_type(name, (object,), {})()
 
