@@ -15,7 +15,7 @@ class UnboundVarError(ValueError):
 
 class Var:
 
-    def __init__(self, default=NOT_SET, new=NOT_SET, validate=None):
+    def __init__(self, default=NOT_SET, *, new=NOT_SET, validate=None):
         super().__init__()
 
         if default is not NOT_SET and new is not NOT_SET:
@@ -123,7 +123,7 @@ class Binding:
         else:
             self._level = min(self._frame_bindings.keys() or [1]) - 1
         self._frame_bindings[self._level] = self
-        return self
+        return self._value
 
     def __exit__(self, et, t, tb):
         assert self._frame_bindings[self._level] is self

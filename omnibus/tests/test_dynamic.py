@@ -1,7 +1,7 @@
 from .. import dynamic as dyn
 
 
-def test():
+def test_dyn():
     with dyn.dyn(x=5):
         assert dyn.dyn.x == 5
         with dyn.dyn(y=10):
@@ -51,3 +51,9 @@ def test():
         pass
     else:
         assert False
+
+
+def test_var():
+    v = dyn.Var()
+    with v(4):
+        assert v() == 4
