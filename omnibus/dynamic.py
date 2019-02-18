@@ -27,15 +27,17 @@ class Var:
         self._validate = validate
         self._bindings_by_frame = weakref.WeakValueDictionary()
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
         if not args:
+            if kwargs:
+                raise TypeError(kwargs)
             return self.value
         elif len(args) == 1:
-            return self.binding(*args)
+            return self.binding(*args, **kwargs)
         else:
             raise TypeError(args)
 
-    def binding(self, value, offset=1):
+    def binding(self, value, *, offset=1):
         if self._validate is not None:
             self._validate(self.value)
         return Binding(self, value, offset=offset)
@@ -125,7 +127,7 @@ class Binding:
         self._frame_bindings[self._level] = self
         return self._value
 
-    def __exit__(self, et, t, tb):
+    def __exit__(self, et, e, tb):
         assert self._frame_bindings[self._level] is self
         del self._frame_bindings[self._level]
         del self._frame_bindings

@@ -724,11 +724,11 @@ def context_wrapped(cm: ta.Callable[[], ta.ContextManager]) -> ta.Callable:
 
 @contextlib.contextmanager
 def context_var_setting(var: contextvars.ContextVar[T], val: T) -> T:
-    prev = var.set(val)
+    token = var.set(val)
     try:
         yield val
     finally:
-        var.reset(prev)
+        var.reset(token)
 
 
 def manage_maybe_iterator(
