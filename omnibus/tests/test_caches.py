@@ -6,7 +6,7 @@ from .. import caches
 
 
 def test_cache():
-    c = caches.LruCache(max_size=2)
+    c = caches.Cache(max_size=2)
     c[0] = 'foo0'
     assert c[0] == 'foo0'
     c[1] = 'foo1'
@@ -17,7 +17,7 @@ def test_cache():
         c.__getitem__(0)
     assert c[2] == 'foo2'
 
-    c = caches.LruCache(max_size=2)
+    c = caches.Cache(max_size=2)
     c[0] = 'foo0'
     assert c[0] == 'foo0'
     c[1] = 'foo1'
@@ -40,7 +40,7 @@ def test_cache():
 def test_descriptor_static():
     hits = []
 
-    @caches.lru_cache()
+    @caches.cache()
     def f(x):
         hits.append(x)
         return x + 1
@@ -58,7 +58,7 @@ def test_descriptor_instance():
         def __init__(self):
             self.hits = []
 
-        @caches.lru_cache()
+        @caches.cache()
         def f(self, x):
             self.hits.append(x)
             return x + 1
@@ -79,7 +79,7 @@ def test_weak_keys():
     class K:
         pass
     k = K()
-    c = caches.LruCache(weak_keys=True)
+    c = caches.Cache(weak_keys=True)
     c[k] = 1
     assert c[k] == 1
     assert len(c) == 1
@@ -90,7 +90,7 @@ def test_weak_keys():
 
 def test_expirey():
     clock = 0
-    c = caches.LruCache(expire_after_write=2, clock=lambda: clock)
+    c = caches.Cache(expire_after_write=2, clock=lambda: clock)
     c[0] = 'a'
     c[1] = 'b'
     clock = 1

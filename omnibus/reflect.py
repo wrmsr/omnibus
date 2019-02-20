@@ -575,7 +575,7 @@ def _get_spec(cls: Specable) -> Spec:
         return NonGenericTypeSpec(cls)
 
 
-@caches.lru_cache(weak_keys=True)
+@caches.cache(weak_keys=True)
 def get_spec(cls: Specable) -> Spec:
     return _get_spec(cls)
 

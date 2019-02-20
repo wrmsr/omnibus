@@ -104,9 +104,9 @@ def test_specs():
 
 def test_weak_cache():
     cref = None
-    stats0: caches.LruCache.Stats = None
-    stats1: caches.LruCache.Stats = None
-    stats2: caches.LruCache.Stats = None
+    stats0: caches.Cache.Stats = None
+    stats1: caches.Cache.Stats = None
+    stats2: caches.Cache.Stats = None
 
     def f():
         nonlocal cref, stats1

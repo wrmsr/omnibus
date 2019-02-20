@@ -8,6 +8,8 @@ import time
 import typing as ta
 import weakref
 
+from . import lang
+
 
 C = ta.TypeVar('C', bound=ta.Callable)
 CC = ta.Callable[[C], C]
@@ -22,13 +24,13 @@ class OverweightException(Exception):
     pass
 
 
-class LruCache(ta.MutableMapping[K, V]):
+class Cache(ta.MutableMapping[K, V]):
     """
     https://google.github.io/guava/releases/16.0/api/docs/com/google/common/cache/CacheBuilder.html
     """
 
     try:
-        from ._ext.cy.caches import LruCacheLink as Link
+        from ._ext.cy.caches import CacheLink as Link
 
     except ImportError:
         class Link:
@@ -47,10 +49,10 @@ class LruCache(ta.MutableMapping[K, V]):
             ]
 
             seq: int
-            ins_prev: 'LruCache.Link'
-            ins_next: 'LruCache.Link'
-            lru_prev: 'LruCache.Link'
-            lru_next: 'LruCache.Link'
+            ins_prev: 'Cache.Link'
+            ins_next: 'Cache.Link'
+            lru_prev: 'Cache.Link'
+            lru_next: 'Cache.Link'
             key: ta.Union[K, weakref.ref]
             value: ta.Union[V, weakref.ref]
             weight: float
@@ -73,6 +75,16 @@ class LruCache(ta.MutableMapping[K, V]):
                     f'unlinked={self.unlinked})'
                 )
 
+    Eviction = ta.Callable[['Cache'], None]
+
+    @lang.staticfunction
+    def LRU(cache: 'Cache') -> None:
+        cache._kill(cache._root.lru_next)
+
+    @lang.staticfunction
+    def LRI(cache: 'Cache') -> None:
+        cache._kill(cache._root.ins_next)
+
     _cache: ta.MutableMapping[ta.Union[K, int], Link]
 
     DEFAULT_MAX_SIZE = 256
@@ -92,6 +104,7 @@ class LruCache(ta.MutableMapping[K, V]):
             weigher: ta.Callable[[V], float] = lambda _: 1.,
             nolock: bool = False,
             raise_overweight: bool = False,
+            eviction: Eviction = LRU,
     ) -> None:
         super().__init__()
 
@@ -112,6 +125,7 @@ class LruCache(ta.MutableMapping[K, V]):
         self._weak_values = weak_values
         self._weigher = weigher
         self._raise_overweight = raise_overweight
+        self._eviction = eviction
 
         if not nolock:
             self._lock = threading.RLock()
@@ -123,7 +137,7 @@ class LruCache(ta.MutableMapping[K, V]):
         else:
             self._cache = {}
 
-        self._root = LruCache.Link()
+        self._root = Cache.Link()
         self._root.seq = 0
         self._root.ins_next = self._root.ins_prev = self._root
         self._root.lru_next = self._root.lru_prev = self._root
@@ -347,13 +361,13 @@ class LruCache(ta.MutableMapping[K, V]):
                 self._unlink(existing_link)
 
             while self._full:
-                self._kill(self._root.lru_next)
+                self._eviction(self)
 
-            link = LruCache.Link()
+            link = Cache.Link()
             self._seq += 1
             link.seq = self._seq
-            link.key = weakref.ref(key, functools.partial(LruCache._weak_die, self._weak_dead_ref, link)) if self._weak_keys else key  # noqa
-            link.value = weakref.ref(value, functools.partial(LruCache._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
+            link.key = weakref.ref(key, functools.partial(Cache._weak_die, self._weak_dead_ref, link)) if self._weak_keys else key  # noqa
+            link.value = weakref.ref(value, functools.partial(Cache._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
             link.weight = weight
             link.written = link.accessed = self._clock()
             link.unlinked = False
@@ -453,7 +467,7 @@ class LruCache(ta.MutableMapping[K, V]):
     @property
     def stats(self) -> Stats:
         with self._locked():
-            return LruCache.Stats(
+            return Cache.Stats(
                 self._seq,
                 self._size,
                 self._weight,
@@ -511,7 +525,7 @@ def _make_key(
     return _HashedSeq(key)
 
 
-class _LruCacheDescriptor:
+class _CacheDescriptor:
 
     def __init__(
             self,
@@ -527,8 +541,8 @@ class _LruCacheDescriptor:
         self._scope = scope
         self._typed = typed
         self._kwargs = kwargs
-        self.__static: LruCache = None
-        self._by_class: ta.MutableMapping[ta.Type, LruCache] = weakref.WeakKeyDictionary() if scope == Scope.CLASS else None  # noqa
+        self.__static: Cache = None
+        self._by_class: ta.MutableMapping[ta.Type, Cache] = weakref.WeakKeyDictionary() if scope == Scope.CLASS else None  # noqa
         self._name = None
         self._unary = kwargs.get('identity_keys', False) or kwargs.get('weak_keys', False)
 
@@ -537,12 +551,12 @@ class _LruCacheDescriptor:
             self._name = name
 
     @property
-    def _static(self) -> LruCache:
+    def _static(self) -> Cache:
         if self.__static is None:
-            self.__static = LruCache(**self._kwargs)
+            self.__static = Cache(**self._kwargs)
         return self.__static
 
-    def _build(self, fn: ta.Callable, cache: LruCache):
+    def _build(self, fn: ta.Callable, cache: Cache):
         if self._unary:
             @functools.wraps(fn)
             def inner(key):
@@ -575,10 +589,10 @@ class _LruCacheDescriptor:
             try:
                 cache = self._by_class[owner]
             except KeyError:
-                cache = self._by_class[owner] = LruCache(**self._kwargs)
+                cache = self._by_class[owner] = Cache(**self._kwargs)
         elif self._scope == Scope.INSTANCE:
             if instance is not None:
-                cache = LruCache()
+                cache = Cache()
             else:
                 @functools.wraps(self._fn)
                 def trampoline(this, *args, **kwargs):
@@ -601,7 +615,7 @@ class _LruCacheDescriptor:
         return self.__call__(*args, **kwargs)
 
 
-def lru_cache(
+def cache(
         scope: ta.Union[Scope, str] = Scope.INSTANCE,
         typed: bool = False,
         **kwargs
@@ -610,5 +624,5 @@ def lru_cache(
         scope = getattr(Scope, scope.upper())
 
     def inner(fn):
-        return _LruCacheDescriptor(fn, scope, typed, **kwargs)
+        return _CacheDescriptor(fn, scope, typed, **kwargs)
     return ta.cast(CC, inner)
