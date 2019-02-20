@@ -525,6 +525,18 @@ def _make_key(
     return _HashedSeq(key)
 
 
+class Ignore:
+
+    def __init__(self, value: ta.Any) -> None:
+        super().__init__()
+
+        self._value = value
+
+
+def ignore(value: ta.Any) -> ta.Any:
+    return Ignore(value)
+
+
 class _CacheDescriptor:
 
     def __init__(
@@ -557,6 +569,13 @@ class _CacheDescriptor:
         return self.__static
 
     def _build(self, fn: ta.Callable, cache: Cache):
+        def miss(key, result):
+            if isinstance(result, Ignore):
+                return result._value
+            else:
+                cache[key] = result
+                return result
+
         if self._unary:
             @functools.wraps(fn)
             def inner(key):
@@ -564,8 +583,7 @@ class _CacheDescriptor:
                     return cache[key]
                 except KeyError:
                     pass
-                result = cache[key] = fn(key)
-                return result
+                return miss(key, fn(key))
 
         else:
             @functools.wraps(fn)
@@ -575,8 +593,7 @@ class _CacheDescriptor:
                     return cache[key]
                 except KeyError:
                     pass
-                result = cache[key] = fn(*args, **kwargs)
-                return result
+                return miss(key, fn(*args, **kwargs))
 
         return inner
 
