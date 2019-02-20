@@ -600,6 +600,7 @@ class _CacheDescriptor:
     def __get__(self, instance, owner):
         if self._scope == Scope.STATIC:
             cache = self._static
+
         elif self._scope == Scope.CLASS:
             if owner is None:
                 raise TypeError
@@ -607,6 +608,7 @@ class _CacheDescriptor:
                 cache = self._by_class[owner]
             except KeyError:
                 cache = self._by_class[owner] = Cache(**self._kwargs)
+
         elif self._scope == Scope.INSTANCE:
             if instance is not None:
                 cache = Cache()
@@ -615,6 +617,7 @@ class _CacheDescriptor:
                 def trampoline(this, *args, **kwargs):
                     return self.__get__(this, owner)(*args, **kwargs)
                 return trampoline
+
         else:
             raise TypeError
 
