@@ -6,13 +6,13 @@ import weakref
 from . import lang
 
 
-_HOISTED_CODE = weakref.WeakKeyDictionary()
+_HOISTED_CODE_DEPTH = weakref.WeakKeyDictionary()
 _MAX_HOIST_DEPTH = 0
 
 
 def hoist(depth=0):
     def inner(fn):
-        _HOISTED_CODE[fn.__code__] = depth
+        _HOISTED_CODE_DEPTH[fn.__code__] = depth
         global _MAX_HOIST_DEPTH
         _MAX_HOIST_DEPTH = max(_MAX_HOIST_DEPTH, depth)
         return fn
@@ -136,8 +136,18 @@ class Binding:
 
     def __enter__(self):
         frame = sys._getframe(self._offset).f_back
-        while frame.f_code in _HOISTED_CODE:
-            frame = frame.f_back
+        lag_frame = frame
+        while lag_frame:
+            for cur_depth in range(_MAX_HOIST_DEPTH + 1):
+                if lag_frame is None:
+                    break
+                try:
+                    lag_hoist = _HOISTED_CODE_DEPTH[cur_frame.__code__]
+                except KeyError:
+                    pass
+                else:
+                    if lag_hoist >= cur_depth:
+                lag_frame = lag_frame.f_back
 
         self._frame = frame
         try:
