@@ -106,6 +106,7 @@ class Var:
                 for level, frame_binding in sorted(frame_bindings.items()):
                     yield frame_binding._value
             frame = frame.f_back
+
         if self._new is not NOT_SET:
             yield self._new()
 
@@ -122,6 +123,10 @@ class Var:
 
 class Binding:
 
+    _frame = None
+    _frame_bindings = None
+    _level = None
+
     def __init__(self, var, value, *, offset=1):
         super().__init__()
 
@@ -133,6 +138,7 @@ class Binding:
         frame = sys._getframe(self._offset).f_back
         while frame.f_code in _HOISTED_CODE:
             frame = frame.f_back
+
         self._frame = frame
         try:
             self._frame_bindings = self._var._bindings_by_frame[self._frame]
@@ -141,11 +147,14 @@ class Binding:
             self._level = 0
         else:
             self._level = min(self._frame_bindings.keys() or [1]) - 1
+
         self._frame_bindings[self._level] = self
         return self._value
 
     def __exit__(self, et, e, tb):
-        assert self._frame_bindings[self._level] is self
+        if self._frame_bindings[self._level] is not self:
+            raise TypeError
+
         del self._frame_bindings[self._level]
         del self._frame_bindings
         del self._frame
@@ -175,6 +184,9 @@ dyn = Dyn()
 
 class _GeneratorContextManager(contextlib._GeneratorContextManager):
 
+    @hoist(2)
+    def __enter__(self):
+        return super().__enter__()
 
 
 def contextmanager(func):
