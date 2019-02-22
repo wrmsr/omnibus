@@ -57,3 +57,27 @@ def test_var():
     v = dyn.Var()
     with v(4):
         assert v() == 4
+
+
+def test_cm():
+    v = dyn.Var(420)
+
+    @dyn.contextmanager
+    def cm():
+        with v(421):
+            yield
+
+    assert v() == 420
+    with cm():
+        assert v() == 421
+    assert v() == 420
+
+    @dyn.contextmanager
+    def cm2():
+        with cm():
+            yield
+
+    assert v() == 420
+    with cm2():
+        assert v() == 421
+    assert v() == 420

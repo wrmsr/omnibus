@@ -206,5 +206,5 @@ class _GeneratorContextManager(contextlib._GeneratorContextManager):
 def contextmanager(func):
     @functools.wraps(func)
     def helper(*args, **kwds):
-        return contextlib._GeneratorContextManager(func, args, kwds)
+        return _GeneratorContextManager(func, args, kwds)
     return helper
