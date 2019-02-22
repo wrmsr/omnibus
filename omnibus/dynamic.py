@@ -1,9 +1,13 @@
 import contextlib
 import functools
 import sys
+import typing as ta
 import weakref
 
 from . import lang
+
+
+T = ta.TypeVar('T')
 
 
 _HOISTED_CODE_DEPTH = weakref.WeakKeyDictionary()
@@ -30,9 +34,15 @@ class UnboundVarError(ValueError):
     pass
 
 
-class Var:
+class Var(ta.Generic[T]):
 
-    def __init__(self, default=NOT_SET, *, new=NOT_SET, validate=None):
+    def __init__(
+            self,
+            default: ta.Union[T, ta.Type[NOT_SET]] = NOT_SET,
+            *,
+            new: ta.Union[ta.Callable[[], T], ta.Type[NOT_SET]] = NOT_SET,
+            validate: ta.Callable[[T], None] = None,
+    ) -> None:
         super().__init__()
 
         if default is not NOT_SET and new is not NOT_SET:
@@ -44,7 +54,7 @@ class Var:
         self._validate = validate
         self._bindings_by_frame = weakref.WeakValueDictionary()
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> ta.Union[T, ta.ContextManager[T]]:
         if not args:
             if kwargs:
                 raise TypeError(kwargs)
@@ -54,7 +64,7 @@ class Var:
         else:
             raise TypeError(args)
 
-    def binding(self, value, *, offset=1):
+    def binding(self, value: T, *, offset: int = 1) -> ta.ContextManager[T]:
         if self._validate is not None:
             self._validate(self.value)
         return Binding(self, value, offset=offset)
@@ -98,7 +108,7 @@ class Var:
         return outer
 
     @property
-    def values(self):
+    def values(self) -> ta.Iterator[T]:
         frame = sys._getframe(1).f_back
         while frame:
             try:
@@ -113,31 +123,31 @@ class Var:
         if self._new is not NOT_SET:
             yield self._new()
 
-    def __iter__(self):
+    def __iter__(self) -> ta.Iterator[T]:
         return self.values
 
     @property
-    def value(self):
+    def value(self) -> T:
         try:
             return next(self.values)
         except StopIteration:
             raise UnboundVarError
 
 
-class Binding:
+class Binding(ta.Generic[T]):
 
     _frame = None
     _frame_bindings = None
     _level = None
 
-    def __init__(self, var, value, *, offset=1):
+    def __init__(self, var: Var[T], value: T, *, offset: int = 1) -> None:
         super().__init__()
 
         self._var = var
         self._value = value
         self._offset = offset
 
-    def __enter__(self):
+    def __enter__(self) -> T:
         frame = sys._getframe(self._offset).f_back
         lag_frame = frame
         while lag_frame is not None:
@@ -206,8 +216,8 @@ class _GeneratorContextManager(contextlib._GeneratorContextManager):
         return super().__enter__()
 
 
-def contextmanager(func):
-    @functools.wraps(func)
+def contextmanager(fn):
+    @functools.wraps(fn)
     def helper(*args, **kwds):
-        return _GeneratorContextManager(func, args, kwds)
+        return _GeneratorContextManager(fn, args, kwds)
     return helper
