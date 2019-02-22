@@ -19,6 +19,9 @@ def hoist(depth=0):
     return inner
 
 
+hoist()(contextlib.ExitStack.enter_context)
+
+
 class NOT_SET(lang.Marker):
     pass
 

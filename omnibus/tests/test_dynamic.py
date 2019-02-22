@@ -1,3 +1,5 @@
+import contextlib
+
 from .. import dynamic as dyn
 
 
@@ -79,5 +81,11 @@ def test_cm():
 
     assert v() == 420
     with cm2():
+        assert v() == 421
+    assert v() == 420
+
+    with contextlib.ExitStack() as es:
+        assert v() == 420
+        es.enter_context(cm2())
         assert v() == 421
     assert v() == 420
