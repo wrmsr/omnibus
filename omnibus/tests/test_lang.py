@@ -433,3 +433,38 @@ def test_is_abstract():
         pass
 
     assert not lang.is_abstract(B)
+
+
+def test_context_wrapped():
+    class CM:
+        count = 0
+
+        def __enter__(self):
+            self.count += 1
+
+        def __exit__(self, et, e, tb):
+            pass
+
+    cm = CM()
+
+    @lang.context_wrapped(cm)
+    def f(x):
+        return x + 1
+
+    assert f(4) == 5
+    assert cm.count == 1
+    assert f(5) == 6
+    assert cm.count == 2
+
+    class C:
+        def __init__(self):
+            self.cm = CM()
+
+        @lang.context_wrapped('cm')
+        def f(self, x):
+            return x + 2
+
+    for _ in range(2):
+        c = C()
+        assert c.f(6) == 8
+        assert c.cm.count == 1

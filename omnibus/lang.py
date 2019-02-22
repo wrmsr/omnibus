@@ -712,14 +712,40 @@ def defer(fn: ta.Callable):
         fn()
 
 
-def context_wrapped(cm: ta.Callable[[], ta.ContextManager]) -> ta.Callable:
-    def outer(fn):
-        @functools.wraps(fn)
-        def inner(*args, **kwargs):
-            with cm():
-                return fn(*args, **kwargs)
-        return inner
-    return outer
+class ContextWrapped:
+
+    def __init__(
+            self,
+            fn: ta.Callable,
+            cm: ta.Union[str, ta.Callable[[], ta.ContextManager]],
+    ) -> None:
+        super().__init__()
+
+        self._fn = fn
+        self._cm = cm
+
+        functools.update_wrapper(self, fn)
+
+    def __get__(self, instance, owner):
+        if instance is None and owner is None:
+            return self
+        fn = self._fn.__get__(instance, owner)
+        cm = self._cm
+        if instance is not None and isinstance(self._cm, str):
+            cm = getattr(instance, cm)
+        return type(self)(fn, cm)
+
+    def __call__(self, *args, **kwargs):
+        if isinstance(self._cm, str):
+            raise TypeError(self._cm)
+        with self._cm:
+            return self._fn(*args, **kwargs)
+
+
+def context_wrapped(cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> ta.Callable:
+    def inner(fn):
+        return ContextWrapped(fn, cm)
+    return inner
 
 
 @contextlib.contextmanager
