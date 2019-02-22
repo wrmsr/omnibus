@@ -1,8 +1,22 @@
+import contextlib
 import functools
 import sys
 import weakref
 
 from . import lang
+
+
+_HOISTED_CODE = weakref.WeakKeyDictionary()
+_MAX_HOIST_DEPTH = 0
+
+
+def hoist(depth=0):
+    def inner(fn):
+        _HOISTED_CODE[fn.__code__] = depth
+        global _MAX_HOIST_DEPTH
+        _MAX_HOIST_DEPTH = max(_MAX_HOIST_DEPTH, depth)
+        return fn
+    return inner
 
 
 class NOT_SET(lang.Marker):
@@ -108,7 +122,7 @@ class Var:
 
 class Binding:
 
-    def __init__(self, var, value, offset=1):
+    def __init__(self, var, value, *, offset=1):
         super().__init__()
 
         self._var = var
@@ -116,7 +130,10 @@ class Binding:
         self._offset = offset
 
     def __enter__(self):
-        self._frame = sys._getframe(self._offset).f_back
+        frame = sys._getframe(self._offset).f_back
+        while frame.f_code in _HOISTED_CODE:
+            frame = frame.f_back
+        self._frame = frame
         try:
             self._frame_bindings = self._var._bindings_by_frame[self._frame]
         except KeyError:
@@ -154,3 +171,16 @@ class Dyn:
 
 
 dyn = Dyn()
+
+
+class _GeneratorContextManager(contextlib._GeneratorContextManager):
+
+
+
+def contextmanager(func):
+    @functools.wraps(func)
+    def helper(*args, **kwds):
+        return contextlib._GeneratorContextManager(func, args, kwds)
+    return helper
+
+
