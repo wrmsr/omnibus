@@ -136,16 +136,18 @@ class Binding:
 
     def __enter__(self):
         frame = sys._getframe(self._offset).f_back
-        while True:
-            lag_frame = frame
+        lag_frame = frame
+        while lag_frame is not None:
             for cur_depth in range(_MAX_HOIST_DEPTH + 1):
+                if lag_frame is None:
+                    break
                 try:
-                    lag_hoist = _HOISTED_CODE_DEPTH[lag_frame.__code__]
+                    lag_hoist = _HOISTED_CODE_DEPTH[lag_frame.f_code]
                 except KeyError:
                     pass
                 else:
                     if lag_hoist >= cur_depth:
-                        frame = frame.f_back
+                        frame = lag_frame = lag_frame.f_back
                         break
                 lag_frame = lag_frame.f_back
             else:
@@ -206,5 +208,3 @@ def contextmanager(func):
     def helper(*args, **kwds):
         return contextlib._GeneratorContextManager(func, args, kwds)
     return helper
-
-
