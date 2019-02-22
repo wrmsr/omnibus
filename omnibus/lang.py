@@ -714,11 +714,7 @@ def defer(fn: ta.Callable):
 
 class ContextWrapped:
 
-    def __init__(
-            self,
-            fn: ta.Callable,
-            cm: ta.Union[str, ta.Callable[[], ta.ContextManager]],
-    ) -> None:
+    def __init__(self, fn: ta.Callable, cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> None:
         super().__init__()
 
         self._fn = fn
