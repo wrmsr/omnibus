@@ -468,3 +468,21 @@ def test_context_wrapped():
         c = C()
         assert c.f(6) == 8
         assert c.cm.count == 1
+
+    gcm = CM()
+
+    @lang.context_wrapped(lambda: gcm)
+    def g(x):
+        return x + 3
+
+    assert g(10) == 13
+    assert gcm.count == 1
+
+    class D:
+        @lang.context_wrapped(lambda self: gcm)
+        def g(self, x):
+            return x + 3
+
+    d = D()
+    assert d.g(10) == 13
+    assert gcm.count == 2

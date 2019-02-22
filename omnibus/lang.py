@@ -712,9 +712,12 @@ def defer(fn: ta.Callable):
         fn()
 
 
+ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[[], ta.ContextManager]]
+
+
 class ContextWrapped:
 
-    def __init__(self, fn: ta.Callable, cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> None:
+    def __init__(self, fn: ta.Callable, cm: ContextWrappable) -> None:
         super().__init__()
 
         self._fn = fn
@@ -727,18 +730,32 @@ class ContextWrapped:
             return self
         fn = self._fn.__get__(instance, owner)
         cm = self._cm
-        if instance is not None and isinstance(self._cm, str):
-            cm = getattr(instance, cm)
+        if isinstance(self._cm, str):
+            if instance is not None:
+                cm = getattr(instance, cm)
+            elif owner is not None:
+                cm = getattr(owner, cm)
+            else:
+                raise TypeError(cm)
+        elif hasattr(cm, '__enter__'):
+            pass
+        elif callable(cm):
+            cm = cm.__get__(instance, owner)
+        else:
+            raise TypeError(cm)
         return type(self)(fn, cm)
 
     def __call__(self, *args, **kwargs):
         if isinstance(self._cm, str):
             raise TypeError(self._cm)
-        with self._cm:
+        cm = self._cm
+        if not hasattr(cm, '__enter__') and callable(cm):
+            cm = cm()
+        with cm:
             return self._fn(*args, **kwargs)
 
 
-def context_wrapped(cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> ta.Callable[[CallableT], CallableT]:
+def context_wrapped(cm: ContextWrappable) -> ta.Callable[[CallableT], CallableT]:
     def inner(fn):
         return ContextWrapped(fn, cm)
     return inner
