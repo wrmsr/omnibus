@@ -742,7 +742,7 @@ class ContextWrapped:
             return self._fn(*args, **kwargs)
 
 
-def context_wrapped(cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> ta.Callable:
+def context_wrapped(cm: ta.Union[str, ta.Callable[[], ta.ContextManager]]) -> ta.Callable[[CallableT], CallableT]:
     def inner(fn):
         return ContextWrapped(fn, cm)
     return inner
