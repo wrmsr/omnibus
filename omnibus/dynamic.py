@@ -189,7 +189,7 @@ class Binding(ta.Generic[T]):
 
 class Dyn:
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.__var = Var()
