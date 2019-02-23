@@ -980,7 +980,7 @@ class PrivateBinder(Binder):
         return self._parent
 
     def _auto_expose_binding(self, binding: Binding[T]) -> None:
-        self._elements.append(binding)
+        pass
 
     def expose(
             self,
