@@ -454,7 +454,7 @@ class Injector:
         self._children.append(child)
         return child
 
-    _CURRENT = dyn.Var()
+    _CURRENT: dyn.Var['Injector'] = dyn.Var()
 
     @properties.class_
     def current(cls) -> 'Injector':

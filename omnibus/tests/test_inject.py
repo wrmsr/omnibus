@@ -195,6 +195,9 @@ def test_private():
     with pytest.raises(inj.InjectionBlacklistedKyError):
         injector.get_instance(A)
 
+    with pytest.raises(inj.InjectionBlacklistedKyError):
+        injector.get_instance(C)
+
 
 def test_dataclasses():
     @dc.dataclass()
