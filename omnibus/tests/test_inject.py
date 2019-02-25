@@ -158,7 +158,7 @@ def test_child2():
     child_injector = injector.create_child()
 
     assert child_injector.get_instance(int) == 0
-    with pytest.raises(inj.InjectionBlacklistedKyError):
+    with pytest.raises(inj.InjectionBlacklistedKeyError):
         injector.get_instance(int)
 
 
@@ -192,10 +192,10 @@ def test_private():
     assert isinstance(d.b, C)
     assert isinstance(d.b.a, A)
 
-    with pytest.raises(inj.InjectionBlacklistedKyError):
+    with pytest.raises(inj.InjectionBlacklistedKeyError):
         injector.get_instance(A)
 
-    with pytest.raises(inj.InjectionBlacklistedKyError):
+    with pytest.raises(inj.InjectionBlacklistedKeyError):
         injector.get_instance(C)
 
 

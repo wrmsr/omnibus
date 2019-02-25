@@ -315,7 +315,7 @@ class InjectionRequiredKeyError(InjectionKeyError):
 
 
 @dc.dataclass(frozen=True)
-class InjectionBlacklistedKyError(InjectionKeyError):
+class InjectionBlacklistedKeyError(InjectionKeyError):
     pass
 
 
@@ -475,7 +475,7 @@ class Injector:
 
         if not bindings:
             if key in self._blacklisted_keys:
-                raise InjectionBlacklistedKyError(key)
+                raise InjectionBlacklistedKeyError(key)
 
             bindings = self.get_bindings(key, parent=True)
 
