@@ -712,7 +712,7 @@ def defer(fn: ta.Callable):
         fn()
 
 
-ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[[], ta.ContextManager]]
+ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[[...], ta.ContextManager]]
 
 
 class ContextWrapped:
@@ -750,7 +750,7 @@ class ContextWrapped:
             raise TypeError(self._cm)
         cm = self._cm
         if not hasattr(cm, '__enter__') and callable(cm):
-            cm = cm()
+            cm = cm(*args, **kwargs)
         with cm:
             return self._fn(*args, **kwargs)
 
