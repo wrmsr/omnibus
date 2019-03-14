@@ -7,8 +7,8 @@ import typing as ta
 
 T = ta.TypeVar('T')
 MR = ta.TypeVar('MR', bound=ta.Union[None, str, ta.Tuple])
-M = ta.TypeVar('M', bound=ta.Union[None, str, ta.Callable[..., MR]])
 IH = ta.TypeVar('IH', bound=ta.Iterable[ta.Hashable])
+Messageable = ta.Union[None, str, ta.Callable[..., MR]]
 
 
 _isinstance = isinstance
@@ -19,7 +19,7 @@ _callable = callable
 def _raise(
         exception_type: type,
         default: ta.Optional[str],
-        message: M,
+        message: Messageable,
         *args: ta.Any,
         **kwargs: ta.Any
 ) -> ta.NoReturn:
@@ -34,53 +34,53 @@ def _raise(
     raise exception_type(*args, **kwargs)
 
 
-def state(condition: bool, message: M = None) -> None:
+def state(condition: bool, message: Messageable = None) -> None:
     if not condition:
         _raise(RuntimeError, 'State condition not met', message)
 
 
-def arg(condition: bool, message: M = None) -> None:
+def arg(condition: bool, message: Messageable = None) -> None:
     if not condition:
         _raise(RuntimeError, 'Argument condition not met', message)
 
 
-def isinstance(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple[ta.Type[T]]], message: M = None) -> T:
+def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
     if not _isinstance(obj, spec):
         _raise(TypeError, None, message, spec)
     return obj
 
 
-def issubclass(obj: T, spec, message: M = None) -> T:
+def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
     if not _issubclass(obj, spec):
         _raise(TypeError, 'Must be subclass', message, spec)
     return obj
 
 
-def not_none(obj: T, message: M = None) -> T:
+def not_none(obj: T, message: Messageable = None) -> T:
     if obj is None:
         _raise(TypeError, 'May not be None', message)
     return obj
 
 
-def none(obj: T, message: M = None) -> None:
+def none(obj: T, message: Messageable = None) -> None:
     if obj is not None:
         _raise(TypeError, 'Must be None', message)
     return None
 
 
-def empty(obj: ta.Sized, message: M = None) -> T:
+def empty(obj: ta.Sized, message: Messageable = None) -> T:
     if len(obj) != 0:
         _raise(RuntimeError, 'Must be empty', message)
     return obj
 
 
-def not_empty(obj: ta.Sized, message: M = None) -> T:
+def not_empty(obj: ta.Sized, message: Messageable = None) -> T:
     if len(obj) == 0:
         _raise(RuntimeError, 'May not be empty', message)
     return obj
 
 
-def single(obj: ta.Iterable[T], message: M = None) -> T:
+def single(obj: ta.Iterable[T], message: Messageable = None) -> T:
     try:
         [value] = obj
     except ValueError:
@@ -89,38 +89,38 @@ def single(obj: ta.Iterable[T], message: M = None) -> T:
         return value
 
 
-def unique(it: IH, message: M = None) -> IH:
+def unique(it: IH, message: Messageable = None) -> IH:
     dupes = [e for e, c in collections.Counter(it).items() if c > 1]
     if dupes:
         _raise(ValueError, 'Must be unique', message, dupes)
     return it
 
 
-def in_(item: T, container: ta.Container[T], message: M = None) -> T:
+def in_(item: T, container: ta.Container[T], message: Messageable = None) -> T:
     if item not in container:
         _raise(ValueError, 'Must be in', message, item, container)
     return item
 
 
-def not_in(item: T, container: ta.Container[T], message: M = None) -> T:
+def not_in(item: T, container: ta.Container[T], message: Messageable = None) -> T:
     if item in container:
         _raise(ValueError, 'Must not be in', message, item, container)
     return item
 
 
-def callable(obj: T, message: M = None) -> T:
+def callable(obj: T, message: Messageable = None) -> T:
     if not _callable(obj):
         _raise(TypeError, 'Must be callable', message)
     return obj
 
 
-def replacing_none(old: ta.Any, new: T, message: M = None) -> T:
+def replacing_none(old: ta.Any, new: T, message: Messageable = None) -> T:
     if old is not None:
         _raise(TypeError, 'Must be None', message)
     return new
 
 
-def raises(fn: ta.Callable, exc: ta.Type[BaseException] = BaseException, message: M = None) -> None:
+def raises(fn: ta.Callable, exc: ta.Type[BaseException] = BaseException, message: Messageable = None) -> None:
     try:
         fn()
     except BaseException as e:
@@ -130,14 +130,14 @@ def raises(fn: ta.Callable, exc: ta.Type[BaseException] = BaseException, message
         _raise(TypeError, 'Must raise', message, exc)
 
 
-def sets_equal(given: ta.Set[T], expected: ta.Set[T], message: M = None) -> None:
+def sets_equal(given: ta.Set[T], expected: ta.Set[T], message: Messageable = None) -> None:
     if given != expected:
         missing = expected - given
         unexpected = given - expected
         _raise(KeyError, f'Set difference - missing: {missing} unexpected: {unexpected}', message, given, expected)  # noqa
 
 
-def exhausted(it: ta.Iterator[T], message: M = None) -> None:
+def exhausted(it: ta.Iterator[T], message: Messageable = None) -> None:
     try:
         next(it)
     except StopIteration:
@@ -146,7 +146,7 @@ def exhausted(it: ta.Iterator[T], message: M = None) -> None:
         _raise(ValueError, 'Iterator should be exhausted', message)
 
 
-def one_of(*conditions: bool, message: M = None) -> None:
+def one_of(*conditions: bool, message: Messageable = None) -> None:
     num_true = len([b for b in conditions if b])
     if num_true != 1:
         _raise(ValueError, f'Exactly one condition must be true, got {num_true}', message)
