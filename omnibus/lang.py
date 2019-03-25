@@ -131,10 +131,6 @@ def is_descriptor(obj: ta.Any) -> bool:
     )
 
 
-def is_abstract(obj: ta.Any) -> bool:
-    return bool(getattr(obj, '__abstractmethods__', []))
-
-
 def unwrap_instance_weakproxy(proxy: weakref.ProxyType, cls: ta.Type[T]) -> T:
     if not isinstance(proxy, weakref.ProxyType):
         raise TypeError(proxy)
@@ -336,6 +332,14 @@ class Abstract(abc.ABC):
 
 
 abstract = abc.abstractmethod
+
+
+def is_abstract(obj: ta.Any) -> bool:
+    return bool(getattr(obj, '__abstractmethods__', [])) or (
+        isinstance(obj, type) and
+        issubclass(obj, Abstract) and
+        getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
+    )
 
 
 class _InterfaceMeta(abc.ABCMeta):

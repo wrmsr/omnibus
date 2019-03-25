@@ -1,9 +1,6 @@
 import json
 import os
-import stat
 import sys
-import tempfile
-import textwrap
 import types
 import typing as ta
 
@@ -84,22 +81,3 @@ def maybe_reexec(file: str) -> None:
             args.extend(['--file', file])
             args.extend(sys.argv[1:])
             os.execvp(sys.executable, args)
-
-
-def write_file_proxy() -> str:
-    path = tempfile.mkdtemp()
-    os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-
-    with open(path, 'w') as f:
-        f.write(textwrap.dedent(f"""
-        #!{os.path.abspath(sys.executable)}
-        import runpy
-        import sys
-
-        import {__name__} as pydevd
-        pydevd.maybe_reexec()
-
-        runpy.run_file(sys.argv[0])
-        """))
-
-    return path
