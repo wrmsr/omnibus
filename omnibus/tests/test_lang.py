@@ -434,6 +434,21 @@ def test_is_abstract():
 
     assert not lang.is_abstract(B)
 
+    class C(lang.Abstract):
+
+        def __init_subclass__(cls, **kwargs):
+            super().__init_subclass__(**kwargs)
+            if cls.__name__ == 'D':
+                assert lang.is_abstract(cls)
+            else:
+                assert not lang.is_abstract(cls)
+
+    class D(C, lang.Abstract):
+        pass
+
+    class E(D):
+        pass
+
 
 def test_context_wrapped():
     class CM:
@@ -471,7 +486,7 @@ def test_context_wrapped():
 
     gcm = CM()
 
-    @lang.context_wrapped(lambda: gcm)
+    @lang.context_wrapped(lambda x: gcm)
     def g(x):
         return x + 3
 
@@ -479,7 +494,7 @@ def test_context_wrapped():
     assert gcm.count == 1
 
     class D:
-        @lang.context_wrapped(lambda self: gcm)
+        @lang.context_wrapped(lambda self, x: gcm)
         def g(self, x):
             return x + 3
 

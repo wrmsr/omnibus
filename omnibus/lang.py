@@ -716,7 +716,7 @@ def defer(fn: ta.Callable):
         fn()
 
 
-ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[[...], ta.ContextManager]]
+ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[..., ta.ContextManager]]
 
 
 class ContextWrapped:
