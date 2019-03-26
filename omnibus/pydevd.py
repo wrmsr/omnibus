@@ -25,13 +25,6 @@ def is_present() -> bool:
     return _pydevd() is not None
 
 
-def silence() -> None:
-    def stderr_write(*args, **kwargs):
-        pass
-    pydev_log = __import__('pydevd._pydev_bundle.pydev_log')._pydev_bundle.pydev_log
-    pydev_log.stderr_write = stderr_write
-
-
 def get_setup() -> ta.Optional[ta.Dict]:
     if is_present():
         return _pydevd().SetupHolder.setup
@@ -100,6 +93,15 @@ def maybe_reexec(file: str, *, silence: bool = False) -> None:
                     for new_path in {sys.path!r}:
                         if new_path not in old_paths:
                             sys.path.insert(0, new_path)
+                    
+                    _stderr_write = sys.stderr.write
+                    def stderr_write(*args, **kwargs):
+                        code = sys._getframe(1).f_code
+                        if code is not None and code.co_filename and code.co_filename.endswith('/pydev_log.py'):
+                            return
+                        _stderr_write(*args, **kwargs)
+                    sys.stderr.write = stderr_write
+
                     sys.argv = {args[1:]!r}
                     import runpy
                     runpy.run_path({args[1]!r}, run_name='__main__')
@@ -107,5 +109,3 @@ def maybe_reexec(file: str, *, silence: bool = False) -> None:
                 args = [args[0], bootstrap_path]
 
             os.execvp(sys.executable, args)
-
-
