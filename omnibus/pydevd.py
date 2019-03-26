@@ -73,39 +73,71 @@ def save_args() -> None:
         os.environ[ARGS_ENV_VAR] = json.dumps(get_args())
 
 
-def maybe_reexec(file: str, *, silence: bool = False) -> None:
-    if ARGS_ENV_VAR in os.environ:
-        import pydevd
+def maybe_reexec(
+        *,
+        file: str = None,
+        module: str = None,
+        silence: bool = False,
+) -> None:
+    if ARGS_ENV_VAR not in os.environ:
+        return
 
-        if pydevd.SetupHolder.setup is None:
-            args = [sys.executable]
-            args.extend(json.loads(os.environ['PYDEVD_ARGS']))
-            args.extend(['--file', file])
-            args.extend(sys.argv[1:])
+    import pydevd
 
-            if silence:
-                tmpdir = tempfile.mkdtemp()
-                bootstrap_path = os.path.join(tmpdir, 'bootstrap.py')
-                with open(bootstrap_path, 'w') as f:
-                    f.write(textwrap.dedent(f"""
-                    import sys
-                    old_paths = set(sys.path)
-                    for new_path in {sys.path!r}:
-                        if new_path not in old_paths:
-                            sys.path.insert(0, new_path)
-                    
-                    _stderr_write = sys.stderr.write
-                    def stderr_write(*args, **kwargs):
-                        code = sys._getframe(1).f_code
-                        if code is not None and code.co_filename and code.co_filename.endswith('/pydev_log.py'):
-                            return
-                        _stderr_write(*args, **kwargs)
-                    sys.stderr.write = stderr_write
+    if pydevd.SetupHolder.setup is None:
+        return
 
-                    sys.argv = {args[1:]!r}
-                    import runpy
-                    runpy.run_path({args[1]!r}, run_name='__main__')
-                    """))
-                args = [args[0], bootstrap_path]
+    if module is not None:
+        if file is not None:
+            raise ValueError
 
-            os.execvp(sys.executable, args)
+        tmpdir = tempfile.mkdtemp()
+        bootstrap_path = os.path.join(tmpdir, 'bootstrap.py')
+        with open(bootstrap_path, 'w') as f:
+            f.write(textwrap.dedent(f"""
+            import sys
+            old_paths = set(sys.path)
+            for new_path in {sys.path!r}:
+                if new_path not in old_paths:
+                    sys.path.insert(0, new_path)
+            
+            import runpy
+            runpy.run_module({module!r}, run_name='__main__')
+            """))
+        file = bootstrap_path
+
+    else:
+        if file is None:
+            raise ValueError
+
+    args = [sys.executable]
+    args.extend(json.loads(os.environ['PYDEVD_ARGS']))
+    args.extend(['--file', file])
+    args.extend(sys.argv[1:])
+
+    if silence:
+        tmpdir = tempfile.mkdtemp()
+        bootstrap_path = os.path.join(tmpdir, 'bootstrap.py')
+        with open(bootstrap_path, 'w') as f:
+            f.write(textwrap.dedent(f"""
+            import sys
+            old_paths = set(sys.path)
+            for new_path in {sys.path!r}:
+                if new_path not in old_paths:
+                    sys.path.insert(0, new_path)
+            
+            _stderr_write = sys.stderr.write
+            def stderr_write(*args, **kwargs):
+                code = sys._getframe(1).f_code
+                if code is not None and code.co_filename and code.co_filename.endswith('/pydev_log.py'):
+                    return
+                _stderr_write(*args, **kwargs)
+            sys.stderr.write = stderr_write
+
+            sys.argv = {args[1:]!r}
+            import runpy
+            runpy.run_path({args[1]!r}, run_name='__main__')
+            """))
+        args = [args[0], bootstrap_path]
+
+    os.execvp(sys.executable, args)
