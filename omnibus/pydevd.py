@@ -84,7 +84,7 @@ def maybe_reexec(
 
     import pydevd
 
-    if pydevd.SetupHolder.setup is None:
+    if pydevd.SetupHolder.setup is not None:
         return
 
     if module is not None:
