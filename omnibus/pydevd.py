@@ -100,7 +100,7 @@ def maybe_reexec(
             for new_path in {sys.path!r}:
                 if new_path not in old_paths:
                     sys.path.insert(0, new_path)
-            
+
             import runpy
             runpy.run_module({module!r}, run_name='__main__')
             """))
@@ -125,7 +125,7 @@ def maybe_reexec(
             for new_path in {sys.path!r}:
                 if new_path not in old_paths:
                     sys.path.insert(0, new_path)
-            
+
             _stderr_write = sys.stderr.write
             def stderr_write(*args, **kwargs):
                 code = sys._getframe(1).f_code

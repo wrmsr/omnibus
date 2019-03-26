@@ -9,7 +9,7 @@ wrapt==1.10.11
 
 docker==3.7.0
 
-bintrees==2.0.7
+# bintrees==2.0.7
 sortedcontainers==2.1.0
 
 cbor==1.0.0
