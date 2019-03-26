@@ -23,6 +23,13 @@ def is_present() -> bool:
     return _pydevd() is not None
 
 
+def silence() -> None:
+    def stderr_write(*args, **kwargs):
+        pass
+    pydev_log = __import__('pydevd._pydev_bundle.pydev_log')._pydev_bundle.pydev_log
+    pydev_log.stderr_write = stderr_write
+
+
 def get_setup() -> ta.Optional[ta.Dict]:
     if is_present():
         return _pydevd().SetupHolder.setup
