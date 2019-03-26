@@ -1,6 +1,8 @@
 import json
 import os
 import sys
+import tempfile
+import textwrap
 import types
 import typing as ta
 
@@ -78,7 +80,7 @@ def save_args() -> None:
         os.environ[ARGS_ENV_VAR] = json.dumps(get_args())
 
 
-def maybe_reexec(file: str) -> None:
+def maybe_reexec(file: str, *, silence: bool = False) -> None:
     if ARGS_ENV_VAR in os.environ:
         import pydevd
 
@@ -87,4 +89,23 @@ def maybe_reexec(file: str) -> None:
             args.extend(json.loads(os.environ['PYDEVD_ARGS']))
             args.extend(['--file', file])
             args.extend(sys.argv[1:])
+
+            if silence:
+                tmpdir = tempfile.mkdtemp()
+                bootstrap_path = os.path.join(tmpdir, 'bootstrap.py')
+                with open(bootstrap_path, 'w') as f:
+                    f.write(textwrap.dedent(f"""
+                    import sys
+                    old_paths = set(sys.path)
+                    for new_path in {sys.path!r}:
+                        if new_path not in old_paths:
+                            sys.path.insert(0, new_path)
+                    sys.argv = {args[1:]!r}
+                    import runpy
+                    runpy.run_path({args[1]!r}, run_name='__main__')
+                    """))
+                args = [args[0], bootstrap_path]
+
             os.execvp(sys.executable, args)
+
+
