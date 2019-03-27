@@ -114,7 +114,7 @@ def maybe_reexec(
             raise ValueError
 
     args = [sys.executable]
-    args.extend(json.loads(os.environ['PYDEVD_ARGS']))
+    args.extend(json.loads(os.environ[ARGS_ENV_VAR]))
     args.extend(['--file', file])
     args.extend(sys.argv[1:])
 

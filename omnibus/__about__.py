@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 __title__ = 'omnibus'
-__version__ = '0.0.32'
+__version__ = '0.0.33'
 __description__ = ''
 __author__ = 'wrmsr'
 __url__ = 'https://github.com/wrmsr/omnibus'
