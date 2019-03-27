@@ -82,7 +82,10 @@ def maybe_reexec(
     if ARGS_ENV_VAR not in os.environ:
         return
 
-    import pydevd
+    try:
+        import pydevd  # noqa
+    except ImportError:
+        return
 
     if pydevd.SetupHolder.setup is not None:
         return
