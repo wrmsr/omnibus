@@ -75,6 +75,7 @@ def build_repr(obj, *attrs):
         ', '.join('%s=%r' % (attr, getattr(obj, attr)) for attr in attrs))
 
 
+@_basic
 @lang.cls_dct_fn()
 def repr(cls_dct, *attrs, mro=False, priority=None):
     def __repr__(self):

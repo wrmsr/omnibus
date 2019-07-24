@@ -178,7 +178,16 @@ def filter_false(predicate):
 
 @alias()
 def zip(*its):
-    return zip(*its)
+    return zip_(*its)
+
+
+@alias()
+def zip_same_length(*its):
+    missing = object()
+    for t in itertools.zip_longest(*its):
+        if missing in t:
+            raise ValueError(its)
+        yield t
 
 
 @constructor()
