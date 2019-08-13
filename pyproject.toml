@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "python_version>='3.6'",
+    "python_version>='3.7'",
     "setuptools",
     "wheel",
     "Cython>=0.27",

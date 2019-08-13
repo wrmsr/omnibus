@@ -30,4 +30,4 @@ reup: clean containers up
 
 .PHONY: enable_ptrace
 enable_ptrace:
-	docker run --privileged -it python:3.7.3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
+	docker run --privileged -it python:3.7.4 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
