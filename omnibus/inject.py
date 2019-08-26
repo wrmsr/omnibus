@@ -633,7 +633,6 @@ class Binder:
                 if not allow_instance:
                     raise TypeError(target)
                 key = Key(type(target), ann)
-
         return key
 
     def _get_scoping(
@@ -652,7 +651,6 @@ class Binder:
             scoping = check.replacing_none(scoping, in_)
         if scoping is None:
             scoping = NoScope
-
         return scoping
 
     def _get_provider(
@@ -684,7 +682,6 @@ class Binder:
                 provider = self._make_class_provider(target)
             else:
                 provider = ValueProvider(target)
-
         return provider
 
     def bind(
