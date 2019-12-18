@@ -1,6 +1,7 @@
 import dis
 import gc
 import opcode
+import sys
 import types
 import typing as ta
 
@@ -29,6 +30,10 @@ CODE_ARGS = [
     'freevars',
     'cellvars',
 ]
+
+if sys.version_info[1] > 7:
+    CODE_ARGS.insert(1, 'posonlyargcount')
+
 
 CO_FLAG_VALUES = {v: k for k, v in dis.COMPILER_FLAG_NAMES.items()}
 

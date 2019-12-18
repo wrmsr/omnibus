@@ -1,6 +1,7 @@
 SHELL:=/bin/bash
 
-PYTHON_VERSION:=3.7.4
+PYTHON_VERSION:=3.8.0
+PYTHON_37_VERSION:=3.7.5
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
 PYENV_BIN:=$(shell if [ -f "$${HOME}/.pyenv/bin/pyenv" ] ; then echo "$${HOME}/.pyenv/bin/pyenv" ; else echo pyenv ; fi)
@@ -13,7 +14,7 @@ PYENV_BREW_DEPS:= \
 	sqlite3 \
 	zlib \
 
-all: build flake test
+all: build flake test test-37
 
 .PHONY: clean
 clean:
@@ -21,6 +22,7 @@ clean:
 	-rm -rf .mypy_cache
 	-rm -rf .pytest_cache
 	-rm -rf .venv
+	-rm -rf .venv-37
 	-rm -rf .venv-install
 	-rm -rf .venv-pypi
 	-rm -rf build
@@ -46,15 +48,14 @@ clean:
 brew:
 	brew install $(PYENV_BREW_DEPS)
 
-.PHONY: venv
-venv:
-	if [ ! -d .venv ] ; then \
+define setup-venv
+	if [ ! -d $(1) ] ; then \
 		set -e ; \
 		\
-		if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(PYTHON_VERSION)" ] ; then \
-			virtualenv .venv ; \
+		if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
+			virtualenv $(1) ; \
 		else \
-			PYENV_INSTALL_DIR="$(PYTHON_VERSION)" ; \
+			PYENV_INSTALL_DIR="$(2)" ; \
 			PYENV_INSTALL_FLAGS="-s -v"; \
 			if [ ! -z "$$DEBUG" ] ; then \
 				PYENV_INSTALL_DIR="$$PYENV_INSTALL_DIR"-debug ; \
@@ -71,22 +72,27 @@ venv:
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
 				PYTHON_CONFIGURE_OPTS="--enable-framework" \
-				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
+				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
 			else \
-				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(PYTHON_VERSION) ; \
+				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
 			fi ; \
-			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
+			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
 		fi ; \
 		\
-		.venv/bin/pip install --upgrade pip setuptools ; \
-		.venv/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
+		$(1)/bin/pip install --upgrade pip setuptools ; \
+		$(1)/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
 		\
 		if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
-			if .venv/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
-				.venv/bin/python "/Applications/PyCharm.app/Contents/helpers/pydev/setup_cython.py" build_ext --inplace ; \
+			if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
+				$(1)/bin/python "/Applications/PyCharm.app/Contents/helpers/pydev/setup_cython.py" build_ext --inplace ; \
 			fi ; \
 		fi ; \
 	fi
+endef
+
+.PHONY: venv
+venv:
+	$(call setup-venv,.venv,$(PYTHON_VERSION))
 
 .PHONY: ext
 ext: venv
@@ -107,9 +113,14 @@ typecheck: venv
 test: build
 	.venv/bin/pytest -v omnibus
 
-.PHONY: test_verbose
-test_verbose: build
+.PHONY: test-verbose
+test-verbose: build
 	.venv/bin/pytest -svvv omnibus
+
+.PHONY: test-37
+test-37:
+	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
+	.venv-37/bin/pytest -v omnibus
 
 .PHONY: dist
 dist: build flake test
@@ -135,8 +146,8 @@ dist: build flake test
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
 	cp -rv "$(DIST_BUILD_DIR)/dist" ./
 
-.PHONY: test_install
-test_install: dist
+.PHONY: test-install
+test-install: dist
 	rm -rf .venv-install
 
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
@@ -152,7 +163,7 @@ test_install: dist
 	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
 
 .PHONY:
-publish: clean dist test_install
+publish: clean dist test-install
 	if [ ! -z "$$(git status -s)" ] ; then \
 		echo dirty ; \
 		exit 1 ; \
@@ -160,8 +171,8 @@ publish: clean dist test_install
 
 	.venv/bin/twine upload dist/*
 
-.PHONY: test_pypi
-test_pypi:
+.PHONY: test-pypi
+test-pypi:
 	rm -rf .venv-pypi
 
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
@@ -178,11 +189,11 @@ depupdates: venv
 	.venv/bin/pip list -o --format=columns
 
 .PHONY: deptree
-deptree: test_install
+deptree: test-install
 	.venv-install/bin/pip install pipdeptree
 	echo ; echo ; echo
 	.venv-install/bin/pipdeptree
 
-.PHONY: docker_invalidate
-docker_invalidate:
+.PHONY: docker-invalidate
+docker-invalidate:
 	date +%s > .dockertimestamp

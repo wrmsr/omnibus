@@ -13,6 +13,7 @@
 /.pytest_cache/
 /.python-version
 /.tox/
+/.venv-37/
 /.venv-install/
 /.venv-pypi/
 /.venv/

@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 120
+show-source = True
+exclude = .cache,.git,.idea,.tox,.venv,.venv-37,.venv-install
+ignore = W503,W504,E265,E701,E704,E711,E712,E721,E731,E741,F821
