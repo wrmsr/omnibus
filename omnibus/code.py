@@ -2,6 +2,7 @@ import dis
 import gc
 import opcode
 import sys
+import textwrap
 import types
 import typing as ta
 
@@ -88,6 +89,12 @@ class CallTypes:
 
     def kwonly(self, *, kwonly=None):
         return self._visit(kwonly=kwonly)
+
+    if sys.version_info[1] > 7:
+        exec(textwrap.dedent("""
+            def posonly(self, /, posonly):
+                return self._visit(posonly)
+        """), globals(), locals())
 
     def kwargs(self, **kwargs):
         return self._visit(**kwargs)

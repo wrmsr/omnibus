@@ -31,3 +31,8 @@ def test_get_frame_function():
 
     v = g()
     assert v is g
+
+
+def test_posonly():
+    if sys.version_info[1] > 7:
+        assert callable(code_.CallTypes.posonly)
