@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
 
-PYTHON_VERSION:=3.8.0
+PYTHON_VERSION:=3.8.1
 PYTHON_37_VERSION:=3.7.5
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
