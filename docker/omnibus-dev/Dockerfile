@@ -2,7 +2,7 @@ FROM python:3.8.1
 
 RUN \
     touch ~/.bashrc && \
-    echo 'export ENV=docker_dev' > ~/.bashrc \
+    echo 'export ENV=docker-dev' > ~/.bashrc \
 ;
 
 RUN mkdir /build

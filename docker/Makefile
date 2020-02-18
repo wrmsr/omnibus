@@ -1,17 +1,33 @@
-# FIXME: https://github.com/docker/compose/issues/2908 this shit is fucking stupid.
-DOCKER_USER=omnibus
+DOCKER_USER=wrmsr
+
+DOCKER_IMAGES:= \
+	omnibus-dev \
+	omnibus-mysql \
+	omnibus-postgres \
+	omnibus-redis \
+
+DOCKER_COMPOSE_SERVICES:= \
+	omnibus-dev \
+	omnibus-mysql-master \
+	omnibus-mysql-slave \
+	omnibus-postgres-master \
+	omnibus-postgres-slave \
+	omnibus-redis \
 
 .PHONY: all
-all: clean containers
+all: clean images
 
-.PHONY: containers
-containers:
-	(cd .. && docker build --tag $(DOCKER_USER)/omnibus-dev -f docker/omnibus-dev/Dockerfile .)
-	docker-compose create
+.PHONY: images
+images:
+	for IMG in $(DOCKER_IMAGES) ; do \
+		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
+	done
 
 .PHONY: clean
 clean: stop
-	docker-compose rm -fv omnibus-dev
+	for SVC in $(DOCKER_COMPOSE_SERVICES) ; do \
+		docker-compose rm -fv $$SVC ; \
+	done
 
 .PHONY: start
 start:
@@ -26,8 +42,8 @@ up:
 	docker-compose up
 
 .PHONY: reup
-reup: clean containers up
+reup: clean images up
 
-.PHONY: enable_ptrace
+.PHONY: enable-ptrace
 enable-ptrace:
-	docker run --privileged -it python:3.7.4 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
+	docker run --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'

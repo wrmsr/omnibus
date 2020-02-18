@@ -2,9 +2,80 @@ version: '2'
 
 services:
 
+  omnibus-mysql-master:
+    build: '.'
+    image: 'wrmsr/omnibus-mysql:latest'
+    restart: 'always'
+    environment:
+      MYSQL_USER: 'omnibus'
+      MYSQL_PASSWORD: 'omnibus'
+      MYSQL_ROOT_PASSWORD: 'omnibus'
+    expose:
+      - '3306'
+    ports:
+      - '22215:3306'
+
+  omnibus-mysql-slave:
+    build: '.'
+    image: 'wrmsr/omnibus-mysql:latest'
+    restart: 'always'
+    environment:
+      MYSQL_USER: 'omnibus'
+      MYSQL_PASSWORD: 'omnibus'
+      MYSQL_ROOT_PASSWORD: 'omnibus'
+      REPLICATE_FROM: 'omnibus-mysql-master'
+    links:
+      - 'omnibus-mysql-master'
+    depends_on:
+      - 'omnibus-mysql-master'
+    expose:
+      - '3306'
+    ports:
+      - '22216:3306'
+
+  omnibus-postgres-master:
+    build: '.'
+    image: 'wrmsr/omnibus-postgres:latest'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'omnibus'
+      POSTGRES_PASSWORD: 'omnibus'
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+    expose:
+      - '5432'
+    ports:
+      - '22217:5432'
+
+  omnibus-postgres-slave:
+    build: '.'
+    image: 'wrmsr/omnibus-postgres:latest'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'omnibus'
+      POSTGRES_PASSWORD: 'omnibus'
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+      REPLICATE_FROM: 'omnibus-postgres-master'
+    links:
+      - 'omnibus-postgres-master'
+    depends_on:
+      - 'omnibus-postgres-master'
+    expose:
+      - '5432'
+    ports:
+      - '22218:5432'
+
+  omnibus-redis:
+    build: '.'
+    image: 'wrmsr/omnibus-redis:latest'
+    restart: 'always'
+    expose:
+      - '6379'
+    ports:
+      - '22219:6379'
+
   omnibus-dev:
     build: '.'
-    image: 'omnibus/omnibus-dev:latest'
+    image: 'wrmsr/omnibus-dev:latest'
     restart: 'always'
     cap_add:
       - 'SYS_PTRACE'
@@ -12,3 +83,19 @@ services:
       - 'apparmor:unconfined'
     volumes:
       - '..:/omnibus'
+    depends_on:
+      - 'omnibus-mysql-master'
+      - 'omnibus-mysql-slave'
+      - 'omnibus-postgres-master'
+      - 'omnibus-postgres-slave'
+      - 'omnibus-redis'
+    links:
+      - 'omnibus-mysql-master'
+      - 'omnibus-mysql-slave'
+      - 'omnibus-postgres-master'
+      - 'omnibus-postgres-slave'
+      - 'omnibus-redis'
+    expose:
+      - '8000'
+    ports:
+      - '22210:8000'
