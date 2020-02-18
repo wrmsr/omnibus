@@ -344,7 +344,7 @@ class WSGIServer:
         self._exit_timeout = exit_timeout
 
         self._lock = threading.RLock()
-        self._shutdown_event = threading.Event()
+        self._is_shutdown = threading.Event()
         self._should_shutdown = False
 
     def __enter__(self: Self) -> Self:
@@ -354,7 +354,7 @@ class WSGIServer:
         acquired = self._lock.acquire(False)
         if not acquired:
             try:
-                if not self._shutdown_event.is_set():
+                if not self._is_shutdown.is_set():
                     self.shutdown(True, self._exit_timeout)
             finally:
                 self._lock.release()
@@ -388,7 +388,7 @@ class WSGIServer:
 
             self._binder.listen()
 
-            self._shutdown_event.clear()
+            self._is_shutdown.clear()
             try:
                 # XXX: Consider using another file descriptor or connecting to the
                 # socket to wake this up instead of polling. Polling reduces our
@@ -415,9 +415,13 @@ class WSGIServer:
                                 self.shutdown_request(request)
 
             finally:
-                self._shutdown_event.set()
+                self._is_shutdown.set()
 
-    def handle_error(self, request: sock.socket, client_address: ClientAddress) -> None:
+    def handle_error(
+            self,
+            request: ta.Optional[sock.socket],
+            client_address: ta.Optional[ClientAddress],
+    ) -> None:
         log.exception(f'Server error request={request!r} client_address={client_address!r}')
 
     def process_request(self, request: sock.socket, client_address: ClientAddress) -> None:
@@ -444,7 +448,7 @@ class WSGIServer:
     def shutdown(self, block=False, timeout=None):
         self._should_shutdown = True
         if block:
-            self._shutdown_event.wait(timeout=timeout)
+            self._is_shutdown.wait(timeout=timeout)
 
 
 class SerialWSGIServer(WSGIServer):
@@ -490,10 +494,10 @@ class SimpleDictApp(App):
     ) -> None:
         super().__init__(**kwargs)
 
-        self._target = target
-        self._encode = encode
-        self._decode = decode
-        self._content_type = content_type
+        self._target = check.callable(target)
+        self._encode = check.callable(encode)
+        self._decode = check.callable(decode)
+        self._content_type = check.isinstance(content_type, str)
 
         self._stream = stream
         self._stream_separator = stream_separator

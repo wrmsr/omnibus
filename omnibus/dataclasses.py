@@ -1,3 +1,10 @@
+"""
+TODO:
+- _Meta / class C(dc.Dataclass)
+- codec
+- coerce
+- validate
+"""
 import collections
 import collections.abc
 import copy
@@ -169,7 +176,7 @@ def field(
 
 
 def dataclass(
-        _cls: T = None,
+        _cls: ta.Type[T] = None,
         *,
         init=True,
         repr=True,
@@ -179,7 +186,7 @@ def dataclass(
         frozen=False,
         reorder=False,
         **kwargs
-) -> T:
+) -> ta.Type[T]:
     fwd_kwargs = dict(
         init=init,
         repr=repr,

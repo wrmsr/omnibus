@@ -272,22 +272,22 @@ class ReplServer:
         self._socket: sock.socket = None
         self._is_running = False
         self._consoles_by_threads: ta.MutableMapping[threading.Thread, InteractiveSocketConsole] = weakref.WeakKeyDictionary()  # noqa
-        self._is_shut_down = threading.Event()
+        self._is_shutdown = threading.Event()
         self._should_shutdown = False
 
     def __enter__(self):
         check.state(not self._is_running)
-        check.state(not self._is_shut_down.is_set())
+        check.state(not self._is_shutdown.is_set())
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if not self._is_shut_down.is_set():
+        if not self._is_shutdown.is_set():
             self.shutdown(True, self._exit_timeout)
 
     def run(self) -> None:
         check.state(not self._is_running)
-        check.state(not self._is_shut_down.is_set())
+        check.state(not self._is_shutdown.is_set())
 
         if os.path.exists(self._path):
             os.unlink(self._path)
@@ -346,13 +346,13 @@ class ReplServer:
                 os.unlink(self._path)
 
             finally:
-                self._is_shut_down.set()
+                self._is_shutdown.set()
                 self._is_running = False
 
     def shutdown(self, block: bool = False, timeout: float = None) -> None:
         self._should_shutdown = True
         if block:
-            self._is_shut_down.wait(timeout=timeout)
+            self._is_shutdown.wait(timeout=timeout)
 
 
 def _main():
