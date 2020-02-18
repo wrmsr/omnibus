@@ -476,7 +476,7 @@ class SimpleDictApp(App):
     class _BadRequestHandledException(Exception):
         pass
 
-    Target = ta.Callable[[ta.Dict[str, ta.Any]], ta.Dict[str, ta.Any]]
+    Target = ta.Callable[[ta.Optional[ta.Dict[str, ta.Any]]], ta.Dict[str, ta.Any]]
 
     def __init__(
             self,
@@ -564,8 +564,8 @@ class SimpleDictApp(App):
 def simple_json_app(target: SimpleDictApp.Target) -> App:
     return SimpleDictApp(
         target,
-        lambda request_body: json.loads(request_body.decode('utf-8')),
         lambda output: json.dumps(output).encode('utf-8'),
+        lambda request_body: json.loads(request_body.decode('utf-8')),
         CONTENT_JSON,
     )
 
