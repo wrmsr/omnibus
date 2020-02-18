@@ -451,7 +451,7 @@ class SerialWSGIServer(WSGIServer):
     pass
 
 
-class ThreadedWSGIServer(WSGIServer):
+class ThreadSpawningWSGIServer(WSGIServer):
 
     def process_request(self, request: sock.socket, client_address: ClientAddress) -> None:
         thread = threading.Thread(target=super().process_request, args=(request, client_address))

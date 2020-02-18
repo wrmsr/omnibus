@@ -23,19 +23,19 @@ COPY docker/omnibus-postgres/docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN chmod +x /docker-entrypoint-initdb.d/setup-replication.sh /docker-entrypoint.sh
 
-RUN ( \
-    apt-get install -y \
-      gcc \
-      make \
-      postgresql-server-dev-9.6 \
-      wget \
-      && \
-    mkdir /build && \
-    cd /build && \
-    wget https://github.com/eulerto/wal2json/archive/wal2json_1_0.tar.gz && \
-    tar xvzf wal2json_1_0.tar.gz && \
-    cd wal2json-wal2json_1_0 && \
-    export PATH=pg_config:$PATH && \
-    USE_PGXS=1 make && \
-    USE_PGXS=1 make install \
-)
+#RUN ( \
+#    apt-get install -y \
+#      gcc \
+#      make \
+#      postgresql-server-dev-9.6 \
+#      wget \
+#      && \
+#    mkdir /build && \
+#    cd /build && \
+#    wget https://github.com/eulerto/wal2json/archive/wal2json_1_0.tar.gz && \
+#    tar xvzf wal2json_1_0.tar.gz && \
+#    cd wal2json-wal2json_1_0 && \
+#    export PATH=pg_config:$PATH && \
+#    USE_PGXS=1 make && \
+#    USE_PGXS=1 make install \
+#)

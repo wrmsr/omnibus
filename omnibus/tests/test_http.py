@@ -20,7 +20,7 @@ def test_http():
 
     def fn0():
         nonlocal server
-        server = http.ThreadedWSGIServer(http.TCPBinder('0.0.0.0', port), app)
+        server = http.ThreadSpawningWSGIServer(http.TCPBinder('0.0.0.0', port), app)
         with server:
             server.run()
 
