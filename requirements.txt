@@ -1,21 +1,28 @@
 setuptools>=38.0.0
 
-Cython==0.29.14
+Cython==0.29.15
 
 cytoolz==0.10.1
 toolz==0.10.0
 
-wrapt==1.11.2
+wrapt==1.12.0
 
-docker==4.1.0
+docker==4.2.0
 
 # bintrees==2.0.7
 sortedcontainers==2.1.0
+pyrsistent==0.15.7
 
 cbor==1.0.0
-lz4==2.2.1
+lz4==3.0.2
 msgpack==0.6.2
-mypy==0.760
-pyrsistent==0.15.6
-ujson==1.35
 zstd==1.4.4.0
+
+mypy==0.761
+
+ujson==1.35
+
+boto3==1.12.1
+botocore==1.15.1
+
+billiard==3.6.2.0
