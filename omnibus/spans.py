@@ -3,9 +3,8 @@ import functools
 import re
 import typing as ta
 
-from omnibus import check
-from omnibus import defs
-
+from . import check
+from . import defs
 from . import lang
 
 
