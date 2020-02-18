@@ -24,7 +24,7 @@ import errno
 import functools
 import logging
 import os
-import socket as socket_
+import socket as sock
 import sys
 import threading
 import traceback
@@ -49,7 +49,7 @@ class InteractiveSocketConsole:
 
     def __init__(
             self,
-            conn: socket_.socket,
+            conn: sock.socket,
             locals: ta.MutableMapping = None,
             filename: str = '<console>'
     ) -> None:
@@ -75,7 +75,7 @@ class InteractiveSocketConsole:
         self._buffer = []
 
     @property
-    def conn(self) -> socket_.socket:
+    def conn(self) -> sock.socket:
         return self._conn
 
     CPRT = 'Type "help", "copyright", "credits" or "license" for more information.'
@@ -269,7 +269,7 @@ class ReplServer:
         self._poll_interval = poll_interval
         self._exit_timeout = exit_timeout
 
-        self._socket: socket_.socket = None
+        self._socket: sock.socket = None
         self._is_running = False
         self._consoles_by_threads: ta.MutableMapping[threading.Thread, InteractiveSocketConsole] = weakref.WeakKeyDictionary()  # noqa
         self._is_shut_down = threading.Event()
@@ -292,7 +292,7 @@ class ReplServer:
         if os.path.exists(self._path):
             os.unlink(self._path)
 
-        self._socket = socket_.socket(socket_.AF_UNIX, socket_.SOCK_STREAM)
+        self._socket = sock.socket(sock.AF_UNIX, sock.SOCK_STREAM)
         self._socket.settimeout(self._poll_interval)
         self._socket.bind(self._path)
         with contextlib.closing(self._socket):
@@ -305,7 +305,7 @@ class ReplServer:
                 while not self._should_shutdown:
                     try:
                         conn, _ = self._socket.accept()
-                    except socket_.timeout:
+                    except sock.timeout:
                         continue
 
                     log.info(f'Got repl server connection on file {self._path}')
