@@ -301,7 +301,7 @@ class Malloc:
 if LINUX:
     # int prctl(int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
     libc.prctl.restype = ct.c_int
-    libc.prctl.argtypes = [ct.c_int, ct.c_ulong, ct.c_ulong, ct.c_ulong, ct.c_ulong, ct.c_ulong]
+    libc.prctl.argtypes = [ct.c_int, ct.c_ulong, ct.c_ulong, ct.c_ulong, ct.c_ulong]
 
     prctl = libc.prctl
 
