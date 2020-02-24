@@ -1,7 +1,10 @@
 import abc
+import contextlib
 import functools
 import inspect
+import threading
 import typing as ta
+import weakref
 
 from . import c3
 from . import check
@@ -10,9 +13,14 @@ from . import reflect as rfl
 
 
 T = ta.TypeVar('T')
+R = ta.TypeVar('R')
 Impl = ta.TypeVar('Impl')
 TypeOrSpec = ta.Union[ta.Type, rfl.Spec]
 TypeVars = ta.Mapping[ta.Any, TypeOrSpec]
+
+
+class DispatchError(Exception):
+    pass
 
 
 def generic_issubclass(left: ta.Type, right: ta.Type) -> bool:
@@ -39,16 +47,11 @@ class Manifest(lang.Final):
             self,
             _cls: TypeOrSpec,
             _match: TypeOrSpec,
-            _vars: TypeVars
     ) -> None:
         super().__init__()
 
         self._cls = _cls
         self._match = _match
-        self._vars = _vars
-
-        self._key: ta.Iterable[ta.Tuple[ta.Any, ta.Type]] = tuple(sorted(_vars.items(), key=hash))
-        self._hash = hash((self._cls, self._match, self._key))
 
     @property
     def cls(self) -> TypeOrSpec:
@@ -58,31 +61,20 @@ class Manifest(lang.Final):
     def match(self) -> TypeOrSpec:
         return self._match
 
-    @property
-    def vars(self) -> TypeVars:
-        return self._vars
-
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}({self._cls!r}, {self._match!r}, {self._vars!r})'
+        return f'{self.__class__.__name__}({self._cls!r}, {self._match!r})'
 
     def __iter__(self) -> ta.Iterator[ta.Type]:
         if rfl.is_generic(self._cls):
-            return self._cls.__args__
+            return iter(self._cls.__args__)
         else:
             raise TypeError
-
-    def __getitem__(self, item: ta.TypeVar) -> ta.Type:
-        return self._vars[item]
-
-    def __hash__(self):
-        return self._hash
 
     def __eq__(self, other):
         return (
             self.__class__ == other.__class__ and
             self._cls == other._type and
-            self._match == other._match and
-            self._key == other._key
+            self._match == other._match
         )
 
 
@@ -168,14 +160,14 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
         self._dict[cls] = impl
 
     def __getitem__(self, cls: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
-        cls = self._erase(cls)
+        ecls = self._erase(cls)
         try:
-            impl = self._dict[cls]
+            impl = self._dict[ecls]
         except KeyError:
-            match, impl = self._resolve(cls)
-            return impl, Manifest(cls, match, {})
+            match, impl = self._resolve(ecls)
+            return impl, Manifest(cls, match)
         else:
-            return impl, Manifest(cls, cls, {})
+            return impl, Manifest(cls, ecls)
 
     def __contains__(self, cls: TypeOrSpec) -> bool:
         cls = self._erase(cls)
@@ -233,3 +225,72 @@ class AbcCacheGuard(CacheGuard):
 
 DefaultDispatcher = ErasingDictDispatcher
 DefaultCacheGuard = AbcCacheGuard
+
+
+def _function(
+        _func,
+        *,
+        Dispatcher: ta.Type[Dispatcher] = DefaultDispatcher,
+        CacheGuard: ta.Type[CacheGuard] = DefaultCacheGuard,
+):
+    """tweaked/fixed version of functools.singledispatch"""
+
+    dispatcher = Dispatcher()
+    dispatch_cache = weakref.WeakKeyDictionary()
+    lock = threading.RLock()
+
+    def clear_cache():
+        with lock:
+            dispatch_cache.clear()
+
+    cache_guard = CacheGuard(lock, clear_cache)
+
+    def dispatch(cls, *, cache=False):
+        cache_guard.maybe_clear()
+
+        try:
+            impl = dispatch_cache[cls]
+
+        except KeyError:
+            with contextlib.ExitStack() as exit_stack:
+                if cache:
+                    exit_stack.enter_context(lock)
+
+                impl, manifest = dispatcher[cls]
+                dispatch_cache[cls] = impl
+                impl = inject_manifest(impl, manifest)
+
+        if impl is None:
+            raise DispatchError(f'No dispatch for {cls}')
+        return impl
+
+    def register(*clss, impl=None):
+        if impl is None:
+            return lambda _impl: register(*clss, impl=_impl)
+        for cls in clss:
+            dispatcher[cls] = impl
+            cache_guard.update(cls)
+        clear_cache()
+        return impl
+
+    def wrapper(arg, *args, **kw):
+        return dispatch(dispatcher.key(arg), cache=True)(arg, *args, **kw)
+
+    functools.update_wrapper(wrapper, _func)
+    argspec = inspect.getfullargspec(_func)
+    try:
+        wrapper.__annotations__ = {'return': argspec.annotations['return']}
+    except KeyError:
+        pass
+
+    wrapper.Dispatcher = Dispatcher
+    wrapper.register = register
+    wrapper.dispatch = dispatch
+    wrapper.clear_cache = clear_cache
+
+    register(object, impl=_func)
+    return wrapper
+
+
+def function(**kwargs) -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
+    return ta.cast(ta.Callable[..., R], functools.partial(_function, **kwargs))
