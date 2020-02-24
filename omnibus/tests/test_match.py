@@ -33,6 +33,27 @@ class Captures:
     def value(self) -> ta.Any:
         return self._value
 
+    @staticmethod
+    def of_optional(capture: 'Capture[T]', value: ta.Optional[T]) -> 'Captures':
+        return Captures(capture, value, Captures.NIL) if value is not None else Captures.NIL
+
+    def add_all(self, other: 'Captures') -> 'Captures':
+        if self is Captures.NIL:
+            return self
+        else:
+            return Captures(self._capture, self._value, self._next.add_all(other))
+
+    def get(self, capture: 'Capture[T]') -> T:
+        if self is Captures.NIL:
+            raise TypeError
+        elif self._capture is capture:
+            return self._value
+        else:
+            return self._next.get(capture)
+
+
+Captures.NIL = Captures(None, None, None)
+
 
 class Match(lang.Sealed, lang.Abstract, ta.Generic[T]):
 
