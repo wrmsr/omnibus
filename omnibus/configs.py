@@ -1,9 +1,22 @@
+import abc
+import typing as ta
+
 from . import lang
+
+
+ConfigT = ta.TypeVar('ConfigT', bound='Config')
 
 
 class Config(lang.Abstract):
     pass
 
 
-class ConfigSource(lang.Abstract):
-    pass
+class Source(lang.Abstract):
+
+    @abc.abstractmethod
+    def get(self, cls: ta.Type[ConfigT]) -> ConfigT:
+        raise NotImplementedError
+
+    # @abc.abstractmethod
+    # def get_child(self, cls: ta.Type[ConfigT]) -> ConfigT:
+    #     raise NotImplementedError
