@@ -26,9 +26,13 @@ def flatten(unflattened: StrMap) -> StrMap:
 
 
 def unflatten(flattened: StrMap) -> StrMap:
-    raise NotImplementedError
+    for k, f in flattened.items():
+        pass
+
+
+class DbConfig(configs.Config):
+    url: str
 
 
 def test_configs():
-    class DbConfig(configs.Config):
-        url: str
+    pass

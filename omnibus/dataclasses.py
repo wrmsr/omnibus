@@ -1,9 +1,6 @@
 """
 TODO:
-- _Meta / class C(dc.Dataclass)
 - codec
-- coerce
-- validate
 """
 import collections
 import collections.abc
@@ -34,10 +31,6 @@ _ORIGIN = '__dataclass_origin__'
 
 def fields_dict(class_or_instance) -> ta.Dict[str, Field]:
     return {f.name: f for f in fields(class_or_instance)}
-
-
-class SizeMetadata(lang.Marker):
-    pass
 
 
 def _compose_fields(cls: ta.Type) -> ta.Dict[str, Field]:
@@ -148,6 +141,22 @@ def _astuple_inner(obj, tuple_factory):
         return copy.deepcopy(obj)
 
 
+class SizeMetadata(lang.Marker):
+    pass
+
+
+class ValidateMetadata(lang.Marker):
+    pass
+
+
+class CoerceMetadata(lang.Marker):
+    pass
+
+
+class DeriveMetadata(lang.Marker):
+    pass
+
+
 def field(
         *,
         default=MISSING,
@@ -158,10 +167,19 @@ def field(
         compare=True,
         metadata=None,
         size=None,
+        validate=None,
+        coerce=None,
+        derive=None,
         **kwargs
 ) -> dc_.Field:
     if size is not None:
         metadata[SizeMetadata] = size
+    if validate is not None:
+        metadata[ValidateMetadata] = validate
+    if coerce is not None:
+        metadata[CoerceMetadata] = coerce
+    if derive is not None:
+        metadata[DeriveMetadata] = derive
 
     return dc_.field(
         default=default,
