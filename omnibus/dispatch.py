@@ -1,5 +1,4 @@
 import abc
-import contextlib
 import functools
 import inspect
 import threading
@@ -306,7 +305,7 @@ class CachingDispatcher(Dispatcher[Impl]):
         self._lock = threading.RLock()
 
         self._child = child
-        self._guard = guard if guard is not None else DefaultCacheGuard(self._lock, self._clear_cache)
+        self._guard = guard if guard is not None else DefaultCacheGuard(self._lock, self.clear)
 
     @property
     def child(self) -> Dispatcher[Impl]:
@@ -316,12 +315,14 @@ class CachingDispatcher(Dispatcher[Impl]):
     def guard(self) -> CacheGuard:
         return self._guard
 
-    def clear_cache(self) -> None:
+    def clear(self) -> None:
         with self._lock:
             self._cache.clear()
 
     def __setitem__(self, key: TypeOrSpec, value: Impl):
-        raise TypeError
+        self._child[key] = value
+        self._guard.update(key)
+        self.clear()
 
     def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
         self._guard.maybe_clear()
@@ -348,8 +349,6 @@ def function() -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
             return lambda _impl: register(*clss, impl=_impl)
         for cls in clss:
             dispatcher[cls] = impl
-            dispatcher.guard.update(cls)
-        dispatcher.clear_cache()
         return impl
 
     def wrapper(arg, *args, **kw):
@@ -368,7 +367,7 @@ def function() -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
         wrapper.Dispatcher = Dispatcher
         wrapper.register = register
         wrapper.dispatcher = dispatcher
-        wrapper.clear_cache = dispatcher.clear_cache
+        wrapper.clear_cache = dispatcher.clear
 
         register(object, impl=func)
         return wrapper
