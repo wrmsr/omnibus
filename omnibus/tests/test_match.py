@@ -1,6 +1,7 @@
 import abc
 import typing as ta
 
+from .. import check
 from .. import defs
 from .. import lang
 
@@ -126,32 +127,80 @@ class Property:
     pass
 
 
-class PropertyPatternPair:
+class PropertyPatternPair(ta.Generic[T]):
     pass
 
 
-class Pattern:
-    pass
+class Pattern(ta.Generic[T]):
+
+    def __init__(self, next: ta.Optional['Pattern']) -> None:
+        super().__init__()
+
+        self._next = next
+
+    @property
+    def next(self) -> ta.Optional['Pattern']:
+        return self._next
 
 
-class CapturePattern(Pattern):
-    pass
+class CapturePattern(Pattern[T]):
+
+    def __init__(self, capture: Capture[T], next: Pattern) -> None:
+        super().__init__(check.not_none(next))
+
+        self._capture = capture
+
+    @property
+    def capture(self) -> Capture[T]:
+        return self._capture
 
 
-class EqualsPattern(Pattern):
-    pass
+class EqualsPattern(Pattern[T]):
+
+    def __init__(self, value: T, next: ta.Optional[Pattern]) -> None:
+        super().__init__(next)
+
+        self._value = value
+
+    @property
+    def value(self) -> T:
+        return self._value
 
 
-class FilterPattern(Pattern):
-    pass
+class FilterPattern(Pattern[T]):
+
+    def __init__(self, predicate: ta.Callable[[T], bool], next: ta.Optional[Pattern]) -> None:
+        super().__init__(next)
+
+        self._predicate = predicate
+
+    @property
+    def predicate(self) -> ta.Callable[[T], bool]:
+        return self._predicate
 
 
-class TypeOfPattern(Pattern):
-    pass
+class TypeOfPattern(Pattern[T]):
+
+    def __init__(self, cls: ta.Type[T]) -> None:
+        super().__init__(None)
+
+        self._cls = cls
+
+    @property
+    def cls(self) -> ta.Type[T]:
+        return self._cls
 
 
-class WithPattern(Pattern):
-    pass
+class WithPattern(Pattern[T]):
+
+    def __init__(self, property_pattern_pair: PropertyPatternPair[T], next: ta.Optional[Pattern]) -> None:
+        super().__init__(next)
+
+        self._property_pattern_pair = property_pattern_pair
+
+    @property
+    def property_pattern_pair(self) -> PropertyPatternPair[T]:
+        return self._property_pattern_pair
 
 
 class DefaultMatcher:

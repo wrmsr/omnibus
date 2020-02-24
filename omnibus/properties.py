@@ -1,3 +1,8 @@
+"""
+TODO:
+ - frozen registry + opt (be fast)
+ - use dispatch
+"""
 import abc
 import collections.abc
 import functools
@@ -145,6 +150,7 @@ class RegistryProperty(Property[ta.Callable]):
         else:
             self._descriptor = descriptor
             self._singledispatch = False
+
         self._unbound = unbound
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
