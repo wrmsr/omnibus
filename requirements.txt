@@ -22,8 +22,8 @@ mypy==0.761
 
 ujson==1.35
 
-boto3==1.12.1
-botocore==1.15.1
+boto3==1.12.5
+botocore==1.15.5
 
 billiard==3.6.2.0
 

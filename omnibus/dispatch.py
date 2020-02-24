@@ -23,6 +23,14 @@ class DispatchError(Exception):
     pass
 
 
+class AmbiguousDispatchError(DispatchError):
+    pass
+
+
+class UnregisteredDispatchError(DispatchError):
+    pass
+
+
 def generic_issubclass(left: ta.Type, right: ta.Type) -> bool:
     if rfl.is_generic(right):
         right = check.not_none(rfl.erase_generic(right))
@@ -119,6 +127,59 @@ class Dispatcher(ta.Generic[Impl]):
         raise NotImplementedError
 
 
+class CompositeDispatcher(Dispatcher[Impl]):
+
+    class Mode(lang.AutoEnum):
+        FIRST = ...
+        ONE = ...
+
+    def __init__(
+            self,
+            children: ta.Iterable[Dispatcher[Impl]],
+            *,
+            mode: ta.Union[Mode, str] = Mode.ONE,
+    ) -> None:
+        super().__init__()
+
+        self._children = list(children)
+        self._mode = lang.parse_enum(mode, CompositeDispatcher.Mode)
+
+    @property
+    def children(self) -> ta.List[Dispatcher[Impl]]:
+        return self._children
+
+    @property
+    def mode(self) -> 'CompositeDispatcher.Mode':
+        return self._mode
+
+    def __setitem__(self, key: TypeOrSpec, value: Impl):
+        raise TypeError
+
+    def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        hits = []
+        for child in self._children:
+            try:
+                hit = child[key]
+            except AmbiguousDispatchError:
+                raise
+            if self._mode == CompositeDispatcher.Mode.FIRST:
+                return hit
+            hits.append(hit)
+        if len(hits) == 1:
+            return hits[0]
+        elif hits:
+            raise AmbiguousDispatchError(key, hits)
+        else:
+            raise UnregisteredDispatchError(key)
+
+    def __contains__(self, key: TypeOrSpec) -> bool:
+        return any(key in c for c in self._children)
+
+    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
+        for child in self._children:
+            yield from child.items()
+
+
 class ErasingDictDispatcher(Dispatcher[Impl]):
 
     _dict: ta.Dict[ta.Type, Impl]
@@ -144,11 +205,14 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
                         match not in cls.__mro__ and
                         not issubclass(match, t)
                 ):
-                    raise RuntimeError(f'Ambiguous dispatch: {match} or {t}')
+                    raise AmbiguousDispatchError(match, t)
                 break
             if t in self._dict:
                 match = t
-        return match, self._dict.get(match)
+        try:
+            return match, self._dict[match]
+        except KeyError:
+            raise UnregisteredDispatchError(match)
 
     def _erase(self, cls: TypeOrSpec) -> ta.Type:
         return check.isinstance(rfl.erase_generic(cls.erased_cls if isinstance(cls, rfl.TypeSpec) else cls), type)
@@ -175,6 +239,9 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
 
     def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
         return self._dict.items()
+
+
+DefaultDispatcher = ErasingDictDispatcher
 
 
 class CacheGuard(lang.Abstract):
@@ -223,74 +290,87 @@ class AbcCacheGuard(CacheGuard):
         return False
 
 
-DefaultDispatcher = ErasingDictDispatcher
 DefaultCacheGuard = AbcCacheGuard
 
 
-def _function(
-        _func,
-        *,
-        Dispatcher: ta.Type[Dispatcher] = DefaultDispatcher,
-        CacheGuard: ta.Type[CacheGuard] = DefaultCacheGuard,
-):
-    """tweaked/fixed version of functools.singledispatch"""
+class CachingDispatcher(Dispatcher[Impl]):
 
-    dispatcher = Dispatcher()
-    dispatch_cache = weakref.WeakKeyDictionary()
-    lock = threading.RLock()
+    def __init__(
+            self,
+            child: Dispatcher[Impl],
+            guard: CacheGuard = None,
+    ) -> None:
+        super().__init__()
 
-    def clear_cache():
-        with lock:
-            dispatch_cache.clear()
+        self._cache = weakref.WeakKeyDictionary()
+        self._lock = threading.RLock()
 
-    cache_guard = CacheGuard(lock, clear_cache)
+        self._child = child
+        self._guard = guard if guard is not None else DefaultCacheGuard(self._lock, self._clear_cache)
 
-    def dispatch(cls, *, cache=False):
-        cache_guard.maybe_clear()
+    @property
+    def child(self) -> Dispatcher[Impl]:
+        return self._child
 
+    @property
+    def guard(self) -> CacheGuard:
+        return self._guard
+
+    def clear_cache(self) -> None:
+        with self._lock:
+            self._cache.clear()
+
+    def __setitem__(self, key: TypeOrSpec, value: Impl):
+        raise TypeError
+
+    def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        self._guard.maybe_clear()
         try:
-            impl = dispatch_cache[cls]
-
+            impl, manifest = self._cache[key]
         except KeyError:
-            with contextlib.ExitStack() as exit_stack:
-                if cache:
-                    exit_stack.enter_context(lock)
+            with self._lock:
+                impl, manifest = self._child[key]
+                self._cache[key] = (impl, manifest)
+        return impl, manifest
 
-                impl, manifest = dispatcher[cls]
-                dispatch_cache[cls] = impl
-                impl = inject_manifest(impl, manifest)
+    def __contains__(self, key: TypeOrSpec) -> bool:
+        return key in self._child
 
-        if impl is None:
-            raise DispatchError(f'No dispatch for {cls}')
-        return impl
+    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
+        yield from self._child.items()
+
+
+def function() -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
+    dispatcher = CachingDispatcher(DefaultDispatcher())
 
     def register(*clss, impl=None):
         if impl is None:
             return lambda _impl: register(*clss, impl=_impl)
         for cls in clss:
             dispatcher[cls] = impl
-            cache_guard.update(cls)
-        clear_cache()
+            dispatcher.guard.update(cls)
+        dispatcher.clear_cache()
         return impl
 
     def wrapper(arg, *args, **kw):
-        return dispatch(dispatcher.key(arg), cache=True)(arg, *args, **kw)
+        impl, manifest = dispatcher[dispatcher.key(arg)]
+        impl = inject_manifest(impl, manifest)
+        return impl(arg, *args, **kw)
 
-    functools.update_wrapper(wrapper, _func)
-    argspec = inspect.getfullargspec(_func)
-    try:
-        wrapper.__annotations__ = {'return': argspec.annotations['return']}
-    except KeyError:
-        pass
+    def inner(func):
+        functools.update_wrapper(wrapper, func)
+        argspec = inspect.getfullargspec(func)
+        try:
+            wrapper.__annotations__ = {'return': argspec.annotations['return']}
+        except KeyError:
+            pass
 
-    wrapper.Dispatcher = Dispatcher
-    wrapper.register = register
-    wrapper.dispatch = dispatch
-    wrapper.clear_cache = clear_cache
+        wrapper.Dispatcher = Dispatcher
+        wrapper.register = register
+        wrapper.dispatcher = dispatcher
+        wrapper.clear_cache = dispatcher.clear_cache
 
-    register(object, impl=_func)
-    return wrapper
+        register(object, impl=func)
+        return wrapper
 
-
-def function(**kwargs) -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
-    return ta.cast(ta.Callable[..., R], functools.partial(_function, **kwargs))
+    return inner
