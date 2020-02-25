@@ -1,3 +1,4 @@
+import abc
 import collections
 import pickle
 
@@ -61,6 +62,30 @@ def test_meta():
     with pytest.raises(TypeError):
         class Impl2(Impl):
             pass
+
+    class Abs(dc.Dataclass, abstract=True):
+        x: int
+
+        @abc.abstractproperty
+        def y(self) -> int:
+            raise NotImplementedError
+
+    with pytest.raises(TypeError):
+        Abs(1)
+
+    class AbsImpl(Iface, final=True):
+        y: int
+
+    pt = AbsImpl(1, 2)
+    assert pt.x == 1
+    pt.z = 2
+    assert pt.z == 2
+
+    class AbsImpl2(Abs, final=True):
+        pass
+
+    with pytest.raises(TypeError):
+        AbsImpl2(1)
 
 
 @dc.dataclass(reorder=True)
