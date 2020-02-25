@@ -6,6 +6,7 @@ from .. import defs
 from .. import lang
 
 
+F = ta.TypeVar('F')
 T = ta.TypeVar('T')
 U = ta.TypeVar('U')
 
