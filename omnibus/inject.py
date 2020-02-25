@@ -9,7 +9,6 @@ TODO:
 - override
 """
 import collections
-import dataclasses as dc
 import functools
 import inspect
 import threading
@@ -17,6 +16,7 @@ import typing as ta
 import weakref
 
 from . import check
+from . import dataclasses as dc
 from . import dynamic as dyn
 from . import lang
 from . import properties
