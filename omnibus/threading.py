@@ -62,14 +62,12 @@ class CountDownLatch:
         self._lock = threading.Condition()
 
     def count_down(self) -> None:
-        self._lock.acquire()
-        self._count -= 1
-        if self._count <= 0:
-            self._lock.notify_all()
-        self._lock.release()
+        with self._lock:
+            self._count -= 1
+            if self._count <= 0:
+                self._lock.notify_all()
 
     def wait(self, timeout: int = -1) -> None:
-        self._lock.acquire(timeout=timeout)
-        while self._count > 0:
-            self._lock.wait()
-        self._lock.release()
+        with self._lock.acquire(timeout=timeout):
+            while self._count > 0:
+                self._lock.wait()
