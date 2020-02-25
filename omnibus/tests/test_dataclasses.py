@@ -52,8 +52,21 @@ def test_meta():
 
     pt = Impl(1, 2)
     assert pt.x == 1
-    pt.z = 2
-    assert pt.z == 2
+    pt.y = 2
+    assert pt.y == 2
+    pt.z = 3
+    assert pt.z == 3
+
+    class FrozenIface(dc.Dataclass, abstract=True, sealed=True, pickle=True, frozen=True):
+        x: int
+
+    class FrozenImpl(FrozenIface, final=True, frozen=True):
+        y: int
+
+    pt = FrozenImpl(1, 2)
+    assert pt.x == 1
+    with pytest.raises(dc.FrozenInstanceError):
+        pt.y = 2
 
     with pytest.raises(TypeError):
         class Iface(Impl):

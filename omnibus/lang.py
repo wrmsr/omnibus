@@ -18,7 +18,7 @@ import pkg_resources
 
 
 T = ta.TypeVar('T')
-Ty = ta.TypeVar('T', bound=ta.Type)
+Ty = ta.TypeVar('Ty', bound=type)
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 Self = ta.TypeVar('Self')
@@ -27,6 +27,7 @@ ExceptionT = ta.TypeVar('ExceptionT', bound=Exception)
 IteratorTOrT = ta.Union[ta.Iterator[T], T]
 BytesLike = ta.Union[bytes, bytearray]
 CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
+
 
 _NOT_SET = object()
 
