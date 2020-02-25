@@ -1,10 +1,14 @@
 import abc
 import collections
 import pickle
+import typing as ta
 
 import pytest
 
 from .. import dataclasses as dc
+
+
+T = ta.TypeVar('T')
 
 
 def test_reorder():
@@ -99,6 +103,11 @@ def test_meta():
 
     with pytest.raises(TypeError):
         AbsImpl2(1)
+
+    class Gen(dc.Dataclass, ta.Generic[T]):
+        val: T
+
+    assert Gen(1).val == 1
 
 
 @dc.dataclass(reorder=True)
