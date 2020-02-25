@@ -300,11 +300,13 @@ class CachingDispatcher(Dispatcher[Impl]):
             guard: CacheGuard = None,
             *,
             lock: lang.ContextManageable = None,
+            nolock: bool = False,
     ) -> None:
         super().__init__()
 
+        check.arg(not (lock is not None and nolock))
         self._cache = weakref.WeakKeyDictionary()
-        self._lock = lock or threading.RLock()
+        self._lock = lock or (threading.RLock() if not nolock else lang.ContextManaged())
 
         self._child = child
         self._guard = guard if guard is not None else DefaultCacheGuard(self._lock, self.clear)

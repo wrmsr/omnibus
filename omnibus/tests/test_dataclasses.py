@@ -1,6 +1,8 @@
 import collections
 import pickle
 
+import pytest
+
 from .. import dataclasses as dc
 
 
@@ -28,6 +30,39 @@ def test_defaultdict():
     assert d['d']['a'] == 3
 
 
+def test_meta():
+    class Point(dc.Dataclass):
+        x: int
+        y: int
+
+    pt = Point(1, 2)
+    assert pt.x == 1
+    pt.z = 2
+    assert pt.z == 2
+
+    class Iface(dc.Dataclass, abstract=True, sealed=True, pickle=True):
+        x: int
+
+    with pytest.raises(TypeError):
+        Iface(1)
+
+    class Impl(Iface, final=True):
+        y: int
+
+    pt = Impl(1, 2)
+    assert pt.x == 1
+    pt.z = 2
+    assert pt.z == 2
+
+    with pytest.raises(TypeError):
+        class Iface(Impl):
+            pass
+
+    with pytest.raises(TypeError):
+        class Impl2(Impl):
+            pass
+
+
 @dc.dataclass(reorder=True)
 class A(dc.SimplePickle):
     x: int
@@ -46,13 +81,25 @@ def test_pickle():
     assert o1 == o0
 
 
+def test_implicit_abc():
+    @dc.dataclass(frozen=True)
+    class C:
+        x: int
+
+    assert issubclass(C, dc.VirtualClass)
+    assert isinstance(C(1), dc.VirtualClass)
+
+    assert not issubclass(int, dc.VirtualClass)
+    assert not isinstance(1, dc.VirtualClass)
+
+
 def test_validate():
     @dc.dataclass(frozen=True)
     class C:
         x: int = dc.field(validate=lambda x: x > 0)
         y: int
 
-        dc.valiadte(lambda x, y: x > y)
+        dc.validate(lambda x, y: x > y)
 
         @dc.validate
         @staticmethod

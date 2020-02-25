@@ -2,6 +2,7 @@
 TODO:
 - codec
 """
+import abc
 import collections
 import collections.abc
 import copy
@@ -9,6 +10,7 @@ import dataclasses as dc_
 import typing as ta
 import weakref
 
+from . import check
 from . import lang
 
 
@@ -284,3 +286,73 @@ class Reducer:
         for part in name.split('.'):
             cur = getattr(cur, part)
         return cur(**dct)
+
+
+class _Meta(abc.ABCMeta):
+
+    def __new__(
+            mcls,
+            name,
+            bases,
+            namespace,
+            *,
+            abstract=False,
+            final=False,
+            sealed=False,
+            pickle=False,
+            **kwargs
+    ):
+        check.arg(not (abstract and final))
+        namespace = dict(namespace)
+
+        bases = tuple(b for b in bases if b is not Dataclass)
+        if final and lang.Final not in bases:
+            bases += (lang.Final,)
+        if sealed and lang.Sealed not in bases:
+            bases += (lang.Sealed,)
+
+        cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
+
+        def _build_init():
+            def __init__(self):
+                raise NotImplementedError
+            return __init__
+        rebuild = False
+
+        if abstract and '__init__' not in cls.__abstractmethods__:
+            kwargs['init'] = False
+            namespace['__init__'] = abc.abstractmethod(_build_init())
+            rebuild = True
+        elif not abstract and '__init__' in cls.__abstractmethods__:
+            bases = (lang.new_type('ConcreteDataclass', (Dataclass,), {'__init__': _build_init()}, init=False),) + bases
+            rebuild = True
+
+        if pickle and cls.__reduce__ is object.__reduce__:
+            namespace['__reduce__'] = SimplePickle.__reduce__
+            rebuild = True
+
+        if rebuild:
+            cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
+        return cls
+
+
+class Dataclass(metaclass=_Meta):
+    pass
+
+
+class _VirtualClassMeta(type):
+
+    def __subclasscheck__(cls, subclass):
+        return is_dataclass(subclass)
+
+    def __instancecheck__(cls, instance):
+        return is_dataclass(instance)
+
+
+class VirtualClass(metaclass=_VirtualClassMeta):
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError

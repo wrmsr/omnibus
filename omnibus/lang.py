@@ -361,7 +361,7 @@ class Interface(metaclass=_InterfaceMeta):
     pass
 
 
-class FinalException(Exception):
+class FinalException(TypeError):
 
     def __init__(self, _type: ta.Type) -> None:
         super().__init__()
@@ -381,7 +381,7 @@ class Final(Abstract):
         super().__init_subclass__(**kwargs)
 
 
-class SealedException(Exception):
+class SealedException(TypeError):
 
     def __init__(self, _type) -> None:
         super().__init__()
