@@ -101,8 +101,36 @@ class UnflattenList(UnflattenNode[int]):
 
 
 def unflatten(flattened: StrMap) -> StrMap:
+    root = UnflattenDict()
     for k, f in flattened.items():
-        pass
+        node = root
+
+
+def test_flattening():
+    m = {
+        'a': 1,
+        'b': {
+            'c': 2
+        },
+        'd': [
+            'e',
+            {
+                'f': 3
+            }
+        ],
+        'g': [
+            [
+                'a',
+                'b'
+            ],
+            [
+                'c',
+                'd'
+            ]
+        ]
+    }
+    fl = flatten(m)
+    unflatten(fl)
 
 
 class DbConfig(configs.Config):
