@@ -8,6 +8,11 @@ import zipfile
 
 import pkg_resources
 
+from . import lang
+
+
+lang.warn_unstable()
+
 
 log = logging.getLogger(__name__)
 

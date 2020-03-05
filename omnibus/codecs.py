@@ -13,6 +13,9 @@ from . import defs
 from . import lang
 
 
+lang.warn_unstable()
+
+
 F = ta.TypeVar('F')
 T = ta.TypeVar('T')
 

@@ -6,6 +6,9 @@ import weakref
 from . import lang
 
 
+lang.warn_unstable()
+
+
 TLC = ta.TypeVar('TLC', bound='ThreadLocalContext')
 
 

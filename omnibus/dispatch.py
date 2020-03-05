@@ -11,6 +11,9 @@ from . import lang
 from . import reflect as rfl
 
 
+lang.warn_unstable()
+
+
 T = ta.TypeVar('T')
 R = ta.TypeVar('R')
 Impl = ta.TypeVar('Impl')

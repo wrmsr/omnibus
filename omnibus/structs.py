@@ -11,6 +11,9 @@ from . import dataclasses as dc
 from . import lang
 
 
+lang.warn_unstable()
+
+
 T = ta.TypeVar('T')
 Value = ta.Union[bool, int, bytes, float]
 

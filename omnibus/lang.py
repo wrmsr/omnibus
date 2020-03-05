@@ -12,6 +12,7 @@ import sys
 import time
 import types
 import typing as ta
+import warnings
 import weakref
 
 import pkg_resources
@@ -30,6 +31,14 @@ CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
 
 
 _NOT_SET = object()
+
+
+class UnstableWarning(Warning):
+    pass
+
+
+def warn_unstable():
+    warnings.warn('unstable', category=UnstableWarning, stacklevel=2)
 
 
 def cls_dct_fn(offset=1):

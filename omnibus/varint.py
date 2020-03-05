@@ -13,6 +13,11 @@ https://github.com/apache/lucene-solr/blob/e2521b2a8baabdaf43b92192588f51e042d21
 """
 import typing as ta
 
+from . import lang
+
+
+lang.warn_unstable()
+
 
 def encode_iter(is_: ta.Iterator[int], b: bytearray):
     append = b.append

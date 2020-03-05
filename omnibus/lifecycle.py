@@ -7,6 +7,9 @@ from . import lang
 from . import check
 
 
+lang.warn_unstable()
+
+
 Self = ta.TypeVar('Self')
 
 

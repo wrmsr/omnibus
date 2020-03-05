@@ -11,6 +11,9 @@ from . import check
 from . import lang
 
 
+lang.warn_unstable()
+
+
 def yield_sql_statements(body: str) -> ta.Iterator[str]:
     """Lame and shameful."""
 

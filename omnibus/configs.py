@@ -4,6 +4,9 @@ import typing as ta
 from . import lang
 
 
+lang.warn_unstable()
+
+
 ConfigT = ta.TypeVar('ConfigT', bound='Config')
 
 

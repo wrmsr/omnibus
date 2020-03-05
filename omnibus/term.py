@@ -21,6 +21,9 @@ import typing as ta
 from . import lang
 
 
+lang.warn_unstable()
+
+
 ESC = '\x1b'
 BEL = '\x07'
 

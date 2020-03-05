@@ -8,6 +8,9 @@ from . import defs
 from . import lang
 
 
+lang.warn_unstable()
+
+
 class Bound(enum.Enum):
     """
     These integer values are significant and used for ordering:

@@ -33,6 +33,9 @@ from . import check
 from . import lang
 
 
+lang.warn_unstable()
+
+
 log = logging.getLogger(__name__)
 
 
