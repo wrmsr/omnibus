@@ -349,6 +349,8 @@ def test_marker():
     with pytest.raises(TypeError):
         M()
 
+    assert repr(M) == '<M>'
+
 
 def test_init_subclass():
     l = []

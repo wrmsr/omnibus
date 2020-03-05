@@ -503,13 +503,20 @@ class NotInstantiable(Abstract):
         raise TypeError
 
 
-class _Marker(Final):
+class _MarkerMeta(abc.ABCMeta):
 
-    def __mro_entries__(self, bases, **kwargs):
-        return (Final, NotInstantiable)
+    def __new__(mcls, name, bases, namespace):
+        if not (namespace.get('__module__') == __name__ and name == 'Marker'):
+            if Final not in bases:
+                bases += (Final,)
+        return super().__new__(mcls, name, bases, namespace)
+
+    def __repr__(cls) -> str:
+        return f'<{cls.__name__}>'
 
 
-Marker = _Marker()
+class Marker(NotInstantiable, metaclass=_MarkerMeta):
+    pass
 
 
 class _Namespace(Final):

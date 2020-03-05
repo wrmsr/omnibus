@@ -177,14 +177,17 @@ def field(
         derive=None,
         **kwargs
 ) -> dc_.Field:
+    md = {}
     if size is not None:
-        metadata[SizeMetadata] = size
+        md[SizeMetadata] = size
     if validate is not None:
-        metadata[ValidateMetadata] = validate
+        md[ValidateMetadata] = validate
     if coerce is not None:
-        metadata[CoerceMetadata] = coerce
+        md[CoerceMetadata] = coerce
     if derive is not None:
-        metadata[DeriveMetadata] = derive
+        md[DeriveMetadata] = derive
+    if md:
+        metadata = {**(metadata or {}), **md}
 
     return dc_.field(
         default=default,

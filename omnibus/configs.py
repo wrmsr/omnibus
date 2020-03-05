@@ -14,6 +14,10 @@ class Config(lang.Abstract):
     pass
 
 
+class Property:
+    pass
+
+
 class Source(lang.Abstract):
 
     @abc.abstractmethod
