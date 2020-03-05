@@ -193,7 +193,7 @@ class Cache(ta.MutableMapping[K, V]):
 
     _SKIP = object()
 
-    def _kill(self, link) -> None:
+    def _kill(self, link: Link) -> None:
         if link is self._root:
             raise RuntimeError
 
