@@ -10,3 +10,7 @@ class Watch:
 
 class Watchdog:
     pass
+
+
+class Reporter:
+    pass

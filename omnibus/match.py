@@ -46,7 +46,7 @@ class Captures:
 
     @staticmethod
     def of_optional(capture: 'Capture[T]', value: ta.Optional[T]) -> 'Captures':
-        return Captures(capture, value, Captures._NIL) if value is not None else Captures.NIL
+        return Captures(capture, value, Captures._NIL) if value is not None else Captures._NIL
 
     def add_all(self, other: 'Captures') -> 'Captures':
         if self is Captures._NIL:
