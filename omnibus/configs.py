@@ -121,6 +121,21 @@ class ConfigSource(lang.Abstract):
         raise NotImplementedError
 
 
+class CompositeFieldSource(FieldSource):
+
+    def __init__(self, *children: FieldSource) -> None:
+        super().__init__()
+
+        self._children = children
+
+    def get(self, field: FieldMetadata) -> ta.Any:
+        for child in self._children:
+            value = child.get(field)
+            if value is not NOT_SET:
+                return value
+        return NOT_SET
+
+
 class DictFieldSource(FieldSource):
 
     def __init__(self, dct: ta.Mapping[str, ta.Any]) -> None:
@@ -154,7 +169,10 @@ class _FieldDescriptor:
         try:
             return instance._values_by_field[self._metadata]
         except KeyError:
-            value = instance._values_by_field[self._metadata] = instance._field_source.get(self._metadata)
+            value = instance._field_source.get(self._metadata)
+            if value is NOT_SET:
+                raise KeyError(self._metadata)
+            instance._values_by_field[self._metadata] = value
             return value
 
 
