@@ -3,6 +3,7 @@ import typing as ta
 
 from . import c3
 from . import check
+from . import defs
 from . import lang
 
 
@@ -41,6 +42,8 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
         self._type = type
         self._default = default
         self._doc = doc
+
+    defs.repr('name', 'type', 'default')
 
     @property
     def name(self) -> str:
@@ -158,6 +161,8 @@ class _ConfigMeta(abc.ABCMeta):
             if fi.annotation is not NOT_SET:
                 type_ = fi.annotation
             default = fi.value
+            if default is not NOT_SET and type_ is NOT_SET:
+                type_ = type(default)
 
         return FieldMetadata(
             fi.name,
@@ -171,9 +176,14 @@ class _ConfigMeta(abc.ABCMeta):
         field_infos = {
             fi.name: fi
             for ns in [b.__dict__ for b in reversed(base_mro)] + [namespace]
-            for name in {*ns, *ns.get('__annotations__', [])}
+            for name in reversed(list({**ns.get('__annotations__', {}), **ns}.keys()))
             if not lang.is_dunder(name) and name not in IGNORED_NAMESPACE_KEYS
             for fi in [mcls.build_field_info(mcls, ns, name)]
+        }
+        field_metadatas = {
+            fmd.name: fmd
+            for fi in reversed(field_infos.values())
+            for fmd in [mcls.build_field_metadata(mcls, fi)]
         }
 
         return super().__new__(mcls, name, bases, namespace)

@@ -36,7 +36,9 @@ class DbConfig(configs.Config):
 
 
 class ExtraConfig(configs.Config):
-    extra: int
+    extra0: int = 5
+    extra1 = 6
+    extra2: int
 
 
 class ExtraDbConfig(DbConfig, ExtraConfig):
