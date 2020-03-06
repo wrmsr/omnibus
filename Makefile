@@ -94,6 +94,10 @@ endef
 venv:
 	$(call setup-venv,.venv,$(PYTHON_VERSION))
 
+.PHONY: venv-37
+venv-37:
+	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
+
 .PHONY: ext
 ext: venv
 	.venv/bin/python setup.py build_ext --inplace
@@ -118,8 +122,7 @@ test-verbose: build
 	.venv/bin/pytest -svvv omnibus
 
 .PHONY: test-37
-test-37:
-	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
+test-37: venv-37
 	.venv-37/bin/pytest -v omnibus
 
 .PHONY: dist
