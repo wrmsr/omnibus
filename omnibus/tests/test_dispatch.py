@@ -1,5 +1,7 @@
 import typing as ta
 
+import pytest
+
 from .. import dispatch as dsp
 
 
@@ -23,8 +25,9 @@ def test_dispatch():
     assert isinstance(manifest, dsp.Manifest)
 
 
-def test_function():
-    @dsp.function()
+@pytest.mark.parametrize('nolock', [False, True])
+def test_function(nolock):
+    @dsp.function(nolock=nolock)
     def f(val):
         return 'default'
 

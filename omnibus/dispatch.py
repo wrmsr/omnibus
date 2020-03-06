@@ -348,8 +348,19 @@ class CachingDispatcher(Dispatcher[Impl]):
         yield from self._child.items()
 
 
-def function() -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
-    dispatcher = CachingDispatcher(DefaultDispatcher())
+def function(
+        *,
+        guard: CacheGuard = None,
+        lock: lang.ContextManageable = None,
+        nolock: bool = False,
+        **kwargs
+) -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
+    dispatcher = CachingDispatcher(
+        DefaultDispatcher(**kwargs),
+        guard,
+        lock=lock,
+        nolock=nolock,
+    )
 
     def register(*clss, impl=None):
         if impl is None:
