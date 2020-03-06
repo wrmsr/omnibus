@@ -45,5 +45,13 @@ class ExtraDbConfig(DbConfig, ExtraConfig):
     pass
 
 
+class BytesUrlConfig(configs.Config):
+    url: bytes
+
+
+class BytesUrlDbConfig(BytesUrlConfig, DbConfig):
+    pass
+
+
 def test_configs():
     pass
