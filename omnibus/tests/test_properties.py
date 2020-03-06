@@ -3,6 +3,34 @@ import pytest
 from .. import properties
 
 
+def test_cached_property():
+    count = 0
+
+    class C:
+
+        @properties.cached
+        def cached(self):
+            nonlocal count
+            count += 1
+            return 'cached'
+
+        @properties.locked_cached
+        def locked_cached(self):
+            nonlocal count
+            count += 1
+            return 'locked_cached'
+
+    c = C()
+
+    for _ in range(2):
+        assert c.cached == 'cached'
+    assert count == 1
+
+    for _ in range(2):
+        assert c.locked_cached == 'locked_cached'
+    assert count == 2
+
+
 def test_set_once_property():
     class A:
         value = properties.set_once()

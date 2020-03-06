@@ -1,16 +1,19 @@
 """
 TODO:
  - frozen registry + opt (be fast)
+   - ** per-instance cache (of bound methods), per-type registry
  - use dispatch
 """
 import abc
 import collections.abc
 import functools
+import threading
 import types
 import typing as ta
 import weakref
 
 from . import c3
+from . import lang
 
 
 T = ta.TypeVar('T')
@@ -24,11 +27,17 @@ class Property(ta.Generic[T]):
 
 class CachedProperty(Property[T]):
 
-    def __init__(self, func: ta.Callable[[ta.Any], T]) -> None:
+    def __init__(
+            self,
+            func: ta.Callable[[ta.Any], T],
+            *,
+            lock: lang.ContextManageable = lang.ContextManaged(),
+    ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = func
+        self._lock = lock
 
         name = func.__name__
 
@@ -43,12 +52,20 @@ class CachedProperty(Property[T]):
     def __get__(self, obj, cls) -> T:
         if obj is None:
             return self
-        value = obj.__dict__[self._func.__name__] = self._func(obj)
+        with self._lock:
+            try:
+                value = obj.__dict__[self._func.__name__]
+            except KeyError:
+                value = obj.__dict__[self._func.__name__] = self._func(obj)
         return value
 
 
 def cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn)
+
+
+def locked_cached(fn: ta.Callable[..., T]) -> T:
+    return CachedProperty(fn, lock=threading.RLock())
 
 
 class ValueNotSetException(ValueError):
