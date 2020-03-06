@@ -1,6 +1,5 @@
 import abc
 import collections.abc
-import enum
 import functools
 import itertools
 import operator as op
@@ -8,7 +7,6 @@ import random
 import typing as ta
 
 from . import lang
-from . import properties
 
 
 T = ta.TypeVar('T')
@@ -678,65 +676,6 @@ class SkipListDict(SortedListDict[K, V]):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(SkipList(comparator=SortedListDict._item_comparator), *args, **kwargs)
-
-
-bintrees = lang.lazy_import('bintrees')
-
-
-class BintreesDict(SortedMutableMapping[K, V]):
-
-    Item = ta.Tuple[K, V]
-
-    class Impl(enum.Enum):
-        RB = 'RB'
-        AVL = 'AVL'
-
-    @properties.class_
-    def _impls(cls) -> ta.Mapping[Impl, ta.Type]:
-        return {
-            BintreesDict.Impl.RB: bintrees().FastRBTree,
-            BintreesDict.Impl.AVL: bintrees().FastAVLTree,
-        }
-
-    @classmethod
-    def new(cls, impl: ta.Union[Impl, str] = Impl.RB, *args, **kwargs) -> 'BintreesDict':
-        return cls(cls._impls[BintreesDict.Impl(impl)](), *args, **kwargs)
-
-    def __init__(self, tree: ta.Any, *args, **kwargs) -> None:
-        self._tree = tree
-
-        super().__init__(*args, **kwargs)
-
-    def __getitem__(self, key: K) -> V:
-        return self._tree[key]
-
-    def __setitem__(self, key: K, value: V) -> None:
-        self._tree[key] = value
-
-    def __delitem__(self, key: K) -> None:
-        del self._tree[key]
-
-    def __len__(self) -> int:
-        return len(self._tree)
-
-    def __iter__(self) -> ta.Iterator[K]:
-        return iter(self._tree)
-
-    def items(self) -> ta.Iterator[Item]:
-        return self._tree.items()
-
-    def ritems(self) -> ta.Iterator[Item]:
-        return self._tree.items(reverse=True)
-
-    def itemsfrom(self, key: K) -> ta.Iterator[Item]:
-        return self._tree.iter_items(key)
-
-    def ritemsfrom(self, key: K) -> ta.Iterator[Item]:
-        try:
-            yield (key, self._tree[key])
-        except KeyError:
-            pass
-        yield from self._tree.iter_items(None, key, reverse=True)
 
 
 sortedcontainers = lang.lazy_import('sortedcontainers')

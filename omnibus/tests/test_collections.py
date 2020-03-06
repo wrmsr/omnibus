@@ -58,11 +58,6 @@ def test_skiplistdict():
     _test_sorteddict(col.SkipListDict())
 
 
-@helpers.skip_if_cant_import('bintrees')
-def test_bintrees():
-    _test_sorteddict(col.BintreesDict.new())
-
-
 @helpers.skip_if_cant_import('sortedcontainers')
 def test_sortedcontainers():
     _test_sorteddict(col.SortedContainersDict.new())
