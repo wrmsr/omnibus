@@ -280,7 +280,7 @@ class Config(metaclass=_ConfigMeta):
 
         self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
 
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, field_source, *args, **kwargs):
         if cls is Config:
             raise TypeError
         return super().__new__(cls, *args, **kwargs)
