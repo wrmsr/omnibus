@@ -82,6 +82,17 @@ class ConfigSource(lang.Abstract):
         raise NotImplementedError
 
 
+class DictFieldSource(FieldSource):
+
+    def __init__(self, dct: ta.Mapping[str, ta.Any]) -> None:
+        super().__init__()
+
+        self._dct = check.not_none(dct)
+
+    def get(self, name: str) -> ta.Any:
+        return self._dct.get(name, NOT_SET)
+
+
 class _FieldDescriptor:
 
     def __get__(self, instance, owner):
