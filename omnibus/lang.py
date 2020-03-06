@@ -121,6 +121,7 @@ def super_meta(
         namespace: ta.Mapping[str, ta.Any],
         **kwargs
 ) -> ta.Type:
+    """Per types.new_class"""
     resolved_bases = types.resolve_bases(bases)
     if resolved_bases is not bases:
         if '__orig_bases__' in namespace:
@@ -1276,6 +1277,7 @@ class MaybeNotPresentException(Exception):
 
 @functools.total_ordering
 class Maybe(Final, ta.Generic[T], tuple):
+    """~java.util.Optional"""
 
     EMPTY: 'Maybe'
 
