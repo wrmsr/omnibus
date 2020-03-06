@@ -53,5 +53,9 @@ class BytesUrlDbConfig(BytesUrlConfig, DbConfig):
     pass
 
 
+class MetadataConfig(configs.Config):
+    thing = configs.field()
+
+
 def test_configs():
     pass

@@ -63,6 +63,27 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
         return self._doc
 
 
+class FieldKwargs(lang.Final):
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__()
+
+        self._kwargs = kwargs
+
+
+def field(
+        default: ta.Any = NOT_SET,
+        type: type = NOT_SET,
+        *,
+        doc: str = None,
+):
+    return FieldKwargs(
+        default=default,
+        type=type,
+        doc=doc,
+    )
+
+
 class ConfigMetadata(lang.Final):
 
     def __init__(
@@ -111,19 +132,6 @@ class DictFieldSource(FieldSource):
         return self._dct.get(name, NOT_SET)
 
 
-class FieldArgs(lang.Final):
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__()
-
-        self._args = args
-        self._kwargs = kwargs
-
-
-def field(*args, **kwargs):
-    return FieldArgs(*args, **kwargs)
-
-
 class _FieldDescriptor:
 
     def __init__(self, metadata: FieldMetadata) -> None:
@@ -167,18 +175,13 @@ class _ConfigMeta(abc.ABCMeta):
         default = NOT_SET
         kwargs = {}
 
-        if isinstance(fi.value, FieldArgs):
-            fa: FieldArgs = fi.value
-            fakw = dict(fa._kwargs)
-            if 'type' in fakw:
-                type_ = fakw.pop('type')
-            elif fi.annotation is not NOT_SET:
+        if isinstance(fi.value, FieldKwargs):
+            fkx = dict(fi.value._kwargs)
+            type_ = fkx.pop('type')
+            if type_ is not NOT_SET:
                 type_ = fi.annotation
-            if fa._args:
-                default = check.single(fa._args)
-            if 'default' in fakw:
-                default = check.replacing(NOT_SET, default, fakw.pop('default'))
-            kwargs.update(fakw)
+            default = fkx.pop('default')
+            kwargs.update(fkx)
 
         else:
             if fi.annotation is not NOT_SET:
