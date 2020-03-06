@@ -1,6 +1,7 @@
 import abc
 import typing as ta
 
+from . import c3
 from . import check
 from . import lang
 
@@ -26,12 +27,14 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
             name: str,
             type: type = None,
             *,
+            default: ta.Any = NOT_SET,
             doc: str = None,
     ) -> None:
         super().__init__()
 
         self._name = check.not_empty(check.isinstance(name, str))
         self._type = type
+        self._default = default
         self._doc = doc
 
     @property
@@ -41,6 +44,10 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
     @property
     def type(self) -> type:
         return self._type
+
+    @property
+    def default(self) -> ta.Any:
+        return self._default
 
     @property
     def doc(self) -> ta.Optional[str]:
@@ -101,7 +108,19 @@ class _FieldDescriptor:
 
 class _ConfigMeta(abc.ABCMeta):
 
+    class FieldInfo(ta.NamedTuple):
+        name: str
+        annotation: ta.Any
+        value: ta.Any
+
+    def build_field_info(mcls, ns, name) -> FieldInfo:
+        annotation = ns.get('__annotations__', {}).get(name)
+        value = ns.get(name, NOT_SET)
+        return _ConfigMeta.FieldInfo(name, annotation, value)
+
     def __new__(mcls, name, bases, namespace):
+        base_mro = c3.merge([list(b.__mro__) for b in bases])
+
         return super().__new__(mcls, name, bases, namespace)
 
 

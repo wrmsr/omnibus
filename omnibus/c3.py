@@ -55,7 +55,7 @@ import typing as ta
 T = ta.TypeVar('T')
 
 
-def merge(sequences: ta.Sequence[ta.List[T]]) -> ta.List[T]:
+def merge(sequences: ta.MutableSequence[ta.List[T]]) -> ta.List[T]:
     """Merges MROs in *sequences* to a single MRO using the C3 algorithm.
 
     Adapted from http://www.python.org/download/releases/2.3/mro/.

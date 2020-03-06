@@ -35,5 +35,13 @@ class DbConfig(configs.Config):
     comment: str = configs.field(doc='comment')
 
 
+class ExtraConfig(configs.Config):
+    extra: int
+
+
+class ExtraDbConfig(DbConfig, ExtraConfig):
+    pass
+
+
 def test_configs():
     pass
