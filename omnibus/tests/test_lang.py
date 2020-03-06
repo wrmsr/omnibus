@@ -508,6 +508,7 @@ def test_context_wrapped():
 def test_maybe():
     assert lang.Maybe(1)
     assert not lang.Maybe.empty()
+    assert lang.Maybe.empty() is lang.Maybe.empty()
     assert lang.Maybe('foo').value.endswith('o')
     assert next(iter(lang.Maybe('x'))).capitalize() == 'X'
 
@@ -520,3 +521,6 @@ def test_maybe():
 
     assert lang.Maybe(0) < lang.Maybe(1)
     assert lang.Maybe(1) > lang.Maybe(0)
+
+    assert lang.Maybe(3).map(lambda v: v + 1) == lang.Maybe(4)
+    assert lang.Maybe.empty().map(lambda v: v + 1) is lang.Maybe.empty()
