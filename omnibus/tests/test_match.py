@@ -9,6 +9,11 @@ from .. import lang
 F = ta.TypeVar('F')
 T = ta.TypeVar('T')
 U = ta.TypeVar('U')
+R = ta.TypeVar('R')
+C = ta.TypeVar('C')
+
+
+# region Captures
 
 
 class Capture(ta.Generic[T]):
@@ -54,6 +59,12 @@ class Captures:
 
 
 Captures.NIL = Captures(None, None, None)
+
+
+# endregion
+
+
+# region Matches
 
 
 class Match(lang.Sealed, lang.Abstract, ta.Generic[T]):
@@ -145,6 +156,9 @@ class EmptyMatch(Match[T]):
         return self
 
 
+# endregion
+
+
 class Property:
     pass
 
@@ -153,7 +167,10 @@ class PropertyPatternPair(ta.Generic[T]):
     pass
 
 
-class Pattern(ta.Generic[T]):
+# region Patterns
+
+
+class Pattern(lang.Abstract, ta.Generic[T]):
 
     def __init__(self, next: ta.Optional['Pattern']) -> None:
         super().__init__()
@@ -163,6 +180,14 @@ class Pattern(ta.Generic[T]):
     @property
     def next(self) -> ta.Optional['Pattern']:
         return self._next
+
+    @abc.abstractmethod
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        raise NotImplementedError
 
 
 class CapturePattern(Pattern[T]):
@@ -176,6 +201,12 @@ class CapturePattern(Pattern[T]):
     def capture(self) -> Capture[T]:
         return self._capture
 
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        return visitor.visit_capture(self, context)
+
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        return matcher.match_capture(self, value, captures)
+
 
 class EqualsPattern(Pattern[T]):
 
@@ -187,6 +218,12 @@ class EqualsPattern(Pattern[T]):
     @property
     def value(self) -> T:
         return self._value
+
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        return visitor.visit_equals(self, context)
+
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        return matcher.match_equals(self, value, captures)
 
 
 class FilterPattern(Pattern[T]):
@@ -200,6 +237,12 @@ class FilterPattern(Pattern[T]):
     def predicate(self) -> ta.Callable[[T], bool]:
         return self._predicate
 
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        return visitor.visit_filter(self, context)
+
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        return matcher.match_filter(self, value, captures)
+
 
 class TypeOfPattern(Pattern[T]):
 
@@ -211,6 +254,12 @@ class TypeOfPattern(Pattern[T]):
     @property
     def cls(self) -> ta.Type[T]:
         return self._cls
+
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        return visitor.visit_type_of(self, context)
+
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        return matcher.match_type_of(self, value, captures)
 
 
 class WithPattern(Pattern[T]):
@@ -224,6 +273,66 @@ class WithPattern(Pattern[T]):
     def property_pattern_pair(self) -> PropertyPatternPair[T]:
         return self._property_pattern_pair
 
+    def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
+        return visitor.visit_with(self, context)
+
+    def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
+        return matcher.match_with(self, value, captures)
+
+
+class Visitor(ta.Generic[R, C]):
+
+    def process(self, pattern: Pattern, context: C) -> R:
+        return pattern.accept(self, context)
+
+    def visit(self, pattern: Pattern, context: C) -> R:
+        raise TypeError(pattern)
+
+    def visit_capture(self, pattern: CapturePattern, context: C) -> R:
+        return self.visit(pattern, context)
+
+    def visit_equals(self, pattern: EqualsPattern, context: C) -> R:
+        return self.visit(pattern, context)
+
+    def visit_filter(self, pattern: FilterPattern, context: C) -> R:
+        return self.visit(pattern, context)
+
+    def visit_type_of(self, pattern: TypeOfPattern, context: C) -> R:
+        return self.visit(pattern, context)
+
+    def visit_with(self, pattern: WithPattern, context: C) -> R:
+        return self.visit(pattern, context)
+
+
+# endregion
+
+
+# region Matchers
+
+
+class Matcher(ta.Generic[T]):
+
+    def match(self, pattern: Pattern[T], value: ta.Any, captures: Captures = Captures.NIL) -> Match[T]:
+        raise TypeError(pattern)
+
+    def match_capture(self, pattern: CapturePattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return self.match(pattern, value, captures)
+
+    def match_equals(self, pattern: EqualsPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return self.match(pattern, value, captures)
+
+    def match_filter(self, pattern: FilterPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return self.match(pattern, value, captures)
+
+    def match_type_of(self, pattern: TypeOfPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return self.match(pattern, value, captures)
+
+    def match_with(self, pattern: WithPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return self.match(pattern, value, captures)
+
 
 class DefaultMatcher:
     pass
+
+
+# endregion
