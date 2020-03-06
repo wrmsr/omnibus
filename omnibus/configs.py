@@ -79,7 +79,21 @@ class Source(lang.Abstract):
     #     raise NotImplementedError
 
 
-class Config(lang.Abstract):
+class _ConfigMeta(abc.ABCMeta):
+
+    def __new__(mcls, name, bases, namespace):
+        return super().__new__(mcls, name, bases, namespace)
+
+
+class Config(metaclass=_ConfigMeta):
+
+    def __init__(self, source: Source) -> None:
+        super().__init__()
+
+        self._source = check.isinstance(source, Source)
+
+
+def field(*args, **kwargs):
     pass
 
 

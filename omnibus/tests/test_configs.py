@@ -32,6 +32,7 @@ def test_flattening():
 
 class DbConfig(configs.Config):
     url: str
+    comment: str = configs.field(doc='comment')
 
 
 def test_configs():
