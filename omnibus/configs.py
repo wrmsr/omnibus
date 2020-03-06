@@ -16,6 +16,11 @@ StrMap = ta.Mapping[str, ta.Any]
 ConfigT = ta.TypeVar('ConfigT', bound='Config')
 
 
+IGNORED_NAMESPACE_KEYS: ta.Set[str] = {
+    '_abc_impl',
+}
+
+
 class NOT_SET(lang.Marker):
     pass
 
@@ -120,6 +125,13 @@ class _ConfigMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
         base_mro = c3.merge([list(b.__mro__) for b in bases])
+        field_infos = {
+            fi.name: fi
+            for ns in [b.__dict__ for b in reversed(base_mro)] + [namespace]
+            for name in {*ns, *ns.get('__annotations__', [])}
+            if not lang.is_dunder(name) and name not in IGNORED_NAMESPACE_KEYS
+            for fi in [mcls.build_field_info(mcls, ns, name)]
+        }
 
         return super().__new__(mcls, name, bases, namespace)
 
