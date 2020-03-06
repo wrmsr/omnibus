@@ -1274,6 +1274,7 @@ class MaybeNotPresentException(Exception):
     pass
 
 
+@functools.total_ordering
 class Maybe(Final, ta.Generic[T], tuple):
 
     EMPTY: 'Maybe'
@@ -1289,6 +1290,21 @@ class Maybe(Final, ta.Generic[T], tuple):
         raise TypeError
 
     locals()['__iter__'] = tuple.__iter__
+
+    def __eq__(self, other):
+        if type(other) is not Maybe:
+            return False
+        return tuple.__eq__(self, other)
+
+    def __ne__(self, other):
+        if type(other) is not Maybe:
+            return True
+        return tuple.__ne__(self, other)
+
+    def __lt__(self, other):
+        if type(other) is not Maybe:
+            raise TypeError(other)
+        return tuple.__lt__(self, other)
 
     @property
     def value(self) -> T:
