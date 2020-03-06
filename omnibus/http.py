@@ -544,7 +544,7 @@ class SimpleDictApp(App):
         if output is None:
             return []
 
-        elif isinstance(output, collections.Iterator):
+        elif isinstance(output, collections.abc.Iterator):
             if not self._stream:
                 raise TypeError(output)
 
