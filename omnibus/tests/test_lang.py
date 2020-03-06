@@ -511,6 +511,7 @@ def test_maybe():
     assert lang.Maybe.empty() is lang.Maybe.empty()
     assert lang.Maybe('foo').value.endswith('o')
     assert next(iter(lang.Maybe('x'))).capitalize() == 'X'
+    assert lang.Maybe(None)
 
     assert lang.Maybe(0) == lang.Maybe(0)
     assert not (lang.Maybe(0) != lang.Maybe(0))

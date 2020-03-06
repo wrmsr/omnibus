@@ -165,20 +165,49 @@ class EmptyMatch(Match[T]):
 # endregion
 
 
-class Property(lang.Final):
+class Property(lang.Final, ta.Generic[F, T]):
 
-    def __init__(self, function: ta.Callable) -> None:
+    def __init__(self, function: ta.Callable[[F], lang.Maybe[T]]) -> None:
         super().__init__()
 
         self._function = check.callable(function)
 
-    @staticmethod
-    def of():
-        raise NotImplementedError
+    @property
+    def function(self) -> ta.Callable[[F], lang.Maybe[T]]:
+        return self._function
+
+    @classmethod
+    def of(cls, function: ta.Callable[[F], T]) -> 'Property[F, T]':
+        return cls(lambda v: lang.Maybe(function(v)))
+
+    def matching(self, pattern: 'Pattern[R]') -> 'PropertyPatternPair[F, R]':
+        return PropertyPatternPair(self, pattern)
+
+    def captured(self, capture: Capture[T]) -> 'PropertyPatternPair[F, T]':
+        return self.matching(Pattern.any().captured(capture))
+
+    def equals(self, value: T) -> 'PropertyPatternPair[F, T]':
+        return self.matching(EqualsPattern(value, None))
+
+    def filtering(self, predicate: ta.Callable[[T], bool]) -> 'PropertyPatternPair[F, T]':
+        return self.matching(FilterPattern(predicate, None))
 
 
-class PropertyPatternPair(ta.Generic[T]):
-    pass
+class PropertyPatternPair(ta.Generic[F, R]):
+
+    def __init__(self, property: Property[F, ta.Any], pattern: 'Pattern[R]') -> None:
+        super().__init__()
+
+        self._property = check.isinstance(property, Property)
+        self._pattern = check.isinstance(pattern, Pattern)
+
+    @property
+    def pattern(self) -> 'Pattern[R]':
+        return self._pattern
+
+    @property
+    def property(self) -> 'Property[F, ta.Any]':
+        return self._property
 
 
 # region Patterns
