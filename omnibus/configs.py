@@ -5,6 +5,7 @@ from . import c3
 from . import check
 from . import defs
 from . import lang
+from . import properties
 
 
 lang.warn_unstable()
@@ -73,6 +74,8 @@ class ConfigMetadata(lang.Final):
         self._fields = list(fields)
         check.unique(f.name for f in self._fields)
         self._fields_by_name = {f.name: f for f in self._fields}
+
+    cls = properties.set_once()
 
     @property
     def fields(self) -> ta.Iterable[FieldMetadata]:
@@ -217,7 +220,9 @@ class _ConfigMeta(abc.ABCMeta):
             '__metadata__': config_metadata,
         }
 
-        return super().__new__(mcls, name, bases, newns)
+        cls = super().__new__(mcls, name, bases, newns)
+        config_metadata.cls = cls
+        return cls
 
 
 class Config(metaclass=_ConfigMeta):
