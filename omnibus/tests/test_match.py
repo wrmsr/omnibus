@@ -22,6 +22,8 @@ class Capture(ta.Generic[T]):
 
 class Captures:
 
+    _NIL: 'Captures'
+
     def __init__(self, capture: Capture, value: ta.Any, next: 'Captures') -> None:
         super().__init__()
 
@@ -41,24 +43,28 @@ class Captures:
 
     @staticmethod
     def of_optional(capture: 'Capture[T]', value: ta.Optional[T]) -> 'Captures':
-        return Captures(capture, value, Captures.NIL) if value is not None else Captures.NIL
+        return Captures(capture, value, Captures._NIL) if value is not None else Captures.NIL
 
     def add_all(self, other: 'Captures') -> 'Captures':
-        if self is Captures.NIL:
+        if self is Captures._NIL:
             return self
         else:
             return Captures(self._capture, self._value, self._next.add_all(other))
 
     def get(self, capture: 'Capture[T]') -> T:
-        if self is Captures.NIL:
+        if self is Captures._NIL:
             raise TypeError
         elif self._capture is capture:
             return self._value
         else:
             return self._next.get(capture)
 
+    @staticmethod
+    def empty() -> 'Captures':
+        return Captures._NIL
 
-Captures.NIL = Captures(None, None, None)
+
+Captures._NIL = Captures(None, None, None)
 
 
 # endregion
@@ -312,7 +318,7 @@ class Visitor(ta.Generic[R, C]):
 
 class Matcher(ta.Generic[T]):
 
-    def match(self, pattern: Pattern[T], value: ta.Any, captures: Captures = Captures.NIL) -> Match[T]:
+    def match(self, pattern: Pattern[T], value: ta.Any, captures: Captures = Captures.empty()) -> Match[T]:
         raise TypeError(pattern)
 
     def match_capture(self, pattern: CapturePattern[T], value: ta.Any, captures: Captures) -> Match[T]:
@@ -331,8 +337,41 @@ class Matcher(ta.Generic[T]):
         return self.match(pattern, value, captures)
 
 
-class DefaultMatcher:
-    pass
+class DefaultMatcher(Matcher[T]):
+
+    def match(self, pattern: Pattern[T], value: ta.Any, captures: Captures = Captures.empty()) -> Match[T]:
+        if pattern.next is not None:
+            match = self.match(pattern.next, value, captures)
+            return match.flat_map(lambda v: pattern.accept_matcher(self, v, match.captures))
+        else:
+            return pattern.accept_matcher(self, value, captures)
+
+    def match_capture(self, pattern: CapturePattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return Match.of(value, captures.add_all(Captures.of_optional(pattern.capture, value)))
+
+    def match_equals(self, pattern: EqualsPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return Match.of(value, captures).filter(lambda v: pattern.value == v)
+
+    def match_filter(self, pattern: FilterPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return Match.of(value, captures).filter(pattern.predicate)
+
+    def match_type_of(self, pattern: TypeOfPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        if isinstance(value, pattern.cls):
+            return Match.of(value, captures)
+        else:
+            return Match.empty()
+
+    """
+        Function<? super T, Optional<?>> property = (Function<? super T, Optional<?>>) withPattern.getProperty().getFunction();
+        Optional<?> propertyValue = property.apply((T) object);
+        Match<?> propertyMatch = propertyValue
+                .map(value -> match(withPattern.getPattern(), value, captures))
+                .orElse(Match.empty());
+        return propertyMatch.map(ignored -> (T) object);
+    """
+
+    def match_with(self, pattern: WithPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+        return super().match_with(pattern, value, captures)
 
 
 # endregion
