@@ -371,7 +371,7 @@ class DefaultMatcher(Matcher[T]):
     """
 
     def match_with(self, pattern: WithPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
-        return super().match_with(pattern, value, captures)
+        raise NotImplementedError
 
 
 # endregion
