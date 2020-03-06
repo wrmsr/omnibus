@@ -165,6 +165,9 @@ class EmptyMatch(Match[T]):
 # endregion
 
 
+# region Properties
+
+
 class Property(lang.Final, ta.Generic[F, T]):
 
     def __init__(self, function: ta.Callable[[F], lang.Maybe[T]]) -> None:
@@ -210,6 +213,9 @@ class PropertyPatternPair(ta.Generic[F, R]):
         return self._property
 
 
+# endregion
+
+
 # region Patterns
 
 
@@ -231,6 +237,23 @@ class Pattern(lang.Abstract, ta.Generic[T]):
     @abc.abstractmethod
     def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
         raise NotImplementedError
+
+    @classmethod
+    def any(cls) -> 'Pattern[ta.Any]':
+        return cls.type(object)
+
+    @classmethod
+    def type(cls, cls_: ta.Type[T]) -> 'Pattern[T]':
+        return TypePattern(cls_)
+
+    def capture(self, capture: Capture[T]) -> 'Pattern[T]':
+        return CapturePattern(capture, self)
+
+    def filter(self, predicate: ta.Callable[[T], bool]) -> 'Pattern[T]':
+        return FilterPattern(predicate, self)
+
+    def with_(self, property_pattern_pair: PropertyPatternPair[T, ta.Any]) -> 'Pattern[T]':
+        return WithPattern(property_pattern_pair, self)
 
 
 class CapturePattern(Pattern[T]):
@@ -287,7 +310,7 @@ class FilterPattern(Pattern[T]):
         return matcher.match_filter(self, value, captures)
 
 
-class TypeOfPattern(Pattern[T]):
+class TypePattern(Pattern[T]):
 
     def __init__(self, cls: ta.Type[T]) -> None:
         super().__init__(None)
@@ -299,15 +322,15 @@ class TypeOfPattern(Pattern[T]):
         return self._cls
 
     def accept(self, visitor: 'Visitor[R, C]', context: C) -> R:
-        return visitor.visit_type_of(self, context)
+        return visitor.visit_type(self, context)
 
     def accept_matcher(self, matcher: 'Matcher[T]', value: ta.Any, captures: Captures) -> Match[T]:
-        return matcher.match_type_of(self, value, captures)
+        return matcher.match_type(self, value, captures)
 
 
 class WithPattern(Pattern[T]):
 
-    def __init__(self, property_pattern_pair: PropertyPatternPair[T], next: ta.Optional[Pattern]) -> None:
+    def __init__(self, property_pattern_pair: PropertyPatternPair[T, ta.Any], next: ta.Optional[Pattern]) -> None:
         super().__init__(next)
 
         self._property_pattern_pair = property_pattern_pair
@@ -340,7 +363,7 @@ class Visitor(ta.Generic[R, C]):
     def visit_filter(self, pattern: FilterPattern, context: C) -> R:
         return self.visit(pattern, context)
 
-    def visit_type_of(self, pattern: TypeOfPattern, context: C) -> R:
+    def visit_type(self, pattern: TypePattern, context: C) -> R:
         return self.visit(pattern, context)
 
     def visit_with(self, pattern: WithPattern, context: C) -> R:
@@ -367,7 +390,7 @@ class Matcher(ta.Generic[T]):
     def match_filter(self, pattern: FilterPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
         return self.match(pattern, value, captures)
 
-    def match_type_of(self, pattern: TypeOfPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+    def match_type(self, pattern: TypePattern[T], value: ta.Any, captures: Captures) -> Match[T]:
         return self.match(pattern, value, captures)
 
     def match_with(self, pattern: WithPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
@@ -392,7 +415,7 @@ class DefaultMatcher(Matcher[T]):
     def match_filter(self, pattern: FilterPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
         return Match.of(value, captures).filter(pattern.predicate)
 
-    def match_type_of(self, pattern: TypeOfPattern[T], value: ta.Any, captures: Captures) -> Match[T]:
+    def match_type(self, pattern: TypePattern[T], value: ta.Any, captures: Captures) -> Match[T]:
         if isinstance(value, pattern.cls):
             return Match.of(value, captures)
         else:
