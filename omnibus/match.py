@@ -50,7 +50,7 @@ class Captures:
 
     def add_all(self, other: 'Captures') -> 'Captures':
         if self is Captures._NIL:
-            return self
+            return other
         else:
             return Captures(self._capture, self._value, self._next.add_all(other))
 

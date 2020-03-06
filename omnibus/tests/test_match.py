@@ -5,4 +5,4 @@ def test_match():
     capture = oma.Capture()
     pattern = oma.Pattern.typed(int).captured(capture)
     match = oma.DefaultMatcher().match(pattern, 5)
-    print(match)
+    assert match.captures.get(capture) == 5
