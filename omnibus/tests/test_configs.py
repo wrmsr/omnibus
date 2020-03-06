@@ -14,120 +14,136 @@ class NOT_SET(lang.Marker):
     pass
 
 
-def flatten(unflattened: StrMap) -> StrMap:
-    def rec(prefix: ta.List[str], value: ta.Any) -> None:
-        if isinstance(value, dict):
-            for k, v in value.items():
-                rec(prefix + [k], v)
-        elif isinstance(value, list):
-            for i, v in enumerate(value):
-                rec(prefix + [f'({i})'], v)
-        else:
-            k = '.'.join(prefix)
-            if k in ret:
-                raise KeyError(k)
-            ret[k] = value
+class Flattening:
 
-    ret = {}
-    rec([], unflattened)
-    return ret
+    DEFAULT_DELIMITER = '.'
+    DEFAULT_INDEX_OPEN = '('
+    DEFAULT_INDEX_CLOSE = ')'
 
+    def __init__(
+            self,
+            *,
+            delimiter=DEFAULT_DELIMITER,
+            index_open=DEFAULT_INDEX_OPEN,
+            index_close=DEFAULT_INDEX_CLOSE,
+    ) -> None:
+        super().__init__()
 
-class UnflattenNode(lang.Abstract, ta.Generic[K]):
+        self._delimiter = check.not_empty(delimiter)
+        self._index_open = check.not_empty(index_open)
+        self._index_close = check.not_empty(index_close)
 
-    @lang.abstract
-    def get(self, key: K) -> ta.Any:
-        raise NotImplementedError
+    def flatten(self, unflattened: StrMap) -> StrMap:
+        def rec(prefix: ta.List[str], value: ta.Any) -> None:
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    rec(prefix + [k], v)
+            elif isinstance(value, list):
+                check.not_empty(prefix)
+                for i, v in enumerate(value):
+                    rec(prefix[:-1] + [f'{prefix[-1]}{self._index_open}{i}{self._index_close}'], v)
+            else:
+                k = self._delimiter.join(prefix)
+                if k in ret:
+                    raise KeyError(k)
+                ret[k] = value
 
-    @lang.abstract
-    def put(self, key: K, value: ta.Any) -> None:
-        raise NotImplementedError
-
-    def setdefault(self, key: K, supplier: ta.Callable[[], V]) -> V:
-        ret = self.get(key)
-        if ret is NOT_SET:
-            ret = supplier()
-            self.put(key, ret)
+        ret = {}
+        rec([], unflattened)
         return ret
 
-    @lang.abstract
-    def build(self) -> ta.Any:
-        raise NotImplementedError
+    class UnflattenNode(lang.Abstract, ta.Generic[K]):
 
-    @staticmethod
-    def maybe_build(value: ta.Any) -> ta.Any:
-        check.not_none(value)
-        return value.build() if isinstance(value, UnflattenNode) else value
+        @lang.abstract
+        def get(self, key: K) -> ta.Any:
+            raise NotImplementedError
 
+        @lang.abstract
+        def put(self, key: K, value: ta.Any) -> None:
+            raise NotImplementedError
 
-class UnflattenDict(UnflattenNode[str]):
+        def setdefault(self, key: K, supplier: ta.Callable[[], V]) -> V:
+            ret = self.get(key)
+            if ret is NOT_SET:
+                ret = supplier()
+                self.put(key, ret)
+            return ret
 
-    def __init__(self) -> None:
-        super().__init__()
+        @lang.abstract
+        def build(self) -> ta.Any:
+            raise NotImplementedError
 
-        self._dict = {}
+        @staticmethod
+        def maybe_build(value: ta.Any) -> ta.Any:
+            check.not_none(value)
+            return value.build() if isinstance(value, Flattening.UnflattenNode) else value
 
-    def get(self, key: str) -> ta.Any:
-        return self._dict.get(key, NOT_SET)
+    class UnflattenDict(UnflattenNode[str]):
 
-    def put(self, key: str, value: ta.Any) -> None:
-        check.arg(key not in self._dict)
-        self._dict[key] = value
+        def __init__(self) -> None:
+            super().__init__()
 
-    def build(self) -> ta.Any:
-        return {k: UnflattenNode.maybe_build(v) for k, v in self._dict.items()}
+            self._dict = {}
 
+        def get(self, key: str) -> ta.Any:
+            return self._dict.get(key, NOT_SET)
 
-class UnflattenList(UnflattenNode[int]):
+        def put(self, key: str, value: ta.Any) -> None:
+            check.arg(key not in self._dict)
+            self._dict[key] = value
 
-    def __init__(self) -> None:
-        super().__init__()
+        def build(self) -> ta.Any:
+            return {k: Flattening.UnflattenNode.maybe_build(v) for k, v in self._dict.items()}
 
-        self._list = []
+    class UnflattenList(UnflattenNode[int]):
 
-    def get(self, key: int) -> ta.Any:
-        check.arg(key >= 0)
-        return self._list[key] if key < len(self._list) else NOT_SET
+        def __init__(self) -> None:
+            super().__init__()
 
-    def put(self, key: int, value: ta.Any) -> None:
-        check.arg(key >= 0)
-        if key >= len(self._list):
-            self._list.extend([NOT_SET] * (key - len(self._list) + 1))
-        check.arg(self._list[key] is NOT_SET)
-        self._list[key] = value
+            self._list = []
 
-    def build(self) -> ta.Any:
-        return [UnflattenNode.maybe_build(e) for e in self._list]
+        def get(self, key: int) -> ta.Any:
+            check.arg(key >= 0)
+            return self._list[key] if key < len(self._list) else NOT_SET
 
+        def put(self, key: int, value: ta.Any) -> None:
+            check.arg(key >= 0)
+            if key >= len(self._list):
+                self._list.extend([NOT_SET] * (key - len(self._list) + 1))
+            check.arg(self._list[key] is NOT_SET)
+            self._list[key] = value
 
-def unflatten(flattened: StrMap) -> StrMap:
-    root = UnflattenDict()
+        def build(self) -> ta.Any:
+            return [Flattening.UnflattenNode.maybe_build(e) for e in self._list]
 
-    def split_keys(fkey: str) -> ta.Iterable[ta.Union[str, int]]:
-        for part in fkey.split('.'):
-            if '(' in part:
-                check.state(part.endswith(')'))
-                pos = part.index('(')
-                yield part[:pos]
-                for p in part[pos + 1:-1].split(')('):
-                    yield int(p)
-            else:
-                check.state(')' not in part)
-                yield part
+    def unflatten(self, flattened: StrMap) -> StrMap:
+        root = Flattening.UnflattenDict()
 
-    for fk, v in flattened.items():
-        node = root
-        fks = list(split_keys(fk))
-        for key, nkey in zip(fks, fks[1:]):
-            if isinstance(nkey, str):
-                node = node.setdefault(key, UnflattenDict)
-            elif isinstance(nkey, int):
-                node = node.setdefault(key, UnflattenList)
-            else:
-                raise TypeError(key)
-        node.put(fks[-1], v)
+        def split_keys(fkey: str) -> ta.Iterable[ta.Union[str, int]]:
+            for part in fkey.split(self._delimiter):
+                if self._index_open in part:
+                    check.state(part.endswith(self._index_close))
+                    pos = part.index(self._index_open)
+                    yield part[:pos]
+                    for p in part[pos + len(self._index_open):-len(self._index_close)].split(self._index_close + self._index_open):  # noqa
+                        yield int(p)
+                else:
+                    check.state(')' not in part)
+                    yield part
 
-    return root.build()
+        for fk, v in flattened.items():
+            node = root
+            fks = list(split_keys(fk))
+            for key, nkey in zip(fks, fks[1:]):
+                if isinstance(nkey, str):
+                    node = node.setdefault(key, Flattening.UnflattenDict)
+                elif isinstance(nkey, int):
+                    node = node.setdefault(key, Flattening.UnflattenList)
+                else:
+                    raise TypeError(key)
+            node.put(fks[-1], v)
+
+        return root.build()
 
 
 def test_flattening():
@@ -153,9 +169,10 @@ def test_flattening():
             ]
         ]
     }
-    fl = flatten(m)
-    ufl = unflatten(fl)
-    print(ufl)
+    for f in [Flattening(), Flattening(index_open='((', index_close='))')]:
+        fl = f.flatten(m)
+        ufl = f.unflatten(fl)
+        assert ufl == m
 
 
 class DbConfig(configs.Config):
