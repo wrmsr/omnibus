@@ -53,10 +53,19 @@ class ConfigMetadata(lang.Final):
             self,
             fields: ta.Iterable[FieldMetadata],
     ) -> None:
-        super().__innit__()
+        super().__init__()
 
         self._fields = list(fields)
         check.unique(f.name for f in self._fields)
+        self._fields_by_name = {f.name: f for f in self._fields}
+
+    @property
+    def fields(self) -> ta.Iterable[FieldMetadata]:
+        return self._fields
+
+    @property
+    def fields_by_name(self) -> ta.Mapping[str, FieldMetadata]:
+        return self._fields_by_name
 
 
 class Source(lang.Abstract):
