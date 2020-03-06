@@ -1,4 +1,5 @@
 import abc
+import types
 import typing as ta
 
 from . import c3
@@ -180,11 +181,20 @@ def is_field_name(name: str) -> bool:
     return not lang.is_dunder(name) and name not in IGNORED_NAMESPACE_KEYS
 
 
+def is_field_value(name: str, ns: ta.Mapping[str, ta.Any]) -> bool:
+    if name not in ns:
+        return True
+    value = ns[name]
+    if isinstance(value, (types.FunctionType, staticmethod, classmethod, property)):
+        return False
+    return True
+
+
 def get_namespace_field_names(ns: ta.Mapping[str, ta.Any]) -> ta.List[str]:
     return [
         name
         for name in {**ns.get('__annotations__', {}), **ns}.keys()
-        if is_field_name(name)
+        if is_field_name(name) and is_field_value(name, ns)
     ]
 
 
@@ -242,7 +252,7 @@ class _ConfigMeta(abc.ABCMeta):
 
         field_metadatas = {
             fmd.name: fmd
-            for fi in reversed(field_infos.values())
+            for fi in reversed(list(field_infos.values()))
             for fmd in [mcls.build_field_metadata(mcls, fi)]
         }
 
@@ -251,7 +261,7 @@ class _ConfigMeta(abc.ABCMeta):
         )
 
         newns = {
-            **{name: v for name, v in namespace.items() if not is_field_name(name)},
+            **{name: v for name, v in namespace.items() if not is_field_name(name) or not is_field_value(name, namespace)},  # noqa
             **{name: _FieldDescriptor(field_metadatas[name]) for name in get_namespace_field_names(namespace)},
             '__metadata__': config_metadata,
         }
@@ -269,6 +279,11 @@ class Config(metaclass=_ConfigMeta):
         self._field_source = check.isinstance(field_source, FieldSource)
 
         self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
+
+    def __new__(cls, *args, **kwargs):
+        if cls is Config:
+            raise TypeError
+        return super().__new__(cls, *args, **kwargs)
 
     @classmethod
     def of(cls: ta.Type[ConfigT], **kwargs) -> ConfigT:
