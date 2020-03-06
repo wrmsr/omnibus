@@ -267,7 +267,12 @@ class Config(metaclass=_ConfigMeta):
         super().__init__()
 
         self._field_source = check.isinstance(field_source, FieldSource)
+
         self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
+
+    @classmethod
+    def of(cls: ta.Type[ConfigT], **kwargs) -> ConfigT:
+        return cls(DictFieldSource(kwargs))
 
 
 class Flattening:
