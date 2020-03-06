@@ -19,7 +19,7 @@ class NOT_SET(lang.Marker):
     pass
 
 
-class FieldMetadata(ta.Generic[T]):
+class FieldMetadata(lang.Final, ta.Generic[T]):
 
     def __init__(
             self,
@@ -47,8 +47,16 @@ class FieldMetadata(ta.Generic[T]):
         return self._doc
 
 
-class ConfigMetadata(lang.Abstract):
-    pass
+class ConfigMetadata(lang.Final):
+
+    def __init__(
+            self,
+            fields: ta.Iterable[FieldMetadata],
+    ) -> None:
+        super().__innit__()
+
+        self._fields = list(fields)
+        check.unique(f.name for f in self._fields)
 
 
 class Source(lang.Abstract):
