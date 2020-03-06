@@ -83,25 +83,27 @@ class TarBuilder:
     def __init__(self, fileobj=None) -> None:
         if fileobj is None:
             fileobj = io.BytesIO()
-        self.fileobj = fileobj
+        self._fileobj = fileobj
+        self._tar: tarfile.TarFile = None
 
     def flip(self):
-        self.fileobj.seek(0)
-        return self.fileobj
+        self._fileobj.seek(0)
+        return self._fileobj
 
     def __enter__(self) -> 'TarBuilder':
-        self.tar = tarfile.TarFile(fileobj=self.fileobj, mode='w')
+        self._tar = tarfile.TarFile(fileobj=self._fileobj, mode='w')
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.tar.close()
+        if self._tar is not None:
+            self._tar.close()
 
     def add_data(self, name: str, data: bytes) -> None:
         tar_info = tarfile.TarInfo(name=name)
         tar_info.size = len(data)
         tar_info.mtime = time.time()
         # tarinfo.mode = 0600
-        self.tar.addfile(tar_info, io.BytesIO(data))
+        self._tar.addfile(tar_info, io.BytesIO(data))
 
     def add_file(self, name: str, file_path) -> None:
         with open(file_path, 'rb') as f:
