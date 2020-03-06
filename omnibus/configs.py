@@ -68,15 +68,24 @@ class ConfigMetadata(lang.Final):
         return self._fields_by_name
 
 
-class Source(lang.Abstract):
+class FieldSource(lang.Abstract):
+
+    @abc.abstractmethod
+    def get(self, name: str) -> ta.Any:
+        raise NotImplementedError
+
+
+class ConfigSource(lang.Abstract):
 
     @abc.abstractmethod
     def get(self, cls: ta.Type[ConfigT]) -> ConfigT:
         raise NotImplementedError
 
-    # @abc.abstractmethod
-    # def get_child(self, cls: ta.Type[ConfigT]) -> ConfigT:
-    #     raise NotImplementedError
+
+class _FieldDescriptor:
+
+    def __get__(self, instance, owner):
+        raise NotImplementedError
 
 
 class _ConfigMeta(abc.ABCMeta):
@@ -87,10 +96,10 @@ class _ConfigMeta(abc.ABCMeta):
 
 class Config(metaclass=_ConfigMeta):
 
-    def __init__(self, source: Source) -> None:
+    def __init__(self, field_source: FieldSource) -> None:
         super().__init__()
 
-        self._source = check.isinstance(source, Source)
+        self._field_source = check.isinstance(field_source, FieldSource)
 
 
 def field(*args, **kwargs):
