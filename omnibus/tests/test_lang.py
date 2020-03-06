@@ -503,3 +503,10 @@ def test_context_wrapped():
     d = D()
     assert d.g(10) == 13
     assert gcm.count == 2
+
+
+def test_maybe():
+    assert lang.Maybe(1)
+    assert not lang.Maybe.empty()
+    assert lang.Maybe('foo').value.endswith('o')
+    assert next(iter(lang.Maybe('x'))).capitalize() == 'X'

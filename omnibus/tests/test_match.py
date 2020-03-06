@@ -165,8 +165,16 @@ class EmptyMatch(Match[T]):
 # endregion
 
 
-class Property:
-    pass
+class Property(lang.Final):
+
+    def __init__(self, function: ta.Callable) -> None:
+        super().__init__()
+
+        self._function = check.callable(function)
+
+    @staticmethod
+    def of():
+        raise NotImplementedError
 
 
 class PropertyPatternPair(ta.Generic[T]):
@@ -361,7 +369,7 @@ class DefaultMatcher(Matcher[T]):
         else:
             return Match.empty()
 
-    """
+    """  # noqa
         Function<? super T, Optional<?>> property = (Function<? super T, Optional<?>>) withPattern.getProperty().getFunction();
         Optional<?> propertyValue = property.apply((T) object);
         Match<?> propertyMatch = propertyValue
