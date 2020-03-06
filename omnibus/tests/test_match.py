@@ -186,10 +186,10 @@ class Property(lang.Final, ta.Generic[F, T]):
     def matching(self, pattern: 'Pattern[R]') -> 'PropertyPatternPair[F, R]':
         return PropertyPatternPair(self, pattern)
 
-    def captured(self, capture: Capture[T]) -> 'PropertyPatternPair[F, T]':
+    def capturing(self, capture: Capture[T]) -> 'PropertyPatternPair[F, T]':
         return self.matching(Pattern.any().captured(capture))
 
-    def equals(self, value: T) -> 'PropertyPatternPair[F, T]':
+    def equaling(self, value: T) -> 'PropertyPatternPair[F, T]':
         return self.matching(EqualsPattern(value, None))
 
     def filtering(self, predicate: ta.Callable[[T], bool]) -> 'PropertyPatternPair[F, T]':
@@ -240,16 +240,16 @@ class Pattern(lang.Abstract, ta.Generic[T]):
 
     @classmethod
     def any(cls) -> 'Pattern[ta.Any]':
-        return cls.type(object)
+        return cls.typed(object)
 
     @classmethod
-    def type(cls, cls_: ta.Type[T]) -> 'Pattern[T]':
+    def typed(cls, cls_: ta.Type[T]) -> 'Pattern[T]':
         return TypePattern(cls_)
 
-    def capture(self, capture: Capture[T]) -> 'Pattern[T]':
+    def captured(self, capture: Capture[T]) -> 'Pattern[T]':
         return CapturePattern(capture, self)
 
-    def filter(self, predicate: ta.Callable[[T], bool]) -> 'Pattern[T]':
+    def filtered(self, predicate: ta.Callable[[T], bool]) -> 'Pattern[T]':
         return FilterPattern(predicate, self)
 
     def with_(self, property_pattern_pair: PropertyPatternPair[T, ta.Any]) -> 'Pattern[T]':
@@ -261,7 +261,7 @@ class CapturePattern(Pattern[T]):
     def __init__(self, capture: Capture[T], next: Pattern) -> None:
         super().__init__(check.not_none(next))
 
-        self._capture = capture
+        self._capture = check.isinstance(capture, Capture)
 
     @property
     def capture(self) -> Capture[T]:
