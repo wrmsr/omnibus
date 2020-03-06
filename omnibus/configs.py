@@ -111,6 +111,19 @@ class _FieldDescriptor:
         raise NotImplementedError
 
 
+class FieldArgs(lang.Final):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__()
+
+        self._args = args
+        self._kwargs = kwargs
+
+
+def field(*args, **kwargs):
+    return FieldArgs(*args, **kwargs)
+
+
 class _ConfigMeta(abc.ABCMeta):
 
     class FieldInfo(ta.NamedTuple):
@@ -142,10 +155,6 @@ class Config(metaclass=_ConfigMeta):
         super().__init__()
 
         self._field_source = check.isinstance(field_source, FieldSource)
-
-
-def field(*args, **kwargs):
-    pass
 
 
 class Flattening:
