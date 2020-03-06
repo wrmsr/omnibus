@@ -8,6 +8,7 @@ from . import lang
 lang.warn_unstable()
 
 
+T = ta.TypeVar('T')
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 StrMap = ta.Mapping[str, ta.Any]
@@ -18,11 +19,35 @@ class NOT_SET(lang.Marker):
     pass
 
 
-class Config(lang.Abstract):
-    pass
+class FieldMetadata(ta.Generic[T]):
+
+    def __init__(
+            self,
+            name: str,
+            type: type = None,
+            *,
+            doc: str = None,
+    ) -> None:
+        super().__init__()
+
+        self._name = check.not_empty(check.isinstance(name, str))
+        self._type = type
+        self._doc = doc
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def type(self) -> type:
+        return self._type
+
+    @property
+    def doc(self) -> ta.Optional[str]:
+        return self._doc
 
 
-class Property:
+class ConfigMetadata(lang.Abstract):
     pass
 
 
@@ -35,6 +60,10 @@ class Source(lang.Abstract):
     # @abc.abstractmethod
     # def get_child(self, cls: ta.Type[ConfigT]) -> ConfigT:
     #     raise NotImplementedError
+
+
+class Config(lang.Abstract):
+    pass
 
 
 class Flattening:
