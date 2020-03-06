@@ -30,7 +30,7 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
     def __init__(
             self,
             name: str,
-            type: type = None,
+            type: type = NOT_SET,
             *,
             default: ta.Any = NOT_SET,
             doc: str = None,
@@ -132,14 +132,32 @@ class _ConfigMeta(abc.ABCMeta):
         value: ta.Any
 
     def build_field_info(mcls, ns, name) -> FieldInfo:
-        annotation = ns.get('__annotations__', {}).get(name)
+        annotation = ns.get('__annotations__', {}).get(name, NOT_SET)
         value = ns.get(name, NOT_SET)
         return _ConfigMeta.FieldInfo(name, annotation, value)
 
     def build_field_metadata(mcls, fi: FieldInfo) -> FieldMetadata:
-        type_ = None
+        type_ = NOT_SET
         default = NOT_SET
         kwargs = {}
+
+        if isinstance(fi.value, FieldArgs):
+            fa: FieldArgs = fi.value
+            fakw = dict(fa._kwargs)
+            if 'type' in fakw:
+                type_ = fakw.pop('type')
+            elif fi.annotation is not NOT_SET:
+                type_ = fi.annotation
+            if fa._args:
+                default = check.single(fa._args)
+            if 'default' in fakw:
+                default = check.replacing(NOT_SET, default, fakw.pop('default'))
+            kwargs.update(fakw)
+
+        else:
+            if fi.annotation is not NOT_SET:
+                type_ = fi.annotation
+            default = fi.value
 
         return FieldMetadata(
             fi.name,

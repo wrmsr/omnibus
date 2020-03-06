@@ -114,10 +114,14 @@ def callable(obj: T, message: Messageable = None) -> T:
     return obj
 
 
-def replacing_none(old: ta.Any, new: T, message: Messageable = None) -> T:
-    if old is not None:
-        _raise(TypeError, 'Must be None', message)
+def replacing(expected: ta.Any, old: ta.Any, new: T, message: Messageable = None) -> T:
+    if old != expected:
+        _raise(TypeError, 'Must be replacing', message, expected, old)
     return new
+
+
+def replacing_none(old: ta.Any, new: T, message: Messageable = None) -> T:
+    return replacing(None, old, new, message=message)
 
 
 def raises(fn: ta.Callable, exc: ta.Type[BaseException] = BaseException, message: Messageable = None) -> None:
