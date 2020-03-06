@@ -4,10 +4,6 @@ import time
 import typing as ta
 
 from . import check
-from . import lang
-
-
-lang.warn_unstable()
 
 
 class SamplingHistogram:

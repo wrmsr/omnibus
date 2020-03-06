@@ -146,13 +146,13 @@ def test_validate():
         x: int = dc.field(validate=lambda x: x > 0)
         y: int
 
-        dc.validate(lambda x, y: x > y)
+        # dc.validate(lambda x, y: x > y)
 
-        @dc.validate
-        @staticmethod
-        def _validate(x, y):
-            if not (x > y):
-                raise ValueError
+        # @dc.validate
+        # @staticmethod
+        # def _validate(x, y):
+        #     if not (x > y):
+        #         raise ValueError
 
 
 def test_coerce():
