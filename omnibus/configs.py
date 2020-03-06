@@ -261,8 +261,15 @@ class _ConfigMeta(abc.ABCMeta):
         )
 
         newns = {
-            **{name: v for name, v in namespace.items() if not is_field_name(name) or not is_field_value(name, namespace)},  # noqa
-            **{name: _FieldDescriptor(field_metadatas[name]) for name in get_namespace_field_names(namespace)},
+            **{
+                name: v
+                for name, v in namespace.items()
+                if not is_field_name(name) or not is_field_value(name, namespace)
+            },
+            **{
+                name: _FieldDescriptor(field_metadatas[name])
+                for name in get_namespace_field_names(namespace)
+            },
             '__metadata__': config_metadata,
         }
 
@@ -401,7 +408,8 @@ class Flattening:
                     check.state(part.endswith(self._index_close))
                     pos = part.index(self._index_open)
                     yield part[:pos]
-                    for p in part[pos + len(self._index_open):-len(self._index_close)].split(self._index_close + self._index_open):  # noqa
+                    for p in part[pos + len(self._index_open):-len(self._index_close)]\
+                            .split(self._index_close + self._index_open):
                         yield int(p)
                 else:
                     check.state(')' not in part)
