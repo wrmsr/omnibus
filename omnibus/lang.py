@@ -1327,6 +1327,17 @@ class Maybe(Final, ta.Generic[T], tuple):
             return value
         return Maybe.EMPTY
 
+    def or_else(self, other: T) -> T:
+        return self if self else Maybe(other)
+
+    def or_else_get(self, supplier: ta.Callable[[], T]) -> T:
+        return self if self else Maybe(supplier())
+
+    def or_else_raise(self, exception_supplier: ta.Callable[[], Exception]) -> T:
+        if self:
+            return self
+        raise exception_supplier()
+
 
 Maybe.EMPTY = Maybe._empty()
 
