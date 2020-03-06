@@ -110,7 +110,7 @@ class ConfigMetadata(lang.Final):
 class FieldSource(lang.Abstract):
 
     @abc.abstractmethod
-    def get(self, name: str) -> ta.Any:
+    def get(self, field: FieldMetadata) -> ta.Any:
         raise NotImplementedError
 
 
@@ -128,8 +128,8 @@ class DictFieldSource(FieldSource):
 
         self._dct = check.not_none(dct)
 
-    def get(self, name: str) -> ta.Any:
-        return self._dct.get(name, NOT_SET)
+    def get(self, field: FieldMetadata) -> ta.Any:
+        return self._dct.get(field.name, NOT_SET)
 
 
 class _FieldDescriptor:
@@ -148,8 +148,14 @@ class _FieldDescriptor:
     def __set_name__(self, owner, name):
         check.state(name == self.name)
 
-    def __get__(self, instance, owner):
-        raise NotImplementedError
+    def __get__(self, instance: 'Config', owner: ta.Type['Config']):
+        if not isinstance(instance, Config):
+            raise TypeError(instance)
+        try:
+            return instance._values_by_field[self._metadata]
+        except KeyError:
+            value = instance._values_by_field[self._metadata] = instance._field_source.get(self._metadata)
+            return value
 
 
 def is_field_name(name: str) -> bool:
@@ -243,6 +249,7 @@ class Config(metaclass=_ConfigMeta):
         super().__init__()
 
         self._field_source = check.isinstance(field_source, FieldSource)
+        self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
 
 
 class Flattening:
