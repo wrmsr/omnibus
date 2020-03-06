@@ -139,6 +139,15 @@ class _FieldDescriptor:
 
         self._metadata = check.isinstance(metadata, FieldMetadata)
 
+    defs.repr('name')
+
+    @property
+    def name(self) -> str:
+        return self._metadata.name
+
+    def __set_name__(self, owner, name):
+        check.state(name == self.name)
+
     def __get__(self, instance, owner):
         raise NotImplementedError
 

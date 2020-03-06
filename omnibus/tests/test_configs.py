@@ -58,4 +58,10 @@ class MetadataConfig(configs.Config):
 
 
 def test_configs():
-    pass
+    db_config = DbConfig(
+        configs.DictFieldSource({
+            'url': 'a url',
+            'comment': 'a comment',
+        })
+    )
+    assert db_config.url == 'a url'
