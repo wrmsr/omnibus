@@ -108,12 +108,6 @@ class DictFieldSource(FieldSource):
         return self._dct.get(name, NOT_SET)
 
 
-class _FieldDescriptor:
-
-    def __get__(self, instance, owner):
-        raise NotImplementedError
-
-
 class FieldArgs(lang.Final):
 
     def __init__(self, *args, **kwargs) -> None:
@@ -125,6 +119,29 @@ class FieldArgs(lang.Final):
 
 def field(*args, **kwargs):
     return FieldArgs(*args, **kwargs)
+
+
+class _FieldDescriptor:
+
+    def __init__(self, metadata: FieldMetadata) -> None:
+        super().__init__()
+
+        self._metadata = check.isinstance(metadata, FieldMetadata)
+
+    def __get__(self, instance, owner):
+        raise NotImplementedError
+
+
+def is_field_name(name: str) -> bool:
+    return not lang.is_dunder(name) and name not in IGNORED_NAMESPACE_KEYS
+
+
+def get_namespace_field_names(ns: ta.Mapping[str, ta.Any]) -> ta.List[str]:
+    return [
+        name
+        for name in {**ns.get('__annotations__', {}), **ns}.keys()
+        if is_field_name(name)
+    ]
 
 
 class _ConfigMeta(abc.ABCMeta):
@@ -140,6 +157,9 @@ class _ConfigMeta(abc.ABCMeta):
         return _ConfigMeta.FieldInfo(name, annotation, value)
 
     def build_field_metadata(mcls, fi: FieldInfo) -> FieldMetadata:
+        if isinstance(fi.value, _FieldDescriptor):
+            return fi.value._metadata
+
         type_ = NOT_SET
         default = NOT_SET
         kwargs = {}
@@ -173,20 +193,31 @@ class _ConfigMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
         base_mro = c3.merge([list(b.__mro__) for b in bases])
+
         field_infos = {
             fi.name: fi
             for ns in [b.__dict__ for b in reversed(base_mro)] + [namespace]
-            for name in reversed(list({**ns.get('__annotations__', {}), **ns}.keys()))
-            if not lang.is_dunder(name) and name not in IGNORED_NAMESPACE_KEYS
+            for name in reversed(get_namespace_field_names(ns))
             for fi in [mcls.build_field_info(mcls, ns, name)]
         }
+
         field_metadatas = {
             fmd.name: fmd
             for fi in reversed(field_infos.values())
             for fmd in [mcls.build_field_metadata(mcls, fi)]
         }
 
-        return super().__new__(mcls, name, bases, namespace)
+        config_metadata = ConfigMetadata(
+            field_metadatas.values()
+        )
+
+        newns = {
+            **{name: v for name, v in namespace.items() if not is_field_name(name)},
+            **{name: _FieldDescriptor(field_metadatas[name]) for name in get_namespace_field_names(namespace)},
+            '__metadata__': config_metadata,
+        }
+
+        return super().__new__(mcls, name, bases, newns)
 
 
 class Config(metaclass=_ConfigMeta):
