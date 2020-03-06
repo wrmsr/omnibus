@@ -136,6 +136,18 @@ class _ConfigMeta(abc.ABCMeta):
         value = ns.get(name, NOT_SET)
         return _ConfigMeta.FieldInfo(name, annotation, value)
 
+    def build_field_metadata(mcls, fi: FieldInfo) -> FieldMetadata:
+        type_ = None
+        default = NOT_SET
+        kwargs = {}
+
+        return FieldMetadata(
+            fi.name,
+            type_,
+            default=default,
+            **kwargs
+        )
+
     def __new__(mcls, name, bases, namespace):
         base_mro = c3.merge([list(b.__mro__) for b in bases])
         field_infos = {
