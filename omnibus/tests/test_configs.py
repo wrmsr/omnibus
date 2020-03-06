@@ -87,7 +87,7 @@ class UnflattenList(UnflattenNode[int]):
 
     def get(self, key: int) -> ta.Any:
         check.arg(key >= 0)
-        return self._list[key] if key <= len(self._list) else NOT_SET
+        return self._list[key] if key < len(self._list) else NOT_SET
 
     def put(self, key: int, value: ta.Any) -> None:
         check.arg(key >= 0)
@@ -102,8 +102,32 @@ class UnflattenList(UnflattenNode[int]):
 
 def unflatten(flattened: StrMap) -> StrMap:
     root = UnflattenDict()
-    for k, f in flattened.items():
+
+    def split_keys(fkey: str) -> ta.Iterable[ta.Union[str, int]]:
+        for part in fkey.split('.'):
+            if '(' in part:
+                check.state(part.endswith(')'))
+                pos = part.index('(')
+                yield part[:pos]
+                for p in part[pos + 1:-1].split(')('):
+                    yield int(p)
+            else:
+                check.state(')' not in part)
+                yield part
+
+    for fk, v in flattened.items():
         node = root
+        fks = list(split_keys(fk))
+        for key, nkey in zip(fks, fks[1:]):
+            if isinstance(nkey, str):
+                node = node.setdefault(key, UnflattenDict)
+            elif isinstance(nkey, int):
+                node = node.setdefault(key, UnflattenList)
+            else:
+                raise TypeError(key)
+        node.put(fks[-1], v)
+
+    return root.build()
 
 
 def test_flattening():
@@ -130,7 +154,8 @@ def test_flattening():
         ]
     }
     fl = flatten(m)
-    unflatten(fl)
+    ufl = unflatten(fl)
+    print(ufl)
 
 
 class DbConfig(configs.Config):
