@@ -153,28 +153,15 @@ class RegistryProperty(Property[ta.Callable]):
             self,
             *,
             descriptor: bool = None,
-            singledispatch: bool = False,
             unbound: bool = False,
     ) -> None:
         super().__init__()
 
-        if unbound and singledispatch:
-            raise TypeError
-        if singledispatch:
-            if descriptor is not None and descriptor is not True:
-                raise ValueError(descriptor)
-            self._descriptor = self._singledispatch = True
-        else:
-            self._descriptor = descriptor
-            self._singledispatch = False
-
+        self._descriptor = descriptor
         self._unbound = unbound
+
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
-
-    @property
-    def singledispatch(self) -> bool:
-        return self._singledispatch
 
     class DescriptorAccessor(collections.abc.Mapping):
 
@@ -204,24 +191,6 @@ class RegistryProperty(Property[ta.Callable]):
         def invalidate(self):
             return self._owner.invalidate()
 
-        @cached
-        def _singledispatch(self):
-            if not self._owner._singledispatch:
-                raise TypeError(self._owner)
-
-            def default(arg, *args, **kwargs):
-                raise TypeError(arg)
-            sd = functools.singledispatch(default)
-            for k, v in self.items():
-                sd.register(k)(v.__get__(self._obj, self._cls))
-            return sd
-
-        def __call__(self, *args, **kwargs):
-            return self._singledispatch(*args, **kwargs)
-
-        def dispatch(self, cls: ta.Any) -> ta.Callable:
-            return self._singledispatch.dispatch(cls)
-
     def __get__(self, obj, cls=None):
         if cls is None:
             return self
@@ -244,24 +213,6 @@ class RegistryProperty(Property[ta.Callable]):
             return lookup
 
     def register(self, *keys):
-        if self._singledispatch:
-            if len(keys) == 1 and not isinstance(keys[0], type):
-                [meth] = keys
-                if not isinstance(meth, types.FunctionType):
-                    raise TypeError(meth)
-                ann = getattr(meth, '__annotations__', {})
-                if not ann:
-                    raise TypeError
-                _, key = next(iter(ta.get_type_hints(meth).items()))
-                if not isinstance(key, type):
-                    raise TypeError(key)
-                self._registry.setdefault(meth, set()).add(key)
-                return meth
-            else:
-                for key in keys:
-                    if not isinstance(key, type):
-                        raise TypeError(key)
-
         def inner(meth):
             self._registry.setdefault(meth, set()).update(keys)
             return meth
@@ -274,13 +225,67 @@ class RegistryProperty(Property[ta.Callable]):
 def registry(
         *,
         descriptor: bool = None,
-        singledispatch: bool = False,
         unbound: bool = False,
 ) -> RegistryProperty:
     return RegistryProperty(
         descriptor=descriptor,
-        singledispatch=singledispatch,
         unbound=unbound,
+    )
+
+
+class DispatchRegistryProperty(RegistryProperty):
+
+    def __init__(
+            self,
+            *,
+            descriptor: bool = None,
+    ) -> None:
+        super().__init__(descriptor=descriptor)
+
+    class DescriptorAccessor(RegistryProperty.DescriptorAccessor):
+
+        @cached
+        def _dispatch(self):
+            def default(arg, *args, **kwargs):
+                raise TypeError(arg)
+            sd = functools.singledispatch(default)
+            for k, v in self.items():
+                sd.register(k)(v.__get__(self._obj, self._cls))
+            return sd
+
+        def __call__(self, *args, **kwargs):
+            return self._dispatch(*args, **kwargs)
+
+        def dispatch(self, cls: ta.Any) -> ta.Callable:
+            return self._dispatch.dispatch(cls)
+
+    def register(self, *keys):
+        if len(keys) == 1 and not isinstance(keys[0], type):
+            [meth] = keys
+            if not isinstance(meth, types.FunctionType):
+                raise TypeError(meth)
+            ann = getattr(meth, '__annotations__', {})
+            if not ann:
+                raise TypeError
+            _, key = next(iter(ta.get_type_hints(meth).items()))
+            if not isinstance(key, type):
+                raise TypeError(key)
+            self._registry.setdefault(meth, set()).add(key)
+            return meth
+        else:
+            for key in keys:
+                if not isinstance(key, type):
+                    raise TypeError(key)
+
+        return super().register(*keys)
+
+
+def dispatch_registry(
+        *,
+        descriptor: bool = None,
+) -> RegistryProperty:
+    return DispatchRegistryProperty(
+        descriptor=descriptor,
     )
 
 
@@ -307,7 +312,7 @@ class RegistryMeta(abc.ABCMeta):
                 if isinstance(value, RegistryProperty):
                     self._regs[key] = value
             else:
-                if not callable(value) or not reg.singledispatch:
+                if not callable(value) or not isinstance(reg, DispatchRegistryProperty):
                     raise TypeError(value)
                 reg.register(value)
                 self._dict[f'__{hex(id(value))}'] = value

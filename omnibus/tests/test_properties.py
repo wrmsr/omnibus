@@ -74,7 +74,7 @@ def test_registry_property():
 
 def test_registry_dispatch():
     class A:
-        fn = properties.registry(singledispatch=True)
+        fn = properties.dispatch_registry()
 
         @fn.register(object)
         def fn_object(self, o):
@@ -125,7 +125,7 @@ def test_registry_dispatch():
 
 def test_registry_class():
     class A(properties.RegistryClass):
-        fn = properties.registry(singledispatch=True)
+        fn = properties.dispatch_registry()
 
         def fn(self, o: object):  # noqa
             return 'object'
