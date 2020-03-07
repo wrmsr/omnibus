@@ -7,7 +7,9 @@
 .pytest_cache
 .tox
 .venv
+.venv-37
 .venv-install
+.venv-pypi
 attic
 build
 dist
