@@ -2,12 +2,14 @@ import abc
 import functools
 import inspect
 import threading
+import types
 import typing as ta
 import weakref
 
 from . import c3
 from . import check
 from . import lang
+from . import properties
 from . import reflect as rfl
 
 
@@ -391,3 +393,56 @@ def function(
         return wrapper
 
     return inner
+
+
+class RegistryProperty(properties.RegistryProperty):
+
+    def __init__(self) -> None:
+        super().__init__(descriptor=True)
+
+    class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
+
+        @properties.cached
+        def _dispatcher(self):
+            dispatcher = CachingDispatcher(DefaultDispatcher())
+
+            for k, v in self.items():
+                dispatcher[k] = (v.__get__(self._obj, self._cls))
+
+            return dispatcher
+
+        def __call__(self, arg, *args, **kwargs):
+            impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
+            impl = inject_manifest(impl, manifest)
+            return impl(arg, *args, **kwargs)
+
+        def dispatch(self, cls: ta.Any) -> ta.Callable:
+            return self._dispatcher[cls]
+
+    def register(self, *keys):
+        if len(keys) == 1 and not isinstance(keys[0], type):
+            [meth] = keys
+            if not isinstance(meth, types.FunctionType):
+                raise TypeError(meth)
+
+            ann = getattr(meth, '__annotations__', {})
+            if not ann:
+                raise TypeError
+
+            _, key = next(iter(ta.get_type_hints(meth).items()))
+            if not isinstance(key, type):
+                raise TypeError(key)
+
+            self._registry.setdefault(meth, set()).add(key)
+            return meth
+
+        else:
+            for key in keys:
+                if not isinstance(key, type):
+                    raise TypeError(key)
+
+        return super().register(*keys)
+
+
+def registry_property() -> RegistryProperty:
+    return RegistryProperty()

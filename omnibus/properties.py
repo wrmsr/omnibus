@@ -8,7 +8,6 @@ import abc
 import collections.abc
 import functools
 import threading
-import types
 import typing as ta
 import weakref
 
@@ -246,60 +245,6 @@ def registry(
     )
 
 
-class DispatchRegistryProperty(RegistryProperty):
-
-    def __init__(self) -> None:
-        super().__init__(descriptor=True)
-
-    class DescriptorAccessor(RegistryProperty.DescriptorAccessor):
-
-        @cached
-        def _dispatch(self):
-            def default(arg, *args, **kwargs):
-                raise TypeError(arg)
-
-            sd = functools.singledispatch(default)
-
-            for k, v in self.items():
-                sd.register(k)(v.__get__(self._obj, self._cls))
-
-            return sd
-
-        def __call__(self, *args, **kwargs):
-            return self._dispatch(*args, **kwargs)
-
-        def dispatch(self, cls: ta.Any) -> ta.Callable:
-            return self._dispatch.dispatch(cls)
-
-    def register(self, *keys):
-        if len(keys) == 1 and not isinstance(keys[0], type):
-            [meth] = keys
-            if not isinstance(meth, types.FunctionType):
-                raise TypeError(meth)
-
-            ann = getattr(meth, '__annotations__', {})
-            if not ann:
-                raise TypeError
-
-            _, key = next(iter(ta.get_type_hints(meth).items()))
-            if not isinstance(key, type):
-                raise TypeError(key)
-
-            self._registry.setdefault(meth, set()).add(key)
-            return meth
-
-        else:
-            for key in keys:
-                if not isinstance(key, type):
-                    raise TypeError(key)
-
-        return super().register(*keys)
-
-
-def dispatch_registry() -> RegistryProperty:
-    return DispatchRegistryProperty()
-
-
 class RegistryMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
@@ -325,7 +270,7 @@ class RegistryMeta(abc.ABCMeta):
                     self._regs[key] = value
 
             else:
-                if not callable(value) or not isinstance(reg, DispatchRegistryProperty):
+                if not callable(value):  # or not isinstance(reg, DispatchRegistryProperty):
                     raise TypeError(value)
 
                 reg.register(value)
