@@ -170,7 +170,7 @@ class RegistryProperty(Property[ta.Callable]):
 
         self._unbound = unbound
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
-        self._cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
+        self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
 
     @property
     def singledispatch(self) -> bool:
@@ -226,7 +226,7 @@ class RegistryProperty(Property[ta.Callable]):
         if cls is None:
             return self
         try:
-            lookup = self._cache[cls]
+            lookup = self._lookup_cache[cls]
         except KeyError:
             lookup = {}
             for mcls in reversed(cls.__mro__):
@@ -237,7 +237,7 @@ class RegistryProperty(Property[ta.Callable]):
                         continue
                     for key in keys:
                         lookup[key] = att
-            self._cache[cls] = lookup
+            self._lookup_cache[cls] = lookup
         if not self._unbound:
             return self.DescriptorAccessor(self, lookup, obj, cls)
         else:
@@ -268,7 +268,7 @@ class RegistryProperty(Property[ta.Callable]):
         return inner
 
     def invalidate(self):
-        self._cache = weakref.WeakKeyDictionary()
+        self._lookup_cache = weakref.WeakKeyDictionary()
 
 
 def registry(
