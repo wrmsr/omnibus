@@ -9,8 +9,8 @@ toolz==0.10.0
 # optional integrations
 
 billiard==3.6.3.0
-boto3==1.12.15
-botocore==1.15.15
+boto3==1.12.16
+botocore==1.15.16
 cbor==1.0.0
 docker==4.2.0
 jmespath==0.9.5
