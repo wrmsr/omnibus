@@ -44,6 +44,7 @@ class CachedProperty(Property[T]):
         def __get__(obj, cls) -> T:
             if obj is None:
                 return self
+
             value = obj.__dict__[name] = func(obj)
             return value
 
@@ -52,11 +53,13 @@ class CachedProperty(Property[T]):
     def __get__(self, obj, cls) -> T:
         if obj is None:
             return self
+
         with self._lock:
             try:
                 value = obj.__dict__[self._func.__name__]
             except KeyError:
                 value = obj.__dict__[self._func.__name__] = self._func(obj)
+
         return value
 
 
@@ -135,10 +138,12 @@ class CachedClassProperty(Property[T]):
     def __get__(self, obj, cls=None) -> T:
         if cls is None:
             return self._func(cls)
+
         try:
             return self._values[cls]
         except KeyError:
             pass
+
         value = self._values[cls] = self._func(cls)
         return value
 
