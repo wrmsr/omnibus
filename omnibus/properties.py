@@ -153,12 +153,12 @@ class RegistryProperty(Property[ta.Callable]):
             self,
             *,
             descriptor: bool = None,
-            unbound: bool = False,
+            raw: bool = False,
     ) -> None:
         super().__init__()
 
         self._descriptor = descriptor
-        self._unbound = unbound
+        self._raw = raw
 
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
@@ -175,8 +175,10 @@ class RegistryProperty(Property[ta.Callable]):
 
         def __getitem__(self, key):
             ret = self._lookup[key]
+
             if self._owner._descriptor:
                 ret = ret.__get__(self._obj, self._cls)
+
             return ret
 
         def __iter__(self):
@@ -213,7 +215,7 @@ class RegistryProperty(Property[ta.Callable]):
 
             self._lookup_cache[cls] = lookup
 
-        if not self._unbound:
+        if not self._raw:
             return self.DescriptorAccessor(self, lookup, obj, cls)
 
         else:
@@ -233,9 +235,9 @@ class RegistryProperty(Property[ta.Callable]):
 def registry(
         *,
         descriptor: bool = None,
-        unbound: bool = False,
+        raw: bool = False,
 ) -> RegistryProperty:
     return RegistryProperty(
         descriptor=descriptor,
-        unbound=unbound,
+        raw=raw,
     )
