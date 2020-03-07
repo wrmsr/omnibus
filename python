@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+VENV_PYTHON_PATH="${BASH_SOURCE%/*}/.venv/bin/python"
+if [ -f "$VENV_PYTHON_PATH" ] ; then
+    PYTHON="$VENV_PYTHON_PATH"
+else
+    PYTHON=python
+fi
+
+if [ $# -eq 0 ] && "$PYTHON" -c "import IPython" 2> /dev/null ; then
+    "$PYTHON" -m IPython
+else
+    "$PYTHON" "$@"
+fi
