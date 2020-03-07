@@ -1,9 +1,3 @@
-"""
-TODO:
- - frozen registry + opt (be fast)
-   - ** per-instance cache (of bound methods), per-type registry
- - use dispatch
-"""
 import collections.abc
 import functools
 import threading

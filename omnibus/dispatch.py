@@ -422,6 +422,11 @@ def function(
 
 
 class RegistryProperty(properties.RegistryProperty):
+    """
+    TODO:
+     - frozen registry + opt (be fast)
+       - ** per-instance cache (of bound methods), per-type registry
+    """
 
     def __init__(self) -> None:
         super().__init__(descriptor=True)

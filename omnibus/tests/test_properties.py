@@ -64,9 +64,17 @@ def test_registry_property():
         def _c(self):
             return 2
 
+    class E(D):
+
+        @D.fns.register('a')
+        def _a4(self):
+            return 4
+
     assert C().fns['a']() == 0
     assert C().fns['b']() == 1
     with pytest.raises(KeyError):
         C().fns['c']()
     assert D().fns['b']() == 1
     assert D().fns['c']() == 2
+    assert E().fns['c']() == 2
+    assert E().fns['a']() == 4
