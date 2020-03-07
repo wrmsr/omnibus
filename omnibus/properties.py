@@ -194,21 +194,28 @@ class RegistryProperty(Property[ta.Callable]):
     def __get__(self, obj, cls=None):
         if cls is None:
             return self
+
         try:
             lookup = self._lookup_cache[cls]
+
         except KeyError:
             lookup = {}
+
             for mcls in reversed(cls.__mro__):
                 for att in mcls.__dict__.values():
                     try:
                         keys = self._registry[att]
                     except KeyError:
                         continue
+
                     for key in keys:
                         lookup[key] = att
+
             self._lookup_cache[cls] = lookup
+
         if not self._unbound:
             return self.DescriptorAccessor(self, lookup, obj, cls)
+
         else:
             return lookup
 
@@ -216,6 +223,7 @@ class RegistryProperty(Property[ta.Callable]):
         def inner(meth):
             self._registry.setdefault(meth, set()).update(keys)
             return meth
+
         return inner
 
     def invalidate(self):
@@ -235,12 +243,8 @@ def registry(
 
 class DispatchRegistryProperty(RegistryProperty):
 
-    def __init__(
-            self,
-            *,
-            descriptor: bool = None,
-    ) -> None:
-        super().__init__(descriptor=descriptor)
+    def __init__(self) -> None:
+        super().__init__(descriptor=True)
 
     class DescriptorAccessor(RegistryProperty.DescriptorAccessor):
 
@@ -248,9 +252,12 @@ class DispatchRegistryProperty(RegistryProperty):
         def _dispatch(self):
             def default(arg, *args, **kwargs):
                 raise TypeError(arg)
+
             sd = functools.singledispatch(default)
+
             for k, v in self.items():
                 sd.register(k)(v.__get__(self._obj, self._cls))
+
             return sd
 
         def __call__(self, *args, **kwargs):
@@ -264,14 +271,18 @@ class DispatchRegistryProperty(RegistryProperty):
             [meth] = keys
             if not isinstance(meth, types.FunctionType):
                 raise TypeError(meth)
+
             ann = getattr(meth, '__annotations__', {})
             if not ann:
                 raise TypeError
+
             _, key = next(iter(ta.get_type_hints(meth).items()))
             if not isinstance(key, type):
                 raise TypeError(key)
+
             self._registry.setdefault(meth, set()).add(key)
             return meth
+
         else:
             for key in keys:
                 if not isinstance(key, type):
@@ -280,13 +291,8 @@ class DispatchRegistryProperty(RegistryProperty):
         return super().register(*keys)
 
 
-def dispatch_registry(
-        *,
-        descriptor: bool = None,
-) -> RegistryProperty:
-    return DispatchRegistryProperty(
-        descriptor=descriptor,
-    )
+def dispatch_registry() -> RegistryProperty:
+    return DispatchRegistryProperty()
 
 
 class RegistryMeta(abc.ABCMeta):
@@ -307,13 +313,16 @@ class RegistryMeta(abc.ABCMeta):
         def __setitem__(self, key, value):
             try:
                 reg = self._regs[key]
+
             except KeyError:
                 self._dict[key] = value
                 if isinstance(value, RegistryProperty):
                     self._regs[key] = value
+
             else:
                 if not callable(value) or not isinstance(reg, DispatchRegistryProperty):
                     raise TypeError(value)
+
                 reg.register(value)
                 self._dict[f'__{hex(id(value))}'] = value
 
@@ -341,11 +350,13 @@ class RegistryMeta(abc.ABCMeta):
             for k, v in bmro.__dict__.items():
                 if isinstance(v, RegistryProperty):
                     regs[k] = v
+
         return cls.RegisteringNamespace(regs)
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         if not isinstance(namespace, mcls.RegisteringNamespace):
             raise TypeError(namespace)
+
         namespace = namespace._dict
         return super().__new__(mcls, name, bases, namespace, **kwargs)
 
