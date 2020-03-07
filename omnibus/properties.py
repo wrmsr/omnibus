@@ -4,20 +4,16 @@ TODO:
    - ** per-instance cache (of bound methods), per-type registry
  - use dispatch
 """
-import abc
 import collections.abc
 import functools
 import threading
 import typing as ta
 import weakref
 
-from . import c3
 from . import lang
 
 
 T = ta.TypeVar('T')
-K = ta.TypeVar('K')
-V = ta.TypeVar('V')
 
 
 class Property(ta.Generic[T]):
@@ -243,73 +239,3 @@ def registry(
         descriptor=descriptor,
         unbound=unbound,
     )
-
-
-class RegistryMeta(abc.ABCMeta):
-
-    class RegisteringNamespace:
-
-        def __init__(self, regs: ta.Mapping[str, RegistryProperty]) -> None:
-            super().__init__()
-            self._dict = {}
-            self._regs = dict(regs)
-
-        def __contains__(self, item):
-            return item in self._dict
-
-        def __getitem__(self, item):
-            return self._dict[item]
-
-        def __setitem__(self, key, value):
-            try:
-                reg = self._regs[key]
-
-            except KeyError:
-                self._dict[key] = value
-                if isinstance(value, RegistryProperty):
-                    self._regs[key] = value
-
-            else:
-                if not callable(value):  # or not isinstance(reg, DispatchRegistryProperty):
-                    raise TypeError(value)
-
-                reg.register(value)
-                self._dict[f'__{hex(id(value))}'] = value
-
-        def __delitem__(self, key):
-            del self._dict[key]
-
-        def get(self, k, d=None):
-            try:
-                return self[k]
-            except KeyError:
-                return d
-
-        def setdefault(self, k, d=None):
-            try:
-                return self[k]
-            except KeyError:
-                self[k] = d
-                return d
-
-    @classmethod
-    def __prepare__(cls, name, bases, **kwargs):
-        regs = {}
-        mro = c3.merge([list(b.__mro__) for b in bases])
-        for bmro in reversed(mro):
-            for k, v in bmro.__dict__.items():
-                if isinstance(v, RegistryProperty):
-                    regs[k] = v
-
-        return cls.RegisteringNamespace(regs)
-
-    def __new__(mcls, name, bases, namespace, **kwargs):
-        if not isinstance(namespace, mcls.RegisteringNamespace):
-            raise TypeError(namespace)
-
-        namespace = namespace._dict
-        return super().__new__(mcls, name, bases, namespace, **kwargs)
-
-
-class RegistryClass(metaclass=RegistryMeta):
-    pass

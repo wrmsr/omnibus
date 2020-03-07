@@ -70,25 +70,3 @@ def test_registry_property():
         C().fns['c']()
     assert D().fns['b']() == 1
     assert D().fns['c']() == 2
-
-
-# def test_registry_class():
-#     class A(properties.RegistryClass):
-#         fn = properties.registry()
-#
-#         def fn(self, o: object):  # noqa
-#             return 'object'
-#
-#         def fn(self, o: int):  # noqa
-#             return 'int'
-#
-#     class B(A):
-#
-#         def fn(self, o: str):
-#             return 'str'
-#
-#     assert A().fn(0) == 'int'
-#     assert A().fn('') == 'object'
-#
-#     assert B().fn(0) == 'int'
-#     assert B().fn('') == 'str'

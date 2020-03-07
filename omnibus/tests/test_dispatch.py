@@ -3,7 +3,6 @@ import typing as ta
 import pytest
 
 from .. import dispatch
-from .. import properties
 
 
 K = ta.TypeVar('K')
@@ -108,7 +107,7 @@ def test_registry_property():
 
 
 def test_registry_class():
-    class A(properties.RegistryClass):
+    class A(dispatch.RegistryClass):
         fn = dispatch.registry_property()
 
         def fn(self, o: object):  # noqa
