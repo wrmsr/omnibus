@@ -151,7 +151,7 @@ class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
         for child in self._children:
             try:
                 hits.append(child[k])
-            except KeyError:
+            except NotRegisteredException:
                 pass
         if len(hits) == 1:
             return hits[0]
@@ -191,7 +191,10 @@ class DictRegistry(Registry[K, V]):
         self.register(k, v)
 
     def __getitem__(self, k: K) -> V:
-        return self._dct[k]
+        try:
+            return self._dct[k]
+        except KeyError:
+            raise NotRegisteredException(k)
 
     def __len__(self) -> int:
         return len(self._dct)
@@ -217,7 +220,7 @@ class DictRegistry(Registry[K, V]):
                 check.not_none(k)
 
                 try:
-                    ov = self[k]
+                    ov = self._dct[k]
                 except KeyError:
                     pass
                 else:
