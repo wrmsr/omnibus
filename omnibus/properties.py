@@ -157,15 +157,37 @@ class RegistryProperty(Property[ta.Callable]):
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
 
+    def get_lookup(self, cls: ta.Type) -> ta.Mapping[ta.Any, ta.Callable]:
+        try:
+            return self._lookup_cache[cls]
+
+        except KeyError:
+            lookup = {}
+
+            for mcls in reversed(cls.__mro__):
+                for att in mcls.__dict__.values():
+                    try:
+                        keys = self._registry[att]
+                    except KeyError:
+                        continue
+
+                    for key in keys:
+                        lookup[key] = att
+
+            self._lookup_cache[cls] = lookup
+
+            return lookup
+
     class DescriptorAccessor(collections.abc.Mapping):
 
-        def __init__(self, owner, lookup, obj, cls):
+        def __init__(self, owner, obj, cls):
             super().__init__()
 
             self._owner = owner
-            self._lookup = lookup
             self._obj = obj
             self._cls = cls
+
+            self._lookup = owner.get_lookup(cls)
 
         def __getitem__(self, key):
             ret = self._lookup[key]
@@ -191,29 +213,11 @@ class RegistryProperty(Property[ta.Callable]):
         if cls is None:
             return self
 
-        try:
-            lookup = self._lookup_cache[cls]
-
-        except KeyError:
-            lookup = {}
-
-            for mcls in reversed(cls.__mro__):
-                for att in mcls.__dict__.values():
-                    try:
-                        keys = self._registry[att]
-                    except KeyError:
-                        continue
-
-                    for key in keys:
-                        lookup[key] = att
-
-            self._lookup_cache[cls] = lookup
-
         if not self._raw:
-            return self.DescriptorAccessor(self, lookup, obj, cls)
+            return self.DescriptorAccessor(self, obj, cls)
 
         else:
-            return lookup
+            return self.get_lookup(cls)
 
     def register(self, *keys):
         def inner(meth):

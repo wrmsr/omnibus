@@ -431,6 +431,8 @@ class RegistryProperty(properties.RegistryProperty):
     def __init__(self) -> None:
         super().__init__(descriptor=True)
 
+        self._dispatcher_cache: ta.MutableMapping[ta.Type, Dispatcher] = weakref.WeakKeyDictionary()
+
     class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
 
         @properties.cached
@@ -473,6 +475,11 @@ class RegistryProperty(properties.RegistryProperty):
                     raise TypeError(key)
 
         return super().register(*keys)
+
+    def invalidate(self):
+        super().invalidate()
+
+        self._dispatcher_cache = weakref.WeakKeyDictionary()
 
 
 def registry_property() -> RegistryProperty:
