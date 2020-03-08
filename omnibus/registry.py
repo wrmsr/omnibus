@@ -2,6 +2,7 @@ import threading
 import typing as ta
 import weakref
 
+from . import check
 from . import lang
 
 
@@ -70,13 +71,22 @@ class Registry(ta.Mapping[K, V]):
     def values(self) -> ta.ValuesView[V]:
         return self._dct.values()
 
-    def register(self, k: K, v: V) -> None:
+    def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
         with self._lock:
-            try:
-                ov = self[k]
-            except KeyError:
-                pass
-            else:
-                raise AlreadyRegisteredException(k, v, ov)
+            for k, v in dct.items():
+                check.not_none(k)
 
-            self._dct[k] = v
+                try:
+                    ov = self[k]
+                except KeyError:
+                    pass
+                else:
+                    raise AlreadyRegisteredException(k, v, ov)
+
+                self._dct[k] = v
+
+        return self
+
+    def register(self, k: K, v: V) -> 'Registry[K, V]':
+        check.not_none(k)
+        return self.register_many({k: v})
