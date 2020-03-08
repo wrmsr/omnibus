@@ -91,6 +91,18 @@ class CompositeRegistry(Registry[K, V]):
     def compose(self) -> ta.Mapping[K, V]:
         raise NotImplementedError
 
+    def __setitem__(self, k: K, v: V) -> None:
+        raise TypeError
+
+    def __iter__(self) -> ta.Iterator[K]:
+        return iter(self.keys())
+
+    def __len__(self) -> int:
+        return len(self.compose())
+
+    def __contains__(self, k: K) -> bool:
+        return any(k in c for c in self._children)
+
     def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:
         return self.compose().items()
 
@@ -100,39 +112,53 @@ class CompositeRegistry(Registry[K, V]):
     def values(self) -> ta.ValuesView[V]:
         return self.compose().values()
 
-    def __setitem__(self, k: K, v: V) -> None:
-        raise TypeError
-
-    def __contains__(self, k: K) -> bool:
-        return any(k in c for c in self._children)
-
     def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
         raise TypeError
 
 
-class FirstWinsCompositeRegistry(CompositeRegistry[K, V]):
+class FirstOneCompositeRegistry(CompositeRegistry[K, V]):
+
+    def compose(self) -> ta.Mapping[K, V]:
+        ret = {}
+        for child in self._children:
+            for k, v in child.items():
+                if k not in ret:
+                    ret[k] = v
+        return ret
+
+    def __getitem__(self, k: K) -> V:
+        for child in self._children:
+            try:
+                return child[k]
+            except KeyError:
+                pass
+        raise NotRegisteredException(k)
+
+
+class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
+
+    def compose(self) -> ta.Mapping[K, V]:
+        ret = {}
+        for child in self._children:
+            for k, v in child.items():
+                if k in ret:
+                    raise AmbiguouslyRegisteredException(k, ret[k])
+                ret[k] = v
+        return ret
 
     def __getitem__(self, k: K) -> V:
         hits = []
         for child in self._children:
-            hit = child[k]
-            if self._mode == CompositeRegistry.Mode.FIRST:
-                return hit
-            hits.append(hit)
-
+            try:
+                hits.append(child[k])
+            except KeyError:
+                pass
         if len(hits) == 1:
             return hits[0]
         elif hits:
             raise AmbiguouslyRegisteredException(k, hits)
         else:
             raise NotRegisteredException(k)
-
-    def items(self) -> ta.Iterable[ta.Tuple[K, V]]:
-        seen = set()
-        for child in self._children:
-            yield from child.items()
-
-
 
 
 class DictRegistry(Registry[K, V]):
