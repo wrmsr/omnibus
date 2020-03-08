@@ -451,7 +451,14 @@ class RegistryProperty(properties.RegistryProperty):
 
     class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
 
+        def __init__(self, owner, obj, cls):
+            super().__init__(owner, obj, cls)
+
+            self._dispatcher = owner.get_dispatcher(cls)
+            self._bound_cache: ta.Dict[ta.Any, callable] = {}
+
         def __call__(self, arg, *args, **kwargs):
+            # sd.register(k)(v.__get__(self._obj, self._cls))
             impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
             impl = inject_manifest(impl, manifest)
             return impl(arg, *args, **kwargs)
