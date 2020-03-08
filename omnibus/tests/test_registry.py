@@ -36,10 +36,19 @@ def test_registries():
     with pytest.raises(registries.NotRegisteredException):
         foreg1[3]
 
-    ooreg = registries.OnlyOneCompositeRegistry([reg0, reg1])
-    assert ooreg[0] == 'zero'
     with pytest.raises(registries.AmbiguouslyRegisteredException):
-        ooreg[1]
+        registries.OnlyOneCompositeRegistry([reg0, reg1])
+
+    oreg0 = registries.DictRegistry()
+    oreg0[0] = 'zero'
+    oreg0[1] = 'one'
+    oreg1 = registries.DictRegistry()
+    oreg1[2] = 'two'
+    oreg1[3] = 'three'
+    ooreg = registries.OnlyOneCompositeRegistry([oreg0, oreg1])
+    assert ooreg[0] == 'zero'
+    assert ooreg[1] == 'one'
     assert ooreg[2] == 'two'
+    assert ooreg[3] == 'three'
     with pytest.raises(registries.NotRegisteredException):
-        ooreg[3]
+        ooreg[4]

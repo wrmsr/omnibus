@@ -11,6 +11,7 @@ from . import check
 from . import lang
 from . import properties
 from . import reflect as rfl
+from . import registries
 
 
 lang.warn_unstable()
@@ -122,8 +123,8 @@ class Dispatcher(ta.Generic[Impl]):
     def key(obj: ta.Any) -> TypeOrSpec:
         return obj.__class__
 
-    @abc.abstractmethod
-    def __setitem__(self, key: TypeOrSpec, value: Impl) -> None:
+    @abc.abstractproperty
+    def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -133,76 +134,19 @@ class Dispatcher(ta.Generic[Impl]):
     @abc.abstractmethod
     def __contains__(self, key: TypeOrSpec) -> bool:
         raise NotImplementedError
-
-    @abc.abstractmethod
-    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
-        raise NotImplementedError
-
-
-class CompositeDispatcher(Dispatcher[Impl]):
-
-    class Mode(lang.AutoEnum):
-        FIRST = ...
-        ONE = ...
-
-    def __init__(
-            self,
-            children: ta.Iterable[Dispatcher[Impl]],
-            *,
-            mode: ta.Union[Mode, str] = Mode.ONE,
-    ) -> None:
-        super().__init__()
-
-        self._children = list(children)
-        self._mode = lang.parse_enum(mode, CompositeDispatcher.Mode)
-
-    @property
-    def children(self) -> ta.List[Dispatcher[Impl]]:
-        return self._children
-
-    @property
-    def mode(self) -> 'CompositeDispatcher.Mode':
-        return self._mode
-
-    def __setitem__(self, key: TypeOrSpec, value: Impl) -> None:
-        raise TypeError
-
-    def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
-        hits = []
-        for child in self._children:
-            try:
-                hit = child[key]
-            except AmbiguousDispatchError:
-                raise
-            if self._mode == CompositeDispatcher.Mode.FIRST:
-                return hit
-            hits.append(hit)
-        if len(hits) == 1:
-            return hits[0]
-        elif hits:
-            raise AmbiguousDispatchError(key, hits)
-        else:
-            raise UnregisteredDispatchError(key)
-
-    def __contains__(self, key: TypeOrSpec) -> bool:
-        return any(key in c for c in self._children)
-
-    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
-        for child in self._children:
-            yield from child.items()
 
 
 class ErasingDictDispatcher(Dispatcher[Impl]):
 
     _dict: ta.Dict[ta.Type, Impl]
 
-    def __init__(self, dict: ta.Dict[ta.Type, Impl] = None) -> None:
+    def __init__(self, registry: registries.Registry[ta.Type, Impl] = None) -> None:
         super().__init__()
 
-        if dict is not None:
-            self._dict = dict
+        if registry is not None:
+            self._registry = registries.DictRegistry()
         else:
-            self._dict = {}
+            self._registry = check.isinstance(registry, registries.Registry)
 
     def _resolve(self, cls: ta.Type) -> ta.Optional[ta.Tuple[ta.Type, Impl]]:
         mro = generic_compose_mro(cls, list(self._dict.keys()))
@@ -221,6 +165,7 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
                 break
             if t in self._dict:
                 match = t
+
         try:
             return match, self._dict[match]
         except KeyError:

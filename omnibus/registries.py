@@ -32,6 +32,10 @@ class NotRegisteredException(Exception):
 
 class Registry(abc.ABC, ta.Mapping[K, V]):
 
+    @abc.abstractproperty
+    def version(self) -> ta.Any:
+        raise NotImplementedError
+
     @abc.abstractmethod
     def __setitem__(self, k: K, v: V) -> None:
         raise NotImplementedError
@@ -78,39 +82,73 @@ class CompositeRegistry(Registry[K, V]):
     def __init__(
             self,
             children: ta.Iterable[Registry[K, V]],
+            *,
+            lock: ta.Optional[lang.ContextManageable] = NOT_SET,
     ) -> None:
         super().__init__()
 
         self._children = list(children)
+
+        if lock is NOT_SET:
+            self._lock = threading.RLock()
+        elif lock is None:
+            self._lock = lang.ContextManaged()
+        else:
+            self._lock = lock
+
+        self._version = self._build_version()
+        self._composed = self._build_composed()
+
+    def _build_version(self) -> ta.Tuple:
+        return tuple(c.version for c in self._children)
+
+    @property
+    def version(self) -> ta.Tuple:
+        return self._build_version()
 
     @property
     def children(self) -> ta.List[Registry[K, V]]:
         return self._children
 
     @abc.abstractmethod
-    def compose(self) -> ta.Mapping[K, V]:
+    def _build_composed(self) -> ta.Mapping[K, V]:
         raise NotImplementedError
+
+    @property
+    def composed(self) -> ta.Mapping[K, V]:
+        with self._lock:
+            version = self._build_version()
+            if version != self._version:
+                self._composed = self._build_composed()
+                self._version = version
+            return self._composed
 
     def __setitem__(self, k: K, v: V) -> None:
         raise TypeError
+
+    def __getitem__(self, k: K) -> V:
+        try:
+            return self.composed[k]
+        except KeyError:
+            raise NotRegisteredException(k)
 
     def __iter__(self) -> ta.Iterator[K]:
         return iter(self.keys())
 
     def __len__(self) -> int:
-        return len(self.compose())
+        return len(self.composed)
 
     def __contains__(self, k: K) -> bool:
         return any(k in c for c in self._children)
 
     def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:
-        return self.compose().items()
+        return self.composed.items()
 
     def keys(self) -> ta.AbstractSet[K]:
-        return self.compose().keys()
+        return self.composed.keys()
 
     def values(self) -> ta.ValuesView[V]:
-        return self.compose().values()
+        return self.composed.values()
 
     def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
         raise TypeError
@@ -118,7 +156,7 @@ class CompositeRegistry(Registry[K, V]):
 
 class FirstOneCompositeRegistry(CompositeRegistry[K, V]):
 
-    def compose(self) -> ta.Mapping[K, V]:
+    def _build_composed(self) -> ta.Mapping[K, V]:
         ret = {}
         for child in self._children:
             for k, v in child.items():
@@ -126,18 +164,10 @@ class FirstOneCompositeRegistry(CompositeRegistry[K, V]):
                     ret[k] = v
         return ret
 
-    def __getitem__(self, k: K) -> V:
-        for child in self._children:
-            try:
-                return child[k]
-            except NotRegisteredException:
-                pass
-        raise NotRegisteredException(k)
-
 
 class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
 
-    def compose(self) -> ta.Mapping[K, V]:
+    def _build_composed(self) -> ta.Mapping[K, V]:
         ret = {}
         for child in self._children:
             for k, v in child.items():
@@ -145,20 +175,6 @@ class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
                     raise AmbiguouslyRegisteredException(k, ret[k])
                 ret[k] = v
         return ret
-
-    def __getitem__(self, k: K) -> V:
-        hits = []
-        for child in self._children:
-            try:
-                hits.append(child[k])
-            except NotRegisteredException:
-                pass
-        if len(hits) == 1:
-            return hits[0]
-        elif hits:
-            raise AmbiguouslyRegisteredException(k, hits)
-        else:
-            raise NotRegisteredException(k)
 
 
 class DictRegistry(Registry[K, V]):
@@ -186,6 +202,12 @@ class DictRegistry(Registry[K, V]):
         else:
             dct = {}
         self._dct = dct
+
+        self._version = 0
+
+    @property
+    def version(self) -> int:
+        return self._version
 
     def __setitem__(self, k: K, v: V) -> None:
         self.register(k, v)
@@ -215,6 +237,9 @@ class DictRegistry(Registry[K, V]):
         return self._dct.values()
 
     def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
+        if not dct:
+            return self
+
         with self._lock:
             for k, v in dct.items():
                 check.not_none(k)
@@ -226,6 +251,9 @@ class DictRegistry(Registry[K, V]):
                 else:
                     raise AlreadyRegisteredException(k, v, ov)
 
+            for k, v in dct.items():
                 self._dct[k] = v
+
+            self._version += 1
 
         return self
