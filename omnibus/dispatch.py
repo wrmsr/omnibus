@@ -453,12 +453,13 @@ class RegistryProperty(properties.RegistryProperty):
             self._bound_cache: ta.Dict[ta.Any, callable] = {}
 
         def __call__(self, arg, *args, **kwargs):
+            key = self._dispatcher.key(arg)
             try:
-                bound = self._bound_cache[arg]
+                bound = self._bound_cache[key]
             except KeyError:
-                impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
+                impl, manifest = self._dispatcher[key]
                 impl = inject_manifest(impl, manifest)
-                bound = self._bound_cache[arg] = impl.__get__(self._obj, self._cls)
+                bound = self._bound_cache[key] = impl.__get__(self._obj, self._cls)
 
             return bound(arg, *args, **kwargs)
 

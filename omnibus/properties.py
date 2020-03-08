@@ -4,6 +4,7 @@ import threading
 import typing as ta
 import weakref
 
+from . import check
 from . import lang
 
 
@@ -154,8 +155,15 @@ class RegistryProperty(Property[ta.Callable]):
         self._descriptor = descriptor
         self._raw = raw
 
+        self._name: str = None
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
+
+    def __set_name__(self, owner, name):
+        if self._name is None:
+            self._name = check.not_empty(name)
+        else:
+            check.state(self._name == name)
 
     def get_lookup(self, cls: ta.Type) -> ta.Mapping[ta.Any, ta.Callable]:
         try:
@@ -214,10 +222,14 @@ class RegistryProperty(Property[ta.Callable]):
             return self
 
         if not self._raw:
-            return self.DescriptorAccessor(self, obj, cls)
-
+            ret = self.DescriptorAccessor(self, obj, cls)
         else:
-            return self.get_lookup(cls)
+            ret = self.get_lookup(cls)
+
+        if obj is not None and self._name is not None:
+            obj.__dict__[check.not_empty(self._name)] = ret
+
+        return ret
 
     def register(self, *keys):
         def inner(meth):
