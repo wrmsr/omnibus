@@ -130,7 +130,7 @@ class FirstOneCompositeRegistry(CompositeRegistry[K, V]):
         for child in self._children:
             try:
                 return child[k]
-            except KeyError:
+            except NotRegisteredException:
                 pass
         raise NotRegisteredException(k)
 
