@@ -422,11 +422,6 @@ def function(
 
 
 class RegistryProperty(properties.RegistryProperty):
-    """
-    TODO:
-     - frozen registry + opt (be fast)
-       - ** per-instance cache (of bound methods), per-type registry
-    """
 
     def __init__(self) -> None:
         super().__init__(descriptor=True)
@@ -458,10 +453,14 @@ class RegistryProperty(properties.RegistryProperty):
             self._bound_cache: ta.Dict[ta.Any, callable] = {}
 
         def __call__(self, arg, *args, **kwargs):
-            # sd.register(k)(v.__get__(self._obj, self._cls))
-            impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
-            impl = inject_manifest(impl, manifest)
-            return impl(arg, *args, **kwargs)
+            try:
+                bound = self._bound_cache[arg]
+            except KeyError:
+                impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
+                impl = inject_manifest(impl, manifest)
+                bound = self._bound_cache[arg] = impl.__get__(self._obj, self._cls)
+
+            return bound(arg, *args, **kwargs)
 
         def dispatch(self, cls: ta.Any) -> ta.Callable:
             return self._dispatcher[cls]
