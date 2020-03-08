@@ -433,16 +433,23 @@ class RegistryProperty(properties.RegistryProperty):
 
         self._dispatcher_cache: ta.MutableMapping[ta.Type, Dispatcher] = weakref.WeakKeyDictionary()
 
-    class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
+    def get_dispatcher(self, cls: ta.Type) -> Dispatcher:
+        try:
+            return self._dispatcher_cache[cls]
 
-        @properties.cached
-        def _dispatcher(self):
+        except KeyError:
+            lookup = self.get_lookup(cls)
+
             dispatcher = CachingDispatcher(DefaultDispatcher())
 
-            for k, v in self.items():
-                dispatcher[k] = (v.__get__(self._obj, self._cls))
+            for k, v in lookup.items():
+                dispatcher[k] = v
+
+            self._dispatcher_cache[cls] = dispatcher
 
             return dispatcher
+
+    class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
 
         def __call__(self, arg, *args, **kwargs):
             impl, manifest = self._dispatcher[self._dispatcher.key(arg)]
