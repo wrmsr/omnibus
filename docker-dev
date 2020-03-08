@@ -11,5 +11,5 @@ docker exec \
     $TTY_ENV_ARGS \
     --privileged \
     --detach-keys 'ctrl-o,ctrl-d' \
-    -it docker_omnibus_1 \
+    -it docker_omnibus-dev_1 \
     bash --login -c "$*"
