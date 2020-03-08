@@ -128,6 +128,10 @@ class Dispatcher(ta.Generic[Impl]):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def __setitem__(self, cls: TypeOrSpec, impl: Impl) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
         raise NotImplementedError
 
@@ -144,31 +148,31 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
         super().__init__()
 
         if registry is not None:
-            self._registry = registries.DictRegistry()
-        else:
             self._registry = check.isinstance(registry, registries.Registry)
+        else:
+            self._registry = registries.DictRegistry()
 
     def _resolve(self, cls: ta.Type) -> ta.Optional[ta.Tuple[ta.Type, Impl]]:
-        mro = generic_compose_mro(cls, list(self._dict.keys()))
+        mro = generic_compose_mro(cls, list(self._registry.keys()))
         match = None
         for t in mro:
             if match is not None:
                 # If *match* is an implicit ABC but there is another unrelated,
                 # equally matching implicit ABC, refuse the temptation to guess.
                 if (
-                        t in self._dict and
+                        t in self._registry and
                         t not in cls.__mro__ and
                         match not in cls.__mro__ and
                         not issubclass(match, t)
                 ):
                     raise AmbiguousDispatchError(match, t)
                 break
-            if t in self._dict:
+            if t in self._registry:
                 match = t
 
         try:
-            return match, self._dict[match]
-        except KeyError:
+            return match, self._registry[match]
+        except registries.NotRegisteredException:
             raise UnregisteredDispatchError(match)
 
     def _erase(self, cls: TypeOrSpec) -> ta.Type:
@@ -176,15 +180,13 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
 
     def __setitem__(self, cls: TypeOrSpec, impl: Impl) -> None:
         cls = self._erase(cls)
-        if cls in self._dict:
-            raise KeyError(cls)
-        self._dict[cls] = impl
+        self._registry[cls] = impl
 
     def __getitem__(self, cls: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
         ecls = self._erase(cls)
         try:
-            impl = self._dict[ecls]
-        except KeyError:
+            impl = self._registry[ecls]
+        except registries.NotRegisteredException:
             match, impl = self._resolve(ecls)
             return impl, Manifest(cls, match)
         else:
@@ -192,10 +194,7 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
 
     def __contains__(self, cls: TypeOrSpec) -> bool:
         cls = self._erase(cls)
-        return cls in self._dict
-
-    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
-        return self._dict.items()
+        return cls in self._registry
 
 
 DefaultDispatcher = ErasingDictDispatcher
@@ -304,9 +303,6 @@ class CachingDispatcher(Dispatcher[Impl]):
 
     def __contains__(self, key: TypeOrSpec) -> bool:
         return key in self._child
-
-    def items(self) -> ta.Iterable[ta.Tuple[TypeOrSpec, Impl]]:
-        yield from self._child.items()
 
 
 # endregion
