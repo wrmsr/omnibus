@@ -1,3 +1,4 @@
+import abc
 import threading
 import typing as ta
 import weakref
@@ -21,7 +22,120 @@ class AlreadyRegisteredException(Exception):
     pass
 
 
-class Registry(ta.Mapping[K, V]):
+class AmbiguouslyRegisteredException(Exception):
+    pass
+
+
+class NotRegisteredException(Exception):
+    pass
+
+
+class Registry(abc.ABC, ta.Mapping[K, V]):
+
+    @abc.abstractmethod
+    def __setitem__(self, k: K, v: V) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __getitem__(self, k: K) -> V:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __len__(self) -> int:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __iter__(self) -> ta.Iterator[K]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def __contains__(self, o: object) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def keys(self) -> ta.AbstractSet[K]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def values(self) -> ta.ValuesView[V]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
+        raise NotImplementedError
+
+    def register(self, k: K, v: V) -> 'Registry[K, V]':
+        check.not_none(k)
+        return self.register_many({k: v})
+
+
+class CompositeRegistry(Registry[K, V]):
+
+    def __init__(
+            self,
+            children: ta.Iterable[Registry[K, V]],
+    ) -> None:
+        super().__init__()
+
+        self._children = list(children)
+
+    @property
+    def children(self) -> ta.List[Registry[K, V]]:
+        return self._children
+
+    @abc.abstractmethod
+    def compose(self) -> ta.Mapping[K, V]:
+        raise NotImplementedError
+
+    def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:
+        return self.compose().items()
+
+    def keys(self) -> ta.AbstractSet[K]:
+        return self.compose().keys()
+
+    def values(self) -> ta.ValuesView[V]:
+        return self.compose().values()
+
+    def __setitem__(self, k: K, v: V) -> None:
+        raise TypeError
+
+    def __contains__(self, k: K) -> bool:
+        return any(k in c for c in self._children)
+
+    def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
+        raise TypeError
+
+
+class FirstWinsCompositeRegistry(CompositeRegistry[K, V]):
+
+    def __getitem__(self, k: K) -> V:
+        hits = []
+        for child in self._children:
+            hit = child[k]
+            if self._mode == CompositeRegistry.Mode.FIRST:
+                return hit
+            hits.append(hit)
+
+        if len(hits) == 1:
+            return hits[0]
+        elif hits:
+            raise AmbiguouslyRegisteredException(k, hits)
+        else:
+            raise NotRegisteredException(k)
+
+    def items(self) -> ta.Iterable[ta.Tuple[K, V]]:
+        seen = set()
+        for child in self._children:
+            yield from child.items()
+
+
+
+
+class DictRegistry(Registry[K, V]):
 
     def __init__(
             self,
@@ -86,7 +200,3 @@ class Registry(ta.Mapping[K, V]):
                 self._dct[k] = v
 
         return self
-
-    def register(self, k: K, v: V) -> 'Registry[K, V]':
-        check.not_none(k)
-        return self.register_many({k: v})

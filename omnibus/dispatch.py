@@ -123,7 +123,7 @@ class Dispatcher(ta.Generic[Impl]):
         return obj.__class__
 
     @abc.abstractmethod
-    def __setitem__(self, key: TypeOrSpec, value: Impl):
+    def __setitem__(self, key: TypeOrSpec, value: Impl) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -164,7 +164,7 @@ class CompositeDispatcher(Dispatcher[Impl]):
     def mode(self) -> 'CompositeDispatcher.Mode':
         return self._mode
 
-    def __setitem__(self, key: TypeOrSpec, value: Impl):
+    def __setitem__(self, key: TypeOrSpec, value: Impl) -> None:
         raise TypeError
 
     def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
