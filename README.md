@@ -10,7 +10,7 @@ Its modules include:
 - [caches](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/caches.py#L92), containing a pretty beefy cache implementation inspired by [Guava's CacheBuilder](https://guava.dev/releases/snapshot-jre/api/docs/).
 - [check](https://github.com/wrmsr/omnibus/blob/master/omnibus/check.py), non-optional assertions inspired by [Guava Preconditions](https://guava.dev/releases/snapshot-jre/api/docs/).
 - [collections](https://github.com/wrmsr/omnibus/blob/master/omnibus/collections.py), including:
-    - Sorted collections powered either by [sortedcontaines](https://pypi.org/project/sortedcontainers) or a builtin fallback skiplist
+    - Sorted collections powered either by [sortedcontainers](https://pypi.org/project/sortedcontainers) or a builtin fallback skiplist
     - topological sorting (added to functools in python 3.9 but not present in 3.7)
     - Identity and Frozen collections
 - [defs](https://github.com/wrmsr/omnibus/blob/master/omnibus/defs.py), a self-awarely relatively unpythonic set of helpers for defining common boilerplate methods (repr, hash_eq, delegates, etc) in class definitions. Should be used sparingly for methods not directly used by humans (like repr) - @property's should remain @property's for type annotation, tool assistance, debugging, and otherwise, but these are still nice to have in certain circumstances (the usual real-world alternative usually being simply not adding them).
@@ -25,7 +25,7 @@ Its modules include:
 Many other modules are in the works now that this has some of my attention again but none are stable enough yet for inclusion in master.
 
 It unapologetically requires python 3.7+. It has one single mandatory dependency: [toolz](https://pypi.org/project/toolz) - itself having no dependencies. It does however optionally interop with a number of other libraries including:
-- [sortedcontaines](https://pypi.org/project/sortedcontainers)
+- [sortedcontainers](https://pypi.org/project/sortedcontainers)
 - [pyrsistent](https://pypi.org/project/pyrsistent)
 - [wrapt](https://pypi.org/project/wrapt)
 - [ujson](https://pypi.org/project/ujson)
