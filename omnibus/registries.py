@@ -217,6 +217,14 @@ class DictRegistry(Registry[K, V]):
         self._frozen = bool(frozen)
 
     @property
+    def weak(self) -> bool:
+        return self._weak
+
+    @property
+    def frozen(self) -> bool:
+        return self._frozen
+
+    @property
     def version(self) -> int:
         return self._version
 
