@@ -157,6 +157,7 @@ class RegistryProperty(Property[ta.Callable]):
 
         self._name: str = None
         self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
+        # TODO: self._registry: registries.Registry[ta.Any, ta.Callable] = registries.DictRegistry()
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
 
     def __set_name__(self, owner, name):
@@ -174,6 +175,7 @@ class RegistryProperty(Property[ta.Callable]):
 
             for mcls in reversed(cls.__mro__):
                 for att in mcls.__dict__.values():
+                    # FIXME: $ invert
                     try:
                         keys = self._registry[att]
                     except KeyError:

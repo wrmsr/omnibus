@@ -20,6 +20,10 @@ V = ta.TypeVar('V')
 log = logging.getLogger(__name__)
 
 
+class NOT_SET(lang.Marker):
+    pass
+
+
 class OverweightException(Exception):
     pass
 
@@ -102,7 +106,7 @@ class Cache(ta.MutableMapping[K, V]):
             weak_keys: bool = False,
             weak_values: bool = False,
             weigher: ta.Callable[[V], float] = lambda _: 1.,
-            nolock: bool = False,
+            lock: ta.Optional[lang.ContextManageable] = NOT_SET,
             raise_overweight: bool = False,
             eviction: Eviction = LRU,
     ) -> None:
@@ -127,10 +131,12 @@ class Cache(ta.MutableMapping[K, V]):
         self._raise_overweight = raise_overweight
         self._eviction = eviction
 
-        if not nolock:
+        if lock is NOT_SET:
             self._lock = threading.RLock()
+        elif lock is None:
+            self._lock = lang.ContextManaged()
         else:
-            self._lock = None
+            self._lock = lock
 
         if weak_keys and not identity_keys:
             self._cache = weakref.WeakKeyDictionary()

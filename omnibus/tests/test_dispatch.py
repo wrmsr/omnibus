@@ -27,7 +27,7 @@ def test_dispatch():
 
 @pytest.mark.parametrize('nolock', [False, True])
 def test_function(nolock):
-    @dispatch.function(nolock=nolock)
+    @dispatch.function(**({'lock': None} if nolock else {}))
     def f(val):
         return 'default'
 
