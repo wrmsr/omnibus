@@ -4,6 +4,7 @@ import typing as ta
 import weakref
 
 from . import check
+from . import collections
 from . import lang
 
 
@@ -27,6 +28,10 @@ class AmbiguouslyRegisteredException(Exception):
 
 
 class NotRegisteredException(Exception):
+    pass
+
+
+class FrozenRegistrationException(Exception):
     pass
 
 
@@ -181,9 +186,10 @@ class DictRegistry(Registry[K, V]):
 
     def __init__(
             self,
-            *,
+            *args,
             lock: ta.Optional[lang.ContextManageable] = NOT_SET,
             weak: bool = False,
+            frozen: bool = False,
     ) -> None:
         super().__init__()
 
@@ -204,6 +210,11 @@ class DictRegistry(Registry[K, V]):
         self._dct = dct
 
         self._version = 0
+
+        self._frozen = False
+        for k, v in collections.yield_dict_init(*args):
+            self[k] = v
+        self._frozen = bool(frozen)
 
     @property
     def version(self) -> int:
@@ -237,6 +248,9 @@ class DictRegistry(Registry[K, V]):
         return self._dct.values()
 
     def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
+        if self._frozen:
+            raise FrozenRegistrationException(self)
+
         if not dct:
             return self
 

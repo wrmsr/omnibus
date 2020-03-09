@@ -52,3 +52,11 @@ def test_registries():
     assert ooreg[3] == 'three'
     with pytest.raises(registries.NotRegisteredException):
         ooreg[4]
+
+    dreg = registries.DictRegistry({'a': 'A', 'b': 'B'}, frozen=True)
+    assert dreg['a'] == 'A'
+    assert dreg['b'] == 'B'
+    with pytest.raises(registries.NotRegisteredException):
+        dreg['c']
+    with pytest.raises(registries.FrozenRegistrationException):
+        dreg['c'] = 'C'
