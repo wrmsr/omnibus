@@ -10,6 +10,13 @@ from .. import lang
 from .. import toolz
 
 
+def test_cls_dct():
+    class C:
+        assert lang.is_possibly_cls_dct(locals())
+
+    assert not lang.is_possibly_cls_dct(locals())
+
+
 def test_public():
     __all__ = []
 
