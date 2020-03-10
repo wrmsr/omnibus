@@ -1,11 +1,11 @@
 import abc
 import functools
-import inspect
 import types
 import typing as ta
 import weakref
 
 from . import c3
+from . import callables
 from . import check
 from . import lang
 from . import properties
@@ -96,7 +96,7 @@ def get_manifest_injection_kwargs(impl: ta.Optional[ta.Callable]) -> ta.Optional
     if impl is None:
         return None
     try:
-        implargspec = inspect.getfullargspec(impl)
+        implargspec = callables.get_cached_full_arg_spec(impl)
     except TypeError:
         return None
     else:
@@ -342,7 +342,7 @@ def function(
 
     def inner(func):
         functools.update_wrapper(wrapper, func)
-        argspec = inspect.getfullargspec(func)
+        argspec = callables.get_cached_full_arg_spec(func)
         try:
             wrapper.__annotations__ = {'return': argspec.annotations['return']}
         except KeyError:

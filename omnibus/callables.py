@@ -2,12 +2,29 @@ import ast
 import functools
 import inspect
 import typing as ta
+import weakref
 
 from . import check
 from . import lang
 
 
 tuple_ = tuple
+
+
+FULL_ARG_SPECS_BY_FUNC = weakref.WeakKeyDictionary()
+
+
+def get_cached_full_arg_spec(func: ta.Callable) -> inspect.FullArgSpec:
+    try:
+        weakref.ref(func)
+    except TypeError:
+        return inspect.getfullargspec(func)
+    else:
+        try:
+            return FULL_ARG_SPECS_BY_FUNC[func]
+        except KeyError:
+            fas = FULL_ARG_SPECS_BY_FUNC[func] = inspect.getfullargspec(func)
+            return fas
 
 
 def get_arg_names(argspec: inspect.FullArgSpec) -> ta.Iterable[str]:

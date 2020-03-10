@@ -93,11 +93,12 @@ def test_registry_property():
     assert A().fn(6.) == 'object'
     assert A().fn('hi') == 'object'
 
-    a = A()
-    for _ in range(3):
-        assert a.fn(6) == 'int'
-        assert a.fn(6.) == 'object'
-        assert a.fn('hi') == 'object'
+    for _ in range(2):
+        a = A()
+        for _ in range(2):
+            assert a.fn(6) == 'int'
+            assert a.fn(6.) == 'object'
+            assert a.fn('hi') == 'object'
 
     assert B().fn(6) == 'int'
     assert B().fn(6.) == 'object'
