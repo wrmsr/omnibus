@@ -3,17 +3,20 @@ import time
 
 import requests
 
-from . import helpers
-from .. import http
-from .. import json
+from .. import apps as apps_
+from .. import bind as bind_
+from .. import consts as consts_
+from .. import serve as serve_
+from ... import json
+from ...tests import helpers
 
 
 def test_http():
-    server: http.WSGIServer = None
+    server: serve_.WSGIServer = None
 
     def app(environ, start_response):
         assert environ['PATH_INFO'] == '/test'
-        start_response(http.STATUS_OK, [])
+        start_response(consts_.STATUS_OK, [])
         server.shutdown()
         return [b'hi']
 
@@ -21,7 +24,7 @@ def test_http():
 
     def fn0():
         nonlocal server
-        server = http.ThreadSpawningWSGIServer(http.TCPBinder('0.0.0.0', port), app)
+        server = serve_.ThreadSpawningWSGIServer(bind_.TCPBinder('0.0.0.0', port), app)
         with server:
             server.run()
 
@@ -41,7 +44,7 @@ def test_http():
 
 
 def test_json_http():
-    server: http.WSGIServer = None
+    server: serve_.WSGIServer = None
 
     def json_app(obj):
         server.shutdown()
@@ -51,7 +54,7 @@ def test_json_http():
 
     def fn0():
         nonlocal server
-        server = http.ThreadSpawningWSGIServer(http.TCPBinder('0.0.0.0', port), http.simple_json_app(json_app))
+        server = serve_.ThreadSpawningWSGIServer(bind_.TCPBinder('0.0.0.0', port), apps_.simple_json_app(json_app))
         with server:
             server.run()
 
