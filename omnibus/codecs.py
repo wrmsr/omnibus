@@ -391,6 +391,58 @@ class GzipCodec(Codec[F, bytes], lang.Final):
 gzip = GzipCodec
 
 
+bz2_ = lang.lazy_import('bz2')
+
+
+@EXTENSION_REGISTRY.registering('bz2')
+class Bz2Codec(Codec[F, bytes], lang.Final):
+
+    def __init__(self, compresslevel=9) -> None:
+        super().__init__()
+
+        self._compresslevel = compresslevel
+
+    defs.repr()
+
+    def encode(self, o: F) -> bytes:
+        buf = io.BytesIO()
+        with contextlib.closing(
+                bz2_().BZ2File(buf, mode='wb', compresslevel=self._compresslevel)) as f:
+            f.write(o)
+        return buf.getvalue()
+
+    def decode(self, o: bytes) -> F:
+        buf = io.BytesIO(o)
+        with contextlib.closing(bz2_().BZ2File(buf, mode='rb')) as f:
+            return f.read()
+
+
+bz2 = Bz2Codec
+
+
+lzma_ = lang.lazy_import('lzma')
+
+
+@EXTENSION_REGISTRY.registering('lzma', 'xz')
+class LzmaCodec(Codec[F, bytes], lang.Final):
+
+    defs.repr()
+
+    def encode(self, o: F) -> bytes:
+        buf = io.BytesIO()
+        with contextlib.closing(lzma_().LZMAFile(buf, mode='wb')) as f:
+            f.write(o)
+        return buf.getvalue()
+
+    def decode(self, o: bytes) -> F:
+        buf = io.BytesIO(o)
+        with contextlib.closing(lzma_().LZMAFile(buf, mode='rb')) as f:
+            return f.read()
+
+
+lzma = LzmaCodec
+
+
 class StructCodec(Codec[F, bytes], lang.Final):
 
     def __init__(self, fmt: str) -> None:

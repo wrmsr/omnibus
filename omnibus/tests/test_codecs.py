@@ -23,5 +23,15 @@ def test_gzip():
     assert c.decode(c.encode(b'123')) == b'123'
 
 
+def test_bz2():
+    c = co.bz2()
+    assert c.decode(c.encode(b'123')) == b'123'
+
+
+def test_lzma():
+    c = co.lzma()
+    assert c.decode(c.encode(b'123')) == b'123'
+
+
 def test_registries():
     assert issubclass(co.EXTENSION_REGISTRY['gz'], co.Codec)
