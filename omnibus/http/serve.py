@@ -84,6 +84,7 @@ else:
 
 
 ====
+# https://github.com/MagicStack/httptools/issues/20
 
 
 import asyncio
