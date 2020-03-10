@@ -17,7 +17,6 @@ log = logging.getLogger(__name__)
 
 
 Self = ta.TypeVar('Self')
-ClientAddress = ta.Tuple[str, int]
 Environ = ta.Dict[str, ta.Any]
 StartResponse = ta.Callable[[str, ta.List[ta.Tuple[str, str]]], ta.Callable[[lang.BytesLike], None]]
 RawApp = ta.Callable[[Environ, StartResponse], ta.Iterable[lang.BytesLike]]

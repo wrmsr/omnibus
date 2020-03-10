@@ -3,7 +3,7 @@ import typing as ta
 import pytest
 
 from .. import erasing as erasing_
-from .. import function as function_
+from .. import functions as functions_
 from .. import registry as registry_
 from .. import types as types_
 
@@ -23,7 +23,7 @@ def test_erasing_dispatch():
 
 @pytest.mark.parametrize('nolock', [False, True])
 def test_function(nolock):
-    @function_.function(**({'lock': None} if nolock else {}))
+    @functions_.function(**({'lock': None} if nolock else {}))
     def f(val):
         return 'default'
 
