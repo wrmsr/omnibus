@@ -2,7 +2,10 @@ import typing as ta
 
 import pytest
 
-from .. import dispatch
+from .. import erasing as erasing_
+from .. import function as function_
+from .. import registry as registry_
+from .. import types as types_
 
 
 K = ta.TypeVar('K')
@@ -12,22 +15,15 @@ T1 = ta.TypeVar('T1')
 
 
 def test_erasing_dispatch():
-    disp = dispatch.ErasingDictDispatcher()
+    disp = erasing_.ErasingDispatcher()
     disp[ta.Dict[K, V]] = 'dict'
     impl, manifest = disp[ta.Dict[int, str]]
-    assert isinstance(manifest, dispatch.Manifest)
-
-
-def test_dispatch():
-    disp = dispatch.DefaultDispatcher()
-    disp[ta.Dict[K, V]] = 'dict'
-    impl, manifest = disp[ta.Dict[int, str]]
-    assert isinstance(manifest, dispatch.Manifest)
+    assert isinstance(manifest, types_.Manifest)
 
 
 @pytest.mark.parametrize('nolock', [False, True])
 def test_function(nolock):
-    @dispatch.function(**({'lock': None} if nolock else {}))
+    @function_.function(**({'lock': None} if nolock else {}))
     def f(val):
         return 'default'
 
@@ -57,7 +53,7 @@ def test_function(nolock):
 
 def test_property():
     class A:
-        fn = dispatch.property_()
+        fn = registry_.property_()
 
         @fn.register(object)
         def fn_object(self, o):
@@ -114,8 +110,8 @@ def test_property():
 
 
 def test_class():
-    class A(dispatch.Class):
-        fn = dispatch.property_()
+    class A(registry_.Class):
+        fn = registry_.property_()
 
         def fn(self, o: object):  # noqa
             return 'object'
