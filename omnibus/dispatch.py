@@ -116,7 +116,7 @@ def inject_manifest(impl: ta.Optional[ta.Callable], manifest: Manifest) -> ta.Ca
 # region Dispatchers
 
 
-class Dispatcher(ta.Generic[Impl]):
+class Dispatcher(lang.Abstract, ta.Generic[Impl]):
 
     @staticmethod
     def key(obj: ta.Any) -> TypeOrSpec:
@@ -150,6 +150,10 @@ class ErasingDictDispatcher(Dispatcher[Impl]):
             self._registry = check.isinstance(registry, registries.Registry)
         else:
             self._registry = registries.DictRegistry()
+
+    @property
+    def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
+        return self._registry
 
     def _resolve(self, cls: ta.Type) -> ta.Optional[ta.Tuple[ta.Type, Impl]]:
         mro = generic_compose_mro(cls, list(self._registry.keys()))
@@ -274,6 +278,10 @@ class CachingDispatcher(Dispatcher[Impl]):
     @property
     def child(self) -> Dispatcher[Impl]:
         return self._child
+
+    @property
+    def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
+        return self._child.registry
 
     @property
     def guard(self) -> CacheGuard:

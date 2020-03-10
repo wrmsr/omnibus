@@ -39,7 +39,7 @@ class FrozenRegistrationException(Exception):
     pass
 
 
-class Registry(abc.ABC, ta.Mapping[K, V]):
+class Registry(lang.Abstract, ta.Mapping[K, V]):
 
     @abc.abstractproperty
     def version(self) -> ta.Any:
