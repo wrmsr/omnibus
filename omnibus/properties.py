@@ -6,6 +6,7 @@ import weakref
 
 from . import check
 from . import lang
+from . import registries
 
 
 T = ta.TypeVar('T')
@@ -147,17 +148,16 @@ class RegistryProperty(Property[ta.Callable]):
     def __init__(
             self,
             *,
-            descriptor: bool = None,
+            unbound: bool = None,
             raw: bool = False,
     ) -> None:
         super().__init__()
 
-        self._descriptor = descriptor
+        self._unbound = unbound
         self._raw = raw
 
         self._name: str = None
-        self._registry: ta.MutableMapping[ta.Callable, ta.Set[ta.Any]] = {}
-        # TODO: self._registry: registries.Registry[ta.Any, ta.Callable] = registries.DictRegistry()
+        self._registry: registries.Registry[ta.Any, ta.Callable] = registries.DictRegistry()
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
 
     def __set_name__(self, owner, name):
@@ -176,6 +176,9 @@ class RegistryProperty(Property[ta.Callable]):
             for mcls in reversed(cls.__mro__):
                 for att in mcls.__dict__.values():
                     # FIXME: $ invert
+                    # FIXME: o shit lol, don't have class ref and THIS IS GLOBAL FOR PROP (SINGLETON FOR ALL SUBCLASSES)
+                    # FIX: type -> frozenset, put meta back here, meta defers
+                    #  alt fix: MultiRegistry? ew..?
                     try:
                         keys = self._registry[att]
                     except KeyError:
@@ -235,7 +238,8 @@ class RegistryProperty(Property[ta.Callable]):
 
     def register(self, *keys):
         def inner(meth):
-            self._registry.setdefault(meth, set()).update(keys)
+            for key in keys:
+                self._registry[key] = meth
             return meth
 
         return inner
