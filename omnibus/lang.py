@@ -43,16 +43,42 @@ def warn_unstable():
     warnings.warn('unstable', category=UnstableWarning, stacklevel=2)
 
 
+_CLS_DCT_ATTRS = {
+    '__module__',
+    '__qualname__',
+}
+
+
+def is_possibly_cls_dct(dct: ta.Mapping[str, ta.Any]) -> bool:
+    return all(a in dct for a in _CLS_DCT_ATTRS)
+
+
+class ClassDctFn:
+
+    def __init__(self, fn: ta.Callable, offset=1) -> None:
+        super().__init__()
+
+        self._fn = fn
+        self._offset = offset
+
+        functools.update_wrapper(self, fn)
+
+    def __get__(self, instance, owner):
+        return type(self)(self._fn.__get__(instance, owner), self._offset)
+
+    def __call__(self, *args, **kwargs):
+        try:
+            cls_dct = kwargs.pop('cls_dct')
+        except KeyError:
+            cls_dct = sys._getframe(self._offset).f_locals
+        if not is_possibly_cls_dct(cls_dct):
+            raise TypeError(cls_dct)
+        return self._fn(cls_dct, *args, **kwargs)
+
+
 def cls_dct_fn(offset=1):
     def outer(fn):
-        @functools.wraps(fn)
-        def inner(*args, **kwargs):
-            try:
-                cls_dct = kwargs.pop('cls_dct')
-            except KeyError:
-                cls_dct = sys._getframe(offset).f_locals
-            return fn(cls_dct, *args, **kwargs)
-        return inner
+        return ClassDctFn(fn, offset)
     return outer
 
 

@@ -66,7 +66,7 @@ def test_registry_property():
     assert C().vals['b'] == 'C.b'
     with pytest.raises(registries.NotRegisteredException):
         C().vals['c']
-    assert D().vals['a'] == 'C.b'
+    assert D().vals['a'] == 'C.a'
     assert D().vals['b'] == 'C.b'
     assert D().vals['c'] == 'D.c'
     assert E().vals['c'] == 'D.c'

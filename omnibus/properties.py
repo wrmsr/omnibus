@@ -161,9 +161,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         self._lock = lang.default_lock(lock, True)
 
         self._name: str = None
-
-        self._pending_key_sets_by_value: ta.MutableMapping[V, ta.MutableSet[K]] = \
-            weakref.WeakKeyDictionary() if weak else {}
+        self._registrations_attr_name = '__%s_%x_registrations' % (type(self).__name__, id(self))
 
         self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
         self._registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()
@@ -181,15 +179,9 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         except KeyError:
             registry = registries.DictRegistry()
 
-            for att in cls.__dict__.values():
-                try:
-                    keys = self._pending_key_sets_by_value[att]
-                except KeyError:
-                    continue
-                else:
-                    for key in keys:
-                        registry[key] = att
-                    del self._pending_key_sets_by_value[att]
+            for value, keys in cls.__dict__.get(self._registrations_attr_name, {}).items():
+                for key in keys:
+                    registry[key] = value
 
             registry.freeze()
 
@@ -251,16 +243,24 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
         return ret
 
-    def register(self, *keys):
+    def _register(self, cls_dct, value, keys):
+        with self._lock:
+            try:
+                regs = cls_dct[self._registrations_attr_name]
+            except KeyError:
+                regs = cls_dct[self._registrations_attr_name] = {}
+
+            try:
+                key_set = regs[value]
+            except KeyError:
+                key_set = regs[value] = set()
+
+            key_set.update(keys)
+
+    @lang.cls_dct_fn()
+    def register(self, cls_dct, *keys):
         def inner(value):
-            with self._lock:
-                try:
-                    key_set = self._pending_key_sets_by_value[value]
-                except KeyError:
-                    key_set = self._pending_key_sets_by_value[value] = set()
-
-                key_set.update(keys)
-
+            self._register(cls_dct, value, keys)
             return value
 
         return inner
