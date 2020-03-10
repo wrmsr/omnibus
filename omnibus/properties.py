@@ -1,4 +1,3 @@
-import collections.abc
 import functools
 import typing as ta
 import weakref
@@ -154,13 +153,11 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self,
             *,
             bind: bool = None,
-            raw: bool = False,
             lock: lang.ContextManageable = None,
     ) -> None:
         super().__init__()
 
         self._bind = bind
-        self._raw = raw
         self._lock = lang.default_lock(lock, True)
 
         self._name: str = None
@@ -186,7 +183,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
                 for key in keys:
                     registry[key] = value
 
-            cls.__dict__[self._registrations_attr_name] = CONSUMED
+            # cls.__dict__[self._registrations_attr_name] = CONSUMED
 
             registry.freeze()
 
@@ -206,7 +203,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
                 self._registries_by_cls[cls] = registry
                 return registry
 
-    class DescriptorAccessor(ta.Mapping[K, V]):
+    class Accessor(ta.Mapping[K, V]):
 
         def __init__(self, owner, obj, cls):
             super().__init__()
@@ -218,6 +215,10 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self._registry = owner.get_registry(cls)
 
             self.register = self._owner.register
+
+        @property
+        def registry(self) -> registries.Registry[K, V]:
+            return self._registry
 
         def __getitem__(self, key):
             ret = self._registry[key]
@@ -236,19 +237,16 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         def register(self, *keys):
             raise TypeError
 
-    def __get__(self, obj, cls=None) -> ta.Mapping[K, V]:
+    def __get__(self, obj, cls=None) -> Accessor[K, V]:
         if cls is None:
             return self
 
-        if not self._raw:
-            ret = self.DescriptorAccessor(self, obj, cls)
-        else:
-            ret = self.get_registry(cls)
+        accessor = self.Accessor(self, obj, cls)
 
         if obj is not None and self._name is not None:
-            obj.__dict__[check.not_empty(self._name)] = ret
+            obj.__dict__[check.not_empty(self._name)] = accessor
 
-        return ret
+        return accessor
 
     def _register(self, cls_dct, value, keys):
         with self._lock:
@@ -276,11 +274,9 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 def registry(
         *,
         bind: bool = None,
-        raw: bool = False,
         lock: lang.ContextManageable = None,
 ) -> RegistryProperty:
     return RegistryProperty(
         bind=bind,
-        raw=raw,
         lock=lock,
     )
