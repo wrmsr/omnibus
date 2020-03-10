@@ -9,6 +9,8 @@ from .lang import new_type
 
 T = ta.TypeVar('T')
 Ty = ta.TypeVar('Ty', bound=type)
+K = ta.TypeVar('K')
+V = ta.TypeVar('V')
 ExceptionT = ta.TypeVar('ExceptionT', bound=Exception)
 
 
@@ -18,6 +20,15 @@ def singleton(*args, **kwargs) -> ta.Callable[[ta.Type[T]], ta.Callable[..., T]]
         obj.__name__ = cls.__name__
         return obj
     return inner
+
+
+class SimpleMetaDict(dict):
+
+    def update(self, m: ta.Mapping[K, V], **kwargs: V) -> None:
+        for k, v in m.items():
+            self[k] = v
+        for k, v in kwargs.items():
+            self[k] = v
 
 
 def _make_abstract(obj: T) -> T:

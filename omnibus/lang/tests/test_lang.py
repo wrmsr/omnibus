@@ -12,7 +12,7 @@ from .. import contextmanagers as cms_
 from .. import enums as enums_
 from .. import lang as lang_
 from .. import math as math_
-from .. import maybe as maybe_
+from .. import maybes as maybes_
 from .. import strings as strings_
 from ... import toolz
 
@@ -520,22 +520,22 @@ def test_context_wrapped():
 
 
 def test_maybe():
-    assert maybe_.Maybe(1)
-    assert not maybe_.Maybe.empty()
-    assert maybe_.Maybe.empty() is maybe_.Maybe.empty()
-    assert maybe_.Maybe('foo').value.endswith('o')
-    assert next(iter(maybe_.Maybe('x'))).capitalize() == 'X'
-    assert maybe_.Maybe(None)
+    assert maybes_.Maybe(1)
+    assert not maybes_.Maybe.empty()
+    assert maybes_.Maybe.empty() is maybes_.Maybe.empty()
+    assert maybes_.Maybe('foo').value.endswith('o')
+    assert next(iter(maybes_.Maybe('x'))).capitalize() == 'X'
+    assert maybes_.Maybe(None)
 
-    assert maybe_.Maybe(0) == maybe_.Maybe(0)
-    assert not (maybe_.Maybe(0) != maybe_.Maybe(0))
-    assert maybe_.Maybe(0) != maybe_.Maybe(1)
+    assert maybes_.Maybe(0) == maybes_.Maybe(0)
+    assert not (maybes_.Maybe(0) != maybes_.Maybe(0))
+    assert maybes_.Maybe(0) != maybes_.Maybe(1)
 
-    assert maybe_.Maybe(0) != (0,)
-    assert not (maybe_.Maybe(0) == (0,))
+    assert maybes_.Maybe(0) != (0,)
+    assert not (maybes_.Maybe(0) == (0,))
 
-    assert maybe_.Maybe(0) < maybe_.Maybe(1)
-    assert maybe_.Maybe(1) > maybe_.Maybe(0)
+    assert maybes_.Maybe(0) < maybes_.Maybe(1)
+    assert maybes_.Maybe(1) > maybes_.Maybe(0)
 
-    assert maybe_.Maybe(3).map(lambda v: v + 1) == maybe_.Maybe(4)
-    assert maybe_.Maybe.empty().map(lambda v: v + 1) is maybe_.Maybe.empty()
+    assert maybes_.Maybe(3).map(lambda v: v + 1) == maybes_.Maybe(4)
+    assert maybes_.Maybe.empty().map(lambda v: v + 1) is maybes_.Maybe.empty()

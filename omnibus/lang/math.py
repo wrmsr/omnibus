@@ -1,5 +1,7 @@
 import typing as ta
 
+from .classes import Final
+
 
 def get_bit(bit: int, value: int) -> int:
     return (value >> bit) & 1

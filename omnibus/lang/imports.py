@@ -7,6 +7,8 @@ import warnings
 
 import pkg_resources
 
+from .lang import cached_nullary
+
 
 class UnstableWarning(Warning):
     pass

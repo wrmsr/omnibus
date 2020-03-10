@@ -29,6 +29,7 @@ from .classes import Protocol  # noqa
 from .classes import ProtocolException  # noqa
 from .classes import Sealed  # noqa
 from .classes import SealedException  # noqa
+from .classes import SimpleMetaDict  # noqa
 from .classes import singleton  # noqa
 from .classes import staticfunction  # noqa
 from .contextmanagers import context_var_setting  # noqa
@@ -90,9 +91,9 @@ from .math import NEGATIVE_INFINITY  # noqa
 from .math import NegativeInfinity  # noqa
 from .math import set_bit  # noqa
 from .math import set_bits  # noqa
-from .maybe import Maybe  # noqa
-from .maybe import maybe  # noqa
-from .maybe import MaybeNotPresentException  # noqa
+from .maybes import Maybe  # noqa
+from .maybes import maybe  # noqa
+from .maybes import MaybeNotPresentException  # noqa
 from .strings import camelize  # noqa
 from .strings import decamelize  # noqa
 from .strings import indent_lines  # noqa

@@ -1,9 +1,10 @@
 import enum
 import typing as ta
 
+from .classes import SimpleMetaDict
+from .strings import is_dunder
 
-K = ta.TypeVar('K')
-V = ta.TypeVar('V')
+
 EnumT = ta.TypeVar('EnumT', bound=enum.Enum)
 
 
@@ -16,18 +17,9 @@ def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
         return getattr(cls, obj)
 
 
-class _SimpleDict(dict):
-
-    def update(self, m: ta.Mapping[K, V], **kwargs: V) -> None:
-        for k, v in m.items():
-            self[k] = v
-        for k, v in kwargs.items():
-            self[k] = v
-
-
 class _AutoEnumMeta(enum.EnumMeta):
 
-    class Dict(_SimpleDict, enum._EnumDict):
+    class Dict(SimpleMetaDict, enum._EnumDict):
 
         def __init__(self, src: enum._EnumDict) -> None:
             super().__init__()

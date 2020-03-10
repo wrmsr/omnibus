@@ -49,7 +49,7 @@ def _extract_function_annotations(fn: types.FunctionType) -> ta.Union[ta.Any, ta
 def _build_meta(base: ta.Type) -> ta.Type:
     class _Meta(type(base)):
 
-        class Dict(lang.SimpleDict):
+        class Dict(lang.SimpleMetaDict):
 
             def __setitem__(self, key, value):
                 if key in _AUTO_IGNORED_KEYS:
@@ -83,7 +83,7 @@ class AutoUnion(ct.Union, metaclass=_build_meta(ct.Union)):
 
 class _AutoDLLMeta(type(ct.CDLL)):
 
-    class Dict(lang.SimpleDict):
+    class Dict(lang.SimpleMetaDict):
 
         def __setitem__(self, key, value):
             if key in _AUTO_IGNORED_KEYS:
