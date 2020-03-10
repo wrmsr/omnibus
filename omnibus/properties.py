@@ -13,6 +13,10 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
+class CONSUMED(lang.Marker):
+    pass
+
+
 class Property(ta.Generic[T]):
     pass
 
@@ -151,7 +155,6 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             *,
             bind: bool = None,
             raw: bool = False,
-            weak: bool = False,
             lock: lang.ContextManageable = None,
     ) -> None:
         super().__init__()
@@ -182,6 +185,8 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             for value, keys in cls.__dict__.get(self._registrations_attr_name, {}).items():
                 for key in keys:
                     registry[key] = value
+
+            cls.__dict__[self._registrations_attr_name] = CONSUMED
 
             registry.freeze()
 
@@ -272,12 +277,10 @@ def registry(
         *,
         bind: bool = None,
         raw: bool = False,
-        weak: bool = False,
         lock: lang.ContextManageable = None,
 ) -> RegistryProperty:
     return RegistryProperty(
         bind=bind,
         raw=raw,
-        weak=weak,
         lock=lock,
     )
