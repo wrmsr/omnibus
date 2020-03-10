@@ -66,9 +66,11 @@ def test_registry_property():
     assert C().vals['b'] == 'C.b'
     with pytest.raises(registries.NotRegisteredException):
         C().vals['c']
+
     assert D().vals['a'] == 'C.a'
     assert D().vals['b'] == 'C.b'
     assert D().vals['c'] == 'D.c'
+
     assert E().vals['c'] == 'D.c'
     assert E().vals['a'] == 'E.a'
 
@@ -101,8 +103,46 @@ def test_binding_registry_property():
     assert C().fns['b']() == 1
     with pytest.raises(registries.NotRegisteredException):
         C().fns['c']()
+
     assert D().fns['a']() == 0
     assert D().fns['b']() == 1
     assert D().fns['c']() == 2
+
     assert E().fns['c']() == 2
     assert E().fns['a']() == 4
+
+
+def test_multi_registry_property():
+    class C:
+        vals = properties.multi_registry()
+
+        vals.register('a')(0)
+        vals.register('a')(1)
+        vals.register('b')(2)
+
+    class D(C):
+
+        C.vals.register('a')(3)
+        C.vals.register('b')(4)
+
+    class E(C):
+
+        C.vals.register('a')(5)
+        C.vals.register('b')(6)
+
+    class F(D, E):
+
+        C.vals.register('a')(7)
+        C.vals.register('b')(8)
+
+    assert C().vals['a'] == {0, 1}
+    assert C().vals['b'] == {2}
+
+    assert D().vals['a'] == {0, 1, 3}
+    assert D().vals['b'] == {2, 4}
+
+    assert E().vals['a'] == {0, 1, 5}
+    assert E().vals['b'] == {2, 6}
+
+    assert F().vals['a'] == {0, 1, 3, 5, 7}
+    assert F().vals['b'] == {2, 4, 6, 8}

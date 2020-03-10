@@ -154,11 +154,13 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             *,
             bind: bool = None,
             lock: lang.ContextManageable = None,
+            policy: registries.CompositeRegistry.Policy = registries.CompositeRegistry.FIRST_ONE,
     ) -> None:
         super().__init__()
 
         self._bind = bind
         self._lock = lang.default_lock(lock, True)
+        self._policy = check.callable(policy)
 
         self._name: str = None
         self._registrations_attr_name = '__%s_%x_registrations' % (type(self).__name__, id(self))
@@ -180,12 +182,15 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self._consumed = False
             self._key_sets_by_value = {}
 
+    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictRegistry[K, V]:
+        return registries.DictRegistry(items)
+
     def _get_immediate_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         try:
             return self._immediate_registries_by_cls[cls]
 
         except KeyError:
-            registry = registries.DictRegistry()
+            items = []
 
             registrations: RegistryProperty.Registrations
             try:
@@ -199,14 +204,18 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
                 for value, keys in registrations._key_sets_by_value.items():
                     for key in keys:
-                        registry[key] = value
+                        items.append((key, value))
 
                 registrations._consumed = True
 
+            registry = self._build_immediate_registry(items)
             registry.freeze()
 
             self._immediate_registries_by_cls[cls] = registry
             return registry
+
+    def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
+        return registries.CompositeRegistry(regs, policy=self._policy)
 
     def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         with self._lock:
@@ -216,7 +225,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             except KeyError:
                 mro_registries = [self._get_immediate_registry(mcls) for mcls in cls.__mro__]
 
-                registry = registries.CompositeRegistry(mro_registries)
+                registry = self._build_composite_registry(mro_registries)
 
                 self._registries_by_cls[cls] = registry
                 return registry
@@ -297,8 +306,45 @@ def registry(
         *,
         bind: bool = None,
         lock: lang.ContextManageable = None,
+        policy: registries.CompositeRegistry.Policy = registries.CompositeRegistry.FIRST_ONE,
 ) -> RegistryProperty:
     return RegistryProperty(
         bind=bind,
         lock=lock,
+        policy=policy,
+    )
+
+
+# FIXME: class MultiRegistryProperty(Property[registries.MultiRegistry[K, V]], RegistryProperty[K, ta.AbstractSet[V]]):
+class MultiRegistryProperty(RegistryProperty):
+
+    def __init__(
+            self,
+            *,
+            bind: bool = None,
+            lock: lang.ContextManageable = None,
+            policy: registries.CompositeRegistry.Policy = registries.CompositeMultiRegistry.MERGE,
+    ) -> None:
+        super().__init__(bind=bind, lock=lock, policy=policy)
+
+    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictMultiRegistry[K, V]:
+        dct = {}
+        for k, v in items:
+            dct.setdefault(k, set()).add(v)
+        return registries.DictMultiRegistry(dct)
+
+    def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
+        return registries.CompositeMultiRegistry(regs, policy=self._policy)
+
+
+def multi_registry(
+        *,
+        bind: bool = None,
+        lock: lang.ContextManageable = None,
+        policy: registries.CompositeRegistry.Policy = registries.CompositeMultiRegistry.MERGE,
+) -> RegistryProperty:
+    return MultiRegistryProperty(
+        bind=bind,
+        lock=lock,
+        policy=policy,
     )

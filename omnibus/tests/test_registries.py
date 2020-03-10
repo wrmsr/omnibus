@@ -63,7 +63,7 @@ def test_registries():
 
 
 def test_multi_registries():
-    reg0 = registries.MultiDictRegistry()
+    reg0 = registries.DictMultiRegistry()
     reg0[0] = {'zero'}
     reg0[1] = {'one'}
     assert reg0[0] == {'zero'}
@@ -71,7 +71,7 @@ def test_multi_registries():
     with pytest.raises(registries.NotRegisteredException):
         reg0[2]
 
-    reg1 = registries.MultiDictRegistry()
+    reg1 = registries.DictMultiRegistry()
     reg1[1] = {'onex'}
     reg1[2] = {'two'}
     assert reg1[1] == {'onex'}
