@@ -1,6 +1,5 @@
 import collections.abc
 import functools
-import threading
 import typing as ta
 import weakref
 
@@ -61,7 +60,7 @@ def cached(fn: ta.Callable[..., T]) -> T:
 
 
 def locked_cached(fn: ta.Callable[..., T]) -> T:
-    return CachedProperty(fn, lock=threading.RLock())
+    return CachedProperty(fn, lock=True)
 
 
 class ValueNotSetException(ValueError):
@@ -154,11 +153,13 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             bind: bool = None,
             raw: bool = False,
             weak: bool = False,
+            lock: lang.ContextManageable = None,
     ) -> None:
         super().__init__()
 
         self._bind = bind
         self._raw = raw
+        self._lock = lang.default_lock(lock, True)
 
         self._name: str = None
 
@@ -197,16 +198,17 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             return registry
 
     def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
-        try:
-            return self._registries_by_cls[cls]
+        with self._lock:
+            try:
+                return self._registries_by_cls[cls]
 
-        except KeyError:
-            mro_registries = [self._get_immediate_registry(mcls) for mcls in cls.__mro__]
+            except KeyError:
+                mro_registries = [self._get_immediate_registry(mcls) for mcls in cls.__mro__]
 
-            registry = registries.CompositeRegistry(mro_registries)
+                registry = registries.CompositeRegistry(mro_registries)
 
-            self._registries_by_cls[cls] = registry
-            return registry
+                self._registries_by_cls[cls] = registry
+                return registry
 
     class DescriptorAccessor(collections.abc.Mapping):
 
@@ -252,12 +254,13 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
     def register(self, *keys):
         def inner(value):
-            try:
-                key_set = self._pending_key_sets_by_value[value]
-            except KeyError:
-                key_set = self._pending_key_sets_by_value[value] = set()
+            with self._lock:
+                try:
+                    key_set = self._pending_key_sets_by_value[value]
+                except KeyError:
+                    key_set = self._pending_key_sets_by_value[value] = set()
 
-            key_set.update(keys)
+                key_set.update(keys)
 
             return value
 
