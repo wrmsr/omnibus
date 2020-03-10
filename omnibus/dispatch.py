@@ -365,7 +365,7 @@ def function(
 # region Registry
 
 
-class RegistryProperty(properties.RegistryProperty):
+class Property(properties.RegistryProperty):
 
     def __init__(self) -> None:
         super().__init__(bind=True)
@@ -433,15 +433,11 @@ class RegistryProperty(properties.RegistryProperty):
         return super().register(*keys, cls_dct=cls_dct)
 
 
-def registry_property() -> RegistryProperty:
-    return RegistryProperty()
-
-
-class _RegistryClassMeta(abc.ABCMeta):
+class _ClassMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
 
-        def __init__(self, regs: ta.Mapping[str, RegistryProperty]) -> None:
+        def __init__(self, regs: ta.Mapping[str, Property]) -> None:
             super().__init__()
             self._dict = {}
             self._regs = dict(regs)
@@ -458,11 +454,11 @@ class _RegistryClassMeta(abc.ABCMeta):
 
             except KeyError:
                 self._dict[key] = value
-                if isinstance(value, RegistryProperty):
+                if isinstance(value, Property):
                     self._regs[key] = value
 
             else:
-                if isinstance(reg, RegistryProperty):
+                if isinstance(reg, Property):
                     reg.register(value, cls_dct=self._dict)
                     self._dict[f'__{hex(id(value))}'] = value
 
@@ -488,7 +484,7 @@ class _RegistryClassMeta(abc.ABCMeta):
         mro = c3.merge([list(b.__mro__) for b in bases])
         for bmro in reversed(mro):
             for k, v in bmro.__dict__.items():
-                if isinstance(v, RegistryProperty):
+                if isinstance(v, Property):
                     regs[k] = v
 
         return cls.RegisteringNamespace(regs)
@@ -501,8 +497,12 @@ class _RegistryClassMeta(abc.ABCMeta):
         return super().__new__(mcls, name, bases, namespace, **kwargs)
 
 
-class RegistryClass(metaclass=_RegistryClassMeta):
+class Class(metaclass=_ClassMeta):
     pass
+
+
+def property() -> Property:  # noqa
+    return Property()
 
 
 # endregion

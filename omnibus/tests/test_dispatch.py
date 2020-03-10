@@ -55,9 +55,9 @@ def test_function(nolock):
     assert f(b'1') == 'str/bytes'
 
 
-def test_registry_property():
+def test_property():
     class A:
-        fn = dispatch.registry_property()
+        fn = dispatch.property()
 
         @fn.register(object)
         def fn_object(self, o):
@@ -113,9 +113,9 @@ def test_registry_property():
     assert D().fn('hi') == 'Dstr'
 
 
-def test_registry_class():
-    class A(dispatch.RegistryClass):
-        fn = dispatch.registry_property()
+def test_class():
+    class A(dispatch.Class):
+        fn = dispatch.property()
 
         def fn(self, o: object):  # noqa
             return 'object'
