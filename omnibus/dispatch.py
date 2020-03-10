@@ -433,6 +433,10 @@ class Property(properties.RegistryProperty):
         return super().register(*keys, cls_dct=cls_dct)
 
 
+def property_() -> Property:  # noqa
+    return Property()
+
+
 class _ClassMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
@@ -499,10 +503,6 @@ class _ClassMeta(abc.ABCMeta):
 
 class Class(metaclass=_ClassMeta):
     pass
-
-
-def property() -> Property:  # noqa
-    return Property()
 
 
 # endregion

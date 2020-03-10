@@ -57,7 +57,7 @@ def test_function(nolock):
 
 def test_property():
     class A:
-        fn = dispatch.property()
+        fn = dispatch.property_()
 
         @fn.register(object)
         def fn_object(self, o):
@@ -115,7 +115,7 @@ def test_property():
 
 def test_class():
     class A(dispatch.Class):
-        fn = dispatch.property()
+        fn = dispatch.property_()
 
         def fn(self, o: object):  # noqa
             return 'object'
