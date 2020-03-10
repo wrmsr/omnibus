@@ -50,6 +50,7 @@ class LogFormatter(logging.Formatter):
 
 
 try:
+    # FIXME: threading.get_native_id() since 3.8
     from ._ext.cc.os import gettid as _gettid
 
 except (ImportError, OSError):

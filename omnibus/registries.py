@@ -85,12 +85,18 @@ class Registry(abc.ABC, ta.Mapping[K, V]):
     Listener = ta.Callable[['Registry[K, V]'], None]
 
     @abc.abstractmethod
-    def add_listener(self, obj: ta.Any, listener: Listener) -> None:
+    def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Listener]) -> None:
         raise NotImplementedError
 
+    def add_listener(self, obj: ta.Any, listener: Listener) -> None:
+        self.add_listeners({obj: listener})
+
     @abc.abstractmethod
-    def remove_listener(self, obj: ta.Any) -> None:
+    def remove_listeners(self, objs: ta.Iterable[ta.Any]) -> None:
         raise NotImplementedError
+
+    def remove_listener(self, obj: ta.Any) -> None:
+        self.remove_listener([obj])
 
 
 class BaseRegistry(Registry[K, V]):
@@ -99,6 +105,7 @@ class BaseRegistry(Registry[K, V]):
             self,
             *args,
             lock: ta.Optional[lang.ContextManageable] = NOT_SET,
+            listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener] = None,
             **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -109,22 +116,38 @@ class BaseRegistry(Registry[K, V]):
         else:
             self._lock = lock
 
-        self._listeners_by_obj: ta.MutableMapping[ta.Any, ] = weakref.WeakKeyDictionary()
+        self._listeners_by_obj: ta.MutableMapping[ta.Any, Registry.Listener] = weakref.WeakKeyDictionary()
+        for obj, listener in (listeners_by_obj or {}).items():
+            self.add_listener(obj, listener)
 
-    def add_listener(self, obj: ta.Any, listener: Registry.Listener) -> None:
-        check.not_none(obj)
-        check.callable(listener)
-
-        with self._lock:
-            if obj in self._listeners_by_obj:
-                raise KeyError(obj)
-            self._listeners_by_obj[obj] = listener
-
-    def remove_listener(self, obj: ta.Any) -> None:
-        check.not_none(obj)
+    def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener]) -> None:
+        listeners_by_obj = dict(listeners_by_obj)
+        if not listeners_by_obj:
+            return
+        for obj, listener in listeners_by_obj.items():
+            check.not_none(obj)
+            check.callable(listener)
 
         with self._lock:
-            del self._listeners_by_obj[obj]
+            for obj in listeners_by_obj.keys():
+                if obj in self._listeners_by_obj:
+                    raise KeyError(obj)
+            for obj, listener in listeners_by_obj.items():
+                self._listeners_by_obj[obj] = listener
+
+    def remove_listeners(self, objs: ta.Iterable[ta.Any]) -> None:
+        objs = list(objs)
+        if not objs:
+            return
+        for obj in objs:
+            check.not_none(obj)
+
+        with self._lock:
+            for obj in objs:
+                if obj not in objs:
+                    raise KeyError(obj)
+            for obj in objs:
+                del self._listeners_by_obj[obj]
 
     def _notify_listeners(self) -> None:
         for listener in self._listeners_by_obj.values():
@@ -142,40 +165,43 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
         self._children = list(children)
 
-        def listener(_):
-            with self._lock:
-
-
         for child in self._children:
             child.add_listener(self, listener)
 
-        # FIXME: couple with lock
-        self._version = self._build_version()
-        self._composed = self._build_composed()
+        self._maybe_build()
 
-    def _build_version(self) -> ta.Tuple:
-        return tuple(c.version for c in self._children)
+        def listener(_):
+            with self._lock:
 
-    @property
-    def version(self) -> ta.Tuple:
-        return self._build_version()
 
     @property
     def children(self) -> ta.List[Registry[K, V]]:
         return self._children
 
+    def _build_version(self) -> ta.Tuple:
+        return tuple(c.version for c in self._children)
+
     @abc.abstractmethod
     def _build_composed(self) -> ta.Mapping[K, V]:
         raise NotImplementedError
 
-    @property
-    def composed(self) -> ta.Mapping[K, V]:
+    def _maybe_build(self) -> ta.Tuple[ta.Any, ta.Mapping[K, V]]:
         with self._lock:
             version = self._build_version()
             if version != self._version:
-                self._composed = self._build_composed()
-                self._version = version
-            return self._composed
+                composed = self._build_composed()
+                self._composed, self._version = composed, version
+            else:
+                composed = self._composed
+            return version, composed
+
+    @property
+    def version(self) -> ta.Tuple:
+        return self._maybe_build()[0]
+
+    @property
+    def composed(self) -> ta.Mapping[K, V]:
+        return self._maybe_build()[1]
 
     def __setitem__(self, k: K, v: V) -> None:
         raise TypeError
