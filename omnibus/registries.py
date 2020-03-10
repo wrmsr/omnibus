@@ -1,10 +1,15 @@
+"""
+TODO:
+ - DictReg.weak? key/val? currently _cannot remove_
+"""
 import abc
+import collections.abc
 import threading
 import typing as ta
 import weakref
 
 from . import check
-from . import collections
+from . import collections as ocol
 from . import lang
 
 
@@ -160,10 +165,6 @@ class BaseRegistry(Registry[K, V]):
             listener(self)
 
 
-class BaseMultiRegistry(MultiRegistry[K, V], BaseRegistry[K, ta.AbstractSet[V]]):
-    pass
-
-
 class CompositeRegistry(BaseRegistry[K, V]):
 
     Policy = ta.Callable[[ta.Iterable[Registry[K, V]]], ta.Mapping[K, V]]
@@ -271,11 +272,12 @@ class CompositeMultiRegistry(MultiRegistry[K, V], CompositeRegistry[K, ta.Abstra
         ret = {}
         for child in children:
             for k, v in child.items():
+                check.isinstance(v, collections.abc.Set)
                 try:
-                    ret[k].add(v)
+                    ret[k].update(v)
                 except KeyError:
-                    ret[k] = {v}
-        return ret
+                    ret[k] = set(v)
+        return {k: frozenset(v) for k, v in ret.items()}
 
     def __init__(
             self,
@@ -295,34 +297,22 @@ class DictRegistry(BaseRegistry[K, V]):
     def __init__(
             self,
             *args,
-            weak: bool = False,
             frozen: bool = False,
             **kwargs
     ) -> None:
         super().__init__(**kwargs)
 
-        self._weak = bool(weak)
-
-        dct: ta.MutableMapping[K, V]
-        if self._weak:
-            dct = weakref.WeakValueDictionary()
-        else:
-            dct = {}
-        self._dct = dct
+        self._dct: ta.MutableMapping[K, V] = {}
 
         self._version = 0
 
         self._frozen = False
-        items = list(collections.yield_dict_init(*args))
+        items = list(ocol.yield_dict_init(*args))
         if items:
             self.register_many(dict(items), silent=True)
         self._frozen = bool(frozen)
         if items:
             self._notify_listeners()
-
-    @property
-    def weak(self) -> bool:
-        return self._weak
 
     @property
     def frozen(self) -> bool:
@@ -359,6 +349,9 @@ class DictRegistry(BaseRegistry[K, V]):
     def values(self) -> ta.ValuesView[V]:
         return self._dct.values()
 
+    def _prepare_value(self, k: K, v: V) -> V:
+        return v
+
     def register_many(
             self,
             dct: ta.Mapping[K, V],
@@ -372,6 +365,8 @@ class DictRegistry(BaseRegistry[K, V]):
             return self
 
         with self._lock:
+            ndct = {}
+
             for k, v in dct.items():
                 check.not_none(k)
 
@@ -382,7 +377,9 @@ class DictRegistry(BaseRegistry[K, V]):
                 else:
                     raise AlreadyRegisteredException(k, v, ov)
 
-            for k, v in dct.items():
+                ndct[k] = self._prepare_value(k, v)
+
+            for k, v in ndct.items():
                 self._dct[k] = v
 
             self._version += 1
@@ -391,3 +388,10 @@ class DictRegistry(BaseRegistry[K, V]):
                 self._notify_listeners()
 
         return self
+
+
+class MultiDictRegistry(MultiRegistry[K, V], DictRegistry[K, ta.AbstractSet[V]]):
+
+    def _prepare_value(self, k: K, v: V) -> V:
+        check.arg(not isinstance(v, str))
+        return frozenset(v)
