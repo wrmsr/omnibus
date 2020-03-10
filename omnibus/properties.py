@@ -12,6 +12,8 @@ from . import registries
 
 
 T = ta.TypeVar('T')
+K = ta.TypeVar('K')
+V = ta.TypeVar('V')
 
 
 class Property(ta.Generic[T]):
@@ -145,7 +147,7 @@ def cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn)
 
 
-class RegistryProperty(Property[ta.Callable]):
+class RegistryProperty(Property[registries.Registry[K, V]]):
 
     def __init__(
             self,
@@ -159,8 +161,11 @@ class RegistryProperty(Property[ta.Callable]):
         self._raw = raw
 
         self._name: str = None
-        self._registry: registries.MultiRegistry[ta.Callable, ta.Any] = registries.MultiDictRegistry()
-        self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
+
+        self._key_sets_by_value: ta.MutableMapping[V, ta.AbstractSet[K]] = weakref.WeakKeyDictionary()
+
+        self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
+        self._registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()
 
     def __set_name__(self, owner, name):
         if self._name is None:
@@ -168,30 +173,38 @@ class RegistryProperty(Property[ta.Callable]):
         else:
             check.state(self._name == name)
 
-    def get_lookup(self, cls: ta.Type) -> ta.Mapping[ta.Any, ta.Callable]:
+    def _get_immediate_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         try:
-            return self._lookup_cache[cls]
+            return self._immediate_registries_by_cls[cls]
 
         except KeyError:
-            lookup = {}
+            registry = registries.DictRegistry()
 
-            for mcls in reversed(cls.__mro__):
-                for att in mcls.__dict__.values():
-                    # FIXME: $ invert
-                    # FIXME: o shit lol, don't have class ref and THIS IS GLOBAL FOR PROP (SINGLETON FOR ALL SUBCLASSES)
-                    # FIX: type -> frozenset, put meta back here, meta defers
-                    #  alt fix: MultiRegistry? ew..?
-                    try:
-                        keys = self._registry[att]
-                    except registries.NotRegisteredException:
-                        continue
-
+            for att in cls.__dict__.values():
+                try:
+                    keys = self._key_sets_by_value[att]
+                except KeyError:
+                    continue
+                else:
                     for key in keys:
-                        lookup[key] = att
+                        registry[key] = att
 
-            self._lookup_cache[cls] = lookup
+            registry.freeze()
+            self._immediate_registries_by_cls = registry
+            return registry
 
-            return lookup
+    def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
+        try:
+            return self._registries_by_cls[cls]
+
+        except KeyError:
+            mro_registries = [self._get_immediate_registry(mcls) for mcls in reversed(cls.__mro__)]
+
+            registry = registries.CompositeRegistry(mro_registries)
+
+            self._registries_by_cls[cls] = registry
+
+            return registry
 
     class DescriptorAccessor(collections.abc.Mapping):
 
@@ -258,72 +271,3 @@ def registry(
         descriptor=descriptor,
         raw=raw,
     )
-
-
-"""
-class _RegistryClassMeta(abc.ABCMeta):
-
-    class RegisteringNamespace:
-
-        def __init__(self, regs: ta.Mapping[str, RegistryProperty]) -> None:
-            super().__init__()
-            self._dict = {}
-            self._regs = dict(regs)
-
-        def __contains__(self, item):
-            return item in self._dict
-
-        def __getitem__(self, item):
-            return self._dict[item]
-
-        def __setitem__(self, key, value):
-            try:
-                reg = self._regs[key]
-
-            except KeyError:
-                self._dict[key] = value
-                if isinstance(value, RegistryProperty):
-                    self._regs[key] = value
-
-            else:
-                reg.register(value)
-                self._dict[f'__{hex(id(value))}'] = value
-
-        def __delitem__(self, key):
-            del self._dict[key]
-
-        def get(self, k, d=None):
-            try:
-                return self[k]
-            except KeyError:
-                return d
-
-        def setdefault(self, k, d=None):
-            try:
-                return self[k]
-            except KeyError:
-                self[k] = d
-                return d
-
-    @classmethod
-    def __prepare__(cls, name, bases, **kwargs):
-        regs = {}
-        mro = c3.merge([list(b.__mro__) for b in bases])
-        for bmro in reversed(mro):
-            for k, v in bmro.__dict__.items():
-                if isinstance(v, RegistryProperty):
-                    regs[k] = v
-
-        return cls.RegisteringNamespace(regs)
-
-    def __new__(mcls, name, bases, namespace, **kwargs):
-        if not isinstance(namespace, mcls.RegisteringNamespace):
-            raise TypeError(namespace)
-
-        namespace = namespace._dict
-        return super().__new__(mcls, name, bases, namespace, **kwargs)
-
-
-class RegistryClass(metaclass=_RegistryClassMeta):
-    pass
-"""

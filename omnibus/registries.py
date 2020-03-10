@@ -314,6 +314,14 @@ class DictRegistry(BaseRegistry[K, V]):
         if items:
             self._notify_listeners()
 
+    def freeze(self) -> bool:
+        with self._lock:
+            if not self._frozen:
+                self._frozen = True
+                return True
+            else:
+                return False
+
     @property
     def frozen(self) -> bool:
         return self._frozen
