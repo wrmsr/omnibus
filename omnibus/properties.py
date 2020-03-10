@@ -172,6 +172,14 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         else:
             check.state(self._name == name)
 
+    class Registrations:
+
+        def __init__(self) -> None:
+            super().__init__()
+
+            self._consumed = False
+            self._key_sets_by_value = {}
+
     def _get_immediate_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         try:
             return self._immediate_registries_by_cls[cls]
@@ -179,11 +187,21 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         except KeyError:
             registry = registries.DictRegistry()
 
-            for value, keys in cls.__dict__.get(self._registrations_attr_name, {}).items():
-                for key in keys:
-                    registry[key] = value
+            registrations: RegistryProperty.Registrations
+            try:
+                registrations = cls.__dict__[self._registrations_attr_name]
+            except KeyError:
+                pass
 
-            # cls.__dict__[self._registrations_attr_name] = CONSUMED
+            else:
+                check.isinstance(registrations, RegistryProperty.Registrations)
+                check.state(not registrations._consumed)
+
+                for value, keys in registrations._key_sets_by_value.items():
+                    for key in keys:
+                        registry[key] = value
+
+                registrations._consumed = True
 
             registry.freeze()
 
@@ -250,15 +268,19 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
     def _register(self, cls_dct, value, keys):
         with self._lock:
+            registrations: RegistryProperty.Registrations
             try:
-                regs = cls_dct[self._registrations_attr_name]
+                registrations = cls_dct[self._registrations_attr_name]
             except KeyError:
-                regs = cls_dct[self._registrations_attr_name] = {}
+                registrations = cls_dct[self._registrations_attr_name] = RegistryProperty.Registrations()
+
+            check.isinstance(registrations, RegistryProperty.Registrations)
+            check.state(not registrations._consumed)
 
             try:
-                key_set = regs[value]
+                key_set = registrations._key_sets_by_value[value]
             except KeyError:
-                key_set = regs[value] = set()
+                key_set = registrations._key_sets_by_value[value] = set()
 
             key_set.update(keys)
 
