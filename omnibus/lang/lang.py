@@ -1,4 +1,3 @@
-import enum
 import functools
 import sys
 import types
@@ -147,6 +146,7 @@ def is_descriptor(obj: ta.Any) -> bool:
         hasattr(obj, '__set__') or
         hasattr(obj, '__delete__')
     )
+
 
 def unwrap_instance_weakproxy(proxy: weakref.ProxyType, cls: ta.Type[T]) -> T:
     if not isinstance(proxy, weakref.ProxyType):
