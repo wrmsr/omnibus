@@ -24,6 +24,10 @@ class NOT_SET(lang.Marker):
     pass
 
 
+class _SKIP(lang.Marker):
+    pass
+
+
 class OverweightException(Exception):
     pass
 
@@ -197,8 +201,6 @@ class Cache(ta.MutableMapping[K, V]):
         self._weight -= link.weight
         link.unlinked = True
 
-    _SKIP = object()
-
     def _kill(self, link: Link) -> None:
         if link is self._root:
             raise RuntimeError
@@ -207,9 +209,9 @@ class Cache(ta.MutableMapping[K, V]):
         if self._weak_keys:
             key = key()
             if key is None:
-                key = self._SKIP
+                key = _SKIP
 
-        if key is not self._SKIP:
+        if key is not _SKIP:
             cache_key = id(key) if self._identity_keys else key
             cache_link = self._cache.get(cache_key)
             if cache_link is link:

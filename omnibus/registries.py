@@ -37,7 +37,6 @@ class FrozenRegistrationException(Exception):
 
 class Registry(abc.ABC, ta.Mapping[K, V]):
 
-
     @abc.abstractproperty
     def version(self) -> ta.Any:
         raise NotImplementedError
@@ -106,7 +105,8 @@ class BaseRegistry(Registry[K, V]):
             *args,
             lock: ta.Optional[lang.ContextManageable] = NOT_SET,
             listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener] = None,
-            **kwargs) -> None:
+            **kwargs
+    ) -> None:
         super().__init__(*args, **kwargs)
 
         if lock is NOT_SET:
@@ -119,6 +119,8 @@ class BaseRegistry(Registry[K, V]):
         self._listeners_by_obj: ta.MutableMapping[ta.Any, Registry.Listener] = weakref.WeakKeyDictionary()
         for obj, listener in (listeners_by_obj or {}).items():
             self.add_listener(obj, listener)
+
+    __hash__ = object.__hash__
 
     def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener]) -> None:
         listeners_by_obj = dict(listeners_by_obj)
@@ -165,14 +167,17 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
         self._children = list(children)
 
-        for child in self._children:
-            child.add_listener(self, listener)
+        with self._lock:
+            def listener(_):
+                with self._lock:
+                    self._maybe_build()
+                    self._notify_listeners()
 
-        self._maybe_build()
+            for child in self._children:
+                child.add_listener(self, listener)
 
-        def listener(_):
-            with self._lock:
-
+            self._version = NOT_SET
+            self._maybe_build()
 
     @property
     def children(self) -> ta.List[Registry[K, V]]:
@@ -191,6 +196,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
             if version != self._version:
                 composed = self._build_composed()
                 self._composed, self._version = composed, version
+                self._notify_listeners()
             else:
                 composed = self._composed
             return version, composed
