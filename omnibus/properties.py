@@ -212,6 +212,8 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
             self._registry = owner.get_registry(cls)
 
+            self.register = self._owner.register
+
         def __getitem__(self, key):
             ret = self._registry[key]
 
@@ -227,7 +229,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             return len(self._registry)
 
         def register(self, *keys):
-            return self._owner.register(*keys)
+            raise TypeError
 
     def __get__(self, obj, cls=None) -> ta.Mapping[K, V]:
         if cls is None:
