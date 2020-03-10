@@ -66,7 +66,7 @@ class InjectorImpl(Injector):
         self._children: ta.List[Injector] = []
 
         self._lock = threading.RLock()
-        self._current_state: Injector.State = None
+        self._current_state: InjectorImpl.State = None
 
         self._elements: ta.List[Element] = []
 
