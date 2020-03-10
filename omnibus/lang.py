@@ -43,14 +43,19 @@ def warn_unstable():
     warnings.warn('unstable', category=UnstableWarning, stacklevel=2)
 
 
-_CLS_DCT_ATTRS = {
-    '__module__',
-    '__qualname__',
-}
+_CLS_DCT_ATTR_SETS = [
+    {
+        '__module__',
+        '__qualname__',
+    },
+    {
+        '__all__',
+    },
+]
 
 
 def is_possibly_cls_dct(dct: ta.Mapping[str, ta.Any]) -> bool:
-    return all(a in dct for a in _CLS_DCT_ATTRS)
+    return any(all(a in dct for a in s) for s in _CLS_DCT_ATTR_SETS)
 
 
 class ClassDctFn:

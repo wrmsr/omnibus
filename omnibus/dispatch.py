@@ -454,7 +454,7 @@ class _RegistryClassMeta(abc.ABCMeta):
                     self._regs[key] = value
 
             else:
-                reg.register(value)
+                reg.register(value, cls_dct=self._dict)
                 self._dict[f'__{hex(id(value))}'] = value
 
         def __delitem__(self, key):
