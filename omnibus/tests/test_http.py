@@ -26,6 +26,7 @@ def test_http():
             server.run()
 
     def fn1():
+        time.sleep(0.5)
         while True:
             try:
                 response: requests.Response
@@ -55,6 +56,7 @@ def test_json_http():
             server.run()
 
     def fn1():
+        time.sleep(0.5)
         while True:
             try:
                 response: requests.Response

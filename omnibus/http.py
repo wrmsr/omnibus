@@ -13,6 +13,7 @@ import collections.abc
 import contextlib
 import datetime
 import http  # noqa
+import http.client
 import http.server
 import json
 import logging
@@ -316,6 +317,62 @@ class WSGIRefProtocol(lang.Protocol):
         raise NotImplementedError
 
 
+"""
+FIXME: jettison wsgiref?
+
+try:
+    import httptools
+
+except ImportError:
+    pass
+
+else:
+    class HttpToolsRequestParserListener:
+
+        def on_message_begin(self):
+            pass
+
+        def on_url(self, url: bytes):
+            pass
+
+        def on_header(self, name: bytes, value: bytes):
+            pass
+
+        def on_headers_complete(self):
+            pass
+
+        def on_body(self, body: bytes):
+            pass
+
+        def on_message_complete(self):
+            pass
+
+        def on_chunk_header(self):
+            pass
+
+        def on_chunk_complete(self):
+            pass
+
+        def on_status(self, status: bytes):
+            pass
+
+    # self.headers = http.client.parse_headers(self.rfile, _class=self.MessageClass)
+
+    def httptools_parse_headers(fp, _class=http.client.HTTPMessage):
+        l = HttpToolsRequestParserListener()
+        p = httptools.HttpResponseParser(l)
+        # p.feed_data(b'POST /test HTTP/1.1\r\n')
+        while True:
+            line = fp.readline()
+            if not line:
+                break
+            p.feed_data(line)
+        raise NotImplementedError
+
+    http.client.parse_headers = httptools_parse_headers
+"""
+
+
 @WSGIRefProtocol
 class WSGIServer:
 
@@ -328,12 +385,17 @@ class WSGIServer:
 
     base_environ: ta.Dict[str, ta.Any] = None
 
+    class RequestHandler(wsgiref.simple_server.WSGIRequestHandler):
+
+        def parse_request(self) -> bool:
+            return super().parse_request()
+
     def __init__(
             self,
             binder: Binder,
             app,
             *,
-            handler: Handler = wsgiref.simple_server.WSGIRequestHandler,
+            handler: Handler = RequestHandler,
             poll_interval: float = 0.5,
             exit_timeout: float = 10.0,
             **kwargs
@@ -432,7 +494,7 @@ class WSGIServer:
             self._handler(request, client_address, self)
             self.shutdown_request(request)
 
-        except Exception:
+        except Exception as e:  # noqa
             self.handle_error(request, client_address)
             self.shutdown_request(request)
 

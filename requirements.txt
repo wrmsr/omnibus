@@ -13,6 +13,7 @@ boto3==1.12.16
 botocore==1.15.16
 cbor==1.0.0
 docker==4.2.0
+httptools==0.1.1
 jmespath==0.9.5
 lz4==3.0.2
 msgpack==1.0.0
