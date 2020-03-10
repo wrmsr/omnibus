@@ -20,7 +20,7 @@ def test_registries():
     with pytest.raises(registries.NotRegisteredException):
         reg1[3]
 
-    foreg0 = registries.FirstOneCompositeRegistry([reg0, reg1])
+    foreg0 = registries.CompositeRegistry([reg0, reg1], registries.CompositeRegistry.FIRST_ONE)
     with pytest.raises(TypeError):
         foreg0[3] = 'three'
     assert foreg0[0] == 'zero'
@@ -29,7 +29,7 @@ def test_registries():
     with pytest.raises(registries.NotRegisteredException):
         foreg0[3]
 
-    foreg1 = registries.FirstOneCompositeRegistry([reg1, reg0])
+    foreg1 = registries.CompositeRegistry([reg1, reg0], registries.CompositeRegistry.FIRST_ONE)
     assert foreg1[0] == 'zero'
     assert foreg1[1] == 'onex'
     assert foreg1[2] == 'two'
@@ -37,7 +37,7 @@ def test_registries():
         foreg1[3]
 
     with pytest.raises(registries.AmbiguouslyRegisteredException):
-        registries.OnlyOneCompositeRegistry([reg0, reg1])
+        registries.CompositeRegistry([reg0, reg1], registries.CompositeRegistry.ONLY_ONE)
 
     oreg0 = registries.DictRegistry()
     oreg0[0] = 'zero'
@@ -45,7 +45,7 @@ def test_registries():
     oreg1 = registries.DictRegistry()
     oreg1[2] = 'two'
     oreg1[3] = 'three'
-    ooreg = registries.OnlyOneCompositeRegistry([oreg0, oreg1])
+    ooreg = registries.CompositeRegistry([oreg0, oreg1], registries.CompositeRegistry.ONLY_ONE)
     assert ooreg[0] == 'zero'
     assert ooreg[1] == 'one'
     assert ooreg[2] == 'two'

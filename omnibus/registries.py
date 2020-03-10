@@ -98,6 +98,10 @@ class Registry(abc.ABC, ta.Mapping[K, V]):
         self.remove_listener([obj])
 
 
+class MultiRegistry(Registry[K, ta.AbstractSet[V]]):
+    pass
+
+
 class BaseRegistry(Registry[K, V]):
 
     def __init__(
@@ -156,16 +160,43 @@ class BaseRegistry(Registry[K, V]):
             listener(self)
 
 
+class BaseMultiRegistry(MultiRegistry[K, V], BaseRegistry[K, ta.AbstractSet[V]]):
+    pass
+
+
 class CompositeRegistry(BaseRegistry[K, V]):
+
+    Policy = ta.Callable[[ta.Iterable[Registry[K, V]]], ta.Mapping[K, V]]
+
+    @staticmethod
+    def FIRST_ONE(children):
+        ret = {}
+        for child in children:
+            for k, v in child.items():
+                if k not in ret:
+                    ret[k] = v
+        return ret
+
+    @staticmethod
+    def ONLY_ONE(children):
+        ret = {}
+        for child in children:
+            for k, v in child.items():
+                if k in ret:
+                    raise AmbiguouslyRegisteredException(k, ret[k])
+                ret[k] = v
+        return ret
 
     def __init__(
             self,
             children: ta.Iterable[Registry[K, V]],
+            policy: Policy = FIRST_ONE,
             **kwargs,
     ) -> None:
         super().__init__(**kwargs)
 
         self._children = list(children)
+        self._policy = check.callable(policy)
 
         with self._lock:
             def listener(_):
@@ -183,18 +214,11 @@ class CompositeRegistry(BaseRegistry[K, V]):
     def children(self) -> ta.List[Registry[K, V]]:
         return self._children
 
-    def _build_version(self) -> ta.Tuple:
-        return tuple(c.version for c in self._children)
-
-    @abc.abstractmethod
-    def _build_composed(self) -> ta.Mapping[K, V]:
-        raise NotImplementedError
-
     def _maybe_build(self) -> ta.Tuple[ta.Any, ta.Mapping[K, V]]:
         with self._lock:
-            version = self._build_version()
+            version = tuple(c.version for c in self._children)
             if version != self._version:
-                composed = self._build_composed()
+                composed = self._policy(self._children)
                 self._composed, self._version = composed, version
                 self._notify_listeners()
             else:
@@ -240,27 +264,30 @@ class CompositeRegistry(BaseRegistry[K, V]):
         raise TypeError
 
 
-class FirstOneCompositeRegistry(CompositeRegistry[K, V]):
+class CompositeMultiRegistry(MultiRegistry[K, V], CompositeRegistry[K, ta.AbstractSet[V]]):
 
-    def _build_composed(self) -> ta.Mapping[K, V]:
+    @staticmethod
+    def MERGE(children):
         ret = {}
-        for child in self._children:
+        for child in children:
             for k, v in child.items():
-                if k not in ret:
-                    ret[k] = v
+                try:
+                    ret[k].add(v)
+                except KeyError:
+                    ret[k] = {v}
         return ret
 
+    def __init__(
+            self,
+            children: ta.Iterable[Registry[K, V]],
+            *args,
+            **kwargs,
+    ) -> None:
+        children = list(children)
+        for child in children:
+            check.isinstance(child, MultiRegistry)
 
-class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
-
-    def _build_composed(self) -> ta.Mapping[K, V]:
-        ret = {}
-        for child in self._children:
-            for k, v in child.items():
-                if k in ret:
-                    raise AmbiguouslyRegisteredException(k, ret[k])
-                ret[k] = v
-        return ret
+        super().__init__(children, *args, **kwargs)
 
 
 class DictRegistry(BaseRegistry[K, V]):
@@ -288,7 +315,7 @@ class DictRegistry(BaseRegistry[K, V]):
         self._frozen = False
         items = list(collections.yield_dict_init(*args))
         if items:
-            self.register_many(dict(items), no_listeners=True)
+            self.register_many(dict(items), silent=True)
         self._frozen = bool(frozen)
         if items:
             self._notify_listeners()
@@ -336,7 +363,7 @@ class DictRegistry(BaseRegistry[K, V]):
             self,
             dct: ta.Mapping[K, V],
             *,
-            no_listeners: bool = False,
+            silent: bool = False,
     ) -> 'Registry[K, V]':
         if self._frozen:
             raise FrozenRegistrationException(self)
@@ -360,7 +387,7 @@ class DictRegistry(BaseRegistry[K, V]):
 
             self._version += 1
 
-            if not no_listeners:
+            if not silent:
                 self._notify_listeners()
 
         return self
