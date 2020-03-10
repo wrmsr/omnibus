@@ -5,9 +5,9 @@ import tempfile
 import threading
 import time
 
-from . import helpers
-from .. import lang
-from .. import replserver
+from .. import server as server_
+from ... import lang
+from ...tests import helpers
 
 
 def test_replserver():
@@ -52,7 +52,7 @@ def test_replserver():
                     break
 
     def inner():
-        server = replserver.ReplServer(path)
+        server = server_.ReplServer(path)
         with lang.defer(lambda: server.shutdown(True, 5)):
             def run():
                 with server:
