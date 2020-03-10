@@ -38,4 +38,4 @@ It unapologetically requires python 3.7+. It has one single mandatory dependency
 
 But again, the only required dependency is toolz, and toolz has no transitive dependencies.
 
-Notably the code is organized, python-stdlib-style, into a flat list of relatively large files. This is, again, largely in keeping tradition with python's stdlib, and in practice thus far nothing has yet justified breaking into a subpackage (though that may soon be changing). My app-level code tends to be much more decomposed into subdirectories of smaller files, but this is lib code.
+Notably the code is (mostly) organized, python-stdlib-style, into a (mostly) flat list of relatively large files. This is, again, in keeping tradition with python's stdlib, and in practice thus far ~~nothing has~~ few things have yet justified breaking into a subpackage ~~(though that may soon be changing)~~. My app-level code tends to be much more decomposed into subdirectories of smaller files, but this is lib code.
