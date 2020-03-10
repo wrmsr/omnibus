@@ -369,18 +369,15 @@ class RegistryProperty(properties.RegistryProperty):
             return self._dispatcher_cache[cls]
 
         except KeyError:
-            lookup = self.get_lookup(cls)
+            registry = self.get_registry(cls)
 
-            dispatcher = CachingDispatcher(DefaultDispatcher())
-
-            for k, v in lookup.items():
-                dispatcher[k] = v
+            dispatcher = CachingDispatcher(DefaultDispatcher(registry))
 
             self._dispatcher_cache[cls] = dispatcher
 
             return dispatcher
 
-    class DescriptorAccessor(properties.RegistryProperty.DescriptorAccessor):
+    class Accessor(properties.RegistryProperty.Accessor):
 
         def __init__(self, owner, obj, cls):
             super().__init__(owner, obj, cls)
@@ -402,7 +399,8 @@ class RegistryProperty(properties.RegistryProperty):
         def dispatch(self, cls: ta.Any) -> ta.Callable:
             return self._dispatcher[cls]
 
-    def register(self, *keys):
+    @lang.cls_dct_fn()
+    def register(self, cls_dct, *keys):
         if len(keys) == 1 and not isinstance(keys[0], type):
             [meth] = keys
             if not isinstance(meth, types.FunctionType):
@@ -416,7 +414,7 @@ class RegistryProperty(properties.RegistryProperty):
             if not isinstance(key, type):
                 raise TypeError(key)
 
-            self._registry.setdefault(meth, set()).add(key)
+            self._register(cls_dct, meth, [key])
             return meth
 
         else:
@@ -424,12 +422,7 @@ class RegistryProperty(properties.RegistryProperty):
                 if not isinstance(key, type):
                     raise TypeError(key)
 
-        return super().register(*keys)
-
-    def invalidate(self):
-        super().invalidate()
-
-        self._dispatcher_cache = weakref.WeakKeyDictionary()
+        return super().register(*keys, cls_dct=cls_dct)
 
 
 def registry_property() -> RegistryProperty:
