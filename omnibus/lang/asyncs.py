@@ -1,6 +1,5 @@
 import concurrent.futures
 import contextlib
-import enum
 import functools
 import time
 import typing as ta

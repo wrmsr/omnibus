@@ -126,9 +126,9 @@ abstract = abc.abstractmethod
 
 def is_abstract(obj: ta.Any) -> bool:
     return bool(getattr(obj, '__abstractmethods__', [])) or (
-            isinstance(obj, type) and
-            issubclass(obj, Abstract) and
-            getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
+        isinstance(obj, type) and
+        issubclass(obj, Abstract) and
+        getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
     )
 
 

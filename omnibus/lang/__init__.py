@@ -7,7 +7,7 @@ from .asyncs import syncable_iterable  # noqa
 from .asyncs import SyncableIterable  # noqa
 from .classes import Abstract  # noqa
 from .classes import abstract  # noqa
-from .classes import access_forbidden
+from .classes import access_forbidden  # noqa
 from .classes import AccessForbiddenDescriptor  # noqa
 from .classes import AttrAccessForbiddenException  # noqa
 from .classes import Descriptor  # noqa
