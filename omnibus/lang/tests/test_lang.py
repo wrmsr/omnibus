@@ -6,27 +6,34 @@ import typing as ta
 
 import pytest
 
-from .. import lang
-from .. import toolz
+from .. import asyncs as asyncs_
+from .. import classes as classes_
+from .. import contextmanagers as cms_
+from .. import enums as enums_
+from .. import lang as lang_
+from .. import math as math_
+from .. import maybe as maybe_
+from .. import strings as strings_
+from ... import toolz
 
 
 def test_cls_dct():
     class C:
-        assert lang.is_possibly_cls_dct(locals())
+        assert lang_.is_possibly_cls_dct(locals())
 
-    assert not lang.is_possibly_cls_dct(locals())
+    assert not lang_.is_possibly_cls_dct(locals())
 
 
 def test_public():
     __all__ = []
 
-    @lang.public
+    @lang_.public
     def f():
         pass
 
     assert 'f' in __all__
 
-    @lang.public_as('f2')
+    @lang_.public_as('f2')
     def g():
         pass
 
@@ -34,8 +41,8 @@ def test_public():
 
 
 def test_protocol():
-    class P(lang.Protocol):
-        @lang.abstract
+    class P(classes_.Protocol):
+        @classes_.abstract
         def f(self):
             raise NotImplementedError()
 
@@ -57,14 +64,14 @@ def test_protocol():
         def f(self):
             pass
 
-    with pytest.raises(lang.ProtocolException):
+    with pytest.raises(classes_.ProtocolException):
         @P
         class D:
             pass
 
 
 def test_interface():
-    class I0(lang.Interface):
+    class I0(classes_.Interface):
         def f(self):
             pass
 
@@ -83,7 +90,7 @@ def test_interface():
 
     C1().f()
 
-    class I1(lang.Interface, I0):
+    class I1(classes_.Interface, I0):
         def g(self):
             pass
 
@@ -125,36 +132,36 @@ def test_final():
 
     A()
 
-    class B(A, lang.Final):
+    class B(A, classes_.Final):
         pass
 
     B()
 
-    with pytest.raises(lang.FinalException):
+    with pytest.raises(classes_.FinalException):
         class C(B):
             pass
 
     T = ta.TypeVar('T')
 
-    class D(ta.Generic[T], lang.Final):
+    class D(ta.Generic[T], classes_.Final):
         pass
 
     D()
     D[int]
 
-    with pytest.raises(lang.FinalException):
+    with pytest.raises(classes_.FinalException):
         class E(D[int]):
             pass
 
 
 def test_sealed():
-    class A(lang.Sealed):
+    class A(classes_.Sealed):
         __module__ = 'a'
 
     class B(A):
         __module__ = 'a'
 
-    with pytest.raises(lang.SealedException):
+    with pytest.raises(classes_.SealedException):
         class C(A):
             __module__ = 'c'
 
@@ -166,14 +173,14 @@ def test_extension():
     class A:
         pass
 
-    class _(lang.Extension[A]):  # noqa
+    class _(classes_.Extension[A]):  # noqa
         def f(self):
             return 1
 
     assert A().f() == 1
 
     with pytest.raises(NameError):
-        class _(lang.Extension[A]):  # noqa
+        class _(classes_.Extension[A]):  # noqa
             def f(self):
                 pass
 
@@ -188,7 +195,7 @@ def test_extension():
 
     assert D().f() == 1
 
-    class _(lang.Extension[D]):  # noqa
+    class _(classes_.Extension[D]):  # noqa
         def f(self):
             return super(D, self).f() + 1
 
@@ -201,7 +208,7 @@ def test_override():
             pass
 
     class B(A):
-        @lang.override
+        @classes_.override
         def f(self):
             pass
 
@@ -209,40 +216,40 @@ def test_override():
 
     with pytest.raises(Exception):
         class C(A):
-            @lang.override
+            @classes_.override
             def g(self):
                 pass
 
     with pytest.raises(Exception):
         class D:
-            @lang.override
+            @classes_.override
             def g(self):
                 pass
 
 
 def test_camelize():
-    assert lang.camelize('some_class') == 'SomeClass'
+    assert strings_.camelize('some_class') == 'SomeClass'
 
 
 def test_decamelize():
-    assert lang.decamelize('Abc') == 'abc'
-    assert lang.decamelize('AbcDef') == 'abc_def'
-    assert lang.decamelize('AbcDefG') == 'abc_def_g'
-    assert lang.decamelize('AbcDefGH') == 'abc_def_g_h'
-    assert lang.decamelize('') == ''
+    assert strings_.decamelize('Abc') == 'abc'
+    assert strings_.decamelize('AbcDef') == 'abc_def'
+    assert strings_.decamelize('AbcDefG') == 'abc_def_g'
+    assert strings_.decamelize('AbcDefGH') == 'abc_def_g_h'
+    assert strings_.decamelize('') == ''
 
 
 def test_bits():
-    assert lang.get_bit(3, 0b0100) == 0
-    assert lang.get_bit(2, 0b0100) == 1
-    assert lang.get_bits(1, 2, 0b0100) == 0b10
-    assert lang.get_bits(1, 3, 0b0100) == 0b10
-    assert lang.get_bits(0, 3, 0b0100) == 0b100
-    assert lang.get_bits(1, 1, 0b0100) == 0
-    assert lang.set_bit(2, 1, 0b01010) == 0b01110
-    assert lang.set_bit(3, 0, 0b01010) == 0b00010
-    assert lang.set_bits(1, 2, 0b11, 0b01010) == 0b01110
-    assert lang.set_bits(1, 2, 0b10, 0b01010) == 0b01100
+    assert math_.get_bit(3, 0b0100) == 0
+    assert math_.get_bit(2, 0b0100) == 1
+    assert math_.get_bits(1, 2, 0b0100) == 0b10
+    assert math_.get_bits(1, 3, 0b0100) == 0b10
+    assert math_.get_bits(0, 3, 0b0100) == 0b100
+    assert math_.get_bits(1, 1, 0b0100) == 0
+    assert math_.set_bit(2, 1, 0b01010) == 0b01110
+    assert math_.set_bit(3, 0, 0b01010) == 0b00010
+    assert math_.set_bits(1, 2, 0b11, 0b01010) == 0b01110
+    assert math_.set_bits(1, 2, 0b10, 0b01010) == 0b01100
 
 
 def test_manage_maybe_iterator():
@@ -254,19 +261,19 @@ def test_manage_maybe_iterator():
         i += 1
         yield
 
-    assert lang.manage_maybe_iterator(manager, lambda: None) is None
+    assert cms_.manage_maybe_iterator(manager, lambda: None) is None
     assert i == 1
 
-    assert lang.manage_maybe_iterator(manager, lambda: []) == []
+    assert cms_.manage_maybe_iterator(manager, lambda: []) == []
     assert i == 2
 
-    it = lang.manage_maybe_iterator(manager, lambda: iter([]))
+    it = cms_.manage_maybe_iterator(manager, lambda: iter([]))
     assert isinstance(it, collections.abc.Iterator)
     assert i == 3
     assert list(it) == []
     assert i == 4
 
-    it = lang.manage_maybe_iterator(manager, lambda: iter(range(3)))
+    it = cms_.manage_maybe_iterator(manager, lambda: iter(range(3)))
     assert isinstance(it, collections.abc.Iterator)
     assert i == 5
     assert list(it) == [0, 1, 2]
@@ -274,7 +281,7 @@ def test_manage_maybe_iterator():
 
 
 def test_autoenum():
-    class E(lang.AutoEnum):
+    class E(enums_.AutoEnum):
         A = ...
         B = ...
         C = ...
@@ -282,11 +289,11 @@ def test_autoenum():
     assert E.B.name == 'B'
     assert E.B.value == 2
 
-    class F(lang.AutoEnum):
+    class F(enums_.AutoEnum):
         class A:
             thing = 1
 
-        @lang.singleton()
+        @classes_.singleton()
         class B:
             def __init__(self):
                 self.thing = 2
@@ -302,8 +309,8 @@ def test_autoenum():
 
 
 def test_mixin():
-    class M0(lang.Mixin):
-        lang.Mixin.capture()
+    class M0(classes_.Mixin):
+        classes_.Mixin.capture()
 
         def f(self):
             return 1
@@ -313,8 +320,8 @@ def test_mixin():
 
     assert C().f() == 1
 
-    class M1(lang.Mixin):
-        lang.Mixin.capture()
+    class M1(classes_.Mixin):
+        classes_.Mixin.capture()
 
         def f(self):
             return str(super().f())
@@ -326,13 +333,13 @@ def test_mixin():
 
 
 def test_abstract():
-    class C(lang.Abstract):
+    class C(classes_.Abstract):
         pass
 
     class D(C):
         pass
 
-    class E(D, lang.Abstract):
+    class E(D, classes_.Abstract):
         pass
 
     class F(E):
@@ -347,10 +354,10 @@ def test_abstract():
 
 
 def test_marker():
-    class M(lang.Marker):
+    class M(classes_.Marker):
         pass
 
-    with pytest.raises(lang.FinalException):
+    with pytest.raises(classes_.FinalException):
         class N(M):
             pass
     with pytest.raises(TypeError):
@@ -383,17 +390,17 @@ def test_init_subclass():
 
 
 def test_new_type():
-    C = lang.new_type('C', (object,), {'f': lambda self: 420})
+    C = lang_.new_type('C', (object,), {'f': lambda self: 420})
     assert C().f() == 420
 
 
 def test_access_forbidden():
     class C:
-        f = lang.AccessForbiddenDescriptor()
+        f = classes_.AccessForbiddenDescriptor()
 
     try:
         C.f
-    except lang.AttrAccessForbiddenException as e:
+    except classes_.AttrAccessForbiddenException as e:
         assert e.name == 'f'
 
 
@@ -405,8 +412,8 @@ def test_await_futures():
     tp: concurrent.futures.Executor
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as tp:
         futures = [tp.submit(fn) for _ in range(10)]
-        assert not lang.await_futures(futures, tick_fn=iter([True, False]).__next__)
-        assert lang.await_futures(futures)
+        assert not asyncs_.await_futures(futures, tick_fn=iter([True, False]).__next__)
+        assert asyncs_.await_futures(futures)
 
     def pairs(l):
         return [set(p) for p in toolz.partition_all(2, l)]
@@ -416,14 +423,14 @@ def test_await_futures():
 
 
 def test_exit_stacked():
-    class A(lang.ExitStacked):
+    class A(cms_.ExitStacked):
         pass
 
     with A() as a:
         assert isinstance(a, A)
         assert isinstance(a._exit_stack, contextlib.ExitStack)
 
-    class B(lang.ExitStacked):
+    class B(cms_.ExitStacked):
 
         def __enter__(self):
             return 'hi'
@@ -433,26 +440,26 @@ def test_exit_stacked():
 
 
 def test_is_abstract():
-    class A(lang.Abstract):
+    class A(classes_.Abstract):
         pass
 
-    assert lang.is_abstract(A)
+    assert classes_.is_abstract(A)
 
     class B(A):
         pass
 
-    assert not lang.is_abstract(B)
+    assert not classes_.is_abstract(B)
 
-    class C(lang.Abstract):
+    class C(classes_.Abstract):
 
         def __init_subclass__(cls, **kwargs):
             super().__init_subclass__(**kwargs)
             if cls.__name__ == 'D':
-                assert lang.is_abstract(cls)
+                assert classes_.is_abstract(cls)
             else:
-                assert not lang.is_abstract(cls)
+                assert not classes_.is_abstract(cls)
 
-    class D(C, lang.Abstract):
+    class D(C, classes_.Abstract):
         pass
 
     class E(D):
@@ -471,7 +478,7 @@ def test_context_wrapped():
 
     cm = CM()
 
-    @lang.context_wrapped(cm)
+    @cms_.context_wrapped(cm)
     def f(x):
         return x + 1
 
@@ -484,7 +491,7 @@ def test_context_wrapped():
         def __init__(self):
             self.cm = CM()
 
-        @lang.context_wrapped('cm')
+        @cms_.context_wrapped('cm')
         def f(self, x):
             return x + 2
 
@@ -495,7 +502,7 @@ def test_context_wrapped():
 
     gcm = CM()
 
-    @lang.context_wrapped(lambda x: gcm)
+    @cms_.context_wrapped(lambda x: gcm)
     def g(x):
         return x + 3
 
@@ -503,7 +510,7 @@ def test_context_wrapped():
     assert gcm.count == 1
 
     class D:
-        @lang.context_wrapped(lambda self, x: gcm)
+        @cms_.context_wrapped(lambda self, x: gcm)
         def g(self, x):
             return x + 3
 
@@ -513,22 +520,22 @@ def test_context_wrapped():
 
 
 def test_maybe():
-    assert lang.Maybe(1)
-    assert not lang.Maybe.empty()
-    assert lang.Maybe.empty() is lang.Maybe.empty()
-    assert lang.Maybe('foo').value.endswith('o')
-    assert next(iter(lang.Maybe('x'))).capitalize() == 'X'
-    assert lang.Maybe(None)
+    assert maybe_.Maybe(1)
+    assert not maybe_.Maybe.empty()
+    assert maybe_.Maybe.empty() is maybe_.Maybe.empty()
+    assert maybe_.Maybe('foo').value.endswith('o')
+    assert next(iter(maybe_.Maybe('x'))).capitalize() == 'X'
+    assert maybe_.Maybe(None)
 
-    assert lang.Maybe(0) == lang.Maybe(0)
-    assert not (lang.Maybe(0) != lang.Maybe(0))
-    assert lang.Maybe(0) != lang.Maybe(1)
+    assert maybe_.Maybe(0) == maybe_.Maybe(0)
+    assert not (maybe_.Maybe(0) != maybe_.Maybe(0))
+    assert maybe_.Maybe(0) != maybe_.Maybe(1)
 
-    assert lang.Maybe(0) != (0,)
-    assert not (lang.Maybe(0) == (0,))
+    assert maybe_.Maybe(0) != (0,)
+    assert not (maybe_.Maybe(0) == (0,))
 
-    assert lang.Maybe(0) < lang.Maybe(1)
-    assert lang.Maybe(1) > lang.Maybe(0)
+    assert maybe_.Maybe(0) < maybe_.Maybe(1)
+    assert maybe_.Maybe(1) > maybe_.Maybe(0)
 
-    assert lang.Maybe(3).map(lambda v: v + 1) == lang.Maybe(4)
-    assert lang.Maybe.empty().map(lambda v: v + 1) is lang.Maybe.empty()
+    assert maybe_.Maybe(3).map(lambda v: v + 1) == maybe_.Maybe(4)
+    assert maybe_.Maybe.empty().map(lambda v: v + 1) is maybe_.Maybe.empty()
