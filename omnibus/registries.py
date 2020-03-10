@@ -37,6 +37,7 @@ class FrozenRegistrationException(Exception):
 
 class Registry(abc.ABC, ta.Mapping[K, V]):
 
+
     @abc.abstractproperty
     def version(self) -> ta.Any:
         raise NotImplementedError
@@ -81,18 +82,25 @@ class Registry(abc.ABC, ta.Mapping[K, V]):
         check.not_none(k)
         return self.register_many({k: v})
 
+    Listener = ta.Callable[['Registry[K, V]'], None]
 
-class CompositeRegistry(Registry[K, V]):
+    @abc.abstractmethod
+    def add_listener(self, obj: ta.Any, listener: Listener) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def remove_listener(self, obj: ta.Any) -> None:
+        raise NotImplementedError
+
+
+class BaseRegistry(Registry[K, V]):
 
     def __init__(
             self,
-            children: ta.Iterable[Registry[K, V]],
-            *,
+            *args,
             lock: ta.Optional[lang.ContextManageable] = NOT_SET,
-    ) -> None:
-        super().__init__()
-
-        self._children = list(children)
+            **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         if lock is NOT_SET:
             self._lock = threading.RLock()
@@ -101,6 +109,47 @@ class CompositeRegistry(Registry[K, V]):
         else:
             self._lock = lock
 
+        self._listeners_by_obj: ta.MutableMapping[ta.Any, ] = weakref.WeakKeyDictionary()
+
+    def add_listener(self, obj: ta.Any, listener: Registry.Listener) -> None:
+        check.not_none(obj)
+        check.callable(listener)
+
+        with self._lock:
+            if obj in self._listeners_by_obj:
+                raise KeyError(obj)
+            self._listeners_by_obj[obj] = listener
+
+    def remove_listener(self, obj: ta.Any) -> None:
+        check.not_none(obj)
+
+        with self._lock:
+            del self._listeners_by_obj[obj]
+
+    def _notify_listeners(self) -> None:
+        for listener in self._listeners_by_obj.values():
+            listener(self)
+
+
+class CompositeRegistry(BaseRegistry[K, V]):
+
+    def __init__(
+            self,
+            children: ta.Iterable[Registry[K, V]],
+            **kwargs,
+    ) -> None:
+        super().__init__(**kwargs)
+
+        self._children = list(children)
+
+        def listener(_):
+            with self._lock:
+
+
+        for child in self._children:
+            child.add_listener(self, listener)
+
+        # FIXME: couple with lock
         self._version = self._build_version()
         self._composed = self._build_composed()
 
@@ -182,25 +231,18 @@ class OnlyOneCompositeRegistry(CompositeRegistry[K, V]):
         return ret
 
 
-class DictRegistry(Registry[K, V]):
+class DictRegistry(BaseRegistry[K, V]):
 
     def __init__(
             self,
             *args,
-            lock: ta.Optional[lang.ContextManageable] = NOT_SET,
             weak: bool = False,
             frozen: bool = False,
+            **kwargs
     ) -> None:
-        super().__init__()
+        super().__init__(**kwargs)
 
         self._weak = bool(weak)
-
-        if lock is NOT_SET:
-            self._lock = threading.RLock()
-        elif lock is None:
-            self._lock = lang.ContextManaged()
-        else:
-            self._lock = lock
 
         dct: ta.MutableMapping[K, V]
         if self._weak:
@@ -212,9 +254,12 @@ class DictRegistry(Registry[K, V]):
         self._version = 0
 
         self._frozen = False
-        for k, v in collections.yield_dict_init(*args):
-            self[k] = v
+        items = list(collections.yield_dict_init(*args))
+        if items:
+            self.register_many(dict(items), no_listeners=True)
         self._frozen = bool(frozen)
+        if items:
+            self._notify_listeners()
 
     @property
     def weak(self) -> bool:
@@ -255,7 +300,12 @@ class DictRegistry(Registry[K, V]):
     def values(self) -> ta.ValuesView[V]:
         return self._dct.values()
 
-    def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
+    def register_many(
+            self,
+            dct: ta.Mapping[K, V],
+            *,
+            no_listeners: bool = False,
+    ) -> 'Registry[K, V]':
         if self._frozen:
             raise FrozenRegistrationException(self)
 
@@ -277,5 +327,8 @@ class DictRegistry(Registry[K, V]):
                 self._dct[k] = v
 
             self._version += 1
+
+            if not no_listeners:
+                self._notify_listeners()
 
         return self
