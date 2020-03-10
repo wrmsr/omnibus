@@ -145,7 +145,6 @@ def cached_class(fn: ta.Callable[..., T]) -> T:
 
 
 class RegistryProperty(Property[registries.Registry[K, V]]):
-    # FIXME: lock
 
     def __init__(
             self,
@@ -210,7 +209,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
                 self._registries_by_cls[cls] = registry
                 return registry
 
-    class DescriptorAccessor(collections.abc.Mapping):
+    class DescriptorAccessor(ta.Mapping[K, V]):
 
         def __init__(self, owner, obj, cls):
             super().__init__()
@@ -238,7 +237,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         def register(self, *keys):
             return self._owner.register(*keys)
 
-    def __get__(self, obj, cls=None):
+    def __get__(self, obj, cls=None) -> ta.Mapping[K, V]:
         if cls is None:
             return self
 
@@ -272,9 +271,11 @@ def registry(
         bind: bool = None,
         raw: bool = False,
         weak: bool = False,
+        lock: lang.ContextManageable = None,
 ) -> RegistryProperty:
     return RegistryProperty(
         bind=bind,
         raw=raw,
         weak=weak,
+        lock=lock,
     )

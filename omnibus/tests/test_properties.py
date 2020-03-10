@@ -49,6 +49,32 @@ def test_set_once_property():
 
 def test_registry_property():
     class C:
+        vals = properties.registry()
+
+        vals.register('a')('C.a')
+        vals.register('b')('C.b')
+
+    class D(C):
+
+        C.vals.register('c')('D.c')
+
+    class E(D):
+
+        D.vals.register('a')('E.a')
+
+    assert C().vals['a'] == 'C.a'
+    assert C().vals['b'] == 'C.b'
+    with pytest.raises(registries.NotRegisteredException):
+        C().vals['c']
+    assert D().vals['a'] == 'C.b'
+    assert D().vals['b'] == 'C.b'
+    assert D().vals['c'] == 'D.c'
+    assert E().vals['c'] == 'D.c'
+    assert E().vals['a'] == 'E.a'
+
+
+def test_binding_registry_property():
+    class C:
         fns = properties.registry(bind=True)
 
         @fns.register('a')
@@ -75,6 +101,7 @@ def test_registry_property():
     assert C().fns['b']() == 1
     with pytest.raises(registries.NotRegisteredException):
         C().fns['c']()
+    assert D().fns['a']() == 0
     assert D().fns['b']() == 1
     assert D().fns['c']() == 2
     assert E().fns['c']() == 2
