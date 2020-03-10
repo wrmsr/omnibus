@@ -1,9 +1,11 @@
+import abc
 import collections.abc
 import functools
 import threading
 import typing as ta
 import weakref
 
+from . import c3
 from . import check
 from . import lang
 from . import registries
@@ -148,16 +150,16 @@ class RegistryProperty(Property[ta.Callable]):
     def __init__(
             self,
             *,
-            unbound: bool = None,
+            descriptor: bool = None,
             raw: bool = False,
     ) -> None:
         super().__init__()
 
-        self._unbound = unbound
+        self._descriptor = descriptor
         self._raw = raw
 
         self._name: str = None
-        self._registry: registries.Registry[ta.Any, ta.Callable] = registries.DictRegistry()
+        self._registry: registries.MultiRegistry[ta.Callable, ta.Any] = registries.MultiDictRegistry()
         self._lookup_cache: ta.MutableMapping[ta.Type, ta.Mapping[ta.Any, ta.Callable]] = weakref.WeakKeyDictionary()
 
     def __set_name__(self, owner, name):
@@ -181,7 +183,7 @@ class RegistryProperty(Property[ta.Callable]):
                     #  alt fix: MultiRegistry? ew..?
                     try:
                         keys = self._registry[att]
-                    except KeyError:
+                    except registries.NotRegisteredException:
                         continue
 
                     for key in keys:
@@ -238,8 +240,7 @@ class RegistryProperty(Property[ta.Callable]):
 
     def register(self, *keys):
         def inner(meth):
-            for key in keys:
-                self._registry[key] = meth
+            self._registry[meth] = keys
             return meth
 
         return inner
@@ -257,3 +258,72 @@ def registry(
         descriptor=descriptor,
         raw=raw,
     )
+
+
+"""
+class _RegistryClassMeta(abc.ABCMeta):
+
+    class RegisteringNamespace:
+
+        def __init__(self, regs: ta.Mapping[str, RegistryProperty]) -> None:
+            super().__init__()
+            self._dict = {}
+            self._regs = dict(regs)
+
+        def __contains__(self, item):
+            return item in self._dict
+
+        def __getitem__(self, item):
+            return self._dict[item]
+
+        def __setitem__(self, key, value):
+            try:
+                reg = self._regs[key]
+
+            except KeyError:
+                self._dict[key] = value
+                if isinstance(value, RegistryProperty):
+                    self._regs[key] = value
+
+            else:
+                reg.register(value)
+                self._dict[f'__{hex(id(value))}'] = value
+
+        def __delitem__(self, key):
+            del self._dict[key]
+
+        def get(self, k, d=None):
+            try:
+                return self[k]
+            except KeyError:
+                return d
+
+        def setdefault(self, k, d=None):
+            try:
+                return self[k]
+            except KeyError:
+                self[k] = d
+                return d
+
+    @classmethod
+    def __prepare__(cls, name, bases, **kwargs):
+        regs = {}
+        mro = c3.merge([list(b.__mro__) for b in bases])
+        for bmro in reversed(mro):
+            for k, v in bmro.__dict__.items():
+                if isinstance(v, RegistryProperty):
+                    regs[k] = v
+
+        return cls.RegisteringNamespace(regs)
+
+    def __new__(mcls, name, bases, namespace, **kwargs):
+        if not isinstance(namespace, mcls.RegisteringNamespace):
+            raise TypeError(namespace)
+
+        namespace = namespace._dict
+        return super().__new__(mcls, name, bases, namespace, **kwargs)
+
+
+class RegistryClass(metaclass=_RegistryClassMeta):
+    pass
+"""
