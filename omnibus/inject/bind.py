@@ -1,32 +1,35 @@
+import functools
 import inspect
 import typing as ta
 import weakref
 
 from .. import check
 from .. import lang
+from .multi import DictBinding
+from .multi import DictProvider
+from .multi import SetBinding
+from .multi import SetProvider
+from .proividers import CallableProvider
+from .proividers import ClassProvider
+from .proividers import LinkedProvider
+from .proividers import ProviderLinkedProvider
+from .proividers import ValueProvider
 from .scopes import EagerSingletonScope
 from .scopes import NoScope
 from .scopes import SingletonScope
 from .types import Binder
 from .types import Binding
 from .types import BindingSource
-from .types import CallableProvider
-from .types import ClassProvider
-from .types import DictProvider
 from .types import Element
 from .types import ExposedKey
 from .types import Injector
 from .types import Key
-from .types import LinkedProvider
 from .types import NOT_SET
 from .types import PrivateBinder
 from .types import PrivateElements
 from .types import Provider
-from .types import ProviderLinkedProvider
 from .types import RequiredKey
 from .types import Scope
-from .types import SetProvider
-from .types import ValueProvider
 
 
 T = ta.TypeVar('T')
@@ -313,6 +316,44 @@ class BinderImpl(Binder):
         self._add_binding(binding)
         return binding
 
+    class SetBinder(Binder.SetBinder[T]):
+
+        def __init__(self, binder: 'Binder', set_key: Key[ta.Set[T]]) -> None:
+            super().__init__(binder)
+
+            self._set_key = set_key
+
+        def bind(
+                self,
+                *,
+                to: ta.Union[Key, ta.Type] = NOT_SET,
+                to_provider: ta.Union[Key, ta.Type] = NOT_SET,
+                to_instance: ta.Any = NOT_SET,
+
+                as_singleton: bool = NOT_SET,
+                as_eager_singleton: bool = NOT_SET,
+                in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
+                source: BindingSource = BindingSource.EXPLICIT,
+        ) -> Binding:
+            binding_key = Key(SetBinding[self._set_key.type], self._set_key.annotation)
+
+            return self._binder.bind(
+                binding_key,
+
+                to=to,
+                to_provider=to_provider,
+                to_instance=to_instance,
+
+                as_singleton=as_singleton,
+                as_eager_singleton=as_eager_singleton,
+                in_=in_,
+
+                source=source,
+
+                binding_factory=SetBinding,
+            )
+
     def new_set_binder(
             self,
             value: ta.Type,
@@ -338,6 +379,45 @@ class BinderImpl(Binder):
         binding = Binding(set_key, provider, scoping, source)
         self._add_binding(binding)
         return self.SetBinder(self, set_key)
+
+    class DictBinder(Binder.DictBinder[K, V]):
+
+        def __init__(self, binder: 'Binder', dict_key: Key[ta.Dict[K, V]]) -> None:
+            super().__init__(binder)
+
+            self._dict_key = dict_key
+
+        def bind(
+                self,
+                assignment: K,
+                *,
+                to: ta.Union[Key, ta.Type] = NOT_SET,
+                to_provider: ta.Union[Key, ta.Type] = NOT_SET,
+                to_instance: ta.Any = NOT_SET,
+
+                as_singleton: bool = NOT_SET,
+                as_eager_singleton: bool = NOT_SET,
+                in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
+                source: BindingSource = BindingSource.EXPLICIT,
+        ) -> Binding:
+            binding_key = Key(DictBinding[self._dict_key.type], self._dict_key.annotation)
+
+            return self._binder.bind(
+                binding_key,
+
+                to=to,
+                to_provider=to_provider,
+                to_instance=to_instance,
+
+                as_singleton=as_singleton,
+                as_eager_singleton=as_eager_singleton,
+                in_=in_,
+
+                source=source,
+
+                binding_factory=functools.partial(DictBinding, assignment=assignment),
+            )
 
     def new_dict_binder(
             self,

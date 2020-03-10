@@ -1,5 +1,4 @@
 import abc
-import functools
 import typing as ta
 
 from .. import check
@@ -39,52 +38,6 @@ class Provider(lang.Abstract, ta.Generic[T]):
     @lang.abstract
     def __call__(self) -> T:
         raise NotImplementedError
-
-
-@dc.dataclass(frozen=True)
-class ValueProvider(Provider[T]):
-    value: T
-
-    def __call__(self) -> T:
-        return self.value
-
-
-@dc.dataclass(frozen=True)
-class CallableProvider(Provider[T]):
-    callable: ta.Callable[[], T]
-
-    def __call__(self) -> T:
-        return self.callable()
-
-
-@dc.dataclass(frozen=True)
-class ClassProvider(CallableProvider[T], lang.Final):
-    cls: ta.Type[T]
-
-
-@dc.dataclass(frozen=True)
-class LinkedProvider(Provider[T], lang.Final):
-    key: Key[T]
-
-    def __call__(self) -> T:
-        return Injector.current.get_instance(self.key)
-
-
-@dc.dataclass(frozen=True)
-class ProviderLinkedProvider(Provider[T], lang.Final):
-    key: Key[T]
-
-    def __call__(self) -> T:
-        return Injector.current.get_instance(Key(Provider[self.key.type], self.key.annotation))()
-
-
-@dc.dataclass(frozen=True)
-class DelegatedProvider(Provider[T], lang.Final):
-    key: Key[T]
-    injector: 'Injector'
-
-    def __call__(self) -> T:
-        return self.injector.get_instance(self.key)
 
 
 class BindingSource(lang.Abstract):
@@ -137,43 +90,6 @@ class MultiBinding(Binding[T], lang.Abstract):
 @dc.dataclass(frozen=True)
 class MultiProvider(Provider[T], lang.Abstract):
     pass
-
-
-@dc.dataclass(frozen=True)
-class SetBinding(MultiBinding[T], lang.Final):
-    pass
-
-
-@dc.dataclass(frozen=True)
-class SetProvider(MultiProvider[ta.Set[T]], lang.Final):
-    set_key: Key[ta.Set[T]]
-
-    def __call__(self) -> ta.Set[T]:
-        ret = set()
-        bindings = Injector.current.get_bindings(Key(SetBinding[self.set_key.type], self.set_key.annotation))
-        for binding in bindings:
-            check.isinstance(binding, SetBinding)
-            ret.add(binding.provide())
-        return ret
-
-
-@dc.dataclass(frozen=True)
-class DictBinding(MultiBinding[T], lang.Final):
-    assignment: K
-
-
-@dc.dataclass(frozen=True)
-class DictProvider(MultiProvider[ta.Dict[K, V]], lang.Final):
-    dict_key: Key[ta.Dict[K, V]]
-
-    def __call__(self) -> ta.Dict[K, V]:
-        ret = {}
-        bindings = Injector.current.get_bindings(Key(DictBinding[self.dict_key.type], self.dict_key.annotation))
-        for binding in bindings:
-            check.isinstance(binding, DictBinding)
-            check.not_in(binding.assignment, ret)
-            ret[binding.assignment] = binding.provide()
-        return ret
 
 
 @dc.dataclass(frozen=True)
@@ -310,13 +226,9 @@ class Binder(lang.Abstract):
 
             self._binder = binder
 
-    class SetBinder(_Child, ta.Generic[T], lang.Final):
+    class SetBinder(_Child, ta.Generic[T], lang.Abstract):
 
-        def __init__(self, binder: 'Binder', set_key: Key[ta.Set[T]]) -> None:
-            super().__init__(binder)
-
-            self._set_key = set_key
-
+        @abc.abstractmethod
         def bind(
                 self,
                 *,
@@ -330,23 +242,7 @@ class Binder(lang.Abstract):
 
                 source: BindingSource = BindingSource.EXPLICIT,
         ) -> Binding:
-            binding_key = Key(SetBinding[self._set_key.type], self._set_key.annotation)
-
-            return self._binder.bind(
-                binding_key,
-
-                to=to,
-                to_provider=to_provider,
-                to_instance=to_instance,
-
-                as_singleton=as_singleton,
-                as_eager_singleton=as_eager_singleton,
-                in_=in_,
-
-                source=source,
-
-                binding_factory=SetBinding,
-            )
+            raise NotImplementedError
 
     @abc.abstractmethod
     def new_set_binder(
@@ -363,13 +259,9 @@ class Binder(lang.Abstract):
     ) -> SetBinder:
         raise NotImplementedError
 
-    class DictBinder(_Child, ta.Generic[K, V], lang.Final):
+    class DictBinder(_Child, ta.Generic[K, V], lang.Abstract):
 
-        def __init__(self, binder: 'Binder', dict_key: Key[ta.Dict[K, V]]) -> None:
-            super().__init__(binder)
-
-            self._dict_key = dict_key
-
+        @abc.abstractmethod
         def bind(
                 self,
                 assignment: K,
@@ -384,23 +276,7 @@ class Binder(lang.Abstract):
 
                 source: BindingSource = BindingSource.EXPLICIT,
         ) -> Binding:
-            binding_key = Key(DictBinding[self._dict_key.type], self._dict_key.annotation)
-
-            return self._binder.bind(
-                binding_key,
-
-                to=to,
-                to_provider=to_provider,
-                to_instance=to_instance,
-
-                as_singleton=as_singleton,
-                as_eager_singleton=as_eager_singleton,
-                in_=in_,
-
-                source=source,
-
-                binding_factory=functools.partial(DictBinding, assignment=assignment),
-            )
+            raise NotImplementedError
 
     @abc.abstractmethod
     def new_dict_binder(

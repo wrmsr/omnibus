@@ -19,6 +19,8 @@ from .. import reflect as rfl
 from ..collections import IdentitySet
 from .bind import create_binder
 from .bind import PrivateBinder
+from .proividers import DelegatedProvider
+from .proividers import ValueProvider
 from .scopes import EagerSingletonScope
 from .scopes import NoScope
 from .scopes import SingletonScope
@@ -26,7 +28,6 @@ from .scopes import ThreadScope
 from .types import Binder
 from .types import Binding
 from .types import BindingSource
-from .types import DelegatedProvider
 from .types import Element
 from .types import ExposedKey
 from .types import InjectionBlacklistedKeyError
@@ -45,7 +46,6 @@ from .types import RequiredKey
 from .types import Scope
 from .types import ScopeBinding
 from .types import Source
-from .types import ValueProvider
 
 
 T = ta.TypeVar('T')
