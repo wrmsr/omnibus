@@ -1,6 +1,7 @@
 import pytest
 
 from .. import properties
+from .. import registries
 
 
 def test_cached_property():
@@ -48,7 +49,7 @@ def test_set_once_property():
 
 def test_registry_property():
     class C:
-        fns = properties.registry(descriptor=True)
+        fns = properties.registry(bind=True)
 
         @fns.register('a')
         def _a(self):
@@ -72,7 +73,7 @@ def test_registry_property():
 
     assert C().fns['a']() == 0
     assert C().fns['b']() == 1
-    with pytest.raises(KeyError):
+    with pytest.raises(registries.NotRegisteredException):
         C().fns['c']()
     assert D().fns['b']() == 1
     assert D().fns['c']() == 2

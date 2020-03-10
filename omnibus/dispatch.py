@@ -1,7 +1,6 @@
 import abc
 import functools
 import inspect
-import threading
 import types
 import typing as ta
 import weakref
@@ -21,10 +20,6 @@ T = ta.TypeVar('T')
 R = ta.TypeVar('R')
 Impl = ta.TypeVar('Impl')
 TypeOrSpec = ta.Union[ta.Type, rfl.Spec]
-
-
-class NOT_SET(lang.Marker):
-    pass
 
 
 class DispatchError(Exception):
@@ -266,18 +261,12 @@ class CachingDispatcher(Dispatcher[Impl]):
             child: Dispatcher[Impl],
             guard: CacheGuard = None,
             *,
-            lock: lang.ContextManageable = NOT_SET,
+            lock: lang.ContextManageable = None,
     ) -> None:
         super().__init__()
 
         self._cache = weakref.WeakKeyDictionary()
-
-        if lock is NOT_SET:
-            self._lock = threading.RLock()
-        elif lock is None:
-            self._lock = lang.ContextManaged()
-        else:
-            self._lock = lock
+        self._lock = lang.default_lock(lock, True)
 
         self._child = child
         self._guard = guard if guard is not None else DefaultCacheGuard(self._lock, self.clear)
@@ -322,7 +311,7 @@ class CachingDispatcher(Dispatcher[Impl]):
 def function(
         *,
         guard: CacheGuard = None,
-        lock: lang.ContextManageable = NOT_SET,
+        lock: lang.ContextManageable = None,
         **kwargs
 ) -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
     dispatcher = CachingDispatcher(

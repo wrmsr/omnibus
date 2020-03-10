@@ -4,7 +4,6 @@ TODO:
 """
 import abc
 import collections.abc
-import threading
 import typing as ta
 import weakref
 
@@ -112,18 +111,13 @@ class BaseRegistry(Registry[K, V]):
     def __init__(
             self,
             *args,
-            lock: ta.Optional[lang.ContextManageable] = NOT_SET,
+            lock: ta.Optional[lang.ContextManageable] = None,
             listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener] = None,
             **kwargs
     ) -> None:
         super().__init__(*args, **kwargs)
 
-        if lock is NOT_SET:
-            self._lock = threading.RLock()
-        elif lock is None:
-            self._lock = lang.ContextManaged()
-        else:
-            self._lock = lock
+        self._lock = lang.default_lock(lock, True)
 
         self._listeners_by_obj: ta.MutableMapping[ta.Any, Registry.Listener] = weakref.WeakKeyDictionary()
         for obj, listener in (listeners_by_obj or {}).items():
@@ -169,7 +163,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
     Policy = ta.Callable[[ta.Iterable[Registry[K, V]]], ta.Mapping[K, V]]
 
-    @staticmethod
+    @lang.staticfunction
     def FIRST_ONE(children):
         ret = {}
         for child in children:
@@ -178,7 +172,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
                     ret[k] = v
         return ret
 
-    @staticmethod
+    @lang.staticfunction
     def ONLY_ONE(children):
         ret = {}
         for child in children:
@@ -267,7 +261,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
 class CompositeMultiRegistry(MultiRegistry[K, V], CompositeRegistry[K, ta.AbstractSet[V]]):
 
-    @staticmethod
+    @lang.staticfunction
     def MERGE(children):
         ret = {}
         for child in children:

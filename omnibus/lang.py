@@ -9,6 +9,7 @@ import functools
 import importlib
 import re
 import sys
+import threading
 import time
 import types
 import typing as ta
@@ -806,6 +807,24 @@ def manage_maybe_iterator(
         return inner()
     else:
         return result
+
+
+def default_lock(value: ta.Any, default: ta.Any) -> ContextManageable:
+    if value is None:
+        value = default
+    if value is True:
+        return threading.RLock()
+    elif value is False or value is None:
+        return ContextManaged()
+    elif isinstance(value, ContextManageable):
+        return value
+    elif callable(value):
+        value = value()
+        if not isinstance(value, ContextManageable):
+            raise TypeError(value)
+        return value
+    else:
+        raise TypeError(value)
 
 
 # endregion

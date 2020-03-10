@@ -1,11 +1,9 @@
-import abc
 import collections.abc
 import functools
 import threading
 import typing as ta
 import weakref
 
-from . import c3
 from . import check
 from . import lang
 from . import registries
@@ -26,13 +24,13 @@ class CachedProperty(Property[T]):
             self,
             func: ta.Callable[[ta.Any], T],
             *,
-            lock: lang.ContextManageable = lang.ContextManaged(),
+            lock: lang.ContextManageable = None,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = func
-        self._lock = lock
+        self._lock = lang.default_lock(lock, False)
 
         name = func.__name__
 
@@ -155,6 +153,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             *,
             bind: bool = None,
             raw: bool = False,
+            weak: bool = False,
     ) -> None:
         super().__init__()
 
@@ -163,7 +162,8 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
         self._name: str = None
 
-        self._pending_key_sets_by_value: ta.MutableMapping[V, ta.MutableSet[K]] = weakref.WeakKeyDictionary()
+        self._pending_key_sets_by_value: ta.MutableMapping[V, ta.MutableSet[K]] = \
+            weakref.WeakKeyDictionary() if weak else {}
 
         self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
         self._registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()
@@ -193,7 +193,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
             registry.freeze()
 
-            self._immediate_registries_by_cls = registry
+            self._immediate_registries_by_cls[cls] = registry
             return registry
 
     def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
@@ -266,10 +266,12 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
 def registry(
         *,
-        descriptor: bool = None,
+        bind: bool = None,
         raw: bool = False,
+        weak: bool = False,
 ) -> RegistryProperty:
     return RegistryProperty(
-        bind=descriptor,
+        bind=bind,
         raw=raw,
+        weak=weak,
     )
