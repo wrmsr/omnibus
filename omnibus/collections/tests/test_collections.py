@@ -3,17 +3,20 @@ import random
 
 import pytest
 
-from . import helpers
-from .. import collections as col
+from ...tests import helpers
+from .. import frozen as frozen_
+from .. import identity as identity_
+from .. import ordered as ordered_
+from .. import sorted as sorted_
 
 
 def test_frozendict():
-    col.FrozenDict(x=1, y=2).set(x=10, z=20)
-    pickle.loads(pickle.dumps(col.FrozenDict(x=1, y=2).set(x=10, z=20)))
+    frozen_.FrozenDict(x=1, y=2).set(x=10, z=20)
+    pickle.loads(pickle.dumps(frozen_.FrozenDict(x=1, y=2).set(x=10, z=20)))
 
 
 def test_skiplist():
-    lst = col.SkipList()
+    lst = sorted_.SkipList()
 
     nums = list(range(100))
     random.shuffle(nums, random=random.Random(42).random)
@@ -35,7 +38,7 @@ def test_skiplist():
     assert list(lst.riter()) == list(reversed(no42))
 
 
-def _test_sorteddict(dct: col.SortedMutableMapping):
+def _test_sorteddict(dct: sorted_.SortedMutableMapping):
     dct[4] = 'd'
     dct[2] = 'b'
     dct[5] = 'e'
@@ -55,16 +58,16 @@ def _test_sorteddict(dct: col.SortedMutableMapping):
 
 
 def test_skiplistdict():
-    _test_sorteddict(col.SkipListDict())
+    _test_sorteddict(sorted_.SkipListDict())
 
 
 @helpers.skip_if_cant_import('sortedcontainers')
 def test_sortedcontainers():
-    _test_sorteddict(col.SortedContainersDict.new())
+    _test_sorteddict(sorted_.SortedContainersDict.new())
 
 
 def test_identity_hashable_set():
-    hash(col.IdentityHashableSet({1, 2, 3}))
+    hash(identity_.IdentityHashableSet({1, 2, 3}))
 
 
 class Incomparable:
@@ -77,7 +80,7 @@ def test_identity_key_dict():
     x, y = Incomparable(), Incomparable()
     with pytest.raises(TypeError):
         {x: 0, y: 1}
-    dct = col.IdentityKeyDict()
+    dct = identity_.IdentityKeyDict()
     with pytest.raises(KeyError):
         dct[x]
     dct[x] = 4
@@ -99,7 +102,7 @@ def test_identity_key_set():
     x, y = Incomparable(), Incomparable()
     with pytest.raises(TypeError):
         {x, y}
-    st = col.IdentitySet()
+    st = identity_.IdentitySet()
     assert len(st) == 0
     st.add(x)
     assert len(st) == 1
@@ -115,6 +118,6 @@ def test_identity_key_set():
 
 
 def test_ordered_frozen_set():
-    OSF = col.OrderedFrozenSet
+    OSF = ordered_.OrderedFrozenSet
     s0 = OSF(range(3))
     assert list(s0) == [0, 1, 2]
