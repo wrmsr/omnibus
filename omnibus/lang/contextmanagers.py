@@ -6,6 +6,8 @@ import threading
 import types
 import typing as ta
 
+from .classes import Protocol
+
 
 T = ta.TypeVar('T')
 Self = ta.TypeVar('Self')
