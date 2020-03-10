@@ -85,6 +85,14 @@ class Registry(abc.ABC, ta.Mapping[K, V]):
         check.not_none(k)
         return self.register_many({k: v})
 
+    def registering(self, *ks: K) -> 'ta.Callable[[V], V]':
+        def inner(v: V) -> V:
+            self.register_many({k: v for k in ks})
+            return v
+        for k in ks:
+            check.not_none(k)
+        return inner
+
     Listener = ta.Callable[['Registry[K, V]'], None]
 
     @abc.abstractmethod

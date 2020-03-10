@@ -21,3 +21,7 @@ def test_pickle():
 def test_gzip():
     c = co.gzip()
     assert c.decode(c.encode(b'123')) == b'123'
+
+
+def test_registries():
+    assert issubclass(co.EXTENSION_REGISTRY['gz'], co.Codec)

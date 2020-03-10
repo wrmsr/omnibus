@@ -11,6 +11,7 @@ import typing as ta
 from . import check
 from . import defs
 from . import lang
+from . import registries
 
 
 lang.warn_unstable()
@@ -302,22 +303,8 @@ class WrappedCodec(Codec[ta.Optional[F], ta.Optional[T]], lang.Final):
 wrapped = WrappedCodec
 
 
-EXTENSION_REGISTRY: ta.MutableMapping[str, ta.Type['Codec']] = {}
-MIME_TYPE_REGISTRY: ta.MutableMapping[str, ta.Type['Codec']] = {}
-
-
-def build_register_decorator(registry):
-    def register(*exts):
-        def inner(obj):
-            for ext in exts:
-                registry.setdefault(ext, []).append(obj)
-            return obj
-        return inner
-    return register
-
-
-register_extension = build_register_decorator(EXTENSION_REGISTRY)
-register_mime_type = build_register_decorator(MIME_TYPE_REGISTRY)
+EXTENSION_REGISTRY: registries.Registry[str, ta.Type['Codec']] = registries.DictRegistry()
+MIME_TYPE_REGISTRY: registries.Registry[str, ta.Type['Codec']] = registries.DictRegistry()
 
 
 def for_file_name(file_name):
@@ -341,7 +328,7 @@ def for_extension(ext):
     raise KeyError(ext)
 
 
-@register_extension('lines')
+@EXTENSION_REGISTRY.registering('lines')
 class LinesCodec(Codec[ta.Iterable[str], str]):
 
     defs.repr()
@@ -356,8 +343,8 @@ class LinesCodec(Codec[ta.Iterable[str], str]):
 lines = LinesCodec
 
 
-@register_extension('pickle')
-@register_mime_type('application/python-pickle')
+@EXTENSION_REGISTRY.registering('pickle')
+@MIME_TYPE_REGISTRY.registering('application/python-pickle')
 class PickleCodec(Codec[F, bytes], lang.Final):
 
     def __init__(self, protocol=None, *, fix_imports=True) -> None:
@@ -378,7 +365,7 @@ class PickleCodec(Codec[F, bytes], lang.Final):
 pickle = PickleCodec
 
 
-@register_extension('gz', 'gzip')
+@EXTENSION_REGISTRY.registering('gz', 'gzip')
 class GzipCodec(Codec[F, bytes], lang.Final):
 
     def __init__(self, compresslevel=9) -> None:

@@ -20,8 +20,8 @@ dumps = json_.dumps
 loads = json_.loads
 
 
-@codecs.register_extension('json')
-@codecs.register_mime_type('application/json')
+@codecs.EXTENSION_REGISTRY.registering('json')
+@codecs.MIME_TYPE_REGISTRY.registering('application/json')
 class JsonCodec(codecs.Codec[F, str], lang.Final):
 
     def __init__(
