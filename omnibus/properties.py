@@ -148,21 +148,22 @@ def cached_class(fn: ta.Callable[..., T]) -> T:
 
 
 class RegistryProperty(Property[registries.Registry[K, V]]):
+    # FIXME: lock
 
     def __init__(
             self,
             *,
-            descriptor: bool = None,
+            bind: bool = None,
             raw: bool = False,
     ) -> None:
         super().__init__()
 
-        self._descriptor = descriptor
+        self._bind = bind
         self._raw = raw
 
         self._name: str = None
 
-        self._key_sets_by_value: ta.MutableMapping[V, ta.AbstractSet[K]] = weakref.WeakKeyDictionary()
+        self._pending_key_sets_by_value: ta.MutableMapping[V, ta.MutableSet[K]] = weakref.WeakKeyDictionary()
 
         self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
         self._registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()
@@ -182,14 +183,16 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 
             for att in cls.__dict__.values():
                 try:
-                    keys = self._key_sets_by_value[att]
+                    keys = self._pending_key_sets_by_value[att]
                 except KeyError:
                     continue
                 else:
                     for key in keys:
                         registry[key] = att
+                    del self._pending_key_sets_by_value[att]
 
             registry.freeze()
+
             self._immediate_registries_by_cls = registry
             return registry
 
@@ -198,12 +201,11 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             return self._registries_by_cls[cls]
 
         except KeyError:
-            mro_registries = [self._get_immediate_registry(mcls) for mcls in reversed(cls.__mro__)]
+            mro_registries = [self._get_immediate_registry(mcls) for mcls in cls.__mro__]
 
             registry = registries.CompositeRegistry(mro_registries)
 
             self._registries_by_cls[cls] = registry
-
             return registry
 
     class DescriptorAccessor(collections.abc.Mapping):
@@ -215,27 +217,24 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self._obj = obj
             self._cls = cls
 
-            self._lookup = owner.get_lookup(cls)
+            self._registry = owner.get_registry(cls)
 
         def __getitem__(self, key):
-            ret = self._lookup[key]
+            ret = self._registry[key]
 
-            if self._owner._descriptor:
+            if self._owner._bind:
                 ret = ret.__get__(self._obj, self._cls)
 
             return ret
 
         def __iter__(self):
-            return iter(self._lookup)
+            return iter(self._registry)
 
         def __len__(self):
-            return len(self._lookup)
+            return len(self._registry)
 
         def register(self, *keys):
             return self._owner.register(*keys)
-
-        def invalidate(self):
-            return self._owner.invalidate()
 
     def __get__(self, obj, cls=None):
         if cls is None:
@@ -244,7 +243,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         if not self._raw:
             ret = self.DescriptorAccessor(self, obj, cls)
         else:
-            ret = self.get_lookup(cls)
+            ret = self.get_registry(cls)
 
         if obj is not None and self._name is not None:
             obj.__dict__[check.not_empty(self._name)] = ret
@@ -252,14 +251,17 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         return ret
 
     def register(self, *keys):
-        def inner(meth):
-            self._registry[meth] = keys
-            return meth
+        def inner(value):
+            try:
+                key_set = self._pending_key_sets_by_value[value]
+            except KeyError:
+                key_set = self._pending_key_sets_by_value[value] = set()
+
+            key_set.update(keys)
+
+            return value
 
         return inner
-
-    def invalidate(self):
-        self._lookup_cache = weakref.WeakKeyDictionary()
 
 
 def registry(
@@ -268,6 +270,6 @@ def registry(
         raw: bool = False,
 ) -> RegistryProperty:
     return RegistryProperty(
-        descriptor=descriptor,
+        bind=descriptor,
         raw=raw,
     )

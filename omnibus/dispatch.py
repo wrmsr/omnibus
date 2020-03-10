@@ -371,7 +371,7 @@ def function(
 class RegistryProperty(properties.RegistryProperty):
 
     def __init__(self) -> None:
-        super().__init__(descriptor=True)
+        super().__init__(bind=True)
 
         self._dispatcher_cache: ta.MutableMapping[ta.Type, Dispatcher] = weakref.WeakKeyDictionary()
 
