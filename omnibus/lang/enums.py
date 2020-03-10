@@ -16,7 +16,7 @@ def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
         return getattr(cls, obj)
 
 
-class SimpleDict(dict):
+class _SimpleDict(dict):
 
     def update(self, m: ta.Mapping[K, V], **kwargs: V) -> None:
         for k, v in m.items():
@@ -27,7 +27,7 @@ class SimpleDict(dict):
 
 class _AutoEnumMeta(enum.EnumMeta):
 
-    class Dict(SimpleDict, enum._EnumDict):
+    class Dict(_SimpleDict, enum._EnumDict):
 
         def __init__(self, src: enum._EnumDict) -> None:
             super().__init__()

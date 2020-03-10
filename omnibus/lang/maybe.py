@@ -1,6 +1,5 @@
 import functools
 import typing as ta
-
 from .classes import Final
 
 
@@ -95,3 +94,11 @@ class Maybe(Final, ta.Generic[T], tuple):
 
 
 Maybe.EMPTY = Maybe._empty()
+
+
+def maybe(*args: T) -> Maybe[T]:
+    if args:
+        [value] = args
+        return Maybe(value)
+    else:
+        return Maybe.EMPTY
