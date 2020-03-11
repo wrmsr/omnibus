@@ -3,6 +3,7 @@ https://github.com/bennidi/mbassador
 --
 https://guava.dev/releases/19.0/api/docs/com/google/common/eventbus/EventBus.html
 https://github.com/greenrobot/EventBus
+https://github.com/jek/blinker
 
 @Handler
 @Listener
