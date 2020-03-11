@@ -1,13 +1,52 @@
-import weakref
+import argparse
 import typing as ta
+import weakref
 
-from .. import argparse as ap
 from .. import check
 from .. import lang
 
 
 T = ta.TypeVar('T')
 CommandsT = ta.TypeVar('CommandsT')
+
+
+class Arg:
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__()
+
+        self._args = args
+        self._kwargs = kwargs
+
+    @property
+    def args(self) -> ta.Iterable[ta.Any]:
+        return self._args
+
+    @property
+    def kwargs(self) -> ta.Mapping[str, ta.Any]:
+        return self._kwargs
+
+    def install(self, parser: argparse.ArgumentParser) -> argparse.Action:
+        kwargs = dict(self._kwargs)
+        group = kwargs.pop('group', None)
+        if group is not None:
+            check.isinstance(group, str)
+            group_parsers = [g for g in parser._action_groups if g.title == group]
+            if group_parsers:
+                parser = check.single(group_parsers)
+            else:
+                parser = parser.add_argument_group(group)
+        return parser.add_argument(*self.args, **kwargs)
+
+    def get_dest(self) -> str:
+        parser = argparse.ArgumentParser(add_help=False)
+        self.install(parser)
+        action = check.single(parser._actions)
+        return action.dest
+
+
+def arg(*args, **kwargs) -> Arg:
+    return Arg(*args, **kwargs)
 
 
 class Command:
