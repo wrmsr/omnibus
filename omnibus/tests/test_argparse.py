@@ -16,7 +16,7 @@ class Command:
         super().__init__()
 
         self._fn = check.callable(fn)
-        self._name = check.not_empty(name) if name is not None else fn.__name__
+        self._name = check.not_empty(name if name is not None else fn.__name__.replace('_', '-'))
 
     @property
     def fn(self) -> ta.Callable:
