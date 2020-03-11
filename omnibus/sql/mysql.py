@@ -1,82 +1,11 @@
-import io
-import re
 import typing as ta
 
 import sqlalchemy.dialects  # noqa
-import sqlalchemy.ext.compiler  # noqa
 import sqlalchemy.pool  # noqa
 import sqlalchemy as sa
 
-from . import check
-from . import lang
-
-
-lang.warn_unstable()
-
-
-def yield_sql_statements(body: str) -> ta.Iterator[str]:
-    """Lame and shameful."""
-
-    buf = io.StringIO()
-    for line in body.split('\n'):
-        stripped = line.strip()
-        if stripped.startswith('--'):
-            continue
-        check.arg('/*' not in stripped)
-        check.arg(stripped.rfind(';', 0, -1) < 0)
-        if stripped.endswith(';'):
-            buf.write(line.rpartition(';')[0])
-            stmt = buf.getvalue().strip()
-            if stmt:
-                yield stmt
-            buf = io.StringIO()
-        else:
-            buf.write(line)
-            buf.write('\n')
-    if buf.tell() > 0:
-        stmt = buf.getvalue().strip()
-        if stmt:
-            yield stmt
-
-
-VARIABLE_PATTERN = re.compile(r'[A-Za-z_]+')
-
-
-def variable(name: str, type=None):
-    check.arg(VARIABLE_PATTERN.fullmatch(name) is not None)
-    return sa.literal_column('@' + name, type)
-
-
-class SetVariables(sa.sql.expression.Executable, sa.sql.expression.ClauseElement):
-
-    def __init__(
-            self,
-            updates: ta.List[ta.Tuple[sa.sql.ColumnElement, sa.sql.Selectable]],
-    ) -> None:
-        super().__init__()
-        self.updates = updates
-
-
-@sa.ext.compiler.compiles(SetVariables)
-def visit_set_variables(element, compiler, **kw):
-    stmt = 'SET %s' % (
-        ', '.join('%s = %s' % (compiler.preparer.format_column(c), v._compiler_dispatch(compiler))
-                  for c, v in element.updates),
-    )
-    return stmt
-
-
-class ParenExpression(sa.sql.expression.UnaryExpression):
-
-    __visit_name__ = 'paren'
-
-
-paren = ParenExpression
-
-
-@sa.ext.compiler.compiles(ParenExpression)
-def visit_paren(element, compiler, **kw):
-    return '(%s)' % (element.element._compiler_dispatch(compiler),)
+from .. import check
+from .. import lang
 
 
 class CustomEscape:

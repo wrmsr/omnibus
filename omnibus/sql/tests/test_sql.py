@@ -2,13 +2,13 @@ import pytest
 import sqlalchemy as sa
 import sqlalchemy.pool
 
-from .. import docker
-from .. import lang
-from .. import sql
+from .. import mysql as mysql_
+from ... import docker
+from ... import lang
 
 
 def test_pymysql():
-    assert sql.pymysql_render_statement(sa.select([1])) == 'SELECT 1'
+    assert mysql_.pymysql_render_statement(sa.select([1])) == 'SELECT 1'
 
 
 @pytest.mark.xfail()
