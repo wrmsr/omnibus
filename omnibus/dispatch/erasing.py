@@ -5,12 +5,13 @@ from .. import check
 from .. import reflect as rfl
 from .. import registries
 from .types import Impl
-from .types import T
-from .types import TypeOrSpec
 from .types import Dispatcher
 from .types import AmbiguousDispatchError
 from .types import UnregisteredDispatchError
 from .types import Manifest
+
+
+T = ta.TypeVar('T')
 
 
 def generic_issubclass(left: ta.Type, right: ta.Type) -> bool:

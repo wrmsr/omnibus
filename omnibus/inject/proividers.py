@@ -8,8 +8,6 @@ from .types import Provider
 
 
 T = ta.TypeVar('T')
-K = ta.TypeVar('K')
-V = ta.TypeVar('V')
 
 
 @dc.dataclass(frozen=True)

@@ -7,10 +7,10 @@ import types
 import typing as ta
 
 from .classes import Protocol
+from .lang import Self
 
 
 T = ta.TypeVar('T')
-Self = ta.TypeVar('Self')
 IteratorTOrT = ta.Union[ta.Iterator[T], T]
 CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
 

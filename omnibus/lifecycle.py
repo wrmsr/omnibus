@@ -29,7 +29,7 @@ class Lifecycle(lang.ExitStacked):
         super().__init__(**kwargs)
 
         self._lifecycle_state = Lifecycle.State.NEW
-        self._lifecycle_mutex = threading.RLock()
+        self._lifecycle_lock = threading.RLock()
 
     @property
     def lifecycle_state(self) -> 'Lifecycle.State':
@@ -39,7 +39,7 @@ class Lifecycle(lang.ExitStacked):
     def is_started(self) -> bool:
         return self._lifecycle_state == Lifecycle.State.STARTED
 
-    @lang.context_wrapped(lambda self: self._service_mutex)
+    @lang.context_wrapped('_service_lock')
     def __enter__(self: Self) -> Self:
         check.state(self._state == Lifecycle.State.NEW)
         self._state = Lifecycle.State.STARTING
@@ -58,7 +58,7 @@ class Lifecycle(lang.ExitStacked):
     def _start(self) -> None:
         pass
 
-    @lang.context_wrapped(lambda self, *_: self._service_mutex)
+    @lang.context_wrapped('_service_lock')
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         check.state(self._lifecycle_state == Lifecycle.State.STARTED)
         self._lifecycle_state = Lifecycle.State.STOPPING

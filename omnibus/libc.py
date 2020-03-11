@@ -170,6 +170,7 @@ class Mmap:
     def __init__(
             self,
             length: int,
+            *,
             prot: int = PROT_READ | PROT_WRITE,
             flags: int = None,
             fd: int = -1,

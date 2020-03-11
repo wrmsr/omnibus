@@ -1,3 +1,7 @@
+"""
+TODO:
+ - streaming
+"""
 import abc
 import codecs
 import contextlib

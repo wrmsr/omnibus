@@ -1,5 +1,6 @@
 import functools
 import typing as ta
+
 from .classes import Final
 
 
@@ -7,7 +8,7 @@ T = ta.TypeVar('T')
 U = ta.TypeVar('U')
 
 
-class MaybeNotPresentException(Exception):
+class MaybeNotPresentException(ValueError):
     pass
 
 

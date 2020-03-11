@@ -8,9 +8,9 @@ import ctypes as ct
 import types
 import typing as ta
 
-from omnibus import check
-from omnibus import code as bco
-from omnibus import lang
+from . import check
+from . import code as bco
+from . import lang
 
 
 c_void_pp = ct.POINTER(ct.c_void_p)
