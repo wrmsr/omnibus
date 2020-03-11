@@ -4,11 +4,12 @@ from .. import c3
 from .. import check
 from .. import reflect as rfl
 from .. import registries
-from .types import Impl
-from .types import Dispatcher
 from .types import AmbiguousDispatchError
-from .types import UnregisteredDispatchError
+from .types import Dispatcher
+from .types import Impl
 from .types import Manifest
+from .types import TypeOrSpec
+from .types import UnregisteredDispatchError
 
 
 T = ta.TypeVar('T')
