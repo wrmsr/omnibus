@@ -77,6 +77,12 @@ class Registry(lang.Abstract, ta.Mapping[K, V]):
     def values(self) -> ta.ValuesView[V]:
         raise NotImplementedError
 
+    def get(self, key: K, default: ta.Union[V, ta.Any] = None) -> ta.Union[V, ta.Any]:
+        try:
+            return self[key]
+        except NotRegisteredException:
+            return default
+
     @abc.abstractmethod
     def register_many(self, dct: ta.Mapping[K, V]) -> 'Registry[K, V]':
         raise NotImplementedError
@@ -296,15 +302,22 @@ class CompositeMultiRegistry(MultiRegistry[K, V], CompositeRegistry[K, ta.Abstra
 
 class DictRegistry(BaseRegistry[K, V]):
 
+    Coercer = ta.Callable[[ta.Mapping[K, V]], ta.Mapping[K, V]]
+    Validator = ta.Callable[[ta.Mapping[K, V]], None]
+
     def __init__(
             self,
             *args,
             frozen: bool = False,
+            coercer: Coercer[K, V] = None,
+            validator: Validator[K, V] = None,
             **kwargs
     ) -> None:
         super().__init__(**kwargs)
 
         self._dct: ta.MutableMapping[K, V] = {}
+        self._coercer = check.callable(coercer) if coercer is not None else None
+        self._validator = check.callable(validator) if validator is not None else None
 
         self._version = 0
 
@@ -375,6 +388,14 @@ class DictRegistry(BaseRegistry[K, V]):
             return self
 
         with self._lock:
+            dct = dict(dct)
+
+            if self._coercer is not None:
+                dct = self._coercer(dct)
+
+            if self._validator is not None:
+                self._validator(dct)
+
             ndct = {}
 
             for k, v in dct.items():

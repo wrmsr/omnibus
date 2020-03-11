@@ -35,3 +35,6 @@ def test_lzma():
 
 def test_registries():
     assert issubclass(co.EXTENSION_REGISTRY['gz'], co.Codec)
+
+    gz_lines_codec = co.for_extension('lines.gz')
+    assert isinstance(gz_lines_codec, co.Codec)
