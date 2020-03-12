@@ -99,6 +99,7 @@ class Var(ta.Generic[T]):
                     def inner(*args, **kwargs):
                         with this.binding(bound_binding_fn(*args, **kwargs)):
                             return bound_fn(*args, **kwargs)
+
                     inner.func_name = fn.__name__
                     return inner
 

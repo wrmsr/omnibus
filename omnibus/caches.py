@@ -105,7 +105,7 @@ class Cache(ta.MutableMapping[K, V]):
             weak_keys: bool = False,
             weak_values: bool = False,
             weigher: ta.Callable[[V], float] = lambda _: 1.,
-            lock: ta.Optional[lang.ContextManageable] = None,
+            lock: lang.DefaultLockable = None,
             raise_overweight: bool = False,
             eviction: Eviction = LRU,
     ) -> None:

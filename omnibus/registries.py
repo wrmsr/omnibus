@@ -125,7 +125,7 @@ class BaseRegistry(Registry[K, V]):
     def __init__(
             self,
             *args,
-            lock: ta.Optional[lang.ContextManageable] = None,
+            lock: lang.DefaultLockable = None,
             listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener] = None,
             **kwargs
     ) -> None:

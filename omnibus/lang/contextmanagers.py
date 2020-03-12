@@ -13,6 +13,7 @@ from .lang import Self
 T = ta.TypeVar('T')
 IteratorTOrT = ta.Union[ta.Iterator[T], T]
 CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
+ContextManageableT = ta.TypeVar('ContextManageableT', bound='ContextManageable')
 
 
 _NOT_SET = object()
@@ -197,7 +198,10 @@ def manage_maybe_iterator(
         return result
 
 
-def default_lock(value: ta.Any, default: ta.Any) -> ContextManageable:
+DefaultLockable = ta.Union[None, bool, ContextManageable, ta.Type[ContextManageableT]]
+
+
+def default_lock(value: DefaultLockable, default: DefaultLockable) -> ContextManageable:
     if value is None:
         value = default
     if value is True:

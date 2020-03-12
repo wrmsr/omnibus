@@ -35,10 +35,12 @@ from .classes import staticfunction  # noqa
 from .contextmanagers import context_var_setting  # noqa
 from .contextmanagers import context_wrapped  # noqa
 from .contextmanagers import ContextManageable  # noqa
+from .contextmanagers import ContextManageableT  # noqa
 from .contextmanagers import ContextManaged  # noqa
 from .contextmanagers import ContextWrappable  # noqa
 from .contextmanagers import ContextWrapped  # noqa
 from .contextmanagers import default_lock  # noqa
+from .contextmanagers import DefaultLockable  # noqa
 from .contextmanagers import defer  # noqa
 from .contextmanagers import disposing  # noqa
 from .contextmanagers import ExitStacked  # noqa

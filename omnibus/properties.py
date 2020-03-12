@@ -26,24 +26,13 @@ class CachedProperty(Property[T]):
             self,
             func: ta.Callable[[ta.Any], T],
             *,
-            lock: lang.ContextManageable = None,
+            lock: lang.DefaultLockable = None,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
-        self._func = func
+        self._func = check.callable(func)
         self._lock = lang.default_lock(lock, False)
-
-        name = func.__name__
-
-        def __get__(obj, cls) -> T:
-            if obj is None:
-                return self
-
-            value = obj.__dict__[name] = func(obj)
-            return value
-
-        self.__get__ = __get__
 
     def __get__(self, obj, cls) -> T:
         if obj is None:
@@ -106,10 +95,14 @@ set_once = SetOnceProperty
 
 class ClassProperty(Property[T]):
 
-    def __init__(self, func: ta.Callable[[ta.Any], T]) -> None:
+    def __init__(
+            self,
+            func: ta.Callable[[ta.Any], T],
+    ) -> None:
         super().__init__()
 
-        self._func = func
+        functools.update_wrapper(self, func)
+        self._func = check.callable(func)
 
     def __get__(self, obj, cls=None) -> T:
         return self._func(cls)
@@ -121,10 +114,18 @@ def class_(fn: ta.Callable[..., T]) -> T:
 
 class CachedClassProperty(Property[T]):
 
-    def __init__(self, func: ta.Callable[[ta.Any], T]) -> None:
+    def __init__(
+            self,
+            func: ta.Callable[[ta.Any], T],
+            *,
+            lock: lang.DefaultLockable = None,
+    ) -> None:
         super().__init__()
 
-        self._func = func
+        functools.update_wrapper(self, func)
+        self._func = check.callable(func)
+        self._lock = lang.default_lock(lock, False)
+
         self._values = weakref.WeakKeyDictionary()
 
     def clear(self):
@@ -139,12 +140,21 @@ class CachedClassProperty(Property[T]):
         except KeyError:
             pass
 
-        value = self._values[cls] = self._func(cls)
+        with self._lock:
+            try:
+                return self._values[cls]
+            except KeyError:
+                value = self._values[cls] = self._func(cls)
+
         return value
 
 
 def cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn)
+
+
+def locked_cached_class(fn: ta.Callable[..., T]) -> T:
+    return CachedClassProperty(fn, lock=True)
 
 
 class RegistryProperty(Property[registries.Registry[K, V]]):
@@ -153,7 +163,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self,
             *,
             bind: bool = None,
-            lock: lang.ContextManageable = None,
+            lock: lang.DefaultLockable = None,
             policy: registries.CompositeRegistry.Policy = registries.CompositeRegistry.FIRST_ONE,
     ) -> None:
         super().__init__()
@@ -305,7 +315,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
 def registry(
         *,
         bind: bool = None,
-        lock: lang.ContextManageable = None,
+        lock: lang.DefaultLockable = None,
         policy: registries.CompositeRegistry.Policy = registries.CompositeRegistry.FIRST_ONE,
 ) -> RegistryProperty:
     return RegistryProperty(
@@ -322,7 +332,7 @@ class MultiRegistryProperty(RegistryProperty):
             self,
             *,
             bind: bool = None,
-            lock: lang.ContextManageable = None,
+            lock: lang.DefaultLockable = None,
             policy: registries.CompositeRegistry.Policy = registries.CompositeMultiRegistry.MERGE,
     ) -> None:
         super().__init__(bind=bind, lock=lock, policy=policy)
@@ -340,7 +350,7 @@ class MultiRegistryProperty(RegistryProperty):
 def multi_registry(
         *,
         bind: bool = None,
-        lock: lang.ContextManageable = None,
+        lock: lang.DefaultLockable = None,
         policy: registries.CompositeRegistry.Policy = registries.CompositeMultiRegistry.MERGE,
 ) -> RegistryProperty:
     return MultiRegistryProperty(

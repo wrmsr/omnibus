@@ -14,10 +14,14 @@ from .types import TypeOrSpec
 
 class AbcCacheGuard(CacheGuard):
 
-    def __init__(self, lock: ta.Any, clear: ta.Callable) -> None:
+    def __init__(
+            self,
+            lock: lang.DefaultLockable,
+            clear: ta.Callable,
+    ) -> None:
         super().__init__()
 
-        self._lock = lock
+        self._lock = lang.default_lock(lock, True)
         self._clear = clear
 
         self._cache_token = abc.get_cache_token()
@@ -54,7 +58,7 @@ class CachingDispatcher(Dispatcher[Impl]):
             child: Dispatcher[Impl],
             guard: CacheGuard = None,
             *,
-            lock: lang.ContextManageable = None,
+            lock: lang.DefaultLockable = None,
     ) -> None:
         super().__init__()
 
