@@ -5,7 +5,7 @@ Its modules include:
     - [Final classes](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/lang.py#L375)
     - [Sealed classes](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/lang.py#L395)
     - [ContextManager utilities](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/lang.py#L625)
-    - Some low-levele [Async utlities](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/lang.py#L1158)
+    - Some low-level [Async utlities](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/lang.py#L1158)
     - As well as various string, datetime, class, enum, and a other such utilities.
 - [caches](https://github.com/wrmsr/omnibus/blob/41520c4191303540bc340718a19668cf2920835b/omnibus/caches.py#L92), containing a pretty beefy cache implementation inspired by [Guava's CacheBuilder](https://guava.dev/releases/snapshot-jre/api/docs/).
 - [check](https://github.com/wrmsr/omnibus/blob/master/omnibus/check.py), non-optional assertions inspired by [Guava Preconditions](https://guava.dev/releases/snapshot-jre/api/docs/).
