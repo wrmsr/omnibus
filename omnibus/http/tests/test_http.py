@@ -12,7 +12,7 @@ from ...tests import helpers
 
 
 def test_http():
-    server: wsgiref_.WSGIServer = None
+    server: wsgiref_.WsgiServer = None
 
     def app(environ, start_response):
         assert environ['PATH_INFO'] == '/test'
@@ -24,7 +24,7 @@ def test_http():
 
     def fn0():
         nonlocal server
-        server = wsgiref_.ThreadSpawningWSGIServer(bind_.TCPBinder('0.0.0.0', port), app)
+        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), app)
         with server:
             server.run()
 
@@ -44,7 +44,7 @@ def test_http():
 
 
 def test_json_http():
-    server: wsgiref_.WSGIServer = None
+    server: wsgiref_.WsgiServer = None
 
     def json_app(obj):
         server.shutdown()
@@ -54,7 +54,7 @@ def test_json_http():
 
     def fn0():
         nonlocal server
-        server = wsgiref_.ThreadSpawningWSGIServer(bind_.TCPBinder('0.0.0.0', port), apps_.simple_json_app(json_app))
+        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), apps_.simple_json_app(json_app))
         with server:
             server.run()
 
