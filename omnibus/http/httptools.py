@@ -36,24 +36,6 @@ class HttpToolsRequestParserListener:
         pass
 
 
-"""
-# self.headers = http.client.parse_headers(self.rfile, _class=self.MessageClass)
-
-def httptools_parse_headers(fp, _class=http.client.HTTPMessage):
-    l = HttpToolsRequestParserListener()
-    p = httptools.HttpResponseParser(l)
-    # p.feed_data(b'POST /test HTTP/1.1\r\n')
-    while True:
-        line = fp.readline()
-        if not line:
-            break
-        p.feed_data(line)
-    raise NotImplementedError
-
-http.client.parse_headers = httptools_parse_headers
-"""
-
-
 # https://github.com/MagicStack/httptools/issues/20
 
 

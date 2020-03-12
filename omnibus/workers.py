@@ -1,3 +1,9 @@
+"""
+TODO:
+ - ThreadWorker
+ - GeneratorThreadWorker
+ - MultiprocessWorkerPool .. or something..
+"""
 from . import lang
 
 
