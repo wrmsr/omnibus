@@ -1,6 +1,8 @@
 """
 TODO:
  - IdentityWeakKeyDict
+ - WeakDict (key and value)
+ - RingBuffer
 """
 import functools
 import typing as ta

@@ -6,6 +6,7 @@ import functools
 import locale
 import os
 import resource
+import shutil
 import signal
 import socket
 import stat
@@ -115,14 +116,52 @@ def try_lock(fd: int) -> bool:
         return True
 
 
+def safe_rmtree(path: str) -> bool:
+    if os.path.exists(path):
+        shutil.rmtree(path, True)
+        return True
+    else:
+        return False
+
+
+def safe_unlink(path: str) -> bool:
+    try:
+        os.unlink(path)
+        return True
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
+        return False
+
+
 @contextlib.contextmanager
-def tmp_chdir(cwd: str) -> ta.Iterator:
+def tmp_chdir(cwd: str) -> ta.Iterator[None]:
     old = os.getcwd()
     os.chdir(cwd)
     try:
         yield
     finally:
         os.chdir(old)
+
+
+@contextlib.contextmanager
+def tmp_dir(root_dir: str = None, cleanup: bool = True) -> ta.Iterator[str]:
+    path = tempfile.mkdtemp(dir=root_dir)
+    try:
+        yield path
+    finally:
+        if cleanup:
+            shutil.rmtree(path, ignore_errors=True)
+
+
+@contextlib.contextmanager
+def tmp_file(root_dir: str = None, cleanup: bool = True) -> ta.Iterator[tempfile._TemporaryFileWrapper]:  # noqa
+    with tempfile.NamedTemporaryFile(dir=root_dir, delete=False) as f:
+        try:
+            yield f
+        finally:
+            if cleanup:
+                shutil.rmtree(f.name, ignore_errors=True)
 
 
 def atomic_write_file(file_path: str, contents: bytes) -> None:

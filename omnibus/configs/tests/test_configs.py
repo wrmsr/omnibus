@@ -1,4 +1,6 @@
-from .. import configs
+from .. import flattening as flattening_
+from .. import configs as configs_
+from .. import fields as fields_
 
 
 def test_flattening():
@@ -24,18 +26,18 @@ def test_flattening():
             ]
         ]
     }
-    for f in [configs.Flattening(), configs.Flattening(index_open='((', index_close='))')]:
+    for f in [flattening_.Flattening(), flattening_.Flattening(index_open='((', index_close='))')]:
         fl = f.flatten(m)
         ufl = f.unflatten(fl)
         assert ufl == m
 
 
-class DbConfig(configs.Config):
+class DbConfig(configs_.Config):
     url: str
-    comment: str = configs.field(doc='comment')
+    comment: str = fields_.field(doc='comment')
 
 
-class ExtraConfig(configs.Config):
+class ExtraConfig(configs_.Config):
     extra0: int = 5
     extra1 = 6
     extra2: int
@@ -45,7 +47,7 @@ class ExtraDbConfig(DbConfig, ExtraConfig):
     pass
 
 
-class BytesUrlConfig(configs.Config):
+class BytesUrlConfig(configs_.Config):
     url: bytes
 
 
@@ -53,8 +55,8 @@ class BytesUrlDbConfig(BytesUrlConfig, DbConfig):
     pass
 
 
-class MetadataConfig(configs.Config):
-    thing = configs.field()
+class MetadataConfig(configs_.Config):
+    thing = fields_.field()
 
 
 def test_configs():

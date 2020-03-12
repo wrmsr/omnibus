@@ -1,5 +1,6 @@
 import ctypes as ct
 import errno
+import platform
 import signal
 import socket
 import sys
@@ -593,3 +594,16 @@ if LINUX:
 elif DARWIN:
     SOL_LOCAL = 1
     LOCAL_PEERCRED = 1
+
+
+if LINUX:
+    def gettid():
+        syscalls = {
+            'i386': 224,  # unistd_32.h: #define __NR_gettid 224
+            'x86_64': 186,  # unistd_64.h: #define __NR_gettid 186
+        }
+        try:
+            tid = ct.CDLL('libc.so.6').syscall(syscalls[platform.machine()])
+        except Exception:
+            tid = -1
+        return tid
