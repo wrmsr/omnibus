@@ -18,14 +18,24 @@ log = logging.getLogger(__name__)
 
 
 PURGED_LIB_ITEMS = {
+
     'Crypto': ['SelfTest'],
+    'ctypes': ['test'],
     'cytoolz': ['tests'],
+    'distutils': ['tests'],
     'google.protobuf': ['**/*_test.py', '**/*unittest*.py'],
+    'idlelib': ['**'],
+    'lib2to3': ['tests'],
     'networkx': ['**/*/tests'],
     'numpy': ['**/tests'],
     'psutil': ['**/tests'],
     'psycopg2': ['**/tests'],
     'pyarrow': ['tests'],
+    'sqlite3': ['test'],
+    'test': ['**'],
+    'tkinter': ['tests'],
+    'unittest': ['**'],
+
 }
 
 

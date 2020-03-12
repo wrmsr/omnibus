@@ -1,3 +1,7 @@
+"""
+TODO:
+ - orjson
+"""
 import typing as ta
 
 try:

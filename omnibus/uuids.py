@@ -1,6 +1,7 @@
 """
 TODO:
-- cython
+ - cython
+ - fastuuid
 """
 import typing as ta
 import uuid
