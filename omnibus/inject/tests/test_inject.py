@@ -201,6 +201,28 @@ def test_private():
         injector.get_instance(C)
 
 
+def test_nested_private():
+    binder0 = bind_.create_binder()
+    binder0.new_set_binder(int).bind(to_instance=-1)
+    binder0.new_set_binder(int).bind(to_instance=0)
+    injector0 = inject_.create_injector(binder0)
+
+    binder1 = bind_.create_binder()
+    binder1.new_set_binder(int).bind(to_instance=1)
+    injector1 = injector0.create_child(binder1)
+
+    binder2 = bind_.create_binder()
+    binder2.new_set_binder(int).bind(to_instance=2)
+    injector2 = injector0.create_child(binder2)
+
+    print(injector0.get_instance(ta.Set[int]))
+    print(injector0.get_instance(ta.Set[int]))
+
+    # FIXME: SetProvider.__call__ -> get_bindings parent=True?
+    print(injector1.get_instance(ta.Set[int]))
+    print(injector2.get_instance(ta.Set[int]))
+
+
 def test_dataclasses():
     @dc.dataclass()
     class C:

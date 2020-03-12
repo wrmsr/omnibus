@@ -114,13 +114,22 @@ ContextWrappable = ta.Union[ta.ContextManager, str, ta.Callable[..., ta.ContextM
 
 class ContextWrapped:
 
-    def __init__(self, fn: ta.Callable, cm: ContextWrappable) -> None:
+    def __init__(self, fn: ta.Callable, cm: ta.Union[str, ContextWrappable]) -> None:
         super().__init__()
 
         self._fn = fn
         self._cm = cm
+        self._name = None
 
         functools.update_wrapper(self, fn)
+
+    def __set_name__(self, owner, name):
+        if name is not None:
+            if self._name is not None:
+                if name != self._name:
+                    raise NameError(name, self._name)
+            else:
+                self._name = name
 
     def __get__(self, instance, owner):
         if instance is None and owner is None:
@@ -140,7 +149,13 @@ class ContextWrapped:
             cm = cm.__get__(instance, owner)
         else:
             raise TypeError(cm)
-        return type(self)(fn, cm)
+        ret = type(self)(fn, cm)
+        if self._name is not None:
+            try:
+                instance.__dict__[self._name] = ret
+            except TypeError:
+                pass
+        return ret
 
     def __call__(self, *args, **kwargs):
         if isinstance(self._cm, str):
