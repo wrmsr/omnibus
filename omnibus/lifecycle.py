@@ -1,3 +1,7 @@
+"""
+TODO:
+ - tokamak's. these *are* heavier than CM's, intentionally. bg threads and such.
+"""
 import logging
 import sys
 import threading
