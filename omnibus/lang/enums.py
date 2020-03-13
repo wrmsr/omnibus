@@ -1,3 +1,7 @@
+"""
+TODO:
+ - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
+"""
 import enum
 import typing as ta
 
