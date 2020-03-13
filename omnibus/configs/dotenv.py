@@ -1,7 +1,6 @@
 """
 https://github.com/kojiromike/parameter_expansion/blob/master/pe.py
 """
-import re
 import typing as ta
 
 from .. import check
