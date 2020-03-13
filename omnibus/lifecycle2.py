@@ -1,5 +1,6 @@
 import typing as ta
 
+from . import check
 from . import dataclasses as dc
 from . import lang
 
@@ -38,6 +39,21 @@ class LifecycleState(lang.ValueEnum):
     DESTROYED = LifecycleState('DESTROYED', 13, False)
 
 
+class Lifecycle:
+
+    def _construct(self) -> None:
+        pass
+
+    def _start(self) -> None:
+        pass
+
+    def _stop(self) -> None:
+        pass
+
+    def _destroy(self) -> None:
+        pass
+
+
 class LifecycleListener(ta.Generic[T]):
 
     def on_starting(self, obj: T) -> None:
@@ -53,5 +69,18 @@ class LifecycleListener(ta.Generic[T]):
         pass
 
 
-class LifecycleController:
-    pass
+class LifecycleController(Lifecycle):
+
+    def __init__(
+            self,
+            lifecycle: Lifecycle,
+            *,
+            lock: lang.DefaultLockable = None,
+    ) -> None:
+        super().__init__()
+
+        self._lifecycle = check.isinstance(lifecycle, Lifecycle)
+        self._lock = lang.default_lock(lock, True)
+
+        self._state = LifecycleState.NEW
+        self._listeners: ta.List[LifecycleListener] = []
