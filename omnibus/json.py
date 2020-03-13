@@ -1,17 +1,27 @@
 """
 TODO:
  - orjson
+ - dumb coercers
+  - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
+
+https://serde.rs/data-model.html
+https://serde.rs/examples.html
+
+https://github.com/FasterXML/jackson-databind/wiki/Deserialization-Features
+https://github.com/FasterXML/jackson-databind/wiki/Serialization-features
+https://github.com/FasterXML/jackson-databind/wiki/Databind-annotations
+https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
 """
 import typing as ta
+
+from . import codecs
+from . import defs
+from . import lang
 
 try:
     import ujson as json_
 except ImportError:
     import json as json_
-
-from . import codecs
-from . import defs
-from . import lang
 
 
 lang.warn_unstable()
