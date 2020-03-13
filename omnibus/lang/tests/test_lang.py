@@ -422,6 +422,17 @@ def test_await_futures():
     assert pairs(idxs) == pairs(range(10))
 
 
+def test_syncable_iterable():
+    async def f():
+        return 1
+
+    @asyncs_.syncable_iterable
+    async def g():
+        yield await f()
+
+    assert list(g()) == [1]
+
+
 def test_exit_stacked():
     class A(cms_.ExitStacked):
         pass
