@@ -1,3 +1,7 @@
+"""
+TODO:
+ - statics? once, every, and_every, ...
+"""
 import functools
 import sys
 import types

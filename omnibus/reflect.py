@@ -1,6 +1,6 @@
 """
 TODO:
- - 3.8: TypedDict, Literal, Final, Protocol
+ - 3.8: TypedDict, Literal, Final, Protocol, get_origin, get_args
  - forward refs / sugar for using god dam ta.get_type_hints
  - newtype
  - typingx: Intersect, Dependent, Raises
