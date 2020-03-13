@@ -2,7 +2,10 @@
 TODO:
  - IdentityWeakKeyDict
  - WeakDict (key and value)
+  - weak.py?
  - RingBuffer
+ - FrozenList (backed by tuple)
+ - kvs
 """
 import functools
 import typing as ta
