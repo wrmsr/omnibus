@@ -49,7 +49,7 @@ def coalesce_lines(lines: ta.Iterable[str]) -> ta.Generator[str, None, None]:
         pass
 
 
-def parse(lines: ta.Iterable[str]) -> ta.Dict[str, str]:
+def parse_lines(lines: ta.Iterable[str]) -> ta.Dict[str, str]:
     props = {}
     for line in coalesce_lines(lines):
         kv_pair = parse_line(line)

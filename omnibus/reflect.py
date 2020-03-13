@@ -1,7 +1,9 @@
 """
 TODO:
+ - 3.8: TypedDict, Literal, Final, Protocol
  - forward refs / sugar for using god dam ta.get_type_hints
  - newtype
+ - typingx: Intersect, Dependent, Raises
 """
 import abc
 import enum

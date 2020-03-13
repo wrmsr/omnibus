@@ -1,3 +1,8 @@
+"""
+TODO:
+ - reservoir
+ - dep tdigest?
+"""
 import operator
 import random
 import time

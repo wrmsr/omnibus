@@ -1,3 +1,14 @@
+"""
+TODO:
+ - diag.py? or just psutil..
+ - os.readenv - bash exec script args (like ~/.bashrc) -> run env, return map
+  - default to bashrc
+  - loadenv to set envs read
+  - mitigator for osx pycharm not loading bashrc
+  - option to not inherit existing env
+  - option to not overwrite existing keys
+  - keep: ta.Iterable[str] = None
+"""
 import codecs
 import contextlib
 import errno
