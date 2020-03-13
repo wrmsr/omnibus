@@ -6,6 +6,9 @@ TODO:
  - RingBuffer
  - FrozenList (backed by tuple)
  - kvs
+ - Unmodifiable - java-style proxies, not copies
+  - just views?
+ - boost::MultiIndex - sorted.py?
 """
 import functools
 import typing as ta

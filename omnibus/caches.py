@@ -1,3 +1,9 @@
+"""
+TODO:
+ - dogpile
+ - midpoint/arc
+ - thread scoped?
+"""
 import collections
 import contextlib
 import enum

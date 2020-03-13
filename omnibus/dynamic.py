@@ -1,3 +1,7 @@
+"""
+TODO:
+ - clj-style binding conveyance
+"""
 import contextlib
 import functools
 import sys
