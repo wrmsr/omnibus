@@ -1,7 +1,13 @@
+import typing as ta
+
 from . import dataclasses as dc
 from . import lang
 
+
 lang.warn_unstable()
+
+
+T = ta.TypeVar('T')
 
 
 @dc.dataclass(frozen=True)
@@ -30,3 +36,22 @@ class LifecycleState(lang.ValueEnum):
     DESTROYING = LifecycleState('DESTROYING', 11, False)
     FAILED_DESTROYING = LifecycleState('FAILED_DESTROYING', 12, True)
     DESTROYED = LifecycleState('DESTROYED', 13, False)
+
+
+class LifecycleListener(ta.Generic[T]):
+
+    def on_starting(self, obj: T) -> None:
+        pass
+
+    def on_started(self, obj: T) -> None:
+        pass
+
+    def on_stopping(self, obj: T) -> None:
+        pass
+
+    def on_stopped(self, obj: T) -> None:
+        pass
+
+
+class LifecycleController:
+    pass
