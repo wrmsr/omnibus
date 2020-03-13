@@ -16,3 +16,7 @@ def dumb_parse_lines(lines: ta.Iterable[str]) -> ta.Iterable[ta.Tuple[str, str]]
         k = k.strip()
         v = v.strip().strip("'").strip('"')
         yield k, v
+
+
+def parse(buf: str) -> ta.Iterable[ta.Tuple[str, ta.Optional[str]]]:
+    raise NotImplementedError
