@@ -1,12 +1,13 @@
 """
 TODO:
-- threadpool
-- greenlet?
-- eventfd
-- https://github.com/MagicStack/httptools
-- https://gist.github.com/mitsuhiko/5721547
-- asyncio
-- firehose
+ - threadpool
+ - greenlet?
+ - eventfd
+ - https://github.com/MagicStack/httptools
+ - https://gist.github.com/mitsuhiko/5721547
+ - asyncio
+ - firehose
+ - netty-style protocol negotiation override
 """
 import abc
 import contextlib

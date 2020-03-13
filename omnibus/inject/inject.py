@@ -3,10 +3,10 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
  (2f2c3a629eaf7e9a4e3687ae17004789fd41fed6/)
 
 TODO:
-- proxies / circular injection
-- type converters
-- redundant providers / resolve
-- override
+ - proxies / circular injection
+ - type converters
+ - redundant providers / resolve
+ - override
 """
 import collections
 import threading

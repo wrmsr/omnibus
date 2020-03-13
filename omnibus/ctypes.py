@@ -1,8 +1,8 @@
 """
 TODO:
-- lazy eval anns
-- __repr__
-- def type(...) for bitfield widths
+ - lazy eval anns
+ - __repr__
+ - def type(...) for bitfield widths
 """
 import ctypes as ct
 import types

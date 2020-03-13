@@ -1,7 +1,7 @@
 """
 TODO:
-- forward refs / sugar for using god dam ta.get_type_hints
-- newtype
+ - forward refs / sugar for using god dam ta.get_type_hints
+ - newtype
 """
 import abc
 import enum

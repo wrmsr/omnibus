@@ -1,8 +1,8 @@
 """
 TODO:
-- cython
-- optional dep / interop: bitstrings
-- translate packed to unpacked fmt and expand after
+ - cython
+ - optional dep / interop: bitstrings
+ - translate packed to unpacked fmt and expand after
 """
 import struct  # noqa
 import typing as ta

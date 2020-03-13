@@ -1,9 +1,9 @@
 """
 TODO:
-- cython
-- zigzag
-- memoryview
-- signedness
+ - cython
+ - zigzag
+ - memoryview
+ - signedness
 
 http://www.amazontechon.com/locale/ro/pdfs/0_3_Integer%20encodings_new%20template.pdf
 https://github.com/stoklund/varint
