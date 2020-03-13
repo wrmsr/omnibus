@@ -30,11 +30,14 @@ class Manifest(lang.Final):
             self,
             _cls: TypeOrSpec,
             _match: TypeOrSpec,
+            *,
+            _spec: rfl.Spec = None,
     ) -> None:
         super().__init__()
 
         self._cls = _cls
         self._match = _match
+        self._spec = _spec
 
     @property
     def cls(self) -> TypeOrSpec:
@@ -43,6 +46,12 @@ class Manifest(lang.Final):
     @property
     def match(self) -> TypeOrSpec:
         return self._match
+
+    @property
+    def spec(self) -> rfl.Spec:
+        if self._spec is None:
+            self._spec = rfl.get_spec(self._cls)
+        return self._spec
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._cls!r}, {self._match!r})'

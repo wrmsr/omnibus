@@ -19,6 +19,9 @@ def test_erasing_dispatch():
     disp[ta.Dict[K, V]] = 'dict'
     impl, manifest = disp[ta.Dict[int, str]]
     assert isinstance(manifest, types_.Manifest)
+    assert manifest.spec.erased_cls is dict
+    assert manifest.spec.args[0].cls is int
+    assert manifest.spec.args[1].cls is str
 
 
 @pytest.mark.parametrize('nolock', [False, True])
