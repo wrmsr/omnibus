@@ -4,6 +4,8 @@ TODO:
  - forward refs / sugar for using god dam ta.get_type_hints
  - newtype
  - typingx: Intersect, Dependent, Raises
+ - https://github.com/python/typing/issues/213
+ - reflect/__init__.py? is this where subtyper lives? or is that dispatch-only? hinting required..
 """
 import abc
 import enum
