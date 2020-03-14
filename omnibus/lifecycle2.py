@@ -145,22 +145,8 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
             new_succeeded: LifecycleState,
             new_failed: LifecycleState,
             fn: ta.Callable[[], None],
-            listen_fn: ta.Callable[[LifecycleLstener]]
+            listener_fn: ta.Callable[[LifecycleListener[LifecycleT], LifecycleT], None] = None,
     ) -> None:
-        """
-        synchronized (lock) {
-            checkState(state == LifecycleState.NEW);
-            state = LifecycleState.CONSTRUCTING;
-            try {
-                lifecycle.construct();
-            }
-            catch (Exception e) {
-                state = LifecycleState.FAILED_CONSTRUCTING;
-                throw new RuntimeException(e);
-            }
-            state = LifecycleState.CONSTRUCTED;
-        }
-        """
         check.unique([old, new_intermediate, new_succeeded, new_failed])
         check.arg(new_intermediate.phase > old.phase)
         check.arg(new_failed.phase > new_intermediate.phase)
@@ -174,4 +160,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
                 self._state = new_failed
                 raise
             self._state = new_succeeded
+        if listener_fn is not None:
+            for listener in self._listeners:
+                listener_fn(listener, self._lifecycle)
 
