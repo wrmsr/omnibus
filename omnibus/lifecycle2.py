@@ -332,13 +332,24 @@ class LifecycleManager(AbstractLifecycle):
             raise TypeError(lifecycle)
 
     def _add_internal(self, lifecycle: Lifecycle, dependencies: ta.Iterable[Lifecycle]) -> Entry:
+        check.state(self.state.phase < LifecycleStates.STOPPING.phase and not self.state.is_failed)
+
+        check.isinstance(lifecycle, Lifecycle)
+        try:
+            entry = self._entries_by_lifecycle[lifecycle]
+        except KeyError:
+            controller = self._get_controller(lifecycle)
+            entry = self._entries_by_lifecycle[lifecycle] = LifecycleManager.Entry(controller)
+
+        for dep in dependencies:
+            check.isinstance(dep, Lifecycle)
+            dep_entry = self._add_internal(dep, [])
+            entry.dependencies.add(dep_entry)
+            dep_entry.dependents.add(entry)
+
+        check.state(entry.controller.state.phase < LifecycleStates.STOPPING.phase and not entry.controller.state.is_failed)  # noqa
+
         """
-        checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailed());
-
-        ...
-
-        LifecycleController controller = entry.controller;
-        checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailed());
         while (controller.getState().getPhase() < getState().getPhase()) {
             checkState(!controller.getState().isFailed());
             switch (controller.getState()) {
@@ -352,21 +363,7 @@ class LifecycleManager(AbstractLifecycle):
                     throw new IllegalStateException(controller.getState().toString());
             }
         }
-
-        return entry;
         """
-        check.isinstance(lifecycle, Lifecycle)
-        try:
-            entry = self._entries_by_lifecycle[lifecycle]
-        except KeyError:
-            controller = self._get_controller(lifecycle)
-            entry = self._entries_by_lifecycle[lifecycle] = LifecycleManager.Entry(controller)
-
-        for dep in dependencies:
-            check.isinstance(dep, Lifecycle)
-            dep_entry = self._add_internal(dep, [])
-            entry.dependencies.add(dep_entry)
-            dep_entry.dependents.add(entry)
 
         return entry
 
