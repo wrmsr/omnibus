@@ -1,8 +1,10 @@
-from .. import lifecycle2
+from .. import controller as controller_
+from .. import manager as manager_
+from .. import types as types_
 
 
 def test_lifecycle():
-    class L(lifecycle2.Lifecycle):
+    class L(types_.Lifecycle):
 
         def lifecycle_construct(self) -> None:
             super().lifecycle_construct()
@@ -18,7 +20,7 @@ def test_lifecycle():
 
     l = L()
 
-    c = lifecycle2.LifecycleController(l)
+    c = controller_.LifecycleController(l)
 
     c.lifecycle_construct()
     c.lifecycle_start()
@@ -27,7 +29,7 @@ def test_lifecycle():
 
 
 def test_abstract_lifecycle():
-    class L(lifecycle2.AbstractLifecycle):
+    class L(types_.AbstractLifecycle):
 
         def _do_lifecycle_construct(self) -> None:
             super()._do_lifecycle_construct()
@@ -50,7 +52,7 @@ def test_abstract_lifecycle():
 
 
 def test_lifecycle_manager():
-    class L(lifecycle2.AbstractLifecycle):
+    class L(types_.AbstractLifecycle):
 
         def _do_lifecycle_construct(self) -> None:
             super()._do_lifecycle_construct()
@@ -67,13 +69,13 @@ def test_lifecycle_manager():
     l0 = L()
     l1 = L()
 
-    lm = lifecycle2.LifecycleManager()
+    lm = manager_.LifecycleManager()
     lm.add(l0)
     lm.add(l1, [l0])
 
     lm.construct()
-    assert l0.lifecycle_state is lifecycle2.LifecycleStates.CONSTRUCTED
-    assert l1.lifecycle_state is lifecycle2.LifecycleStates.CONSTRUCTED
+    assert l0.lifecycle_state is types_.LifecycleStates.CONSTRUCTED
+    assert l1.lifecycle_state is types_.LifecycleStates.CONSTRUCTED
 
     lm.start()
 
