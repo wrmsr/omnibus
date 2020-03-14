@@ -5,9 +5,7 @@ from . import dataclasses as dc
 from . import defs
 from . import lang
 
-
 lang.warn_unstable()
-
 
 T = ta.TypeVar('T')
 LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
@@ -21,7 +19,6 @@ class LifecycleState(lang.Sealed):
 
 
 class LifecycleStates(lang.ValueEnum):
-
     NEW = LifecycleState('NEW', 0, False)
 
     CONSTRUCTING = LifecycleState('CONSTRUCTING', 1, False)
@@ -140,7 +137,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def _advance(
             self,
-            old: LifecycleState,
+            old: ta.Set[LifecycleState],
             new_intermediate: LifecycleState,
             new_failed: LifecycleState,
             new_succeeded: LifecycleState,
@@ -148,15 +145,15 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
             pre_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
             post_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
     ) -> None:
-        check.unique([old, new_intermediate, new_succeeded, new_failed])
-        check.arg(new_intermediate.phase > old.phase)
+        check.unique(list(old) + [new_intermediate, new_succeeded, new_failed])
+        check.arg(all(new_intermediate.phase > o.phase for o in old))
         check.arg(new_failed.phase > new_intermediate.phase)
         check.arg(new_succeeded.phase > new_failed.phase)
         with self._lock:
             if pre_listener_fn is not None:
                 for listener in self._listeners:
                     pre_listener_fn(listener)(self._lifecycle)
-            check.state(self._state is old)
+            check.state(self._state in old)
             self._state = new_intermediate
             try:
                 lifecycle_fn()
@@ -170,7 +167,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def lifecycle_construct(self) -> None:
         self._advance(
-            LifecycleStates.NEW,
+            {LifecycleStates.NEW},
             LifecycleStates.CONSTRUCTING,
             LifecycleStates.FAILED_CONSTRUCTING,
             LifecycleStates.CONSTRUCTED,
@@ -179,7 +176,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def lifecycle_start(self) -> None:
         self._advance(
-            LifecycleStates.CONSTRUCTED,
+            {LifecycleStates.CONSTRUCTED},
             LifecycleStates.STARTING,
             LifecycleStates.FAILED_STARTING,
             LifecycleStates.STARTED,
@@ -190,7 +187,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def lifecycle_stop(self) -> None:
         self._advance(
-            LifecycleStates.STARTED,
+            {LifecycleStates.STARTED},
             LifecycleStates.STOPPING,
             LifecycleStates.FAILED_STOPPING,
             LifecycleStates.STOPPED,
@@ -201,7 +198,21 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def lifecycle_destroy(self) -> None:
         self._advance(
-            LifecycleStates.STOPPED,
+            {
+                LifecycleStates.NEW,
+
+                LifecycleStates.CONSTRUCTING,
+                LifecycleStates.FAILED_CONSTRUCTING,
+                LifecycleStates.CONSTRUCTED,
+
+                LifecycleStates.STARTING,
+                LifecycleStates.FAILED_STARTING,
+                LifecycleStates.STARTED,
+
+                LifecycleStates.STOPPING,
+                LifecycleStates.FAILED_STOPPING,
+                LifecycleStates.STOPPED,
+            },
             LifecycleStates.DESTROYING,
             LifecycleStates.FAILED_DESTROYING,
             LifecycleStates.DESTROYED,
