@@ -306,8 +306,8 @@ class LifecycleManager(AbstractLifecycle):
     @dc.dataclass(frozen=True)
     class Entry:
         controller: LifecycleController
-        dependencies: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=set)
-        dependents: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=set)
+        dependencies: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)
+        dependents: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)
 
     def __init__(
             self,

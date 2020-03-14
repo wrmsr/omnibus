@@ -64,13 +64,19 @@ def test_lifecycle_manager():
         def _do_lifecycle_destroy(self) -> None:
             super()._do_lifecycle_destroy()
 
-    l = L()
+    l0 = L()
+    l1 = L()
 
     lm = lifecycle2.LifecycleManager()
-    lm.add(l)
+    lm.add(l0)
+    lm.add(l1, [l0])
 
     lm.construct()
-    lm.start()
-    lm.stop()
-    lm.destroy()
+    assert l0.lifecycle_state is lifecycle2.LifecycleStates.CONSTRUCTED
+    assert l1.lifecycle_state is lifecycle2.LifecycleStates.CONSTRUCTED
 
+    lm.start()
+
+    lm.stop()
+
+    lm.destroy()
