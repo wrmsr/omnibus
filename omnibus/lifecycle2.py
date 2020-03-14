@@ -1,6 +1,7 @@
 import typing as ta
 
 from . import check
+from . import collections as ocol
 from . import dataclasses as dc
 from . import defs
 from . import lang
@@ -298,3 +299,104 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
             LifecycleStates.DESTROYED,
             self._lifecycle.lifecycle_destroy,
         )
+
+
+class LifecycleManager(AbstractLifecycle):
+
+    @dc.dataclass(frozen=True)
+    class Entry:
+        controller: LifecycleController
+        dependencies: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=set)
+        dependents: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=set)
+
+    def __init__(
+            self,
+            *,
+            lock: lang.DefaultLockable = None,
+    ) -> None:
+        super().__init__()
+
+        self._lock = lang.default_lock(lock, True)
+
+        self._entries_by_lifecycle: ta.MutableMapping[Lifecycle, LifecycleManager.Entry] = ocol.IdentityKeyDict()
+
+    def _get_controller(self, lifecycle: Lifecycle) -> LifecycleController:
+        if isinstance(lifecycle, LifecycleController):
+            return lifecycle
+        elif isinstance(lifecycle, AbstractLifecycle):
+            return lifecycle.lifecycle_controller
+        elif isinstance(lifecycle, Lifecycle):
+            return LifecycleController(lifecycle)
+        else:
+            raise TypeError(lifecycle)
+
+    def _add_internal(self, lifecycle: Lifecycle, dependencies: ta.Iterable[Lifecycle]) -> None:
+        """
+        checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailed());
+
+        Entry entry = entriesByLifecycle.get(lifecycle);
+        if (entry == null) {
+            entry = new Entry(getController(lifecycle));
+            entriesByLifecycle.put(lifecycle, entry);
+        }
+
+        for (Lifecycle dep : dependencies) {
+            Entry depEntry = addInternal(dep, ImmutableSet.of());
+            entry.dependencies.add(depEntry);
+            depEntry.dependants.add(entry);
+        }
+
+        LifecycleController controller = entry.controller;
+        checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailed());
+        while (controller.getState().getPhase() < getState().getPhase()) {
+            checkState(!controller.getState().isFailed());
+            switch (controller.getState()) {
+                case NEW:
+                    controller.construct();
+                    break;
+                case CONSTRUCTED:
+                    controller.start();
+                    break;
+                default:
+                    throw new IllegalStateException(controller.getState().toString());
+            }
+        }
+
+        return entry;
+        """
+        check.isinstance(controller, LifecycleController)
+
+        entry = LifecycleManager.Entry(controller)
+
+    @property
+    def controller(self) -> 'LifecycleController[lang.Self]':
+        return self.lifecycle_controller
+
+    @property
+    def state(self) -> LifecycleState:
+        return self.lifecycle_controller.state
+
+    def construct(self) -> None:
+        self.lifecycle_construct()
+
+    def _do_lifecycle_construct(self) -> None:
+        pass
+
+    def start(self) -> None:
+        self.lifecycle_start()
+
+    def _do_lifecycle_start(self) -> None:
+        pass
+
+    def stop(self) -> None:
+        self.lifecycle_stop()
+
+    def _do_lifecycle_stop(self) -> None:
+        pass
+
+    def destroy(self) -> None:
+        self.lifecycle_destroy()
+
+    def _do_lifecycle_destroy(self) -> None:
+        pass
+

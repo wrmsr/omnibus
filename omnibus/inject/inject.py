@@ -7,6 +7,7 @@ TODO:
  - type converters
  - redundant providers / resolve
  - override
+ - LISTENERS - LifecycleManager
 """
 import collections
 import threading
