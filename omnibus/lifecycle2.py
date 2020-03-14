@@ -142,25 +142,68 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
             self,
             old: LifecycleState,
             new_intermediate: LifecycleState,
-            new_succeeded: LifecycleState,
             new_failed: LifecycleState,
-            fn: ta.Callable[[], None],
-            listener_fn: ta.Callable[[LifecycleListener[LifecycleT], LifecycleT], None] = None,
+            new_succeeded: LifecycleState,
+            lifecycle_fn: ta.Callable[[], None],
+            pre_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
+            post_listener_fn: ta.Callable[[LifecycleListener[LifecycleT]], ta.Callable[[LifecycleT], None]] = None,
     ) -> None:
         check.unique([old, new_intermediate, new_succeeded, new_failed])
         check.arg(new_intermediate.phase > old.phase)
         check.arg(new_failed.phase > new_intermediate.phase)
         check.arg(new_succeeded.phase > new_failed.phase)
         with self._lock:
+            if pre_listener_fn is not None:
+                for listener in self._listeners:
+                    pre_listener_fn(listener)(self._lifecycle)
             check.state(self._state is old)
             self._state = new_intermediate
             try:
-                fn()
+                lifecycle_fn()
             except Exception:
                 self._state = new_failed
                 raise
             self._state = new_succeeded
-        if listener_fn is not None:
-            for listener in self._listeners:
-                listener_fn(listener, self._lifecycle)
+            if post_listener_fn is not None:
+                for listener in self._listeners:
+                    post_listener_fn(listener)(self._lifecycle)
 
+    def lifecycle_construct(self) -> None:
+        self._advance(
+            LifecycleStates.NEW,
+            LifecycleStates.CONSTRUCTING,
+            LifecycleStates.FAILED_CONSTRUCTING,
+            LifecycleStates.CONSTRUCTED,
+            self._lifecycle.lifecycle_construct,
+        )
+
+    def lifecycle_start(self) -> None:
+        self._advance(
+            LifecycleStates.CONSTRUCTED,
+            LifecycleStates.STARTING,
+            LifecycleStates.FAILED_STARTING,
+            LifecycleStates.STARTED,
+            self._lifecycle.lifecycle_start,
+            lambda l: l.on_starting,
+            lambda l: l.on_started,
+        )
+
+    def lifecycle_stop(self) -> None:
+        self._advance(
+            LifecycleStates.STARTED,
+            LifecycleStates.STOPPING,
+            LifecycleStates.FAILED_STOPPING,
+            LifecycleStates.STOPPED,
+            self._lifecycle.lifecycle_stop,
+            lambda l: l.on_stopping,
+            lambda l: l.on_stopped,
+        )
+
+    def lifecycle_destroy(self) -> None:
+        self._advance(
+            LifecycleStates.STOPPED,
+            LifecycleStates.DESTROYING,
+            LifecycleStates.FAILED_DESTROYING,
+            LifecycleStates.DESTROYED,
+            self._lifecycle.lifecycle_destroy,
+        )
