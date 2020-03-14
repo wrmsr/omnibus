@@ -5,10 +5,13 @@ from . import dataclasses as dc
 from . import defs
 from . import lang
 
+
 lang.warn_unstable()
+
 
 T = ta.TypeVar('T')
 LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
+LifecycleCallback = ta.Callable[[LifecycleT], None]
 
 
 @dc.dataclass(frozen=True)
@@ -53,6 +56,68 @@ class Lifecycle:
         pass
 
 
+class CallbackLifecycle(Lifecycle[LifecycleT], lang.Final):
+
+    def __init__(
+            self,
+            *,
+            construct: LifecycleCallback[LifecycleT] = None,
+            start: LifecycleCallback[LifecycleT] = None,
+            stop: LifecycleCallback[LifecycleT] = None,
+            destroy: LifecycleCallback[LifecycleT] = None,
+    ):
+        super().__init__()
+
+        self._construct = check.callable(construct) if construct is not None else None
+        self._start = check.callable(start) if construct is not None else None
+        self._stop = check.callable(stop) if construct is not None else None
+        self._destroy = check.callable(destroy) if construct is not None else None
+
+    def lifecycle_construct(self) -> None:
+        if self._construct is not None:
+            self._construct()
+
+    def lifecycle_start(self) -> None:
+        if self._start is not None:
+            self._start()
+
+    def lifecycle_stop(self) -> None:
+        if self._stop is not None:
+            self._stop()
+
+    def lifecycle_destroy(self) -> None:
+        if self._destroy is not None:
+            self._destroy()
+
+
+class AbstractLifecycle(Lifecycle, lang.Abstract):
+
+    def __init__(self: lang.Self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self)
+
+    @property
+    def lifecycle_controller(self) -> 'LifecycleController[lang.Self]':
+        return self._lifecycle_controller
+
+    @property
+    def lifecycle_state(self) -> LifecycleState:
+        return self._lifecycle_controller.state
+
+    def lifecycle_construct(self) -> None:
+        self._lifecycle_controller.lifecycle_construct()
+
+    def lifecycle_start(self) -> None:
+        self._lifecycle_controller.lifecycle_start()
+
+    def lifecycle_stop(self) -> None:
+        self._lifecycle_controller.lifecycle_stop()
+
+    def lifecycle_destroy(self) -> None:
+        self._lifecycle_controller.lifecycle_destroy()
+
+
 class LifecycleListener(ta.Generic[LifecycleT]):
 
     def on_starting(self, obj: LifecycleT) -> None:
@@ -66,9 +131,6 @@ class LifecycleListener(ta.Generic[LifecycleT]):
 
     def on_stopped(self, obj: LifecycleT) -> None:
         pass
-
-
-LifecycleCallback = ta.Callable[[T], None]
 
 
 class CallbackLifecycleListener(LifecycleListener[LifecycleT], lang.Final):
