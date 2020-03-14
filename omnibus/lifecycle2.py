@@ -347,23 +347,16 @@ class LifecycleManager(AbstractLifecycle):
             entry.dependencies.add(dep_entry)
             dep_entry.dependents.add(entry)
 
-        check.state(entry.controller.state.phase < LifecycleStates.STOPPING.phase and not entry.controller.state.is_failed)  # noqa
-
-        """
-        while (controller.getState().getPhase() < getState().getPhase()) {
-            checkState(!controller.getState().isFailed());
-            switch (controller.getState()) {
-                case NEW:
-                    controller.construct();
-                    break;
-                case CONSTRUCTED:
-                    controller.start();
-                    break;
-                default:
-                    throw new IllegalStateException(controller.getState().toString());
-            }
-        }
-        """
+        controller = entry.controller
+        check.state(controller.state.phase < LifecycleStates.STOPPING.phase and not controller.state.is_failed)
+        while controller.state.phase < self.state.phase:
+            check.state(not controller.state.is_failed)
+            if controller.state is LifecycleStates.NEW:
+                controller.lifecycle_construct()
+            elif controller.state is LifecycleStates.CONSTRUCTED:
+                controller.lifecycle_start()
+            else:
+                raise ValueError(controller.state)
 
         return entry
 
