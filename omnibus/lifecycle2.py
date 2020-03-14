@@ -360,6 +360,14 @@ class LifecycleManager(AbstractLifecycle):
 
         return entry
 
+    def add(
+            self,
+            lifecycle: Lifecycle,
+            dependencies: ta.Iterable[Lifecycle] = (),
+    ) -> Entry:
+        with self._lock:
+            return self._add_internal(lifecycle, dependencies)
+
     @property
     def controller(self) -> 'LifecycleController[lang.Self]':
         return self.lifecycle_controller
@@ -372,23 +380,26 @@ class LifecycleManager(AbstractLifecycle):
         self.lifecycle_construct()
 
     def _do_lifecycle_construct(self) -> None:
-        pass
+        for entry in self._entries_by_lifecycle.values():
+            entry.controller.lifecycle_construct()
 
     def start(self) -> None:
         self.lifecycle_start()
 
     def _do_lifecycle_start(self) -> None:
-        pass
+        for entry in self._entries_by_lifecycle.values():
+            entry.controller.lifecycle_start()
 
     def stop(self) -> None:
         self.lifecycle_stop()
 
     def _do_lifecycle_stop(self) -> None:
-        pass
+        for entry in self._entries_by_lifecycle.values():
+            entry.controller.lifecycle_stop()
 
     def destroy(self) -> None:
         self.lifecycle_destroy()
 
     def _do_lifecycle_destroy(self) -> None:
-        pass
-
+        for entry in self._entries_by_lifecycle.values():
+            entry.controller.lifecycle_destroy()
