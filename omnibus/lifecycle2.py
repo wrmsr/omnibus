@@ -2,6 +2,7 @@ import typing as ta
 
 from . import check
 from . import dataclasses as dc
+from . import defs
 from . import lang
 
 
@@ -18,7 +19,7 @@ class LifecycleState(lang.Sealed):
     is_failed: bool
 
 
-class LifecycleState(lang.ValueEnum):
+class LifecycleStates(lang.ValueEnum):
 
     NEW = LifecycleState('NEW', 0, False)
 
@@ -41,16 +42,16 @@ class LifecycleState(lang.ValueEnum):
 
 class Lifecycle:
 
-    def _construct(self) -> None:
+    def lifecycle_construct(self) -> None:
         pass
 
-    def _start(self) -> None:
+    def lifecycle_start(self) -> None:
         pass
 
-    def _stop(self) -> None:
+    def lifecycle_stop(self) -> None:
         pass
 
-    def _destroy(self) -> None:
+    def lifecycle_destroy(self) -> None:
         pass
 
 
@@ -69,6 +70,43 @@ class LifecycleListener(ta.Generic[T]):
         pass
 
 
+LifecycleCallback = ta.Callable[[T], None]
+
+
+class CallbackLifecycleListener(LifecycleListener[T], lang.Final):
+
+    def __init__(
+            self,
+            *,
+            on_starting: LifecycleCallback = None,
+            on_started: LifecycleCallback = None,
+            on_stopping: LifecycleCallback = None,
+            on_stopped: LifecycleCallback = None,
+    ):
+        super().__init__()
+
+        self._on_starting = check.callable(on_starting) if on_starting is not None else None
+        self._on_started = check.callable(on_started) if on_starting is not None else None
+        self._on_stopping = check.callable(on_stopping) if on_starting is not None else None
+        self._on_stopped = check.callable(on_stopped) if on_starting is not None else None
+
+    def on_starting(self, obj: T) -> None:
+        if self._on_starting is not None:
+            self._on_starting(obj)
+
+    def on_started(self, obj: T) -> None:
+        if self._on_started is not None:
+            self._on_started(obj)
+
+    def on_stopping(self, obj: T) -> None:
+        if self._on_stopping is not None:
+            self._on_stopping(obj)
+
+    def on_stopped(self, obj: T) -> None:
+        if self._on_stopped is not None:
+            self._on_stopped(obj)
+
+
 class LifecycleController(Lifecycle):
 
     def __init__(
@@ -82,5 +120,37 @@ class LifecycleController(Lifecycle):
         self._lifecycle = check.isinstance(lifecycle, Lifecycle)
         self._lock = lang.default_lock(lock, True)
 
-        self._state = LifecycleState.NEW
+        self._state = LifecycleStates.NEW
         self._listeners: ta.List[LifecycleListener] = []
+
+    defs.repr('lifecycle', 'state')
+
+    @property
+    def lifecycle(self) -> Lifecycle:
+        return self._lifecycle
+
+    @property
+    def state(self) -> LifecycleState:
+        return self._state
+
+    def add_listener(self, listener: LifecycleListener) -> 'LifecycleController':
+        self._listeners.append(check.isinstance(listener, LifecycleListener))
+        return self
+
+    def _advance(self) -> None:
+        """
+        synchronized (lock) {
+            checkState(state == LifecycleState.NEW);
+            state = LifecycleState.CONSTRUCTING;
+            try {
+                lifecycle.construct();
+            }
+            catch (Exception e) {
+                state = LifecycleState.FAILED_CONSTRUCTING;
+                throw new RuntimeException(e);
+            }
+            state = LifecycleState.CONSTRUCTED;
+        }
+        """
+        with self._lock:
+
