@@ -347,6 +347,7 @@ class LifecycleManager(AbstractLifecycle):
             entry.dependencies.add(dep_entry)
             dep_entry.dependents.add(entry)
 
+        # FIXME: reverse for stop/destroy
         controller = entry.controller
         check.state(controller.state.phase < LifecycleStates.STOPPING.phase and not controller.state.is_failed)
         while controller.state.phase < self.state.phase:
