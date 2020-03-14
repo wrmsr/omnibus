@@ -10,6 +10,7 @@ lang.warn_unstable()
 
 
 T = ta.TypeVar('T')
+LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
 
 
 @dc.dataclass(frozen=True)
@@ -55,33 +56,33 @@ class Lifecycle:
         pass
 
 
-class LifecycleListener(ta.Generic[T]):
+class LifecycleListener(ta.Generic[LifecycleT]):
 
-    def on_starting(self, obj: T) -> None:
+    def on_starting(self, obj: LifecycleT) -> None:
         pass
 
-    def on_started(self, obj: T) -> None:
+    def on_started(self, obj: LifecycleT) -> None:
         pass
 
-    def on_stopping(self, obj: T) -> None:
+    def on_stopping(self, obj: LifecycleT) -> None:
         pass
 
-    def on_stopped(self, obj: T) -> None:
+    def on_stopped(self, obj: LifecycleT) -> None:
         pass
 
 
 LifecycleCallback = ta.Callable[[T], None]
 
 
-class CallbackLifecycleListener(LifecycleListener[T], lang.Final):
+class CallbackLifecycleListener(LifecycleListener[LifecycleT], lang.Final):
 
     def __init__(
             self,
             *,
-            on_starting: LifecycleCallback = None,
-            on_started: LifecycleCallback = None,
-            on_stopping: LifecycleCallback = None,
-            on_stopped: LifecycleCallback = None,
+            on_starting: LifecycleCallback[LifecycleT] = None,
+            on_started: LifecycleCallback[LifecycleT] = None,
+            on_stopping: LifecycleCallback[LifecycleT] = None,
+            on_stopped: LifecycleCallback[LifecycleT] = None,
     ):
         super().__init__()
 
@@ -107,11 +108,11 @@ class CallbackLifecycleListener(LifecycleListener[T], lang.Final):
             self._on_stopped(obj)
 
 
-class LifecycleController(Lifecycle):
+class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def __init__(
             self,
-            lifecycle: Lifecycle,
+            lifecycle: LifecycleT,
             *,
             lock: lang.DefaultLockable = None,
     ) -> None:
@@ -121,23 +122,31 @@ class LifecycleController(Lifecycle):
         self._lock = lang.default_lock(lock, True)
 
         self._state = LifecycleStates.NEW
-        self._listeners: ta.List[LifecycleListener] = []
+        self._listeners: ta.List[LifecycleListener[LifecycleT]] = []
 
     defs.repr('lifecycle', 'state')
 
     @property
-    def lifecycle(self) -> Lifecycle:
+    def lifecycle(self) -> LifecycleT:
         return self._lifecycle
 
     @property
     def state(self) -> LifecycleState:
         return self._state
 
-    def add_listener(self, listener: LifecycleListener) -> 'LifecycleController':
+    def add_listener(self, listener: LifecycleListener[LifecycleT]) -> 'LifecycleController':
         self._listeners.append(check.isinstance(listener, LifecycleListener))
         return self
 
-    def _advance(self) -> None:
+    def _advance(
+            self,
+            old: LifecycleState,
+            new_intermediate: LifecycleState,
+            new_succeeded: LifecycleState,
+            new_failed: LifecycleState,
+            fn: ta.Callable[[], None],
+            listen_fn: ta.Callable[[LifecycleLstener]]
+    ) -> None:
         """
         synchronized (lock) {
             checkState(state == LifecycleState.NEW);
@@ -152,5 +161,17 @@ class LifecycleController(Lifecycle):
             state = LifecycleState.CONSTRUCTED;
         }
         """
+        check.unique([old, new_intermediate, new_succeeded, new_failed])
+        check.arg(new_intermediate.phase > old.phase)
+        check.arg(new_failed.phase > new_intermediate.phase)
+        check.arg(new_succeeded.phase > new_failed.phase)
         with self._lock:
+            check.state(self._state is old)
+            self._state = new_intermediate
+            try:
+                fn()
+            except Exception:
+                self._state = new_failed
+                raise
+            self._state = new_succeeded
 
