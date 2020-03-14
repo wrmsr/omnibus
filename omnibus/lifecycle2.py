@@ -320,7 +320,8 @@ class LifecycleManager(AbstractLifecycle):
 
         self._entries_by_lifecycle: ta.MutableMapping[Lifecycle, LifecycleManager.Entry] = ocol.IdentityKeyDict()
 
-    def _get_controller(self, lifecycle: Lifecycle) -> LifecycleController:
+    @staticmethod
+    def _get_controller(lifecycle: Lifecycle) -> LifecycleController:
         if isinstance(lifecycle, LifecycleController):
             return lifecycle
         elif isinstance(lifecycle, AbstractLifecycle):
@@ -330,21 +331,11 @@ class LifecycleManager(AbstractLifecycle):
         else:
             raise TypeError(lifecycle)
 
-    def _add_internal(self, lifecycle: Lifecycle, dependencies: ta.Iterable[Lifecycle]) -> None:
+    def _add_internal(self, lifecycle: Lifecycle, dependencies: ta.Iterable[Lifecycle]) -> Entry:
         """
         checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailed());
 
-        Entry entry = entriesByLifecycle.get(lifecycle);
-        if (entry == null) {
-            entry = new Entry(getController(lifecycle));
-            entriesByLifecycle.put(lifecycle, entry);
-        }
-
-        for (Lifecycle dep : dependencies) {
-            Entry depEntry = addInternal(dep, ImmutableSet.of());
-            entry.dependencies.add(depEntry);
-            depEntry.dependants.add(entry);
-        }
+        ...
 
         LifecycleController controller = entry.controller;
         checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailed());
@@ -364,9 +355,20 @@ class LifecycleManager(AbstractLifecycle):
 
         return entry;
         """
-        check.isinstance(controller, LifecycleController)
+        check.isinstance(lifecycle, Lifecycle)
+        try:
+            entry = self._entries_by_lifecycle[lifecycle]
+        except KeyError:
+            controller = self._get_controller(lifecycle)
+            entry = self._entries_by_lifecycle[lifecycle] = LifecycleManager.Entry(controller)
 
-        entry = LifecycleManager.Entry(controller)
+        for dep in dependencies:
+            check.isinstance(dep, Lifecycle)
+            dep_entry = self._add_internal(dep, [])
+            entry.dependencies.add(dep_entry)
+            dep_entry.dependents.add(entry)
+
+        return entry
 
     @property
     def controller(self) -> 'LifecycleController[lang.Self]':
