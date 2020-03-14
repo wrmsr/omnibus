@@ -43,9 +43,7 @@ def test_abstract_lifecycle():
 
     l = L()
 
-    c = lifecycle2.LifecycleController(l)
-
-    c.lifecycle_construct()
-    c.lifecycle_start()
-    c.lifecycle_stop()
-    c.lifecycle_destroy()
+    l.lifecycle_construct()
+    l.lifecycle_start()
+    l.lifecycle_stop()
+    l.lifecycle_destroy()

@@ -101,7 +101,7 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
             stop=self._do_lifecycle_stop,
             destroy=self._do_lifecycle_destroy,
         )
-        self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self)
+        self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self._lifecycle_delegate)
 
     @property
     def lifecycle_controller(self) -> 'LifecycleController[lang.Self]':
