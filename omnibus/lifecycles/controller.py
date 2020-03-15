@@ -10,9 +10,6 @@ from .types import LifecycleStates
 from .types import LifecycleT
 
 
-lang.warn_unstable()
-
-
 class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
 
     def __init__(

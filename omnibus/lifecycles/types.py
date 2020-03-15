@@ -5,9 +5,6 @@ from .. import dataclasses as dc
 from .. import lang
 
 
-lang.warn_unstable()
-
-
 T = ta.TypeVar('T')
 LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
 LifecycleCallback = ta.Callable[[LifecycleT], None]
@@ -89,52 +86,6 @@ class CallbackLifecycle(Lifecycle, lang.Final, ta.Generic[LifecycleT]):
             self._destroy()
 
 
-class AbstractLifecycle(Lifecycle, lang.Abstract):
-
-    def __init__(self: lang.Self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        self._lifecycle_delegate = CallbackLifecycle(
-            construct=self._do_lifecycle_construct,
-            start=self._do_lifecycle_start,
-            stop=self._do_lifecycle_stop,
-            destroy=self._do_lifecycle_destroy,
-        )
-        self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self._lifecycle_delegate)
-
-    @property
-    def lifecycle_controller(self) -> 'LifecycleController[lang.Self]':
-        return self._lifecycle_controller
-
-    @property
-    def lifecycle_state(self) -> LifecycleState:
-        return self._lifecycle_controller.state
-
-    def lifecycle_construct(self) -> None:
-        self._lifecycle_controller.lifecycle_construct()
-
-    def _do_lifecycle_construct(self) -> None:
-        pass
-
-    def lifecycle_start(self) -> None:
-        self._lifecycle_controller.lifecycle_start()
-
-    def _do_lifecycle_start(self) -> None:
-        pass
-
-    def lifecycle_stop(self) -> None:
-        self._lifecycle_controller.lifecycle_stop()
-
-    def _do_lifecycle_stop(self) -> None:
-        pass
-
-    def lifecycle_destroy(self) -> None:
-        self._lifecycle_controller.lifecycle_destroy()
-
-    def _do_lifecycle_destroy(self) -> None:
-        pass
-
-
 class LifecycleListener(ta.Generic[LifecycleT]):
 
     def on_starting(self, obj: LifecycleT) -> None:
@@ -182,4 +133,3 @@ class CallbackLifecycleListener(LifecycleListener[LifecycleT], lang.Final):
     def on_stopped(self, obj: T) -> None:
         if self._on_stopped is not None:
             self._on_stopped(obj)
-

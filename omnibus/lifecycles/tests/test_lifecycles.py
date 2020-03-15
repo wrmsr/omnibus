@@ -1,3 +1,4 @@
+from .. import abstract as abstract_
 from .. import controller as controller_
 from .. import manager as manager_
 from .. import types as types_
@@ -29,7 +30,7 @@ def test_lifecycle():
 
 
 def test_abstract_lifecycle():
-    class L(types_.AbstractLifecycle):
+    class L(abstract_.AbstractLifecycle):
 
         def _do_lifecycle_construct(self) -> None:
             super()._do_lifecycle_construct()
@@ -52,7 +53,7 @@ def test_abstract_lifecycle():
 
 
 def test_lifecycle_manager():
-    class L(types_.AbstractLifecycle):
+    class L(abstract_.AbstractLifecycle):
 
         def _do_lifecycle_construct(self) -> None:
             super()._do_lifecycle_construct()

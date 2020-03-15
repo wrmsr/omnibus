@@ -4,20 +4,11 @@ from .. import check
 from .. import collections as ocol
 from .. import dataclasses as dc
 from .. import lang
+from .abstract import AbstractLifecycle
 from .controller import LifecycleController
-from .types import AbstractLifecycle
 from .types import Lifecycle
 from .types import LifecycleState
 from .types import LifecycleStates
-
-
-
-lang.warn_unstable()
-
-
-T = ta.TypeVar('T')
-LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
-LifecycleCallback = ta.Callable[[LifecycleT], None]
 
 
 class LifecycleManager(AbstractLifecycle):
