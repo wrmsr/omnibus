@@ -104,7 +104,7 @@ def test_lifecycle_context_manager():
     l1 = L()
 
     with (
-            manager_.context_manage()
+            manager_.context_manager()
             .add(l0)
             .add(l1, [l0])
     ) as lm:  # noqa

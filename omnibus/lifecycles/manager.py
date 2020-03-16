@@ -158,8 +158,12 @@ class LifecycleContextManager:
         return self
 
     def __enter__(self: lang.Self) -> lang.Self:
-        self._manager.construct()
-        self._manager.start()
+        try:
+            self._manager.construct()
+            self._manager.start()
+        except Exception:
+            self._manager.destroy()
+            raise
         return self
 
     def __exit__(
@@ -173,11 +177,14 @@ class LifecycleContextManager:
                 self._manager.stop()
         except Exception:
             log.exception('Error stopping')
-        self._manager.destroy()
+            self._manager.destroy()
+            raise
+        else:
+            self._manager.destroy()
         return None
 
 
-def context_manage(
+def context_manager(
         *lifecycles: Lifecycle,
         lock: lang.DefaultLockable = None,
 ) -> LifecycleContextManager:
