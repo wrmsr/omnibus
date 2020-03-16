@@ -17,7 +17,7 @@ import socket as sock
 import threading
 import typing as ta
 
-from .. import lifecycle
+from .. import lifecycles
 from .. import properties
 from .bind import Binder
 from .types import App
@@ -30,7 +30,7 @@ Self = ta.TypeVar('Self')
 ClientAddress = ta.Tuple[str, int]
 
 
-class WsgiServer(lifecycle.Lifecycle, abc.ABC):
+class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
 
     if hasattr(selectors, 'PollSelector'):
         ServerSelector = selectors.PollSelector

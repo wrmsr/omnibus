@@ -10,6 +10,10 @@ LifecycleT = ta.TypeVar('LifecycleT', bound='Lifecycle')
 LifecycleCallback = ta.Callable[[LifecycleT], None]
 
 
+class LifecycleStateException(Exception):
+    pass
+
+
 @dc.dataclass(frozen=True)
 class LifecycleState(lang.Sealed):
     name: str

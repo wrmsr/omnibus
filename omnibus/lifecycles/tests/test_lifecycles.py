@@ -83,3 +83,30 @@ def test_lifecycle_manager():
     lm.stop()
 
     lm.destroy()
+
+
+def test_lifecycle_context_manager():
+    class L(abstract_.AbstractLifecycle):
+
+        def _do_lifecycle_construct(self) -> None:
+            super()._do_lifecycle_construct()
+
+        def _do_lifecycle_start(self) -> None:
+            super()._do_lifecycle_start()
+
+        def _do_lifecycle_stop(self) -> None:
+            super()._do_lifecycle_stop()
+
+        def _do_lifecycle_destroy(self) -> None:
+            super()._do_lifecycle_destroy()
+
+    l0 = L()
+    l1 = L()
+
+    with (
+            manager_.context_manage()
+            .add(l0)
+            .add(l1, [l0])
+    ) as lm:  # noqa
+        assert l0.lifecycle_state is types_.LifecycleStates.STARTED
+        assert l1.lifecycle_state is types_.LifecycleStates.STARTED
