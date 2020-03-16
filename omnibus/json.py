@@ -18,6 +18,9 @@ from . import codecs
 from . import defs
 from . import lang
 
+# try:
+#     import orjson as json_
+# except ImportError:
 try:
     import ujson as json_
 except ImportError:

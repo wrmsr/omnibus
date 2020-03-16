@@ -34,6 +34,8 @@ PURGED_LIB_ITEMS = {
     'sqlite3': ['test'],
     'test': ['**'],
     'tkinter': ['tests'],
+    'toolz': ['tests'],
+    'turtledemo': ['**'],
     'unittest': ['**'],
 
 }

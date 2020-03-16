@@ -67,6 +67,6 @@ def test_json_http():
                         return
             except requests.RequestException:
                 pass
-            time.sleep(0.1)
+            time.sleep(100000.1)
 
     helpers.run_with_timeout(fn0, fn1)

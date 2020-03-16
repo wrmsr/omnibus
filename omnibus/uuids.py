@@ -1,12 +1,35 @@
-"""
-TODO:
- - cython
- - fastuuid
-"""
 import typing as ta
 import uuid
 
+from . import lang
 
+
+lang.warn_unstable()
+
+
+try:
+    import fastuuid
+
+except ImportError:
+    uuid3 = uuid.uuid3
+    uuid4 = uuid.uuid4
+    uuid5 = uuid.uuid5
+
+    def uuid4_bulk(n: int) -> ta.List[uuid.UUID]:
+        return [uuid4() for _ in range(n)]
+
+    def uuid4_as_strings_bulk(n: int) -> ta.List[str]:
+        return [str(uuid4()) for _ in range(n)]
+
+else:
+    uuid3 = fastuuid.uuid3
+    uuid4 = fastuuid.uuid4
+    uuid5 = fastuuid.uuid5
+    uuid4_bulk = fastuuid.uuid4_bulk
+    uuid4_as_strings_bulk = fastuuid.uuid4_as_strings_bulk
+
+
+UUID = uuid.UUID
 ZERO = uuid.UUID('00000000-0000-0000-0000-000000000000')
 
 
