@@ -25,8 +25,7 @@ def test_http():
     def fn0():
         nonlocal server
         server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), app)
-        with server:
-            server.run()
+        server.run()
 
     def fn1():
         time.sleep(0.5)
@@ -55,8 +54,7 @@ def test_json_http():
     def fn0():
         nonlocal server
         server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), apps_.simple_json_app(json_app))
-        with server:
-            server.run()
+        server.run()
 
     def fn1():
         time.sleep(0.5)

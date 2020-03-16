@@ -1,3 +1,4 @@
+import logging
 import types
 import typing as ta
 
@@ -11,6 +12,9 @@ from .types import Lifecycle
 from .types import LifecycleState
 from .types import LifecycleStateException
 from .types import LifecycleStates
+
+
+log = logging.getLogger(__name__)
 
 
 class LifecycleManager(AbstractLifecycle):
@@ -116,7 +120,7 @@ class LifecycleManager(AbstractLifecycle):
                 rec(dep)
             if entry.controller.state.is_failed:
                 raise LifecycleStateException(entry.controller)
-            if entry.controller.state.phase is LifecycleStates.STARTED.phase:
+            if entry.controller.state is LifecycleStates.STARTED:
                 entry.controller.lifecycle_stop()
         for entry in self._entries_by_lifecycle.values():
             rec(entry)
@@ -128,9 +132,6 @@ class LifecycleManager(AbstractLifecycle):
         def rec(entry: LifecycleManager.Entry) -> None:
             for dep in entry.dependents:
                 rec(dep)
-            if entry.controller.state.phase is LifecycleStates.STARTED.phase:
-                # FIXME: exception handle
-                entry.controller.lifecycle_stop()
             if entry.controller.state.phase < LifecycleStates.DESTROYED.phase:
                 entry.controller.lifecycle_destroy()
         for entry in self._entries_by_lifecycle.values():
@@ -157,6 +158,7 @@ class LifecycleContextManager:
         return self
 
     def __enter__(self: lang.Self) -> lang.Self:
+        self._manager.construct()
         self._manager.start()
         return self
 
@@ -166,6 +168,11 @@ class LifecycleContextManager:
             exc_val: ta.Optional[Exception],
             exc_tb: ta.Optional[types.TracebackType],
     ) -> ta.Optional[bool]:
+        try:
+            if self._manager.state is LifecycleStates.STARTED:
+                self._manager.stop()
+        except Exception:
+            log.exception('Error stopping')
         self._manager.destroy()
         return None
 
