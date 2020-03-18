@@ -6,6 +6,25 @@ import asyncio
 import httptools
 
 
+"""
+base:
+    def get_http_version(self):
+
+    def should_keep_alive(self):
+
+    def should_upgrade(self):
+
+    def feed_data(self, data):
+
+request:
+    def get_method(self):
+
+response
+    def get_status_code(self):
+        
+"""
+
+
 class HttpToolsRequestParserListener:
 
     def on_message_begin(self):
@@ -39,9 +58,11 @@ class HttpToolsRequestParserListener:
 # https://github.com/MagicStack/httptools/issues/20
 
 
-class Request:
+class Request(HttpToolsRequestParserListener):
 
     def __init__(self):
+        super().__init__()
+
         self.EOF = False
 
     def on_url(self, url: bytes):

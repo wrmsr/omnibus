@@ -11,6 +11,10 @@ class ErrorReporting(lang.Abstract):
 
 
 class MetricsCollection(lang.Abstract):
+    """
+    https://github.com/statsd/statsd/blob/master/docs/metric_types.md
+    https://docs.datadoghq.com/api/?lang=bash#api-reference
+    """
 
     @abc.abstractmethod
     def gauge(self, name: str) -> None:
