@@ -21,7 +21,6 @@ request:
 
 response
     def get_status_code(self):
-        
 """
 
 
