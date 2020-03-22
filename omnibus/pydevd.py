@@ -21,7 +21,6 @@ def is_debugger_call(hoist: int = 0, walk: int = 2) -> bool:
         if frame is None:
             break
         package = frame.f_globals.get('__package__')
-        print(package)
         if package in DEBUGGER_CALL_PACKAGES:
             return True
         frame = frame.f_back
