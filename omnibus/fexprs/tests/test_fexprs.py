@@ -4,8 +4,6 @@ https://docs.python.org/3.8/library/dis.html#python-bytecode-instructions
 """
 import sys
 
-import astpretty  # noqa
-
 from .. import analysis as analysis_
 from ..import types as types_
 
@@ -20,11 +18,15 @@ def f(x):
     caller = sys._getframe(1)
     ana = analysis_.Analysis(caller)
 
-    # astpretty.pprint(ana.ast)
-    # print()
+    import dis
+    dis.dis(caller.f_code)
 
-    # print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
-    # print()
+    import astpretty
+    astpretty.pprint(ana.ast)
+    print()
+
+    print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
+    print()
 
     caller_stream: types_.Stream
     [caller_stream] = ana.streams_by_src_by_dst[caller.f_lasti // 2].values()
@@ -76,7 +78,8 @@ def g(x):
 
     C.r = 8
 
-    f(1 + x * 2 == 3 + C.r)
+    # f(1 + x * 2 == 3 + C.r)
+    f(1 + x * (y := 2) == 3 + C.r)
 
     v = 0
     for foo in range(3):
