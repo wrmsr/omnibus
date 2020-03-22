@@ -54,12 +54,16 @@ def f(x):
             return [stream.instr.argrepr, rec_value(stream.stack[0]), rec_value(stream.stack[1])]
         elif stream.instr.opname in BINARY_OP_TAGS_BY_OPNAME:
             return [BINARY_OP_TAGS_BY_OPNAME[stream.instr.opname], rec_value(stream.stack[0]), rec_value(stream.stack[1])]  # noqa
+        elif stream.instr.opname == 'CALL_FUNCTION':
+            return ['CALL_FUNCTION'] + [rec_value(v) for v in reversed(stream.stack[:stream.instr.argval + 1])]
         else:
             raise TypeError
 
     assert caller_stream.instr.opname == 'CALL_FUNCTION'
     print(rec_stream(caller_stream.prev))
     print()
+
+    return x
 
 
 def g(x):
@@ -102,3 +106,9 @@ def test_fexprs():
     class G:
         x = 1
         f(x + 2)
+
+    x = 3
+    f(f(x + 4) + 5)
+
+    # x = 5
+    # f(x > 1 and x % 3 == 2)
