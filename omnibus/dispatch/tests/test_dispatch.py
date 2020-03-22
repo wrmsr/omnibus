@@ -4,6 +4,7 @@ import pytest
 
 from .. import erasing as erasing_
 from .. import functions as functions_
+from .. import manifests as manifests_
 from .. import registry as registry_
 from .. import types as types_
 
@@ -132,3 +133,18 @@ def test_class():
 
     assert B().fn(0) == 'int'
     assert B().fn('') == 'str'
+
+
+def test_jsonifier():
+    @functions_.function()
+    def build_jsonizer(_: object):
+        return lambda value: value
+
+    @build_jsonizer.register(ta.Dict)
+    def build_dict_jsonizer(_: ta.Dict[K, V], *, manifest: manifests_.Manifest):
+        # kj = build_dict_jsonizer.dispatcher.dispatch(manifest.cls.args)
+        return lambda value: value
+
+    impl, manifest = build_jsonizer.dispatcher[build_jsonizer.dispatcher.key(ta.Dict)]
+    impl(None)
+    assert isinstance(manifest, types_.Manifest)

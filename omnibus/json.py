@@ -4,6 +4,8 @@ TODO:
  - dumb coercers
   - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
 
+https://github.com/ijl/orjson
+
 https://serde.rs/data-model.html
 https://serde.rs/examples.html
 

@@ -48,7 +48,6 @@ def function(
         except KeyError:
             pass
 
-        wrapper.Dispatcher = dispatcher
         wrapper.register = register
         wrapper.dispatcher = dispatcher
         wrapper.clear_cache = dispatcher.clear
