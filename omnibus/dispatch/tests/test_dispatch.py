@@ -141,8 +141,8 @@ def test_jsonifier():
     jsonizer_dispatcher = caching_.CachingDispatcher(erasing_.ErasingDispatcher())
 
     def build_jsonizer(cls):
-        impl, manifest = jsonizer_dispatcher[k]
-        return manifests_.inject_manifest(impl, manifest)(None)
+        impl, manifest = jsonizer_dispatcher[cls]
+        return manifests_.inject_manifest(impl, manifest)()
 
     def build_default_jsonizer():
         return lambda v: v
@@ -153,11 +153,11 @@ def test_jsonifier():
         k, v = manifest.spec.args
         kj = build_jsonizer(k)
         vj = build_jsonizer(v)
-        return lambda dct: {kj(K): vj(v) for k, v in dct.items()}
+        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
 
-    jsonizer_dispatcher.registry[ta.Dict[K, V]] = build_dict_jsonizer
+    jsonizer_dispatcher.registry[dict] = build_dict_jsonizer
 
-    def build_datetime_jsonizer(_: datetime.datetime):
+    def build_datetime_jsonizer():
         return lambda dt: str(dt)
 
     jsonizer_dispatcher.registry[datetime.datetime] = build_datetime_jsonizer
