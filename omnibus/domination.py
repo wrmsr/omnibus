@@ -67,11 +67,11 @@ class DominatorTree(ta.Generic[V, E]):
         self._graph = check.not_none(graph)
         self._root = check.not_none(root)
         check.not_none(self._graph.get_successors(root))
-        self._dfs = Dfs(graph, root)
+        self._dfs = _Dfs(graph, root)
 
     @property
     def immediate_dominators(self) -> ta.Mapping[V, V]:
-        return IdomComputer(self._dfs).idom
+        return _ImmediateDominanceComputer(self._dfs).immediate_dominators
 
     @properties.cached
     def dominator_tree(self) -> SetMap[V, V]:
@@ -79,6 +79,26 @@ class DominatorTree(ta.Generic[V, E]):
         for node, dom in self.immediate_dominators.items():
             tree.setdefault(dom, set()).add(node)
         return tree
+
+    @properties.cached
+    def deep_dominated(self) -> SetMap[V, V]:
+        seen: ta.Set[V] = set()
+        ret: SetMap[V, V] = {}
+
+        def rec(node: V) -> ta.Collection[V]:
+            check.not_in(node, seen)
+            seen.add(node)
+            # FIXME: pyrsistent
+            st = set()
+            for child in self.dominator_tree.get(node, []):
+                st.add(child)
+                st.update(rec(child))
+            if st:
+                ret[node] = st
+            return st
+
+        rec(self._root)
+        return ret
 
     @properties.cached
     def dominance_frontiers(self) -> SetMap[V, V]:
@@ -118,7 +138,7 @@ class DominatorTree(ta.Generic[V, E]):
         return list(reversed(self.topological_traversal))
 
 
-class Dfs(ta.Generic[V, E]):
+class _Dfs(ta.Generic[V, E]):
 
     def __init__(self, graph: DirectedGraph[V, E], root: V) -> None:
         super().__init__()
@@ -171,19 +191,19 @@ class Dfs(ta.Generic[V, E]):
         return self._label
 
 
-class IdomComputer(ta.Generic[V, E]):
+class _ImmediateDominanceComputer(ta.Generic[V, E]):
 
-    def __init__(self, dfs: Dfs[V, E]) -> None:
+    def __init__(self, dfs: _Dfs[V, E]) -> None:
         super().__init__()
 
-        self._dfs = check.isinstance(dfs, Dfs)
+        self._dfs = check.isinstance(dfs, _Dfs)
 
         self._ancestor: ta.Dict[V, V] = {}
         self._semi = dict(self._dfs.semi)
         self._label = dict(self._dfs.label)
 
     @properties.cached
-    def idom(self) -> ta.Mapping[V, V]:
+    def immediate_dominators(self) -> ta.Mapping[V, V]:
         idom: ta.Dict[V, V] = {}
         bucket: ta.Dict[V, ta.Set[V]] = {}
 
