@@ -68,16 +68,15 @@ class DominatorTree(ta.Generic[V, E]):
         self._root = check.not_none(root)
         check.not_none(self._graph.get_successors(root))
         self._dfs = Dfs(graph, root)
-        self._idom = IdomComputer(self._dfs).idom
 
     @property
     def immediate_dominators(self) -> ta.Mapping[V, V]:
-        return self._idom
+        return IdomComputer(self._dfs).idom
 
     @properties.cached
     def dominator_tree(self) -> SetMap[V, V]:
         tree = {}
-        for node, dom in self._idom.items():
+        for node, dom in self.immediate_dominators.items():
             tree.setdefault(dom, set()).add(node)
         return tree
 
@@ -89,12 +88,12 @@ class DominatorTree(ta.Generic[V, E]):
             dfx = dominance_frontiers.setdefault(x, set())
 
             for y in self._graph.get_successors(x):
-                if self._idom[y] != x:
+                if self.immediate_dominators[y] != x:
                     dfx.add(y)
 
             for z in self.dominator_tree.get(x, []):
                 for y in dominance_frontiers.get(z, []):
-                    if self._idom[y] != x:
+                    if self.immediate_dominators[y] != x:
                         dfx.add(y)
 
         return {k: v for k, v in dominance_frontiers.items() if v}
@@ -106,7 +105,7 @@ class DominatorTree(ta.Generic[V, E]):
 
         for node in self._dfs.vertex:
             try:
-                idx = lst.index(self._idom[node])
+                idx = lst.index(self.immediate_dominators[node])
             except (KeyError, ValueError):
                 lst.append(node)
             else:
