@@ -1,3 +1,4 @@
+import datetime
 import typing as ta
 
 import pytest
@@ -140,11 +141,20 @@ def test_jsonifier():
     def build_jsonizer(_: object):
         return lambda value: value
 
-    @build_jsonizer.register(ta.Dict)
+    @build_jsonizer.register(ta.Dict[K, V])
     def build_dict_jsonizer(_: ta.Dict[K, V], *, manifest: manifests_.Manifest):
-        # kj = build_dict_jsonizer.dispatcher.dispatch(manifest.cls.args)
-        return lambda value: value
+        k, v = manifest.spec.args
+        impl, manifest = build_jsonizer.dispatcher[k]
+        kj = manifests_.inject_manifest(impl, manifest)(None)
+        impl, manifest = build_jsonizer.dispatcher[v]
+        vj = manifests_.inject_manifest(impl, manifest)(None)
+        return lambda dct: {kj(K): vj(v) for k, v in dct.items()}
 
-    impl, manifest = build_jsonizer.dispatcher[build_jsonizer.dispatcher.key(ta.Dict)]
-    impl(None)
-    assert isinstance(manifest, types_.Manifest)
+    @build_jsonizer.register(datetime.datetime)
+    def build_datetime_jsonizer(_: datetime.datetime):
+        return lambda dt: str(dt)
+
+    impl, manifest = build_jsonizer.dispatcher[ta.Dict[datetime.datetime, str]]
+    j = manifests_.inject_manifest(impl, manifest)(None)
+
+    print(j({datetime.datetime.now(): '420'}))
