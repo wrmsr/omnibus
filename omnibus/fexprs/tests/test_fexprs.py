@@ -3,6 +3,7 @@ https://docs.python.org/3.7/library/dis.html#python-bytecode-instructions
 https://docs.python.org/3.8/library/dis.html#python-bytecode-instructions
 """
 import sys
+import textwrap
 
 from .. import analysis as analysis_
 from ..import types as types_
@@ -18,15 +19,15 @@ def f(x):
     caller = sys._getframe(1)
     ana = analysis_.Analysis(caller)
 
-    import dis
-    dis.dis(caller.f_code)
+    # import dis
+    # dis.dis(caller.f_code)
 
-    import astpretty
-    astpretty.pprint(ana.ast)
-    print()
+    # import astpretty
+    # astpretty.pprint(ana.ast)
+    # print()
 
-    print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
-    print()
+    # print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
+    # print()
 
     caller_stream: types_.Stream
     [caller_stream] = ana.streams_by_src_by_dst[caller.f_lasti // 2].values()
@@ -51,9 +52,9 @@ def f(x):
 
     def rec_stream(stream: types_.Stream):
         if stream.instr.opname == 'COMPARE_OP':
-            return [stream.instr.argrepr, rec_value(stream.stack[0]), rec_value(stream.stack[1])]
+            return [stream.instr.argrepr, rec_value(stream.stack[1]), rec_value(stream.stack[0])]
         elif stream.instr.opname in BINARY_OP_TAGS_BY_OPNAME:
-            return [BINARY_OP_TAGS_BY_OPNAME[stream.instr.opname], rec_value(stream.stack[0]), rec_value(stream.stack[1])]  # noqa
+            return [BINARY_OP_TAGS_BY_OPNAME[stream.instr.opname], rec_value(stream.stack[1]), rec_value(stream.stack[0])]  # noqa
         elif stream.instr.opname == 'CALL_FUNCTION':
             return ['CALL_FUNCTION'] + [rec_value(v) for v in reversed(stream.stack[:stream.instr.argval + 1])]
         else:
@@ -82,8 +83,12 @@ def g(x):
 
     C.r = 8
 
-    # f(1 + x * 2 == 3 + C.r)
-    f(1 + x * (y := 2) == 3 + C.r)
+    f(1 + x * 2 == 3 + C.r)
+
+    if sys.version_info[1] > 7:
+        exec(textwrap.dedent("""
+            f(1 + x * (y := 2) == 420 + C.r)
+        """), globals(), locals())
 
     v = 0
     for foo in range(3):
