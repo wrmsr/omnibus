@@ -3,6 +3,7 @@ import typing as ta
 
 import pytest
 
+from .. import caching as caching_
 from .. import erasing as erasing_
 from .. import functions as functions_
 from .. import manifests as manifests_
@@ -137,24 +138,30 @@ def test_class():
 
 
 def test_jsonifier():
-    @functions_.function()
-    def build_jsonizer(_: object):
-        return lambda value: value
+    jsonizer_dispatcher = caching_.CachingDispatcher(erasing_.ErasingDispatcher())
 
-    @build_jsonizer.register(ta.Dict[K, V])
-    def build_dict_jsonizer(_: ta.Dict[K, V], *, manifest: manifests_.Manifest):
+    def build_jsonizer(cls):
+        impl, manifest = jsonizer_dispatcher[k]
+        return manifests_.inject_manifest(impl, manifest)(None)
+
+    def build_default_jsonizer():
+        return lambda v: v
+
+    jsonizer_dispatcher.registry[object] = build_default_jsonizer
+
+    def build_dict_jsonizer(*, manifest: manifests_.Manifest):
         k, v = manifest.spec.args
-        impl, manifest = build_jsonizer.dispatcher[k]
-        kj = manifests_.inject_manifest(impl, manifest)(None)
-        impl, manifest = build_jsonizer.dispatcher[v]
-        vj = manifests_.inject_manifest(impl, manifest)(None)
+        kj = build_jsonizer(k)
+        vj = build_jsonizer(v)
         return lambda dct: {kj(K): vj(v) for k, v in dct.items()}
 
-    @build_jsonizer.register(datetime.datetime)
+    jsonizer_dispatcher.registry[ta.Dict[K, V]] = build_dict_jsonizer
+
     def build_datetime_jsonizer(_: datetime.datetime):
         return lambda dt: str(dt)
 
-    impl, manifest = build_jsonizer.dispatcher[ta.Dict[datetime.datetime, str]]
-    j = manifests_.inject_manifest(impl, manifest)(None)
+    jsonizer_dispatcher.registry[datetime.datetime] = build_datetime_jsonizer
+
+    j = build_jsonizer(ta.Dict[datetime.datetime, str])
 
     print(j({datetime.datetime.now(): '420'}))
