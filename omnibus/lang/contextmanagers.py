@@ -1,3 +1,7 @@
+"""
+TOOD:
+ - fuse? usecase: forbid_debug + lock
+"""
 import collections.abc
 import contextlib
 import contextvars

@@ -6,6 +6,9 @@ from . import lang
 from . import properties
 
 
+lang.warn_unstable()
+
+
 V = ta.TypeVar('V')
 E = ta.TypeVar('E')
 MK = ta.TypeVar('MK')

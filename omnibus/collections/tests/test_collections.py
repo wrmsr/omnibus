@@ -1,3 +1,4 @@
+import collections.abc
 import pickle
 import random
 
@@ -121,3 +122,9 @@ def test_ordered_frozen_set():
     OSF = ordered_.OrderedFrozenSet
     s0 = OSF(range(3))
     assert list(s0) == [0, 1, 2]
+
+
+def test_frozen_list():
+    lst = frozen_.FrozenList([1, 2, 3])
+    assert isinstance(lst, collections.abc.Sequence)
+    assert lst + [4, 5] == [1, 2, 3, 4, 5]

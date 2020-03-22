@@ -8,6 +8,8 @@ TODO:
  - asyncio
  - firehose
  - netty-style protocol negotiation override
+ - app composition (jersey style? inject integrated?)
+  - debug app
 """
 import abc
 import contextlib

@@ -1,10 +1,11 @@
 """
 TODO:
+ - cythonize stuff
+ - Multimap - SetMultimap
  - IdentityWeakKeyDict
  - WeakDict (key and value)
   - weak.py?
  - RingBuffer
- - FrozenList (backed by tuple)
  - kvs
  - Unmodifiable - java-style proxies, not copies
   - just views?

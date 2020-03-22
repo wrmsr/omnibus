@@ -4,8 +4,9 @@ from .dicts import guarded_dict_update  # noqa
 from .dicts import multikey_dict  # noqa
 from .dicts import WrappedKeyDict  # noqa
 from .dicts import yield_dict_init  # noqa
-from .frozen import _FrozenDict  # noqa
+from .frozen import Frozen  # noqa
 from .frozen import FrozenDict  # noqa
+from .frozen import FrozenList  # noqa
 from .identity import IdentityHashableDict  # noqa
 from .identity import IdentityHashableList  # noqa
 from .identity import IdentityHashableSet  # noqa
