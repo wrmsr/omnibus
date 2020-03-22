@@ -10,6 +10,7 @@ TODO:
   - just views?
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
+ - LinkedList (fexpr stack, dom topo)
 """
 import functools
 import typing as ta
