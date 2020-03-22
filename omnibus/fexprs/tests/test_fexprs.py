@@ -106,14 +106,28 @@ def g(x):
 
 
 def test_fexprs():
+    x = 1
+    f(x and 2 and x % 2 == 0)
+
     g(1)
 
     class G:
         x = 1
         f(x + 2)
 
-    x = 3
-    f(f(x + 4) + 5)
+    a = 0
+    if a:
+        x = 3
+    else:
+        x = 4
+    b = 1
+    if b:
+        x += 1
+    else:
+        x += 2
+    for _ in range(1):
+        if b:
+            f(f(x + 4) + 5 and 6)
 
     # x = 5
     # f(x > 1 and x % 3 == 2)
