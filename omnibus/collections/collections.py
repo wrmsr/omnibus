@@ -9,6 +9,7 @@ TODO:
  - Unmodifiable - java-style proxies, not copies
   - just views?
  - boost::MultiIndex - sorted.py?
+ - Immutable + Builder (put-once) + ImmutSetMultiMap
 """
 import functools
 import typing as ta

@@ -1,9 +1,14 @@
+"""
+TODO:
+ - allow_debugger as a lock CM?
+"""
 import functools
 import typing as ta
 import weakref
 
 from . import check
 from . import lang
+from . import pydevd
 from . import registries
 
 
@@ -27,16 +32,21 @@ class CachedProperty(Property[T]):
             func: ta.Callable[[ta.Any], T],
             *,
             lock: lang.DefaultLockable = None,
+            allow_debugger: bool = False,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = check.callable(func)
         self._lock = lang.default_lock(lock, False)
+        self._allow_debugger = bool(allow_debugger)
 
     def __get__(self, obj, cls) -> T:
         if obj is None:
             return self
+
+        if not self._allow_debugger:
+            pydevd.forbid_debugger_call()
 
         with self._lock:
             try:
@@ -119,12 +129,14 @@ class CachedClassProperty(Property[T]):
             func: ta.Callable[[ta.Any], T],
             *,
             lock: lang.DefaultLockable = None,
+            allow_debugger: bool = False,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = check.callable(func)
         self._lock = lang.default_lock(lock, False)
+        self._allow_debugger = bool(allow_debugger)
 
         self._values = weakref.WeakKeyDictionary()
 
@@ -139,6 +151,9 @@ class CachedClassProperty(Property[T]):
             return self._values[cls]
         except KeyError:
             pass
+
+        if not self._allow_debugger:
+            pydevd.forbid_debugger_call()
 
         with self._lock:
             try:

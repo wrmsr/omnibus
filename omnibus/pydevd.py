@@ -10,7 +10,31 @@ from . import check
 from . import lang
 
 
-ARGS_ENV_VAR = 'PYDEVD_ARGS'
+DEBUGGER_CALL_PACKAGES = {
+    '_pydevd_bundle',
+}
+
+
+def is_debugger_call(hoist: int = 0, walk: int = 2) -> bool:
+    frame = sys._getframe(2 + hoist)
+    for _ in range(walk):
+        if frame is None:
+            break
+        package = frame.f_globals.get('__package__')
+        print(package)
+        if package in DEBUGGER_CALL_PACKAGES:
+            return True
+        frame = frame.f_back
+    return False
+
+
+class DebuggerCallForbiddenException(Exception):
+    pass
+
+
+def forbid_debugger_call(hoist: int = 0) -> None:
+    if is_debugger_call(hoist + 1):
+        raise DebuggerCallForbiddenException
 
 
 @lang.cached_nullary
@@ -34,6 +58,9 @@ def get_setup() -> ta.Optional[ta.Dict]:
 
 def is_running() -> bool:
     return get_setup() is not None
+
+
+ARGS_ENV_VAR = 'PYDEVD_ARGS'
 
 
 def get_args() -> ta.List[str]:
