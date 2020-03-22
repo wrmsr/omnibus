@@ -1,7 +1,3 @@
-"""
-TODO:
- - __await__ - SyncableCallable
-"""
 import concurrent.futures
 import contextlib
 import functools
