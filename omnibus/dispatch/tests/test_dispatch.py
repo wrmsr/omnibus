@@ -1,3 +1,4 @@
+import collections.abc
 import datetime
 import typing as ta
 
@@ -149,13 +150,13 @@ def test_jsonifier():
 
     jsonizer_dispatcher.registry[object] = build_default_jsonizer
 
-    def build_dict_jsonizer(*, manifest: manifests_.Manifest):
+    def build_mapping_jsonizer(*, manifest: manifests_.Manifest):
         k, v = manifest.spec.args
         kj = build_jsonizer(k)
         vj = build_jsonizer(v)
         return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
 
-    jsonizer_dispatcher.registry[dict] = build_dict_jsonizer
+    jsonizer_dispatcher.registry[collections.abc.Mapping] = build_mapping_jsonizer
 
     def build_datetime_jsonizer():
         return lambda dt: str(dt)
