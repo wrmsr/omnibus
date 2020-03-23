@@ -15,6 +15,7 @@ build
 dist
 omnibus.egg-info
 profiles
+target
 
 !.git/HEAD
 !.git/refs
