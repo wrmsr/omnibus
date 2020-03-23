@@ -1,6 +1,7 @@
 """
 TODO:
  - statics? once, every, and_every, ...
+ - io - FileObj protocol
 """
 import functools
 import sys
