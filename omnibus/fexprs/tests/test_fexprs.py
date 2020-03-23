@@ -19,15 +19,15 @@ def f(x):
     caller = sys._getframe(1)
     ana = analysis_.Analysis(caller)
 
-    import astpretty
-    astpretty.pprint(ana.ast)
-    print()
+    # import astpretty
+    # astpretty.pprint(ana.ast)
+    # print()
 
-    import dis
-    dis.dis(caller.f_code)
+    # import dis
+    # dis.dis(caller.f_code)
 
-    print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
-    print()
+    # print('\n'.join(f'{idx}: {repr(instr)}' for idx, instr in enumerate(ana.instrs)))
+    # print()
 
     caller_stream: types_.Stream
     [caller_stream] = ana.streams_by_src_by_dst[caller.f_lasti // 2].values()
@@ -107,7 +107,8 @@ def g(x):
 
 def test_fexprs():
     x = 1
-    f(x and 2 and x % 2 == 0 or x > 5)
+    # f(x + 2 | x % 2 == 0 & x > 5)
+    # f(x and 2 and x % 2 == 0 or x > 5)
 
     g(1)
 
@@ -127,7 +128,8 @@ def test_fexprs():
         x += 2
     for _ in range(1):
         if b:
-            f(f(x + 4) + 5 and 6)
+            # f(f(x + 4) + 5 and 6)
+            f(f(x + 4) + 5)
 
     # x = 5
     # f(x > 1 and x % 3 == 2)
