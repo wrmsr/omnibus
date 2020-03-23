@@ -22,4 +22,5 @@
 /dist/
 /MANIFEST
 /omnibus.egg-info/
-/profiles
+/profiles/
+/target/
