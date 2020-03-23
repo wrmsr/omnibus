@@ -1,6 +1,7 @@
 """
 TODO:
  - pools
+  - disco
  - engines, connsets
  - instrumentation
  - state?
