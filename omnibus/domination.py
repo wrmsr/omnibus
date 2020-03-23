@@ -72,7 +72,7 @@ class DominatorTree(ta.Generic[V, E]):
         check.not_none(self._graph.get_successors(root))
         self._dfs = _Dfs(graph, root)
 
-    @property
+    @properties.cached
     def immediate_dominators(self) -> ta.Mapping[V, V]:
         return _ImmediateDominanceComputer(self._dfs).immediate_dominators
 

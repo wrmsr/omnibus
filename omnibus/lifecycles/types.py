@@ -65,7 +65,7 @@ class CallbackLifecycle(Lifecycle, lang.Final, ta.Generic[LifecycleT]):
             start: LifecycleCallback[LifecycleT] = None,
             stop: LifecycleCallback[LifecycleT] = None,
             destroy: LifecycleCallback[LifecycleT] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self._construct = check.callable(construct) if construct is not None else None
@@ -114,7 +114,7 @@ class CallbackLifecycleListener(LifecycleListener[LifecycleT], lang.Final):
             on_started: LifecycleCallback[LifecycleT] = None,
             on_stopping: LifecycleCallback[LifecycleT] = None,
             on_stopped: LifecycleCallback[LifecycleT] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         self._on_starting = check.callable(on_starting) if on_starting is not None else None
