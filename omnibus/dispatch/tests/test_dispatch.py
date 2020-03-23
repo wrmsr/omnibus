@@ -39,7 +39,7 @@ def test_function(nolock):
     assert f('1') == 'default'
     assert f(b'1') == 'default'
 
-    @f.register(int)  # noqa
+    @f.registering(int)  # noqa
     def _(val):
         return 'int'
 
@@ -48,7 +48,7 @@ def test_function(nolock):
     assert f('1') == 'default'
     assert f(b'1') == 'default'
 
-    @f.register(str, bytes)  # noqa
+    @f.registering(str, bytes)  # noqa
     def _(val):
         return 'str/bytes'
 
@@ -62,11 +62,11 @@ def test_property():
     class A:
         fn = registry_.property_()
 
-        @fn.register(object)
+        @fn.registering(object)
         def fn_object(self, o):
             return 'object'
 
-        @fn.register(int)
+        @fn.registering(int)
         def fn_int(self, o):
             return 'int'
 
@@ -78,13 +78,13 @@ def test_property():
 
     class C(A):
 
-        @A.fn.register(str)
+        @A.fn.registering(str)
         def fn_str(self, o):
             return 'Cstr'
 
     class D(C):
 
-        @A.fn.register(str)
+        @A.fn.registering(str)
         def fn_str(self, o):
             return 'Dstr'
 

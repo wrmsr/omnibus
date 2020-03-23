@@ -62,11 +62,9 @@ class Property(properties.RegistryProperty):
             return self._dispatcher[cls]
 
     @lang.cls_dct_fn()
-    def register(self, cls_dct, *keys):
-        if len(keys) == 1 and not isinstance(keys[0], type):
-            [meth] = keys
-            if not isinstance(meth, types.FunctionType):
-                raise TypeError(meth)
+    def register(self, cls_dct, *args):
+        if len(args) == 1 and isinstance(args[0], types.FunctionType):
+            [meth] = args
 
             ann = getattr(meth, '__annotations__', {})
             if not ann:
@@ -80,11 +78,7 @@ class Property(properties.RegistryProperty):
             return meth
 
         else:
-            for key in keys:
-                if not isinstance(key, type):
-                    raise TypeError(key)
-
-        return super().register(*keys, cls_dct=cls_dct)
+            return super().register(*args, cls_dct=cls_dct)
 
 
 def property_() -> Property:  # noqa

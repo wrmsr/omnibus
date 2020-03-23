@@ -77,16 +77,16 @@ def test_registry_property():
     class C:
         vals = properties.registry()
 
-        vals.register('a')('C.a')
-        vals.register('b')('C.b')
+        vals.registering('a')('C.a')
+        vals.registering('b')('C.b')
 
     class D(C):
 
-        C.vals.register('c')('D.c')
+        C.vals.registering('c')('D.c')
 
     class E(D):
 
-        D.vals.register('a')('E.a')
+        D.vals.registering('a')('E.a')
 
     assert C().vals['a'] == 'C.a'
     assert C().vals['b'] == 'C.b'
@@ -105,23 +105,23 @@ def test_binding_registry_property():
     class C:
         fns = properties.registry(bind=True)
 
-        @fns.register('a')
+        @fns.registering('a')
         def _a(self):
             return 0
 
-        @fns.register('b')
+        @fns.registering('b')
         def _b(self):
             return 1
 
     class D(C):
 
-        @C.fns.register('c')
+        @C.fns.registering('c')
         def _c(self):
             return 2
 
     class E(D):
 
-        @D.fns.register('a')
+        @D.fns.registering('a')
         def _a4(self):
             return 4
 
@@ -142,24 +142,24 @@ def test_multi_registry_property():
     class C:
         vals = properties.multi_registry()
 
-        vals.register('a')(0)
-        vals.register('a')(1)
-        vals.register('b')(2)
+        vals.registering('a')(0)
+        vals.registering('a')(1)
+        vals.registering('b')(2)
 
     class D(C):
 
-        C.vals.register('a')(3)
-        C.vals.register('b')(4)
+        C.vals.registering('a')(3)
+        C.vals.registering('b')(4)
 
     class E(C):
 
-        C.vals.register('a')(5)
-        C.vals.register('b')(6)
+        C.vals.registering('a')(5)
+        C.vals.registering('b')(6)
 
     class F(D, E):
 
-        C.vals.register('a')(7)
-        C.vals.register('b')(8)
+        C.vals.registering('a')(7)
+        C.vals.registering('b')(8)
 
     assert C().vals['a'] == {0, 1}
     assert C().vals['b'] == {2}

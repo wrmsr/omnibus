@@ -267,6 +267,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             self._registry = owner.get_registry(cls)
 
             self.register = self._owner.register
+            self.registering = self._owner.registering
 
         @property
         def registry(self) -> registries.Registry[K, V]:
@@ -286,7 +287,10 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         def __len__(self):
             return len(self._registry)
 
-        def register(self, *keys):
+        def register(self, value, keys):
+            raise TypeError
+
+        def registering(self, *keys):
             raise TypeError
 
     def __get__(self, obj, cls=None) -> Accessor[K, V]:
@@ -319,7 +323,12 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
             key_set.update(keys)
 
     @lang.cls_dct_fn()
-    def register(self, cls_dct, *keys):
+    def register(self, cls_dct, value, keys):
+        self._register(cls_dct, value, keys)
+        return value
+
+    @lang.cls_dct_fn()
+    def registering(self, cls_dct, *keys):
         def inner(value):
             self._register(cls_dct, value, keys)
             return value

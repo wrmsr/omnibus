@@ -28,12 +28,12 @@ def function(
         lock=lock,
     )
 
-    def register(*clss, impl=None):
-        if impl is None:
-            return lambda _impl: register(*clss, impl=_impl)
-        for cls in clss:
-            dispatcher[cls] = impl
-        return impl
+    def registering(*clss):
+        def inner(impl):
+            for cls in clss:
+                dispatcher[cls] = impl
+            return impl
+        return inner
 
     def wrapper(arg, *args, **kw):
         impl, manifest = dispatcher[dispatcher.key(arg)]
@@ -48,11 +48,11 @@ def function(
         except KeyError:
             pass
 
-        wrapper.register = register
+        wrapper.registering = registering
         wrapper.dispatcher = dispatcher
         wrapper.clear_cache = dispatcher.clear
 
-        register(object, impl=func)
+        registering(object)(func)
         return wrapper
 
     return inner
