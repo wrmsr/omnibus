@@ -4,11 +4,12 @@ import random
 
 import pytest
 
-from ...tests import helpers
 from .. import frozen as frozen_
 from .. import identity as identity_
 from .. import ordered as ordered_
 from .. import sorted as sorted_
+from .. import unmodifiable as unmodifiable_
+from ...tests import helpers
 
 
 def test_frozendict():
@@ -128,3 +129,20 @@ def test_frozen_list():
     lst = frozen_.FrozenList([1, 2, 3])
     assert isinstance(lst, collections.abc.Sequence)
     assert lst + [4, 5] == [1, 2, 3, 4, 5]
+
+
+def test_unmodifiable():
+    l = unmodifiable_.UnmodifiableSequence([1, 2, 3])
+    s = unmodifiable_.UnmodifiableSet({1, 2, 3})
+    d = unmodifiable_.UnmodifiableMapping({1: 2, 3: 4})
+
+    assert l == [1, 2, 3]
+    assert s == {1, 2, 3}
+    assert d == {1: 2, 3: 4}
+
+    with pytest.raises(Exception):
+        l[0] = 1
+    with pytest.raises(Exception):
+        s.add(4)
+    with pytest.raises(Exception):
+        d[5] = 6

@@ -23,7 +23,7 @@ class Frozen:
 class FrozenDict(ta.Mapping[K, V], Frozen):
 
     def __new__(cls, *args, **kwargs) -> 'FrozenDict[K, V]':
-        if len(args) == 1 and _FrozenDict in type(args[0]).__bases__:
+        if len(args) == 1 and Frozen in type(args[0]).__bases__:
             return args[0]
         return super().__new__(cls, dict(*args, **kwargs))
 
@@ -89,8 +89,8 @@ class FrozenList(ta.Sequence[T], Frozen):
     def __len__(self) -> int:
         return len(self._tup)
 
-    def index(self, x: ta.Any, start: int = ..., end: int = ...) -> int:
-        return self._tup.index(x, start, end)
+    def index(self, x: ta.Any, *args, **kwargs) -> int:
+        return self._tup.index(x, *args, **kwargs)
 
     def count(self, x: ta.Any) -> int:
         return super().count(x)

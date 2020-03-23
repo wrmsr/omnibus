@@ -7,8 +7,6 @@ TODO:
   - weak.py?
  - RingBuffer
  - kvs
- - Unmodifiable - java-style proxies, not copies
-  - just views?
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
