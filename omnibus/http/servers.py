@@ -19,6 +19,7 @@ import socket as sock
 import threading
 import typing as ta
 
+from .. import lang
 from .. import lifecycles
 from .. import properties
 from .bind import Binder
@@ -30,6 +31,17 @@ log = logging.getLogger(__name__)
 
 Self = ta.TypeVar('Self')
 ClientAddress = ta.Tuple[str, int]
+
+
+class SelectorProtocol(lang.Protocol):
+
+    @property
+    def register(self, *args, **kwargs) -> None:
+        raise NotImplementedError
+
+    @property
+    def select(self, *args, **kwargs) -> bool:
+        raise NotImplementedError
 
 
 class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
@@ -87,10 +99,8 @@ class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
             'SCRIPT_NAME': '',
         }
 
-    def run(self, poll_interval=None) -> None:
-        if poll_interval is None:
-            poll_interval = self._poll_interval
-
+    @contextlib.contextmanager
+    def _run_context(self) -> ta.Generator[SelectorProtocol, None, None]:
         with contextlib.ExitStack() as exit_stack:
             exit_stack.enter_context(self._lock)
             exit_stack.enter_context(self._binder)
@@ -106,25 +116,44 @@ class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
                 with self.ServerSelector() as selector:
                     selector.register(self._binder.fileno(), selectors.EVENT_READ)
 
-                    while not self._should_shutdown:
-                        ready = selector.select(poll_interval)
-                        if ready:
-                            try:
-                                request, client_address = self._binder.accept()
-
-                            except OSError:
-                                self.handle_error(None, None)
-                                return
-
-                            try:
-                                self.process_request(request, client_address)
-
-                            except Exception:
-                                self.handle_error(request, client_address)
-                                self.shutdown_request(request)
+                    yield selector
 
             finally:
                 self._is_shutdown.set()
+
+    @contextlib.contextmanager
+    def running(self, poll_interval: int = None) -> ta.Generator[bool, None, None]:
+        if poll_interval is None:
+            poll_interval = self._poll_interval
+
+        with self._run_context() as selector:
+            def loop():
+                while not self._should_shutdown:
+                    ready = selector.select(poll_interval)
+
+                    if ready:
+                        try:
+                            request, client_address = self._binder.accept()
+
+                        except OSError:
+                            self.handle_error(None, None)
+                            return
+
+                        try:
+                            self.process_request(request, client_address)
+
+                        except Exception:
+                            self.handle_error(request, client_address)
+                            self.shutdown_request(request)
+
+                    yield bool(ready)
+
+            yield loop()
+
+    def run(self, poll_interval: int = None) -> None:
+        with self.running(poll_interval=poll_interval) as loop:
+            for _ in loop:
+                pass
 
     def handle_error(
             self,

@@ -1,4 +1,5 @@
 import contextlib
+import threading
 import time
 
 import requests
@@ -9,6 +10,40 @@ from .. import consts as consts_
 from .. import wsgiref as wsgiref_
 from ... import json
 from ...tests import helpers
+
+
+def test_inline_http():
+    server: wsgiref_.WsgiServer = None
+
+    def app(environ, start_response):
+        assert environ['PATH_INFO'] == '/test'
+        start_response(consts_.STATUS_OK, [])
+        server.shutdown()
+        return [b'hi']
+
+    port = 8181
+
+    def fn1():
+        time.sleep(0.5)
+        while True:
+            try:
+                response: requests.Response
+                with contextlib.closing(requests.post(f'http://localhost:{port}/test', timeout=0.1)) as response:
+                    if response.status_code == 200:
+                        return
+            except requests.RequestException:
+                pass
+            time.sleep(0.1)
+
+    thread = threading.Thread(target=fn1)
+    thread.start()
+
+    server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), app)
+    with server.running() as loop:
+        for _ in loop:
+            pass
+
+    thread.join()
 
 
 def test_http():
