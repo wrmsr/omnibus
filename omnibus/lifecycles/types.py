@@ -18,7 +18,7 @@ class LifecycleStateException(Exception):
     pass
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(frozen=True, eq=False)
 class LifecycleState(lang.Sealed):
     name: str
     phase: int

@@ -194,7 +194,7 @@ def context_manager(
     return lcm
 
 
-class ContextManagedLifecycle(AbstractLifecycle, lang.Abstract):
+class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)

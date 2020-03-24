@@ -1,6 +1,7 @@
 from .. import lang
 from .controller import LifecycleController
 from .controller import LifecycleState
+from .controller import LifecycleStates
 from .types import CallbackLifecycle
 from .types import Lifecycle
 
@@ -25,6 +26,10 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
     @property
     def lifecycle_state(self) -> LifecycleState:
         return self._lifecycle_controller.state
+
+    @property
+    def is_lifecycle_started(self) -> bool:
+        return self._lifecycle_controller.state == LifecycleStates.STARTED
 
     def lifecycle_construct(self) -> None:
         self._lifecycle_controller.lifecycle_construct()

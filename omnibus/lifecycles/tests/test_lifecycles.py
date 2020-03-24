@@ -4,6 +4,11 @@ from .. import manager as manager_
 from .. import types as types_
 
 
+def test_states():
+    assert types_.LifecycleStates.STARTED == types_.LifecycleStates.STARTED
+    assert types_.LifecycleStates.STARTED != types_.LifecycleStates.STOPPED
+
+
 def test_lifecycle():
     class L(types_.Lifecycle):
 

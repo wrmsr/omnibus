@@ -78,7 +78,7 @@ class NginxConfig(configs.Config):
     read_timeout = 5.
 
 
-class NginxProcess(lifecycles.ContextManagedLifecycle):
+class NginxProcess(lifecycles.ContextManageableLifecycle):
 
     def __init__(self, config: NginxConfig = NginxConfig()) -> None:
         super().__init__()

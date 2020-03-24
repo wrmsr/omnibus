@@ -2,7 +2,7 @@ from .. import lang
 from .abstract import AbstractLifecycle  # noqa
 from .controller import LifecycleController  # noqa
 from .manager import context_manager  # noqa
-from .manager import ContextManagedLifecycle  # noqa
+from .manager import ContextManageableLifecycle  # noqa
 from .manager import LifecycleManager  # noqa
 from .types import CallbackLifecycle  # noqa
 from .types import Lifecycle  # noqa

@@ -44,7 +44,7 @@ class SelectorProtocol(lang.Protocol):
         raise NotImplementedError
 
 
-class WsgiServer(lifecycles.ContextManagedLifecycle, abc.ABC):
+class WsgiServer(lifecycles.ContextManageableLifecycle, abc.ABC):
 
     if hasattr(selectors, 'PollSelector'):
         ServerSelector = selectors.PollSelector
