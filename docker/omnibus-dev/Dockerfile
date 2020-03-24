@@ -19,6 +19,7 @@ RUN ( \
         htop \
         jq \
         less \
+        libpq-dev \
         make \
         man \
         moreutils \
@@ -26,6 +27,7 @@ RUN ( \
         net-tools \
         netcat \
         perl \
+        postgresql-client \
         python \
         silversearcher-ag \
         socat \
