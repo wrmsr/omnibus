@@ -32,6 +32,7 @@ class DebuggerCallForbiddenException(Exception):
 
 
 def forbid_debugger_call(hoist: int = 0) -> None:
+    # FIXME: only reentrant?
     if is_debugger_call(hoist + 1):
         raise DebuggerCallForbiddenException
 

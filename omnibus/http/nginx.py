@@ -62,3 +62,55 @@ http {{
   }}
 }}
 """
+import shlex
+import subprocess
+import typing as ta
+
+from .. import lifecycles
+from .. import properties
+
+
+class NginxProcess(lifecycles.ContextManagedLifecycle):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @properties.cached
+    def nginx_exe(self) -> str:
+        return 'nginx'
+
+    @properties.cached
+    def nginx_info(self) -> str:
+        (_, stderr) = subprocess.Popen([self.nginx_exe, '-V'], stderr=subprocess.PIPE).communicate()
+        return stderr.decode('utf-8').strip()
+
+    @properties.cached
+    def nginx_version_str(self) -> ta.Optional[str]:
+        for line in self.nginx_info.split('\n'):
+            if line.startswith('nginx version: '):
+                ver = line.partition(': ')[2]
+                if ver.startswith('nginx/'):
+                    ver = ver.partition('/')[2]
+                return ver
+        return None
+
+    @properties.cached
+    def nginx_version(self) -> ta.Optional[ta.Sequence[int]]:
+        if self.nginx_version_str is not None:
+            return tuple(map(int, self.nginx_version_str.split('.')))
+        else:
+            return None
+
+    @properties.cached
+    def nginx_cfg_args(self) -> ta.Optional[ta.List[str]]:
+        for line in self.nginx_info.split('\n'):
+            if line.startswith('configure arguments: '):
+                cfg_line = line.partition(': ')[2]
+                return shlex.split(cfg_line)
+        return None
+
+    def _do_lifecycle_start(self) -> None:
+        super()._do_lifecycle_start()
+
+    def _do_lifecycle_stop(self) -> None:
+        super()._do_lifecycle_stop()
