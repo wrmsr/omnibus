@@ -1,11 +1,31 @@
 import contextlib
 import io
 import re
+import sys
 import tarfile
 import time
 import typing as ta
 
 import pkg_resources
+
+from . import lang
+
+
+LINUX_PLATFORMS = ('linux', 'linux2')
+
+
+@lang.cached_nullary
+def is_in_docker() -> bool:
+    if sys.platform not in LINUX_PLATFORMS:
+        return False
+    try:
+        with open('/proc/1/cgroup', 'r') as f:
+            buf = f.read()
+    except OSError:
+        return False
+    tups = [line.strip().split(':') for line in buf.strip().splitlines()]
+    dct = {tup[1]: tup for tup in tups}
+    return all(k in dct and dct[k][2].startswith('/docker/') for k in {'cpu', 'memory'})
 
 
 def get_client(**kwargs):
