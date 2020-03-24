@@ -68,10 +68,16 @@ define setup-venv
 					PYENV_CFLAGS="-I$$(brew --prefix "$$DEP")/include $$PYENV_CFLAGS" ; \
 					PYENV_LDFLAGS="-L$$(brew --prefix "$$DEP")/lib $$PYENV_LDFLAGS" ; \
 				done ; \
+				PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
+				if brew --prefix tcl-tk ; do \
+					TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
+					TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
+					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include' --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
+				done ; \
 				CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
-				PYTHON_CONFIGURE_OPTS="--enable-framework" \
+				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS" \
 				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
 			else \
 				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
