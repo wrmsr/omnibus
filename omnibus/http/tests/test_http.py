@@ -38,10 +38,10 @@ def test_inline_http():
     thread = threading.Thread(target=fn1)
     thread.start()
 
-    server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), app)
-    with server.loop_context() as loop:
-        for _ in loop:
-            pass
+    with wsgiref_.ThreadSpawningWsgiRefServer(bind_.TCPBinder('0.0.0.0', port), app) as server:
+        with server.loop_context() as loop:
+            for _ in loop:
+                pass
 
     thread.join()
 

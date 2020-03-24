@@ -192,3 +192,24 @@ def context_manager(
     for lc in lifecycles:
         lcm.add(lc)
     return lcm
+
+
+class ContextManagedLifecycle(AbstractLifecycle):
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self._lifecycle_context_manager = LifecycleContextManager()
+        self._lifecycle_context_manager.add(self)
+
+    def __enter__(self: lang.Self) -> lang.Self:
+        self._lifecycle_context_manager.__enter__()
+        return self
+
+    def __exit__(
+            self,
+            exc_type: ta.Optional[ta.Type[Exception]],
+            exc_val: ta.Optional[Exception],
+            exc_tb: ta.Optional[types.TracebackType]
+    ) -> ta.Optional[bool]:
+        return self._lifecycle_context_manager.__exit__(exc_type, exc_val, exc_tb)
