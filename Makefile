@@ -236,6 +236,14 @@ deptree: test-install
 
 ### Docker
 
+.PHONY: docker-reup
+docker-reup:
+	(cd docker && make reup)
+
+.PHONY: docker-invalidate
+docker-invalidate:
+	date +%s > .dockertimestamp
+
 .PHONY: docker-venv
 docker-venv:
 	./docker-dev make _docker-venv
@@ -259,7 +267,3 @@ test-docker: docker-venv
 .PHONY: test-docker-37
 test-docker-37: docker-venv-37
 	./docker-dev .venv-docker-37/bin/pytest -v omnibus
-
-.PHONY: docker-invalidate
-docker-invalidate:
-	date +%s > .dockertimestamp
