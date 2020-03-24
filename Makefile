@@ -54,6 +54,7 @@ define setup-venv
 		\
 		if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
 			virtualenv $(1) ; \
+		\
 		else \
 			PYENV_INSTALL_DIR="$(2)" ; \
 			PYENV_INSTALL_FLAGS="-s -v"; \
@@ -61,6 +62,7 @@ define setup-venv
 				PYENV_INSTALL_DIR="$$PYENV_INSTALL_DIR"-debug ; \
 				PYENV_INSTALL_FLAGS="$$PYENV_INSTALL_FLAGS -g" ; \
 			fi ; \
+			\
 			if [ "$$(uname)" = "Darwin" ] && command -v brew ; then \
 				PYENV_CFLAGS="" ; \
 				PYENV_LDFLAGS="" ; \
@@ -69,6 +71,7 @@ define setup-venv
 					PYENV_CFLAGS="-I$$DEP_PREFIX/include $$PYENV_CFLAGS" ; \
 					PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
 				done ; \
+				\
 				PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
 				if brew --prefix tcl-tk ; then \
 					TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
@@ -76,14 +79,18 @@ define setup-venv
 					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include'" ; \
 					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
 				fi ; \
+				\
 				CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
 				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS" \
 				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
+			\
 			else \
 				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
+			\
 			fi ; \
+			\
 			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
 		fi ; \
 		\
