@@ -1,3 +1,4 @@
+import io
 import pickle as pickle_
 import struct as struct_
 import typing as ta
@@ -77,3 +78,26 @@ class YamlCodec(Codec[F, str], lang.Final):
 
 
 yaml = YamlCodec
+
+
+@EXTENSION_REGISTRY.registering('cbor')
+@MIME_TYPE_REGISTRY.registering('application/cbor')
+class CborCodec(Codec[F, bytes], lang.Final):
+    _MODULE = lang.lazy_import('cbor')
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    defs.repr()
+
+    def encode(self, o: F) -> bytes:
+        buf = io.BytesIO()
+        self._MODULE().dump(o, buf)
+        buf.seek(0)
+        return buf.read()
+
+    def decode(self, o: bytes) -> F:
+        return self._MODULE().load(io.BytesIO(o))
+
+
+cbor = CborCodec

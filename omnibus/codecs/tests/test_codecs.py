@@ -30,6 +30,13 @@ def test_yaml():
     assert c.decode(c.encode(dct)) == dct
 
 
+def test_cbor():
+    c = objects_.cbor()
+    dct = {1: 2}
+    assert isinstance(c.encode(dct), bytes)
+    assert c.decode(c.encode(dct)) == dct
+
+
 def test_gzip():
     c = compression_.gzip()
     assert c.decode(c.encode(b'123')) == b'123'

@@ -7,6 +7,8 @@ from .compression import lzma  # noqa
 from .compression import LzmaCodec  # noqa
 from .misc import lines  # noqa
 from .misc import LinesCodec  # noqa
+from .objects import cbor  # noqa
+from .objects import CborCodec  # noqa
 from .objects import pickle  # noqa
 from .objects import PickleCodec  # noqa
 from .objects import struct  # noqa
