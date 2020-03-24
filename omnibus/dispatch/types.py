@@ -80,6 +80,9 @@ class Dispatcher(lang.Abstract, ta.Generic[Impl]):
     def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
         raise NotImplementedError
 
+    def registering(self, *ks: TypeOrSpec) -> 'ta.Callable[[Impl], Impl]':
+        return self.registry.registering(*ks)
+
     @abc.abstractmethod
     def __setitem__(self, cls: TypeOrSpec, impl: Impl) -> None:
         raise NotImplementedError

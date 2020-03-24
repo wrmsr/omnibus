@@ -1,13 +1,9 @@
-import collections.abc
-import datetime
 import typing as ta
 
 import pytest
 
-from .. import caching as caching_
 from .. import erasing as erasing_
 from .. import functions as functions_
-from .. import manifests as manifests_
 from .. import registry as registry_
 from .. import types as types_
 
@@ -136,33 +132,3 @@ def test_class():
 
     assert B().fn(0) == 'int'
     assert B().fn('') == 'str'
-
-
-def test_jsonifier():
-    jsonizer_dispatcher = caching_.CachingDispatcher(erasing_.ErasingDispatcher())
-
-    def build_jsonizer(cls):
-        impl, manifest = jsonizer_dispatcher[cls]
-        return manifests_.inject_manifest(impl, manifest)()
-
-    def build_default_jsonizer():
-        return lambda v: v
-
-    jsonizer_dispatcher.registry[object] = build_default_jsonizer
-
-    def build_mapping_jsonizer(*, manifest: manifests_.Manifest):
-        k, v = manifest.spec.args
-        kj = build_jsonizer(k)
-        vj = build_jsonizer(v)
-        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
-
-    jsonizer_dispatcher.registry[collections.abc.Mapping] = build_mapping_jsonizer
-
-    def build_datetime_jsonizer():
-        return lambda dt: str(dt)
-
-    jsonizer_dispatcher.registry[datetime.datetime] = build_datetime_jsonizer
-
-    j = build_jsonizer(ta.Dict[datetime.datetime, str])
-
-    print(j({datetime.datetime.now(): '420'}))
