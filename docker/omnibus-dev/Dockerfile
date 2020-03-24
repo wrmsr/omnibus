@@ -13,6 +13,7 @@ RUN ( \
         build-essential \
         curl \
         dnsutils \
+        dumb-init \
         gcc \
         gdb \
         git \
@@ -128,4 +129,6 @@ RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 WORKDIR /omnibus
 
-CMD ["python", "-c", "import signal, subprocess, sys, os; [signal.signal(s, lambda *_: sys.exit(0)) for s in [signal.SIGTERM, signal.SIGINT]]; subprocess.Popen(['sh', '-c', 'sleep infinity']); os.wait()"]
+ENTRYPOINT ["dumb-init", "--"]
+
+CMD ["sleep", "infinity"]
