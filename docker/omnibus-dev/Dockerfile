@@ -27,6 +27,7 @@ RUN ( \
         ncdu \
         net-tools \
         netcat \
+        nginx \
         perl \
         postgresql-client \
         python \

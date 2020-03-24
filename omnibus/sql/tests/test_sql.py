@@ -18,12 +18,16 @@ def test_pymysql():
 
 @pytest.mark.xfail()
 def test_docker_mysql():
-    with docker.client_context() as client:
-        eps = docker.get_container_tcp_endpoints(
-            client,
-            [('docker_omnibus-mysql-master_1', 3306)])
+    if docker.is_in_docker():
+        (host, port) = 'omnibus-mysql-master', 3306
 
-    [(host, port)] = eps.values()
+    else:
+        with docker.client_context() as client:
+            eps = docker.get_container_tcp_endpoints(
+                client,
+                [('docker_omnibus-mysql-master_1', 3306)])
+
+        [(host, port)] = eps.values()
 
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'mysql+mysqlconnector://omnibus:omnibus@{host}:{port}')) as engine:
@@ -33,12 +37,16 @@ def test_docker_mysql():
 
 @pytest.mark.xfail()
 def test_docker_postgres():
-    with docker.client_context() as client:
-        eps = docker.get_container_tcp_endpoints(
-            client,
-            [('docker_omnibus-postgres-master_1', 5432)])
+    if docker.is_in_docker():
+        (host, port) = 'omnibus-postgres-master', 5432
 
-    [(host, port)] = eps.values()
+    else:
+        with docker.client_context() as client:
+            eps = docker.get_container_tcp_endpoints(
+                client,
+                [('docker_omnibus-postgres-master_1', 5432)])
+
+        [(host, port)] = eps.values()
 
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'postgresql+psycopg2://omnibus:omnibus@{host}:{port}')) as engine:
