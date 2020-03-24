@@ -112,5 +112,6 @@ def test_json_http():
 @pytest.mark.xfail()
 def test_nginx():
     with nginx_.NginxProcess() as proc:
+        print(proc._config.connect_timeout)
         print(proc.nginx_version)
         print(proc.nginx_cfg_args)

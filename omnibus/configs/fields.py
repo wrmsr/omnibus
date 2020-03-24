@@ -4,13 +4,10 @@ import typing as ta
 from .. import check
 from .. import defs
 from .. import lang
+from .types import NOT_SET
 
 
 T = ta.TypeVar('T')
-
-
-class NOT_SET(lang.Marker):
-    pass
 
 
 class FieldMetadata(lang.Final, ta.Generic[T]):
@@ -75,6 +72,12 @@ class FieldSource(lang.Abstract):
     @abc.abstractmethod
     def get(self, field: FieldMetadata) -> ta.Any:
         raise NotImplementedError
+
+
+class EmptyFieldSource(FieldSource):
+
+    def get(self, field: FieldMetadata) -> ta.Any:
+        return NOT_SET
 
 
 class CompositeFieldSource(FieldSource):

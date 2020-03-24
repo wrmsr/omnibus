@@ -66,14 +66,24 @@ import shlex
 import subprocess
 import typing as ta
 
+from .. import configs
 from .. import lifecycles
 from .. import properties
 
 
+class NginxConfig(configs.Config):
+
+    connect_timeout = 75.
+    send_timeout = 15.
+    read_timeout = 5.
+
+
 class NginxProcess(lifecycles.ContextManagedLifecycle):
 
-    def __init__(self) -> None:
+    def __init__(self, config: NginxConfig = NginxConfig()) -> None:
         super().__init__()
+
+        self._config = config
 
     @properties.cached
     def nginx_exe(self) -> str:

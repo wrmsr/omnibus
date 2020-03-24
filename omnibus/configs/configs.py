@@ -15,9 +15,11 @@ from .. import defs
 from .. import lang
 from .. import properties
 from .fields import DictFieldSource
+from .fields import EmptyFieldSource
 from .fields import FieldKwargs
 from .fields import FieldMetadata
 from .fields import FieldSource
+from .types import NOT_SET
 
 
 ConfigT = ta.TypeVar('ConfigT', bound='Config')
@@ -26,10 +28,6 @@ ConfigT = ta.TypeVar('ConfigT', bound='Config')
 IGNORED_NAMESPACE_KEYS: ta.Set[str] = {
     '_abc_impl',
 }
-
-
-class NOT_SET(lang.Marker):
-    pass
 
 
 class ConfigMetadata(lang.Final):
@@ -85,6 +83,8 @@ class _FieldDescriptor:
             return instance._values_by_field[self._metadata]
         except KeyError:
             value = instance._field_source.get(self._metadata)
+            if value is NOT_SET:
+                value = self._metadata.default
             if value is NOT_SET:
                 raise KeyError(self._metadata)
             instance._values_by_field[self._metadata] = value
@@ -194,17 +194,17 @@ class _ConfigMeta(abc.ABCMeta):
 
 class Config(metaclass=_ConfigMeta):
 
-    def __init__(self, field_source: FieldSource) -> None:
+    def __init__(self, field_source: FieldSource = EmptyFieldSource()) -> None:
         super().__init__()
 
         self._field_source = check.isinstance(field_source, FieldSource)
 
         self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
 
-    def __new__(cls, field_source, *args, **kwargs):
+    def __new__(cls, field_source: FieldSource = EmptyFieldSource(), **kwargs):
         if cls is Config:
             raise TypeError
-        return super().__new__(cls, *args, **kwargs)
+        return super().__new__(cls, **kwargs)
 
     @classmethod
     def of(cls: ta.Type[ConfigT], **kwargs) -> ConfigT:

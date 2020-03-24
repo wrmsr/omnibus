@@ -2,15 +2,12 @@ import typing as ta
 
 from .. import check
 from .. import lang
+from .types import NOT_SET
 
 
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 StrMap = ta.Mapping[str, ta.Any]
-
-
-class NOT_SET(lang.Marker):
-    pass
 
 
 class Flattening:
