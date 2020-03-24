@@ -1,7 +1,3 @@
-"""
-TODO:
- - streaming
-"""
 import abc
 import codecs
 import contextlib
@@ -12,35 +8,17 @@ import pickle as pickle_
 import struct as struct_
 import typing as ta
 
-from . import check
-from . import defs
-from . import lang
-from . import registries
-
-
-lang.warn_unstable()
+from .. import check
+from .. import defs
+from .. import lang
+from .. import registries
+from .types import Codec
+from .types import Encoder
+from .types import Decoder
 
 
 F = ta.TypeVar('F')
 T = ta.TypeVar('T')
-
-
-class Encoder(ta.Generic[F, T]):
-
-    @abc.abstractmethod
-    def encode(self, obj: F) -> T:
-        raise NotImplementedError
-
-
-class Decoder(ta.Generic[F, T]):
-
-    @abc.abstractmethod
-    def decode(self, obj: T) -> F:
-        raise NotImplementedError
-
-
-class Codec(Encoder[F, T], Decoder[F, T]):
-    pass
 
 
 class Nop(Codec, lang.Final):
@@ -305,194 +283,3 @@ class WrappedCodec(Codec[ta.Optional[F], ta.Optional[T]], lang.Final):
 
 
 wrapped = WrappedCodec
-
-
-CodecT = ta.TypeVar('CodecT', bound=Codec)
-CodecOrCodecType = ta.Union[Codec, ta.Type[CodecT]]
-
-
-def _registry_validator(dct):
-    for k, v in dct.items():
-        check.not_empty(k)
-        if not (isinstance(v, Codec) or (isinstance(v, type) and issubclass(v, Codec))):
-            raise TypeError(v)
-
-
-EXTENSION_REGISTRY: registries.Registry[str, ta.Type[CodecOrCodecType]] = registries.DictRegistry(validator=_registry_validator)  # noqa
-MIME_TYPE_REGISTRY: registries.Registry[str, ta.Type[CodecOrCodecType]] = registries.DictRegistry(validator=_registry_validator)  # noqa
-
-
-def for_file_name(file_name):
-    return for_extension(os.path.basename(file_name).partition('.')[2])
-
-
-def for_extension(ext):
-    ext, _, rest = ext.partition('.')
-    obj = EXTENSION_REGISTRY[ext]
-    if isinstance(obj, type):
-        if not issubclass(obj, Codec):
-            raise TypeError(obj)
-        obj = obj()
-    else:
-        if not isinstance(obj, Codec):
-            raise TypeError(obj)
-    if rest:
-        return composite(obj, for_extension(rest))
-    else:
-        return obj
-
-
-@EXTENSION_REGISTRY.registering('lines')
-class LinesCodec(Codec[ta.Iterable[str], str]):
-
-    defs.repr()
-
-    def encode(self, o: ta.Iterable[str]) -> str:
-        return '\n'.join(o)
-
-    def decode(self, o: str) -> ta.Iterable[str]:
-        return o.split('\n')
-
-
-lines = LinesCodec
-
-
-@EXTENSION_REGISTRY.registering('pickle')
-@MIME_TYPE_REGISTRY.registering('application/python-pickle')
-class PickleCodec(Codec[F, bytes], lang.Final):
-
-    def __init__(self, protocol=None, *, fix_imports=True) -> None:
-        super().__init__()
-
-        self._protocol = protocol
-        self._fix_imports = fix_imports
-
-    defs.repr()
-
-    def encode(self, o: F) -> bytes:
-        return pickle_.dumps(o, self._protocol, fix_imports=self._fix_imports)
-
-    def decode(self, o: bytes) -> F:
-        return pickle_.loads(o)
-
-
-pickle = PickleCodec
-
-
-yaml_ = lang.lazy_import('yaml')
-
-
-@EXTENSION_REGISTRY.registering('yaml', 'yml')
-@MIME_TYPE_REGISTRY.registering('application/x-yaml', 'text/yaml')
-class YamlCodec(Codec[F, str], lang.Final):
-
-    def __init__(self) -> None:
-        super().__init__()
-
-    defs.repr()
-
-    def encode(self, o: F) -> str:
-        return yaml_().dump(o)
-
-    def decode(self, o: str) -> F:
-        return yaml_().load(o)
-
-
-yaml = YamlCodec
-
-
-@EXTENSION_REGISTRY.registering('gz', 'gzip')
-class GzipCodec(Codec[F, bytes], lang.Final):
-
-    def __init__(self, compresslevel=9) -> None:
-        super().__init__()
-
-        self._compresslevel = compresslevel
-
-    defs.repr()
-
-    def encode(self, o: F) -> bytes:
-        buf = io.BytesIO()
-        with contextlib.closing(
-                gzip_.GzipFile(fileobj=buf, mode='wb', compresslevel=self._compresslevel)) as f:
-            f.write(o)
-        return buf.getvalue()
-
-    def decode(self, o: bytes) -> F:
-        buf = io.BytesIO(o)
-        with contextlib.closing(gzip_.GzipFile(fileobj=buf, mode='rb')) as f:
-            return f.read()
-
-
-gzip = GzipCodec
-
-
-bz2_ = lang.lazy_import('bz2')
-
-
-@EXTENSION_REGISTRY.registering('bz2')
-class Bz2Codec(Codec[F, bytes], lang.Final):
-
-    def __init__(self, compresslevel=9) -> None:
-        super().__init__()
-
-        self._compresslevel = compresslevel
-
-    defs.repr()
-
-    def encode(self, o: F) -> bytes:
-        buf = io.BytesIO()
-        with contextlib.closing(
-                bz2_().BZ2File(buf, mode='wb', compresslevel=self._compresslevel)) as f:
-            f.write(o)
-        return buf.getvalue()
-
-    def decode(self, o: bytes) -> F:
-        buf = io.BytesIO(o)
-        with contextlib.closing(bz2_().BZ2File(buf, mode='rb')) as f:
-            return f.read()
-
-
-bz2 = Bz2Codec
-
-
-lzma_ = lang.lazy_import('lzma')
-
-
-@EXTENSION_REGISTRY.registering('lzma', 'xz')
-class LzmaCodec(Codec[F, bytes], lang.Final):
-
-    defs.repr()
-
-    def encode(self, o: F) -> bytes:
-        buf = io.BytesIO()
-        with contextlib.closing(lzma_().LZMAFile(buf, mode='wb')) as f:
-            f.write(o)
-        return buf.getvalue()
-
-    def decode(self, o: bytes) -> F:
-        buf = io.BytesIO(o)
-        with contextlib.closing(lzma_().LZMAFile(buf, mode='rb')) as f:
-            return f.read()
-
-
-lzma = LzmaCodec
-
-
-class StructCodec(Codec[F, bytes], lang.Final):
-
-    def __init__(self, fmt: str) -> None:
-        super().__init__()
-
-        self._fmt = fmt
-
-    defs.repr()
-
-    def encode(self, o: F) -> bytes:
-        return struct_.pack(self._fmt, *o)
-
-    def decode(self, o: bytes) -> F:
-        return struct_.unpack(self._fmt, o)
-
-
-struct = StructCodec
