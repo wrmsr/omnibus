@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+# FIXME: detect docker, .venv-docker
+
 VENV_PYTHON_PATH="${BASH_SOURCE%/*}/.venv/bin/python"
 if [ -f "$VENV_PYTHON_PATH" ] ; then
     PYTHON="$VENV_PYTHON_PATH"
