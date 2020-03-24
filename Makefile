@@ -154,13 +154,13 @@ typecheck: venv
 test: build
 	.venv/bin/pytest -v omnibus
 
-.PHONY: test-verbose
-test-verbose: build
-	.venv/bin/pytest -svvv omnibus
-
 .PHONY: test-37
 test-37: venv-37
 	.venv-37/bin/pytest -v omnibus
+
+.PHONY: test-verbose
+test-verbose: build
+	.venv/bin/pytest -svvv omnibus
 
 
 ### Dist
