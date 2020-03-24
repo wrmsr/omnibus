@@ -1,17 +1,10 @@
 import abc
 import codecs
-import contextlib
-import gzip as gzip_
-import io
-import os
-import pickle as pickle_
-import struct as struct_
 import typing as ta
 
 from .. import check
 from .. import defs
 from .. import lang
-from .. import registries
 from .types import Codec
 from .types import Encoder
 from .types import Decoder

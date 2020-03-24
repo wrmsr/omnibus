@@ -7,6 +7,7 @@ import warnings
 
 import pkg_resources
 
+from .classes import staticfunction
 from .lang import cached_nullary
 
 
@@ -19,7 +20,7 @@ def warn_unstable():
 
 
 def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
-    return cached_nullary(functools.partial(importlib.import_module, name, package=package))
+    return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))
 
 
 def import_module(dotted_path: str) -> types.ModuleType:

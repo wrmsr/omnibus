@@ -72,7 +72,8 @@ class YamlCodec(Codec[F, str], lang.Final):
         return self._MODULE().dump(o)
 
     def decode(self, o: str) -> F:
-        return self._MODULE().load(o)
+        mod = self._MODULE()
+        return mod.load(o, Loader=mod.FullLoader)
 
 
 yaml = YamlCodec
