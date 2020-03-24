@@ -100,7 +100,7 @@ class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
         }
 
     @contextlib.contextmanager
-    def _run_context(self) -> ta.Generator[SelectorProtocol, None, None]:
+    def _listen_context(self) -> ta.Generator[SelectorProtocol, None, None]:
         with contextlib.ExitStack() as exit_stack:
             exit_stack.enter_context(self._lock)
             exit_stack.enter_context(self._binder)
@@ -122,11 +122,11 @@ class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
                 self._is_shutdown.set()
 
     @contextlib.contextmanager
-    def running(self, poll_interval: int = None) -> ta.Generator[bool, None, None]:
+    def loop_context(self, poll_interval: int = None) -> ta.Generator[bool, None, None]:
         if poll_interval is None:
             poll_interval = self._poll_interval
 
-        with self._run_context() as selector:
+        with self._listen_context() as selector:
             def loop():
                 while not self._should_shutdown:
                     ready = selector.select(poll_interval)
@@ -151,7 +151,7 @@ class WsgiServer(lifecycles.AbstractLifecycle, abc.ABC):
             yield loop()
 
     def run(self, poll_interval: int = None) -> None:
-        with self.running(poll_interval=poll_interval) as loop:
+        with self.loop_context(poll_interval=poll_interval) as loop:
             for _ in loop:
                 pass
 
