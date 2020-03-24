@@ -15,7 +15,7 @@ PYENV_BREW_DEPS:= \
 	zlib \
 
 
-### Aggregates
+# Aggregates
 
 all: build flake test test-37
 
@@ -24,7 +24,7 @@ venv-all: venv venv-37 docker-venv docker-venv-37
 test-all: venv-all test test-37 docker-test docker-test-37
 
 
-### Clean
+# Clean
 
 .PHONY: clean
 clean:
@@ -33,6 +33,8 @@ clean:
 	-rm -rf .pytest_cache
 	-rm -rf .venv
 	-rm -rf .venv-37
+	-rm -rf .venv-docker
+	-rm -rf .venv-docker-37
 	-rm -rf .venv-install
 	-rm -rf .venv-pypi
 	-rm -rf build
@@ -55,7 +57,7 @@ clean:
 	fi
 
 
-### Venv
+# Venvs
 
 .PHONY: brew
 brew:
@@ -127,7 +129,7 @@ venv-37:
 	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
 
 
-### Build
+# Build
 
 .PHONY: ext
 ext: venv
@@ -137,7 +139,7 @@ ext: venv
 build: ext
 
 
-### Check
+# Check
 
 .PHONY: flake
 flake: venv
@@ -148,7 +150,7 @@ typecheck: venv
 	.venv/bin/mypy --ignore-missing-imports omnibus | awk '{c+=1;print $$0}END{print c}'
 
 
-### Test
+# Test
 
 .PHONY: test
 test: build
@@ -163,7 +165,7 @@ test-verbose: build
 	.venv/bin/pytest -svvv omnibus
 
 
-### Dist
+# Dist
 
 .PHONY: dist
 dist: build flake test
@@ -228,7 +230,7 @@ test-pypi:
 	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
 
 
-### Deps
+# Deps
 
 .PHONY: depupdates
 depupdates: venv
@@ -241,7 +243,7 @@ deptree: test-install
 	.venv-install/bin/pipdeptree
 
 
-### Docker
+# Docker
 
 .PHONY: docker-reup
 docker-reup:
