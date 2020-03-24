@@ -3,8 +3,9 @@ TODO:
  - orjson
  - dumb coercers
   - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
- - combo Ser+De - codecify?
-  - json/__init__.py, base.py(?), serdes.py..
+ - combo Serde - codecify?
+  - dedupe symmetric generic Serde sides?
+ - json/__init__.py, base.py(?), serdes.py..
 
 https://github.com/ijl/orjson
 
@@ -20,6 +21,7 @@ import collections.abc
 import datetime
 import typing as ta
 
+from . import check
 from . import codecs
 from . import defs
 from . import dispatch
@@ -39,6 +41,9 @@ lang.warn_unstable()
 
 F = ta.TypeVar('F')
 T = ta.TypeVar('T')
+
+K = ta.TypeVar('K')
+V = ta.TypeVar('V')
 
 
 dumps = json_.dumps
@@ -100,6 +105,47 @@ def default_deserialization():
     return lambda value: value
 
 
+class Serde(ta.Generic[F, T], lang.Abstract):
+
+    def __init__(self, *, manifest: dispatch.Manifest) -> None:
+        super().__init__()
+
+        self._manifest = check.isinstance(manifest, dispatch.Manifest) if manifest is not None else None
+
+    @property
+    def manifest(self) -> ta.Optional[dispatch.Manifest]:
+        return self._manifest
+
+    def serialization(self) -> Serializer[F, T]:
+        return self.serialize
+
+    def deserialization(self) -> Deserializer[T, F]:
+        return self.deserialize
+
+    def serialize(self, value: F) -> T:
+        raise TypeError
+
+    def deserialize(self, value: T) -> F:
+        raise TypeError
+
+
+def registering_serde(*keys):
+    def inner(cls):
+        check.issubclass(cls, Serde)
+
+        @SERIALIZATION_DISPATCHER.registering(*keys)
+        def serialization(*, manifest: dispatch.Manifest):
+            return cls(manifest=manifest).serialization()
+
+        @DESERIALIZATION_DISPATCHER.registering(*keys)
+        def deserialization(*, manifest: dispatch.Manifest):
+            return cls(manifest=manifest).deserialization()
+
+        return cls
+
+    return inner
+
+
 DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S.%f'
 DATETIME_FORMAT_SEPARATOR = 'T'
@@ -109,61 +155,61 @@ DATETIME_FORMAT = DATETIME_FORMAT_SEPARATOR.join([
 ])
 
 
-@SERIALIZATION_DISPATCHER.registering(datetime.date)
-def date_serialization():
-    return lambda value: value.strftime(DATE_FORMAT)
+@registering_serde(datetime.date)
+class DateSerde(Serde[datetime.date, str]):
+
+    def serialize(self, value: datetime.date) -> str:
+        return value.strftime(DATE_FORMAT)
+
+    def deserialize(self, value: str) -> datetime.date:
+        return datetime.datetime.strptime(value, DATE_FORMAT).date()
 
 
-@DESERIALIZATION_DISPATCHER.registering(datetime.date)
-def date_deserialization():
-    return lambda value: datetime.datetime.strptime(value, DATE_FORMAT).date()
+@registering_serde(datetime.time)
+class TimeSerde(Serde[datetime.time, str]):
+
+    def serialize(self, value: datetime.time) -> str:
+        return value.strftime(TIME_FORMAT)
+
+    def deserialize(self, value: str) -> datetime.time:
+        return datetime.datetime.strptime(value, TIME_FORMAT).time()
 
 
-@SERIALIZATION_DISPATCHER.registering(datetime.time)
-def time_serialization():
-    return lambda value: value.strftime(TIME_FORMAT)
+@registering_serde(datetime.datetime)
+class DatetimeSerde(Serde[datetime.datetime, str]):
+
+    def serialize(self, value: datetime.datetime) -> str:
+        return value.strftime(DATETIME_FORMAT)
+
+    def deserialize(self, value: str) -> datetime.datetime:
+        return datetime.datetime.strptime(value, DATETIME_FORMAT)
 
 
-@DESERIALIZATION_DISPATCHER.registering(datetime.time)
-def time_deserialization():
-    return lambda value: datetime.datetime.strptime(value, TIME_FORMAT).time()
+@registering_serde(collections.abc.Mapping)
+class MappingSerde(Serde[ta.Mapping[K, V], ta.Mapping]):
+
+    def serialization(self) -> Serializer[ta.Mapping[K, V], ta.Mapping]:
+        k, v = self.manifest.spec.args
+        kj = build_serializer(k)
+        vj = build_serializer(v)
+        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
+
+    def deserialization(self) -> Deserializer[ta.Mapping, ta.Mapping[K, V]]:
+        k, v = self.manifest.spec.args
+        kj = build_deserializer(k)
+        vj = build_deserializer(v)
+        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
 
 
-@SERIALIZATION_DISPATCHER.registering(datetime.datetime)
-def datetime_serialization():
-    return lambda value: value.strftime(DATETIME_FORMAT)
+@registering_serde(collections.abc.Set)
+class SetSerde(Serde[ta.AbstractSet[V], ta.Sequence]):
 
+    def serialization(self) -> Serializer[ta.AbstractSet[V], ta.Sequence]:
+        [v] = self.manifest.spec.args
+        vj = build_serializer(v)
+        return lambda vs: [vj(v) for v in vs]
 
-@DESERIALIZATION_DISPATCHER.registering(datetime.datetime)
-def datetime_deserialization():
-    return lambda value: datetime.datetime.strptime(value, DATETIME_FORMAT)
-
-
-@SERIALIZATION_DISPATCHER.registering(collections.abc.Set)
-def set_serialization(*, manifest: dispatch.Manifest):
-    [t] = manifest.spec.args
-    tj = build_serializer(t)
-    return lambda st: {tj(t) for t in st}
-
-
-@DESERIALIZATION_DISPATCHER.registering(collections.abc.Set)
-def set_deserialization(*, manifest: dispatch.Manifest):
-    [t] = manifest.spec.args
-    tj = build_deserializer(t)
-    return lambda st: {tj(t) for t in st}
-
-
-@SERIALIZATION_DISPATCHER.registering(collections.abc.Mapping)
-def mapping_serialization(*, manifest: dispatch.Manifest):
-    k, v = manifest.spec.args
-    kj = build_serializer(k)
-    vj = build_serializer(v)
-    return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
-
-
-@DESERIALIZATION_DISPATCHER.registering(collections.abc.Mapping)
-def mapping_deserialization(*, manifest: dispatch.Manifest):
-    k, v = manifest.spec.args
-    kj = build_deserializer(k)
-    vj = build_deserializer(v)
-    return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
+    def deserialization(self) -> Deserializer[ta.Sequence, ta.AbstractSet[V]]:
+        [v] = self.manifest.spec.args
+        vj = build_deserializer(v)
+        return lambda vs: {vj(v) for v in vs}
