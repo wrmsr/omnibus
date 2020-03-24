@@ -379,6 +379,28 @@ class PickleCodec(Codec[F, bytes], lang.Final):
 pickle = PickleCodec
 
 
+yaml_ = lang.lazy_import('yaml')
+
+
+@EXTENSION_REGISTRY.registering('yaml', 'yml')
+@MIME_TYPE_REGISTRY.registering('application/x-yaml', 'text/yaml')
+class YamlCodec(Codec[F, str], lang.Final):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    defs.repr()
+
+    def encode(self, o: F) -> str:
+        return yaml_().dump(o)
+
+    def decode(self, o: str) -> F:
+        return yaml_().load(o)
+
+
+yaml = YamlCodec
+
+
 @EXTENSION_REGISTRY.registering('gz', 'gzip')
 class GzipCodec(Codec[F, bytes], lang.Final):
 

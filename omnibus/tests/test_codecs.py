@@ -38,3 +38,10 @@ def test_registries():
 
     gz_lines_codec = co.for_extension('lines.gz')
     assert isinstance(gz_lines_codec, co.Codec)
+
+
+def test_yaml():
+    c = co.yaml()
+    dct = {1: 2}
+    assert isinstance(c.encode(dct), str)
+    assert c.decode(c.encode(dct)) == dct
