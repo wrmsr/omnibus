@@ -1,4 +1,9 @@
 import datetime
+import sys
+
+
+if not sys.version_info >= (3, 7):
+    raise EnvironmentError
 
 
 # http://bugs.python.org/issue7980

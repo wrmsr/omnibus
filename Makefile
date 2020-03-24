@@ -16,6 +16,9 @@ PYENV_BREW_DEPS:= \
 
 all: build flake test test-37
 
+
+### Clean
+
 .PHONY: clean
 clean:
 	-rm -rf .cache
@@ -43,6 +46,9 @@ clean:
 			-name '*.c' -delete -or \
 			-name '*.cpp' -delete ; \
 	fi
+
+
+### Venv
 
 .PHONY: brew
 brew:
@@ -113,12 +119,18 @@ venv:
 venv-37:
 	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
 
+
+### Build
+
 .PHONY: ext
 ext: venv
 	.venv/bin/python setup.py build_ext --inplace
 
 .PHONY: build
 build: ext
+
+
+### Check
 
 .PHONY: flake
 flake: venv
@@ -127,6 +139,9 @@ flake: venv
 .PHONY: typecheck
 typecheck: venv
 	.venv/bin/mypy --ignore-missing-imports omnibus | awk '{c+=1;print $$0}END{print c}'
+
+
+### Test
 
 .PHONY: test
 test: build
@@ -139,6 +154,9 @@ test-verbose: build
 .PHONY: test-37
 test-37: venv-37
 	.venv-37/bin/pytest -v omnibus
+
+
+### Dist
 
 .PHONY: dist
 dist: build flake test
@@ -202,6 +220,9 @@ test-pypi:
 
 	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
 
+
+### Deps
+
 .PHONY: depupdates
 depupdates: venv
 	.venv/bin/pip list -o --format=columns
@@ -211,6 +232,33 @@ deptree: test-install
 	.venv-install/bin/pip install pipdeptree
 	echo ; echo ; echo
 	.venv-install/bin/pipdeptree
+
+
+### Docker
+
+.PHONY: docker-venv
+docker-venv:
+	./docker-dev make _docker-venv
+
+.PHONY: docker-venv-37
+docker-venv-37:
+	./docker-dev make _docker-venv-37
+
+.PHONY: _docker-venv
+_docker-venv:
+	$(call setup-venv,.venv-docker,$(PYTHON_VERSION))
+
+.PHONY: _docker-venv-37
+_docker-venv-37:
+	$(call setup-venv,.venv-docker-37,$(PYTHON_37_VERSION))
+
+.PHONY: test-docker
+test-docker: docker-venv
+	./docker-dev .venv-docker/bin/pytest -v omnibus
+
+.PHONY: test-docker-37
+test-docker-37: docker-venv-37
+	./docker-dev .venv-docker-37/bin/pytest -v omnibus
 
 .PHONY: docker-invalidate
 docker-invalidate:

@@ -8,6 +8,8 @@
 .tox
 .venv
 .venv-37
+.venv-docker
+.venv-docker-37
 .venv-install
 .venv-pypi
 attic
