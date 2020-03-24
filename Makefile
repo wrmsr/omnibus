@@ -14,7 +14,14 @@ PYENV_BREW_DEPS:= \
 	sqlite3 \
 	zlib \
 
+
+### Aggregates
+
 all: build flake test test-37
+
+venv-all: venv venv-37 docker-venv docker-venv-37
+
+test-all: venv-all test test-37 docker-test docker-test-37
 
 
 ### Clean
@@ -260,10 +267,10 @@ _docker-venv:
 _docker-venv-37:
 	$(call setup-venv,.venv-docker-37,$(PYTHON_37_VERSION))
 
-.PHONY: test-docker
-test-docker: docker-venv
+.PHONY: docker-test
+docker-test: docker-venv
 	./docker-dev .venv-docker/bin/pytest -v omnibus
 
-.PHONY: test-docker-37
-test-docker-37: docker-venv-37
+.PHONY: docker-test-37
+docker-test-37: docker-venv-37
 	./docker-dev .venv-docker-37/bin/pytest -v omnibus
