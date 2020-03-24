@@ -1,3 +1,10 @@
+"""
+TODO:
+ - polled sources: file (+url), sql, redis
+ - pushed sources: zk
+ - callbacks only on 'winning' value change
+ - dc stuff - validate, coerce, etc
+"""
 import abc
 import types
 import typing as ta

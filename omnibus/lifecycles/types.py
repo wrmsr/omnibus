@@ -1,3 +1,7 @@
+"""
+TODO:
+ - track history? exceptions? tracebacks?
+"""
 import typing as ta
 
 from .. import check
