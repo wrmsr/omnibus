@@ -55,7 +55,11 @@ pickle = PickleCodec
 
 
 @EXTENSION_REGISTRY.registering('yaml', 'yml')
-@MIME_TYPE_REGISTRY.registering('application/x-yaml', 'text/yaml')
+@MIME_TYPE_REGISTRY.registering(
+    'application/x-yaml',
+    'text/x-yaml',
+    'text/yaml',
+)
 class YamlCodec(Codec[F, str], lang.Final):
     _MODULE = lang.lazy_import('yaml')
 
