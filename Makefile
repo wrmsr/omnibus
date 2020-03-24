@@ -65,15 +65,17 @@ define setup-venv
 				PYENV_CFLAGS="" ; \
 				PYENV_LDFLAGS="" ; \
 				for DEP in $(PYENV_BREW_DEPS); do \
-					PYENV_CFLAGS="-I$$(brew --prefix "$$DEP")/include $$PYENV_CFLAGS" ; \
-					PYENV_LDFLAGS="-L$$(brew --prefix "$$DEP")/lib $$PYENV_LDFLAGS" ; \
+					DEP_PREFIX="$$(brew --prefix "$$DEP")" ; \
+					PYENV_CFLAGS="-I$$DEP_PREFIX/include $$PYENV_CFLAGS" ; \
+					PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
 				done ; \
 				PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
-				if brew --prefix tcl-tk ; do \
+				if brew --prefix tcl-tk ; then \
 					TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
 					TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
-					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include' --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
-				done ; \
+					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include'" ; \
+					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
+				fi ; \
 				CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
 				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
 				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
