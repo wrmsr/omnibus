@@ -99,6 +99,8 @@ class NginxProcess(lifecycles.ContextManageableLifecycle):
         for line in self.nginx_info.split('\n'):
             if line.startswith('nginx version: '):
                 ver = line.partition(': ')[2]
+                if ' ' in ver:
+                    ver = ver.partition(' ')[0]
                 if ver.startswith('nginx/'):
                     ver = ver.partition('/')[2]
                 return ver
