@@ -18,6 +18,7 @@ astpretty==2.0.0
 flake8==3.7.9
 ipdb==0.13.2
 ipython==7.13.0
+objgraph==3.4.1
 pipdeptree==0.13.2
 pyrasite==2.0
 typed-ast==1.4.1
