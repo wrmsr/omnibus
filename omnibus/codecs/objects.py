@@ -64,9 +64,6 @@ pickle = PickleCodec
 class YamlCodec(Codec[F, str], lang.Final):
     _MODULE = lang.lazy_import('yaml')
 
-    def __init__(self) -> None:
-        super().__init__()
-
     defs.repr()
 
     def encode(self, o: F) -> str:
@@ -85,9 +82,6 @@ yaml = YamlCodec
 class CborCodec(Codec[F, bytes], lang.Final):
     _MODULE = lang.lazy_import('cbor')
 
-    def __init__(self) -> None:
-        super().__init__()
-
     defs.repr()
 
     def encode(self, o: F) -> bytes:
@@ -101,3 +95,20 @@ class CborCodec(Codec[F, bytes], lang.Final):
 
 
 cbor = CborCodec
+
+
+@EXTENSION_REGISTRY.registering('toml')
+@MIME_TYPE_REGISTRY.registering('application/toml')
+class TomlCodec(Codec[F, str], lang.Final):
+    _MODULE = lang.lazy_import('toml')
+
+    defs.repr()
+
+    def encode(self, o: F) -> str:
+        return self._MODULE().dumps(o)
+
+    def decode(self, o: str) -> F:
+        return self._MODULE().loads(o)
+
+
+toml = TomlCodec

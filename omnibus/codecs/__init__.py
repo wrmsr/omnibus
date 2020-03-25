@@ -13,6 +13,8 @@ from .objects import pickle  # noqa
 from .objects import PickleCodec  # noqa
 from .objects import struct  # noqa
 from .objects import StructCodec  # noqa
+from .objects import toml  # noqa
+from .objects import TomlCodec  # noqa
 from .objects import yaml  # noqa
 from .objects import YamlCodec  # noqa
 from .registries import EXTENSION_REGISTRY  # noqa

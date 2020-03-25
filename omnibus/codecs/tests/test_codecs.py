@@ -37,6 +37,13 @@ def test_cbor():
     assert c.decode(c.encode(dct)) == dct
 
 
+def test_toml():
+    c = objects_.toml()
+    dct = {'x': 2}
+    assert isinstance(c.encode(dct), str)
+    assert c.decode(c.encode(dct)) == dct
+
+
 def test_gzip():
     c = compression_.gzip()
     assert c.decode(c.encode(b'123')) == b'123'
