@@ -24,7 +24,7 @@ def is_in_docker() -> bool:
     except OSError:
         return False
     tups = [line.strip().split(':') for line in buf.strip().splitlines()]
-    dct = {tup[1]: tup for tup in tups}
+    dct = {k: tup for tup in tups for k in tup[1].split(',')}
     return all(k in dct and dct[k][2].startswith('/docker/') for k in {'cpu', 'memory'})
 
 
