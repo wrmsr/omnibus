@@ -117,7 +117,7 @@ set-option -g history-limit 20000 \n\
 RUN echo "\
 set number \n\
 syntax on \n\
-filetype indent plugin on
+filetype indent plugin on \n\
 " >> ~/.vimrc
 
 RUN echo "\
