@@ -10,6 +10,9 @@ TODO:
  - netty-style protocol negotiation override
  - app composition (jersey style? inject integrated?)
   - debug app
+ - asgi
+ - http2?
+ - uvloop?
 """
 import abc
 import contextlib

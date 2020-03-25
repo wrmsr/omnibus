@@ -1,3 +1,7 @@
+"""
+TODO:
+ - clean tf up lol
+"""
 import typing as ta
 
 

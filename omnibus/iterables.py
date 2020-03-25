@@ -1,3 +1,7 @@
+"""
+TODO:
+ - indexable retaining iterator (window? abs/rel?)
+"""
 import abc
 import collections
 import functools
