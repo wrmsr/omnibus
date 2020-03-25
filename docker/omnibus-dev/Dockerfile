@@ -18,6 +18,8 @@ RUN ( \
         gdb \
         git \
         htop \
+        iputils-ping \
+        iputils-tracepath \
         jq \
         less \
         libpq-dev \
