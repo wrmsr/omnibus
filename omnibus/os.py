@@ -51,24 +51,6 @@ def check_locales() -> None:
         raise RuntimeError('Rerun with env LC_ALL=en_US.utf-8;LANG=en_US.utf-8')
 
 
-def which(program: str) -> ta.Optional[str]:
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ['PATH'].split(os.pathsep):
-            path = path.strip('"')
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
-
-
 @contextlib.contextmanager
 def signal_handling(
         handler: ta.Union['signal.Handlers', ta.Callable[[int, ta.Any], None]],

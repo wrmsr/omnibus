@@ -10,6 +10,7 @@ wheel==0.34.2
 # actual code deps
 
 pytest==5.4.1
+pytest-benchmark==3.2.3
 
 
 # useful tools
