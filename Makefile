@@ -245,6 +245,10 @@ deptree: test-install
 
 # Docker
 
+.PHONY: docker-down
+docker-down:
+	(cd docker && make down)
+
 .PHONY: docker-reup
 docker-reup:
 	(cd docker && make reup)
