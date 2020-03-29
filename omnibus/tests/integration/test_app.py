@@ -37,14 +37,13 @@ def test_app():
 
     class LifecycleRegistrar:
 
-        def __init__(self, lm: lifecycles.LifecycleManager) -> None:
+        def __init__(self, injector: inject.Injector) -> None:
             super().__init__()
-
-            self._lm = lm
+            self._injector = injector
 
         def __call__(self, key, instance) -> None:
-            if isinstance(instance, lifecycles.Lifecycle) and instance is not self._lm:
-                self._lm.add(instance)
+            if isinstance(instance, lifecycles.Lifecycle) and not isinstance(instance, lifecycles.LifecycleManager):
+                self._injector.get_instance(lifecycles.LifecycleManager).add(instance)
 
     binder = inject.create_binder()
 
