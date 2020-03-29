@@ -6,7 +6,7 @@ TODO:
  - WeakDict (key and value)
   - weak.py?
  - RingBuffer
- - kvs
+ - **KeyValues**
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)

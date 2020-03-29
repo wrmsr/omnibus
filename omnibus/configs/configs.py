@@ -1,10 +1,13 @@
 """
 TODO:
  - *YES* - dataclass interop - bidirectional for injection
+  - akin to inj not being required
+  - honor frozen
  - polled sources: file (+url), sql, redis
  - pushed sources: zk
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
+ - config_cls->cls registry pattern?
 """
 import abc
 import types

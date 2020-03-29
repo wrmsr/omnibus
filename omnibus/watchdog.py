@@ -1,3 +1,7 @@
+"""
+TODO:
+ - deadlock detector? peek into lock structs
+"""
 from . import lang
 
 

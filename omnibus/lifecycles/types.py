@@ -1,6 +1,8 @@
 """
 TODO:
  - track history? exceptions? tracebacks?
+ - notably more intrusive than either inject (ann inspection) or configs (dc interop):
+  - *bidir* CM interop.. WrappedContextManagerLifecycle
 """
 import typing as ta
 
