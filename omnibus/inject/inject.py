@@ -46,7 +46,6 @@ from .types import MultiProvider
 from .types import NOT_SET
 from .types import PrivateElements
 from .types import Provider
-from .types import ProvisionListener
 from .types import ProvisionListenerBinding
 from .types import RequiredKey
 from .types import Scope

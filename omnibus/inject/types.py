@@ -165,11 +165,30 @@ class Injector(lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_binding(
+            self,
+            target: ta.Union[Key[T], ta.Type[T]],
+            *,
+            has_default: bool = False,
+    ) -> ta.Optional[Binding[T]]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_instance(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
             default: ta.Any = NOT_SET,
     ) -> T:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_elements_by_type(
+            self,
+            cls: ta.Type[Element],
+            *,
+            parent: bool = False,
+            children: bool = False,
+    ) -> ta.List[Element]:
         raise NotImplementedError
 
     @abc.abstractmethod
