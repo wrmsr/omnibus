@@ -35,8 +35,16 @@ def test_app():
         server.shutdown()
         return [b'hi']
 
-    def on_provision(key, instance):
-        print((key, instance))
+    class LifecycleRegistrar:
+
+        def __init__(self, lm: lifecycles.LifecycleManager) -> None:
+            super().__init__()
+
+            self._lm = lm
+
+        def __call__(self, key, instance) -> None:
+            if isinstance(instance, lifecycles.Lifecycle) and instance is not self._lm:
+                self._lm.add(instance)
 
     binder = inject.create_binder()
 
@@ -48,8 +56,8 @@ def test_app():
 
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
 
-    binder.bind(object, annotated_with=on_provision, to_instance=on_provision)
-    binder.bind_provision_listener(object, annotated_with=on_provision)
+    binder.bind(LifecycleRegistrar)
+    binder.bind_provision_listener(LifecycleRegistrar)
 
     injector = inject.create_injector(binder)
 
