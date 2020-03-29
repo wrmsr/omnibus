@@ -253,6 +253,10 @@ docker-down:
 docker-reup:
 	(cd docker && make reup)
 
+.PHONY: docker-clean
+docker-clean:
+	(cd docker && make clean)
+
 .PHONY: docker-invalidate
 docker-invalidate:
 	date +%s > .dockertimestamp

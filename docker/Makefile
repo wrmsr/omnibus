@@ -7,7 +7,6 @@ DOCKER_IMAGES:= \
 	omnibus-redis \
 
 DOCKER_COMPOSE_SERVICES:= \
-	omnibus-dev \
 	omnibus-mysql-master \
 	omnibus-mysql-slave \
 	omnibus-postgres-master \
@@ -25,17 +24,22 @@ define do-clean
 	docker-compose rm -fv $1
 endef
 
+.PHONY: clean-services
+clean-services: stop
+	for SVC in $(DOCKER_COMPOSE_SERVICES) ; do \
+		$(call do-clean,$$SVC) ; \
+	done
+
+.PHONY: clean
+clean: clean-services
+	$(call do-clean,omnibus-dev)
+
 .PHONY: images
 images:
 	for IMG in $(DOCKER_IMAGES) ; do \
 		$(call do-image,$$IMG) ; \
 	done
-
-.PHONY: clean
-clean: stop
-	for SVC in $(DOCKER_COMPOSE_SERVICES) ; do \
-		$(call do-clean,$$SVC) ; \
-	done
+	$(call do-image,omnibus-dev)
 
 .PHONY: start
 start:
@@ -47,14 +51,18 @@ stop:
 
 .PHONY: up
 up:
-	docker-compose up
+	docker-compose up $(DOCKER_COMPOSE_SERVICES) omnibus-dev
 
 .PHONY: down
 down:
 	docker-compose down
 
 .PHONY: reup
-reup: clean images up
+reup:
+	docker-compose stop
+	docker-compose rm -sf $(DOCKER_COMPOSE_SERVICES)
+	$(MAKE) clean-services images
+	docker-compose up --no-recreate $(DOCKER_COMPOSE_SERVICES) omnibus-dev
 
 .PHONY: enable-ptrace
 enable-ptrace:
