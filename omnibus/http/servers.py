@@ -22,6 +22,8 @@ import socket as sock
 import threading
 import typing as ta
 
+from .. import check
+from .. import dataclasses as dc
 from .. import lang
 from .. import lifecycles
 from .. import properties
@@ -47,28 +49,31 @@ class SelectorProtocol(lang.Protocol):
         raise NotImplementedError
 
 
-class WsgiServer(lifecycles.ContextManageableLifecycle, abc.ABC):
+class WsgiServer(lifecycles.ContextManageableLifecycle, lang.Abstract):
 
     if hasattr(selectors, 'PollSelector'):
         ServerSelector = selectors.PollSelector
     else:
         ServerSelector = selectors.SelectSelector
 
+    @dc.dataclass(frozen=True)
+    class Config:
+        poll_interval: float = 0.5
+        exit_timeout: float = 10.0
+
     def __init__(
             self,
             binder: Binder,
             app: App,
             *,
-            poll_interval: float = 0.5,
-            exit_timeout: float = 10.0,
+            config: Config = Config(),
             **kwargs
     ) -> None:
         super().__init__(**kwargs)
 
         self._binder = binder
         self._app = app
-        self._poll_interval = poll_interval
-        self._exit_timeout = exit_timeout
+        self._config = check.isinstance(config, WsgiServer.Config)
 
         self._lock = threading.RLock()
         self._is_shutdown = threading.Event()
@@ -79,7 +84,7 @@ class WsgiServer(lifecycles.ContextManageableLifecycle, abc.ABC):
         if not acquired:
             try:
                 if not self._is_shutdown.is_set():
-                    self.shutdown(True, self._exit_timeout)
+                    self.shutdown(True, self._config.exit_timeout)
             finally:
                 self._lock.release()
 
@@ -127,7 +132,7 @@ class WsgiServer(lifecycles.ContextManageableLifecycle, abc.ABC):
     @contextlib.contextmanager
     def loop_context(self, poll_interval: int = None) -> ta.Generator[bool, None, None]:
         if poll_interval is None:
-            poll_interval = self._poll_interval
+            poll_interval = self._config.poll_interval
 
         with self._listen_context() as selector:
             def loop():

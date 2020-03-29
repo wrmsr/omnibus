@@ -5,6 +5,8 @@ import socket as sock
 import stat
 import typing as ta
 
+from .. import check
+from .. import dataclasses as dc
 from .. import lang
 
 
@@ -25,6 +27,10 @@ ADDRESS_FAMILY_NAMES = {
 
 
 class Binder(lang.Abstract):
+
+    @dc.dataclass(frozen=True)
+    class Config:
+        pass
 
     @abc.abstractproperty
     def address_family(self) -> int:
@@ -159,12 +165,18 @@ class BindBinder(Binder):
 
 class TcpBinder(BindBinder):
 
+    @dc.dataclass(frozen=True)
+    class Config(Binder.Config):
+        host: str
+        port: int
+
     address_family = sock.AF_INET
 
-    def __init__(self, host: str, port: int) -> None:
+    def __init__(self, config: Config) -> None:
         super().__init__()
 
-        self._address = (host, port)
+        self._config = check.isinstance(config, TcpBinder.Config)
+        self._address = (config.host, config.port)
 
     def _post_bind(self) -> None:
         host, port, *_ = self.socket.getsockname()
@@ -180,12 +192,17 @@ class TcpBinder(BindBinder):
 
 class UnixBinder(BindBinder):
 
+    @dc.dataclass(frozen=True)
+    class Config(Binder.Config):
+        address: str
+
     address_family = sock.AF_UNIX
 
-    def __init__(self, address: str) -> None:
+    def __init__(self, config: Config) -> None:
         super().__init__()
 
-        self._address = address
+        self._config = check.isinstance(config, UnixBinder.Config)
+        self._address = config.address
 
     def _post_bind(self) -> None:
         name = self.socket.getsockname()

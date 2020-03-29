@@ -40,7 +40,7 @@ def test_inline_http():
     thread = threading.Thread(target=fn1)
     thread.start()
 
-    with wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder('0.0.0.0', port), app) as server:
+    with wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', port)), app) as server:
         with server.loop_context() as loop:
             for _ in loop:
                 pass
@@ -61,7 +61,7 @@ def test_http():
 
     def fn0():
         nonlocal server
-        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder('0.0.0.0', port), app)
+        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', port)), app)
         server.run()
 
     def fn1():
@@ -90,7 +90,7 @@ def test_json_http():
 
     def fn0():
         nonlocal server
-        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder('0.0.0.0', port), apps_.simple_json_app(json_app))
+        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', port)), apps_.simple_json_app(json_app))  # noqa
         server.run()
 
     def fn1():

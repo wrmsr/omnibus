@@ -8,10 +8,8 @@ import requests
 
 from ... import check
 from ... import collections as ocol
-from ... import dataclasses as dc
 from ... import http
 from ... import inject
-from ... import lang
 from ... import lifecycles
 from ... import replserver
 
@@ -58,24 +56,11 @@ def test_app():
                 man.add(instance)
                 self._seen.add(instance)
 
-    @dc.dataclass(frozen=True)
-    class BinderConfig(lang.Abstract):
-        pass
-
-    @dc.dataclass(frozen=True)
-    class TcpBinderConfig(BinderConfig, lang.Final):
-        host: str
-        port: int
-
-    @dc.dataclass(frozen=True)
-    class UnixBinderConfig(BinderConfig, lang.Final):
-        address: str
-
-    def provide_binder(config: BinderConfig) -> http.bind.Binder:
-        if isinstance(config, TcpBinderConfig):
-            return http.bind.TcpBinder(config.host, config.port)
-        elif isinstance(config, UnixBinderConfig):
-            return http.bind.UnixBinder(config.address)
+    def provide_binder(config: http.bind.Binder.Config) -> http.bind.Binder:
+        if isinstance(config, http.bind.TcpBinder.Config):
+            return http.bind.TcpBinder(config)
+        elif isinstance(config, http.bind.UnixBinder.Config):
+            return http.bind.UnixBinder(config)
         else:
             raise TypeError(config)
 
@@ -83,7 +68,8 @@ def test_app():
 
     binder.bind(http.App, to_instance=app)
 
-    binder.bind(BinderConfig, to_instance=TcpBinderConfig('0.0.0.0', port))
+    binder.bind(http.bind.TcpBinder.Config('0.0.0.0', port))
+    binder.bind(http.bind.Binder.Config, to=http.bind.TcpBinder.Config)
     binder.bind_callable(provide_binder)
 
     binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
