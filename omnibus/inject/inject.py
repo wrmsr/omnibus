@@ -43,6 +43,8 @@ from .types import MultiProvider
 from .types import NOT_SET
 from .types import PrivateElements
 from .types import Provider
+from .types import ProvisionListener
+from .types import ProvisionListenerBinding
 from .types import RequiredKey
 from .types import Scope
 from .types import ScopeBinding
@@ -180,11 +182,14 @@ class InjectorImpl(Injector):
         return child
 
     @lang.context_wrapped('_lock')
-    def get_instance(
+    def get_binding(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
-            default: ta.Any = NOT_SET,
-    ) -> T:
+            *,
+            has_default: bool = False,
+    ) -> ta.Optional[Binding[T]]:
+        check.isinstance(has_default, bool)
+
         if isinstance(target, Key):
             key = target
         else:
@@ -199,8 +204,8 @@ class InjectorImpl(Injector):
             bindings = self.get_bindings(key, parent=True)
 
         if not bindings:
-            if default is not NOT_SET:
-                return default
+            if has_default is not NOT_SET:
+                return None
 
             if not self.config.enable_jit_bindings:
                 raise InjectionKeyError(key)
@@ -214,8 +219,30 @@ class InjectorImpl(Injector):
         else:
             binding = check.single(bindings)
 
+        return binding
+
+    @lang.context_wrapped('_lock')
+    def get_instance(
+            self,
+            target: ta.Union[Key[T], ta.Type[T]],
+            default: ta.Any = NOT_SET,
+    ) -> T:
+        binding = self.get_binding(target, has_default=default is not NOT_SET)
+
+        if binding is None:
+            check.state(default is not NOT_SET)
+            return default
+
         with self._CURRENT(self):
             return binding.provide()
+
+    @properties.cached
+    def _provision_listeners(self) -> ta.List[Provider[ProvisionListener]]:
+        ret = []
+        for binding in self._bindings:
+            if isinstance(binding, ProvisionListenerBinding):
+                ret.append(check.callable(self.get_instance(binding.listener)))
+        return ret
 
     def _blacklist(self, key: Key) -> None:
         if self._parent is not None:

@@ -88,10 +88,12 @@ class ScopeBinding(Element):
     scoping: ta.Type[Scope]
 
 
+ProvisionListener = ta.Callable[[Key, ta.Any], None]
+
+
 @dc.dataclass(frozen=True)
 class ProvisionListenerBinding(Element):
-    # FIXME: listener:
-    pass
+    listener: Key[ProvisionListener]
 
 
 @dc.dataclass(frozen=True)
