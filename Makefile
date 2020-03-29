@@ -245,17 +245,17 @@ deptree: test-install
 
 # Docker
 
-.PHONY: docker-down
-docker-down:
-	(cd docker && make down)
+.PHONY: docker-clean
+docker-clean:
+	(cd docker && make clean)
+
+.PHONY: docker-stop
+docker-stop:
+	(cd docker && make stop)
 
 .PHONY: docker-reup
 docker-reup:
 	(cd docker && make reup)
-
-.PHONY: docker-clean
-docker-clean:
-	(cd docker && make clean)
 
 .PHONY: docker-invalidate
 docker-invalidate:

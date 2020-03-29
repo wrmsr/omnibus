@@ -58,8 +58,7 @@ down:
 	docker-compose down
 
 .PHONY: reup
-reup:
-	docker-compose stop
+reup: stop
 	docker-compose rm -sf $(DOCKER_COMPOSE_SERVICES)
 	$(MAKE) clean-services images
 	docker-compose up --no-recreate $(DOCKER_COMPOSE_SERVICES) omnibus-dev
