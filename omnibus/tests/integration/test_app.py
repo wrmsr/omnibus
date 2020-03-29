@@ -37,13 +37,18 @@ def test_app():
 
     class LifecycleRegistrar:
 
-        def __init__(self, injector: inject.Injector) -> None:
+        def __init__(self) -> None:
             super().__init__()
-            self._injector = injector
+            self._seen = set()
 
-        def __call__(self, key, instance) -> None:
-            if isinstance(instance, lifecycles.Lifecycle) and not isinstance(instance, lifecycles.LifecycleManager):
-                self._injector.get_instance(lifecycles.LifecycleManager).add(instance)
+        def __call__(self, injector: inject.Injector, key, instance) -> None:
+            if (
+                    isinstance(instance, lifecycles.Lifecycle) and
+                    not isinstance(instance, lifecycles.LifecycleManager) and
+                    instance not in self._seen
+            ):
+                injector.get_instance(lifecycles.LifecycleManager).add(instance)
+                self._seen.add(instance)
 
     binder = inject.create_binder()
 
@@ -54,17 +59,15 @@ def test_app():
     binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
 
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
-
-    binder.bind(LifecycleRegistrar)
-    binder.bind_provision_listener(LifecycleRegistrar)
+    binder.bind_provision_listener(LifecycleRegistrar())
 
     injector = inject.create_injector(binder)
 
     lm = injector.get_instance(lifecycles.LifecycleManager)
     with lifecycles.context_manage(lm):
-        with injector.get_instance(http.servers.WsgiServer) as server:
-            with server.loop_context() as loop:
-                for _ in loop:
-                    pass
+        server = injector.get_instance(http.servers.WsgiServer)
+        with server.loop_context() as loop:
+            for _ in loop:
+                pass
 
     thread.join()

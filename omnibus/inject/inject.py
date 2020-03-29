@@ -3,15 +3,19 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
  (2f2c3a629eaf7e9a4e3687ae17004789fd41fed6/)
 
 TODO:
+ - ** PROVIDER DEPENDENCY INTROSPECTION - include defaults
+ - listeners
+  - children
+  - toposort deps
+  - once per scope?
+  - dep chain
  - more generic support - bind_class takes type, take spec
- - CACHE
  - freezing?
  - parent/child traversing multis
  - proxies / circular injection
  - type converters
  - redundant providers / resolve
  - override
- - LISTENERS - LifecycleManager
  - custom scopes: async/cvar/dyn?
 """
 import collections
@@ -242,11 +246,8 @@ class InjectorImpl(Injector):
             instance = binding.provide()
 
             if not isinstance(binding, ProvisionListenerBinding):
-                # FIXME: children?
                 for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
-                    listener_target_binding = check.not_none(self.get_binding(listener_binding.listener))
-                    listener = listener_target_binding.provide()
-                    listener(target, instance)
+                    listener_binding.listener(self, target, instance)
 
             return instance
 

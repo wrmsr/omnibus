@@ -88,12 +88,12 @@ class ScopeBinding(Element):
     scoping: ta.Type[Scope]
 
 
-ProvisionListener = ta.Callable[[ta.Union[Key, ta.Any], ta.Any], None]
+ProvisionListener = ta.Callable[['Injector', ta.Union[Key, ta.Any], ta.Any], None]
 
 
 @dc.dataclass(frozen=True)
 class ProvisionListenerBinding(Element):
-    listener: Key[ProvisionListener]
+    listener: ProvisionListener
 
 
 @dc.dataclass(frozen=True)
@@ -330,9 +330,7 @@ class Binder(lang.Abstract):
     @abc.abstractmethod
     def bind_provision_listener(
             self,
-            target: ta.Union[Key, ta.Type, ta.Any],
-            *,
-            annotated_with: ta.Any = None,
+            target: ProvisionListener,
     ) -> None:
         raise NotImplementedError
 
