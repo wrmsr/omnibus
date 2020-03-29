@@ -241,10 +241,9 @@ class InjectorImpl(Injector):
             instance = binding.provide()
 
             if not isinstance(binding, ProvisionListenerBinding):
-                # for listener_binding in self.get_bindings(ProvisionListenerBinding, parent=True):
-                #     listener = self.get_instance(listener_binding.listener)
-                #     listener(target, instance)
-                raise NotImplementedError
+                for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
+                    listener = self.get_instance(listener_binding.listener)
+                    listener(target, instance)
 
             return instance
 
@@ -252,6 +251,27 @@ class InjectorImpl(Injector):
         if self._parent is not None:
             self._parent._blacklist(key)
         self._blacklisted_keys.add(key)
+
+    @lang.context_wrapped('_lock')
+    def get_elements_by_type(
+            self,
+            cls: ta.Type[Element],
+            *,
+            parent: bool = False,
+            children: bool = False,
+    ) -> ta.List[Element]:
+        ret = []
+
+        if parent and self._parent is not None:
+            ret.extend(self._parent.get_elements_by_type(cls, parent=True))
+
+        ret.extend(self._state.elements_by_type.get(cls, []))
+
+        if children:
+            for child in self._children:
+                ret.extend(child.get_elements_by_type(cls, children=True))
+
+        return ret
 
     @lang.context_wrapped('_lock')
     def get_bindings(
@@ -265,6 +285,7 @@ class InjectorImpl(Injector):
 
         if parent and self._parent is not None:
             ret.update(self._parent.get_bindings(key, parent=True))
+
         try:
             self_bindings = self._state._bindings_cache[key]
         except KeyError:
