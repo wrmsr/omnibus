@@ -89,6 +89,12 @@ class ScopeBinding(Element):
 
 
 @dc.dataclass(frozen=True)
+class ProvisionListenerBinding(Element):
+    # FIXME: listener:
+    pass
+
+
+@dc.dataclass(frozen=True)
 class MultiBinding(Binding[T], lang.Abstract):
     pass
 
