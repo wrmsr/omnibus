@@ -17,16 +17,24 @@ DOCKER_COMPOSE_SERVICES:= \
 .PHONY: all
 all: clean images
 
+define do-image
+	(cd .. && docker build --tag "$(DOCKER_USER)/$1" -f "docker/$1/Dockerfile" .)
+endef
+
+define do-clean
+	docker-compose rm -fv $1
+endef
+
 .PHONY: images
 images:
 	for IMG in $(DOCKER_IMAGES) ; do \
-		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
+		$(call do-image,$$IMG) ; \
 	done
 
 .PHONY: clean
 clean: stop
 	for SVC in $(DOCKER_COMPOSE_SERVICES) ; do \
-		docker-compose rm -fv $$SVC ; \
+		$(call do-clean,$$SVC) ; \
 	done
 
 .PHONY: start
