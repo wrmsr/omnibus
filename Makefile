@@ -233,11 +233,11 @@ test-pypi:
 # Deps
 
 .PHONY: depupdates
-depupdates: venv
+dep-updates: venv
 	.venv/bin/pip list -o --format=columns
 
 .PHONY: deptree
-deptree: test-install
+dep-tree: test-install
 	.venv-install/bin/pip install pipdeptree
 	echo ; echo ; echo
 	.venv-install/bin/pipdeptree
