@@ -6,6 +6,7 @@ import time
 
 import requests
 
+from ... import check
 from ... import collections as ocol
 from ... import dataclasses as dc
 from ... import http
@@ -95,7 +96,24 @@ def test_app():
         path = os.path.join(tempfile.mkdtemp(), 'sock')
         return replserver.ReplServer(path)
 
+    class ReplServerThread(lifecycles.ContextManageableLifecycle):
+
+        def __init__(self, server: replserver.ReplServer) -> None:
+            super().__init__()
+
+            self._server = server
+            self._thread = threading.Thread(target=server.run)
+
+        def _do_lifecycle_start(self) -> None:
+            self._thread.start()
+
+        def _do_lifecycle_stop(self) -> None:
+            self._server.shutdown()
+            self._thread.join(5)
+            check.state(not self._thread.is_alive())
+
     binder.bind_callable(provide_replserver, as_eager_singleton=True)
+    binder.bind(ReplServerThread, as_eager_singleton=True)
 
     injector = inject.create_injector(binder)
 
@@ -105,6 +123,5 @@ def test_app():
         with server.loop_context() as loop:
             for _ in loop:
                 pass
-        time.sleep(3)
 
     thread.join()
