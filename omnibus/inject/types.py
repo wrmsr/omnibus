@@ -21,7 +21,7 @@ class Element(lang.Abstract):
     pass
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(frozen=True, unsafe_hash=True)
 class Key(ta.Generic[T], lang.Final):
     type: ta.Type[T]
     annotation: ta.Any = None

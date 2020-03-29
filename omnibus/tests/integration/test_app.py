@@ -48,7 +48,7 @@ def test_app():
 
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
 
-    binder.bind(object, annotated_with=on_provision)
+    binder.bind(object, annotated_with=on_provision, to_instance=on_provision)
     binder.bind_provision_listener(object, annotated_with=on_provision)
 
     injector = inject.create_injector(binder)
