@@ -1,5 +1,6 @@
 """
 TODO:
+ - *YES* - dataclass interop - bidirectional for injection
  - polled sources: file (+url), sql, redis
  - pushed sources: zk
  - callbacks only on 'winning' value change
