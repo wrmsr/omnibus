@@ -3,6 +3,9 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
  (2f2c3a629eaf7e9a4e3687ae17004789fd41fed6/)
 
 TODO:
+ - CACHE
+ - freezing?
+ - parent/child traversing multis
  - proxies / circular injection
  - type converters
  - redundant providers / resolve
@@ -107,6 +110,7 @@ class InjectorImpl(Injector):
             super().__init__()
 
             self._injector = injector
+            self._bindings_cache: ta.Dict[Key, ta.Set[Binding]] = {}
 
         @properties.cached
         def elements_by_type(self) -> ta.Mapping[ta.Type[Element], ta.Set[Element]]:
@@ -234,15 +238,15 @@ class InjectorImpl(Injector):
             return default
 
         with self._CURRENT(self):
-            return binding.provide()
+            instance = binding.provide()
 
-    @properties.cached
-    def _provision_listeners(self) -> ta.List[Provider[ProvisionListener]]:
-        ret = []
-        for binding in self._bindings:
-            if isinstance(binding, ProvisionListenerBinding):
-                ret.append(check.callable(self.get_instance(binding.listener)))
-        return ret
+            if not isinstance(binding, ProvisionListenerBinding):
+                # for listener_binding in self.get_bindings(ProvisionListenerBinding, parent=True):
+                #     listener = self.get_instance(listener_binding.listener)
+                #     listener(target, instance)
+                raise NotImplementedError
+
+            return instance
 
     def _blacklist(self, key: Key) -> None:
         if self._parent is not None:
@@ -252,20 +256,29 @@ class InjectorImpl(Injector):
     @lang.context_wrapped('_lock')
     def get_bindings(
             self,
-            key: Key[MultiBinding[T]],
+            key: Key,
             *,
             parent: bool = False,
             children: bool = False,
     ) -> ta.Set[Binding]:
         ret = set()
+
         if parent and self._parent is not None:
             ret.update(self._parent.get_bindings(key, parent=True))
-        for binding in self._bindings:
-            if binding.key == key:
-                ret.add(binding)
+        try:
+            self_bindings = self._state._bindings_cache[key]
+        except KeyError:
+            self_bindings = []
+            for binding in self._bindings:
+                if binding.key == key:
+                    self_bindings.append(binding)
+            self._state._bindings_cache[key] = self_bindings
+        ret.update(self_bindings)
+
         if children:
             for child in self._children:
                 ret.update(child.get_bindings(key, children=True))
+
         return ret
 
     def _require_key(

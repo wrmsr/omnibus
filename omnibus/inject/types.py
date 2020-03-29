@@ -88,7 +88,7 @@ class ScopeBinding(Element):
     scoping: ta.Type[Scope]
 
 
-ProvisionListener = ta.Callable[[Key, ta.Any], None]
+ProvisionListener = ta.Callable[[ta.Union[Key, ta.Any], ta.Any], None]
 
 
 @dc.dataclass(frozen=True)
