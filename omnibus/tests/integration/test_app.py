@@ -54,6 +54,9 @@ def test_app():
 
     binder.bind(http.App, to_instance=app)
 
+    # def provide_binder():
+    #     raise NotImplementedError
+
     binder.bind(http.bind.Binder, to_instance=http.bind.TCPBinder('0.0.0.0', port))
     binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
     binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
