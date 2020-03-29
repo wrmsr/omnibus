@@ -343,7 +343,10 @@ class _Meta(abc.ABCMeta):
 
 
 class Dataclass(metaclass=_Meta):
-    pass
+
+    def __post_init__(self) -> None:
+        # lang.maybe_call(super() ?
+        pass
 
 
 class _VirtualClassMeta(type):

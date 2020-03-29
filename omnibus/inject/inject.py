@@ -282,8 +282,8 @@ class InjectorImpl(Injector):
 
     def _load_eager_singletons(self) -> None:
         for binding in self._bindings:
-            if isinstance(binding.scoping, EagerSingletonScope):
-                binding.scoping.provide(binding)
+            if binding.scoping is EagerSingletonScope:
+                self.get_instance(binding.key)
 
     def _add_jit_bindings(self) -> None:
         while self._required_keys:

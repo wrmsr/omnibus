@@ -41,7 +41,10 @@ class Provider(lang.Abstract, ta.Generic[T]):
 
 
 class BindingSource(lang.Abstract):
-    pass
+    EXPLICIT: 'BindingSource'
+    PROVIDER: 'BindingSource'
+    INTERNAL: 'BindingSource'
+    EXPOSED_PRIVATE: 'BindingSource'
 
 
 def _special_binding_source(name: str) -> BindingSource:
@@ -65,6 +68,9 @@ class Binding(Element, ta.Generic[T]):
     provider: Provider[T]
     scoping: ta.Type['Scope']
     source: BindingSource
+
+    def __post_init__(self) -> None:
+        check.isinstance(self.scoping, type)
 
     def provide(self) -> T:
         return Injector.current._scopes[self.scoping].provide(self)
