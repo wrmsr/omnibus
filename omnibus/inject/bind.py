@@ -28,6 +28,7 @@ from .types import NOT_SET
 from .types import PrivateBinder
 from .types import PrivateElements
 from .types import Provider
+from .types import ProvisionListenerBinding
 from .types import RequiredKey
 from .types import Scope
 
@@ -445,6 +446,19 @@ class BinderImpl(Binder):
         binding = Binding(dict_key, provider, scoping, source)
         self._add_binding(binding)
         return self.DictBinder(self, dict_key)
+
+    def bind_provision_listener(
+            self,
+            target: ta.Union[Key, ta.Type, ta.Any],
+            *,
+            annotated_with: ta.Any = NOT_SET,
+    ) -> None:
+        key = self._get_key(
+            target,
+            annotated_with=annotated_with,
+        )
+
+        self._elements.append(ProvisionListenerBinding(key))
 
 
 def create_binder() -> Binder:

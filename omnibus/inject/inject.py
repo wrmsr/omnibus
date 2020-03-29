@@ -3,6 +3,7 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
  (2f2c3a629eaf7e9a4e3687ae17004789fd41fed6/)
 
 TODO:
+ - more generic support - bind_class takes type, take spec
  - CACHE
  - freezing?
  - parent/child traversing multis
@@ -11,6 +12,7 @@ TODO:
  - redundant providers / resolve
  - override
  - LISTENERS - LifecycleManager
+ - custom scopes: async/cvar/dyn?
 """
 import collections
 import threading
@@ -240,8 +242,10 @@ class InjectorImpl(Injector):
             instance = binding.provide()
 
             if not isinstance(binding, ProvisionListenerBinding):
+                # FIXME: children?
                 for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
-                    listener = self.get_instance(listener_binding.listener)
+                    listener_target_binding = check.not_none(self.get_binding(listener_binding.listener))
+                    listener = listener_target_binding.provide()
                     listener(target, instance)
 
             return instance

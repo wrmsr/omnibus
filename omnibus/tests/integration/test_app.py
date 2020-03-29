@@ -35,12 +35,22 @@ def test_app():
         server.shutdown()
         return [b'hi']
 
+    def on_provision(key, instance):
+        print((key, instance))
+
     binder = inject.create_binder()
+
     binder.bind(http.App, to_instance=app)
+
     binder.bind(http.bind.Binder, to_instance=http.bind.TCPBinder('0.0.0.0', port))
     binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
     binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
+
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
+
+    binder.bind(object, annotated_with=on_provision)
+    binder.bind_provision_listener(object, annotated_with=on_provision)
+
     injector = inject.create_injector(binder)
 
     lm = injector.get_instance(lifecycles.LifecycleManager)

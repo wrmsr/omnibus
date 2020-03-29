@@ -327,6 +327,15 @@ class Binder(lang.Abstract):
     ) -> DictBinder:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def bind_provision_listener(
+            self,
+            target: ta.Union[Key, ta.Type, ta.Any],
+            *,
+            annotated_with: ta.Any = None,
+    ) -> None:
+        raise NotImplementedError
+
 
 class PrivateBinder(Binder):
 
