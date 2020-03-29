@@ -10,6 +10,7 @@ from ... import http
 from ... import inject
 from ... import lang
 from ... import lifecycles
+from ... import replserver
 
 
 def test_app():

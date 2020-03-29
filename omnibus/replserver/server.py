@@ -11,13 +11,14 @@ import typing as ta
 import weakref
 
 from .. import check
+from .. import lifecycles
 from .console import InteractiveSocketConsole
 
 
 log = logging.getLogger(__name__)
 
 
-class ReplServer:
+class ReplServer(lifecycles.ContextManageableLifecycle):
 
     CONNECTION_THREAD_NAME = 'ReplServerConnection'
 
@@ -42,13 +43,11 @@ class ReplServer:
         self._is_shutdown = threading.Event()
         self._should_shutdown = False
 
-    def __enter__(self):
+    def _do_lifecycle_start(self) -> None:
         check.state(not self._is_running)
         check.state(not self._is_shutdown.is_set())
 
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def _do_lifecycle_stop(self) -> None:
         if not self._is_shutdown.is_set():
             self.shutdown(True, self._exit_timeout)
 
