@@ -4,6 +4,7 @@ import time
 
 import requests
 
+from ... import collections as ocol
 from ... import dataclasses as dc
 from ... import http
 from ... import inject
@@ -41,7 +42,7 @@ def test_app():
 
         def __init__(self) -> None:
             super().__init__()
-            self._seen = set()
+            self._seen = ocol.IdentitySet()
 
         def __call__(self, injector: inject.Injector, key, instance) -> None:
             if (
@@ -49,7 +50,8 @@ def test_app():
                     not isinstance(instance, lifecycles.LifecycleManager) and
                     instance not in self._seen
             ):
-                injector.get_instance(lifecycles.LifecycleManager).add(instance)
+                man = injector.get_instance(lifecycles.LifecycleManager)
+                man.add(instance)
                 self._seen.add(instance)
 
     @dc.dataclass(frozen=True)
