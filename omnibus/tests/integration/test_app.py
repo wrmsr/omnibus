@@ -6,6 +6,7 @@ import requests
 
 from ... import http
 from ... import inject
+from ... import lifecycles
 
 
 def test_app():
@@ -39,11 +40,14 @@ def test_app():
     binder.bind(http.bind.Binder, to_instance=http.bind.TCPBinder('0.0.0.0', port))
     binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
     binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
+    binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
     injector = inject.create_injector(binder)
 
-    with injector.get_instance(http.servers.WsgiServer) as server:
-        with server.loop_context() as loop:
-            for _ in loop:
-                pass
+    lm = injector.get_instance(lifecycles.LifecycleManager)
+    with lifecycles.context_manage(lm):
+        with injector.get_instance(http.servers.WsgiServer) as server:
+            with server.loop_context() as loop:
+                for _ in loop:
+                    pass
 
     thread.join()

@@ -184,7 +184,7 @@ class LifecycleContextManager:
         return None
 
 
-def context_manager(
+def context_manage(
         *lifecycles: Lifecycle,
         lock: lang.DefaultLockable = None,
 ) -> LifecycleContextManager:
