@@ -32,6 +32,7 @@ from .classes import SealedException  # noqa
 from .classes import SimpleMetaDict  # noqa
 from .classes import singleton  # noqa
 from .classes import staticfunction  # noqa
+from .contextmanagers import breakpoint_on_exception  # noqa
 from .contextmanagers import context_var_setting  # noqa
 from .contextmanagers import context_wrapped  # noqa
 from .contextmanagers import ContextManageable  # noqa

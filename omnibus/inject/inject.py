@@ -115,14 +115,14 @@ class InjectorImpl(Injector):
             super().__init__()
 
             self._injector = injector
-            self._bindings_cache: ta.Dict[Key, ta.Set[Binding]] = {}
+            self._bindings_cache: ta.Dict[Key, ta.List[Binding]] = {}
 
         @properties.cached
-        def elements_by_type(self) -> ta.Mapping[ta.Type[Element], ta.Set[Element]]:
+        def elements_by_type(self) -> ta.Mapping[ta.Type[Element], ta.List[Element]]:
             ret = {}
             for ele in self._injector._elements:
                 for cls in type(ele).__mro__:
-                    ret.setdefault(cls, set()).add(ele)
+                    ret.setdefault(cls, []).append(ele)
             return ret
 
         @properties.cached
@@ -213,7 +213,7 @@ class InjectorImpl(Injector):
             bindings = self.get_bindings(key, parent=True)
 
         if not bindings:
-            if has_default is not NOT_SET:
+            if has_default:
                 return None
 
             if not self.config.enable_jit_bindings:
@@ -284,11 +284,11 @@ class InjectorImpl(Injector):
             *,
             parent: bool = False,
             children: bool = False,
-    ) -> ta.Set[Binding]:
-        ret = set()
+    ) -> ta.List[Binding]:
+        ret = []
 
         if parent and self._parent is not None:
-            ret.update(self._parent.get_bindings(key, parent=True))
+            ret.extend(self._parent.get_bindings(key, parent=True))
 
         try:
             self_bindings = self._state._bindings_cache[key]
@@ -298,11 +298,11 @@ class InjectorImpl(Injector):
                 if binding.key == key:
                     self_bindings.append(binding)
             self._state._bindings_cache[key] = self_bindings
-        ret.update(self_bindings)
+        ret.extend(self_bindings)
 
         if children:
             for child in self._children:
-                ret.update(child.get_bindings(key, children=True))
+                ret.extend(child.get_bindings(key, children=True))
 
         return ret
 

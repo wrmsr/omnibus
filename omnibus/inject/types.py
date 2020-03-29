@@ -26,6 +26,9 @@ class Key(ta.Generic[T], lang.Final):
     type: ta.Type[T]
     annotation: ta.Any = None
 
+    def __post_init__(self) -> None:
+        hash(self)
+
 
 @dc.dataclass(frozen=True)
 class RequiredKey(Element, ta.Generic[T], lang.Final):
@@ -198,7 +201,7 @@ class Injector(lang.Abstract):
             *,
             parent: bool = False,
             children: bool = False,
-    ) -> ta.Set[Binding]:
+    ) -> ta.List[Binding]:
         raise NotImplementedError
 
 

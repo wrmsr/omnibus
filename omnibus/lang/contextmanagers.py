@@ -221,3 +221,12 @@ def default_lock(value: DefaultLockable, default: DefaultLockable) -> ContextMan
         return value
     else:
         raise TypeError(value)
+
+
+@contextlib.contextmanager
+def breakpoint_on_exception():
+    try:
+        yield
+    except Exception as e:  # noqa
+        breakpoint()
+        raise
