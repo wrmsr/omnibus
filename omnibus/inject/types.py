@@ -238,8 +238,13 @@ class Binder(lang.Abstract):
             callable: ta.Callable[..., T],
             *,
             key: Key[T] = None,
+
             inputs: ta.Mapping[str, Key] = None,
-            in_: ta.Type[Scope] = NOT_SET,
+
+            as_singleton: bool = NOT_SET,
+            as_eager_singleton: bool = NOT_SET,
+            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
         raise NotImplementedError
@@ -250,7 +255,11 @@ class Binder(lang.Abstract):
             cls: ta.Type[T],
             *,
             key: Key[T] = None,
-            in_: ta.Type[Scope] = NOT_SET,
+
+            as_singleton: bool = NOT_SET,
+            as_eager_singleton: bool = NOT_SET,
+            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
         raise NotImplementedError

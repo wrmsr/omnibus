@@ -1,4 +1,6 @@
 import contextlib
+import os.path
+import tempfile
 import threading
 import time
 
@@ -89,6 +91,12 @@ def test_app():
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
     binder.bind_provision_listener(LifecycleRegistrar())
 
+    def provide_replserver() -> replserver.ReplServer:
+        path = os.path.join(tempfile.mkdtemp(), 'sock')
+        return replserver.ReplServer(path)
+
+    binder.bind_callable(provide_replserver, as_eager_singleton=True)
+
     injector = inject.create_injector(binder)
 
     lm = injector.get_instance(lifecycles.LifecycleManager)
@@ -97,5 +105,6 @@ def test_app():
         with server.loop_context() as loop:
             for _ in loop:
                 pass
+        time.sleep(3)
 
     thread.join()

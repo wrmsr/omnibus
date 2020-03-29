@@ -270,8 +270,13 @@ class BinderImpl(Binder):
             callable: ta.Callable[..., T],
             *,
             key: Key[T] = None,
+
             inputs: ta.Mapping[str, Key] = None,
-            in_: ta.Type[Scope] = NoScope,
+
+            as_singleton: bool = NOT_SET,
+            as_eager_singleton: bool = NOT_SET,
+            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
         check.callable(callable)
@@ -282,7 +287,13 @@ class BinderImpl(Binder):
 
         provide = self._make_callable_provider(callable, inputs=inputs)
 
-        binding = Binding(key, provide, in_, source)
+        scoping = self._get_scoping(
+            as_singleton=as_singleton,
+            as_eager_singleton=as_eager_singleton,
+            in_=in_,
+        )
+
+        binding = Binding(key, provide, scoping, source)
         self._add_binding(binding)
         return binding
 
@@ -303,7 +314,11 @@ class BinderImpl(Binder):
             cls: ta.Type[T],
             *,
             key: Key[T] = None,
-            in_: ta.Type[Scope] = NoScope,
+
+            as_singleton: bool = NOT_SET,
+            as_eager_singleton: bool = NOT_SET,
+            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
         check.isinstance(cls, type)
@@ -314,7 +329,13 @@ class BinderImpl(Binder):
 
         provide = self._make_class_provider(cls)
 
-        binding = Binding(key, provide, in_, source)
+        scoping = self._get_scoping(
+            as_singleton=as_singleton,
+            as_eager_singleton=as_eager_singleton,
+            in_=in_,
+        )
+
+        binding = Binding(key, provide, scoping, source)
         self._add_binding(binding)
         return binding
 
