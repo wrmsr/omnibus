@@ -7,6 +7,7 @@ import wsgiref.simple_server
 from .. import lang
 from .apps import App
 from .bind import Binder
+from .bind import ClientAddress
 from .servers import WsgiServer
 from .types import Environ
 
@@ -15,7 +16,6 @@ log = logging.getLogger(__name__)
 
 
 Self = ta.TypeVar('Self')
-ClientAddress = ta.Tuple[str, int]
 
 
 class WSGIRefProtocol(lang.Protocol):

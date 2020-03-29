@@ -50,7 +50,7 @@ class WrapperApp(App):
         return self._app(environ, start_response)
 
 
-def read_input(environ):
+def read_input(environ: Environ) -> bytes:
     try:
         request_body_size = int(environ.get('CONTENT_LENGTH', 0))
     except ValueError:
