@@ -51,7 +51,7 @@ stop:
 
 .PHONY: up
 up:
-	docker-compose up $(DOCKER_COMPOSE_SERVICES) omnibus-dev
+	docker-compose up
 
 .PHONY: down
 down:
