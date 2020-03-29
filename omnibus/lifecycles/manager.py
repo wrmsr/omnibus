@@ -199,10 +199,12 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._lifecycle_context_manager = LifecycleContextManager()
-        self._lifecycle_context_manager.add(self)
+        self._lifecycle_context_manager: LifecycleContextManager = None
 
     def __enter__(self: lang.Self) -> lang.Self:
+        check.none(self._lifecycle_context_manager)
+        self._lifecycle_context_manager = LifecycleContextManager()
+        self._lifecycle_context_manager.add(self)
         self._lifecycle_context_manager.__enter__()
         return self
 
@@ -212,4 +214,5 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
             exc_val: ta.Optional[Exception],
             exc_tb: ta.Optional[types.TracebackType]
     ) -> ta.Optional[bool]:
+        check.not_none(self._lifecycle_context_manager)
         return self._lifecycle_context_manager.__exit__(exc_type, exc_val, exc_tb)
