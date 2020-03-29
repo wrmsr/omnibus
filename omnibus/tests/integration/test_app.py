@@ -125,3 +125,10 @@ def test_app():
                 pass
 
     thread.join()
+
+
+if __name__ == '__main__':
+    import logging
+    from ... import logs
+    logs.configure_standard_logging(logging.INFO)
+    test_app()
