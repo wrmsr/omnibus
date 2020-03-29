@@ -88,7 +88,7 @@ class Binder(lang.Abstract):
             host, port = target
             if not isinstance(host, str) or not isinstance(port, int):
                 raise TypeError(target)
-            return TCPBinder(host, port)
+            return TcpBinder(host, port)
 
         elif isinstance(target, Binder):
             return DupBinder(target)
@@ -157,7 +157,7 @@ class BindBinder(Binder):
         raise NotImplementedError
 
 
-class TCPBinder(BindBinder):
+class TcpBinder(BindBinder):
 
     address_family = sock.AF_INET
 
