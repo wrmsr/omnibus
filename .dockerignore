@@ -6,12 +6,7 @@
 .idea
 .pytest_cache
 .tox
-.venv
-.venv-37
-.venv-docker
-.venv-docker-37
-.venv-install
-.venv-pypi
+.venv*
 attic
 build
 dist

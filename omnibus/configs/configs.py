@@ -8,7 +8,9 @@ TODO:
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
- - https://github.com/omry/omegaconf
+ - https://github.com/omry/omegaconf / https://github.com/facebookresearch/hydra ?
+ - yaml forest
+ - pyo3 adapter
 """
 import abc
 import types

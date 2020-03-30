@@ -31,12 +31,7 @@ clean:
 	-rm -rf .cache
 	-rm -rf .mypy_cache
 	-rm -rf .pytest_cache
-	-rm -rf .venv
-	-rm -rf .venv-37
-	-rm -rf .venv-docker
-	-rm -rf .venv-docker-37
-	-rm -rf .venv-install
-	-rm -rf .venv-pypi
+	-rm -rf .venv*
 	-rm -rf build
 	-rm -rf dist
 	-rm -rf omnibus.egg-info
