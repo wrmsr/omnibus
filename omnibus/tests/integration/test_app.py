@@ -84,7 +84,7 @@ def test_app():
 
     binder.bind_callable(provide_replserver, as_eager_singleton=True)
 
-    @inject.annotate('replserver')
+    @inject.annotate(replserver.ReplServer)
     def provide_replserver_lifecycle(server: replserver.ReplServer) -> lifecycles.ContextManagerLifecycle:
         return lifecycles.ContextManagerLifecycle(server)
 

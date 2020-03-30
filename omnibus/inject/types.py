@@ -238,6 +238,7 @@ class Binder(lang.Abstract):
             callable: ta.Callable[..., T],
             *,
             key: Key[T] = None,
+            annotated_with: ta.Any = NOT_SET,
 
             inputs: ta.Mapping[str, Key] = None,
 

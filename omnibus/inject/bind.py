@@ -225,9 +225,10 @@ class BinderImpl(Binder):
         self._add_binding(binding)
         return binding
 
-    def _get_callable_key(self, callable: ta.Callable) -> Key:
+    def _get_callable_key(self, callable: ta.Callable, annotated_with: ta.Any = NOT_SET) -> Key:
         annotations = get_annotations(callable)
-        return Key(ta.get_type_hints(callable)['return'], annotations.get('return'))
+        key_ann = annotated_with if annotated_with is not NOT_SET else annotations.get('return')
+        return Key(ta.get_type_hints(callable)['return'], key_ann)
 
     def _get_callable_inputs(self, callable: ta.Callable) -> ta.Dict[str, Key]:
         annotations = get_annotations(callable)
@@ -270,6 +271,7 @@ class BinderImpl(Binder):
             callable: ta.Callable[..., T],
             *,
             key: Key[T] = None,
+            annotated_with: ta.Any = NOT_SET,
 
             inputs: ta.Mapping[str, Key] = None,
 
@@ -282,7 +284,7 @@ class BinderImpl(Binder):
         check.callable(callable)
 
         if key is None:
-            key = self._get_callable_key(callable)
+            key = self._get_callable_key(callable, annotated_with=annotated_with)
         check.isinstance(key, Key)
 
         provide = self._make_callable_provider(callable, inputs=inputs)
