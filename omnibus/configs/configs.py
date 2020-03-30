@@ -10,7 +10,7 @@ TODO:
  - config_cls->cls registry pattern?
  - https://github.com/omry/omegaconf / https://github.com/facebookresearch/hydra ?
  - yaml forest
- - pyo3 adapter
+ - pyo3 adapter (serde?)
 """
 import abc
 import types

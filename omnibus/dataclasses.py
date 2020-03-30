@@ -1,6 +1,13 @@
 """
 TODO:
- - codec
+ - converter
+ - auto-typecheck-validation
+ - tuple, pyrsistent, struct, struct-of-arrays. numpy?, mmap?
+  - with nesting
+ - validate
+ - jackson style json serdes interop
+   - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
+ - field.__doc__
 """
 import abc
 import collections
