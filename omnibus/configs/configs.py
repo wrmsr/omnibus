@@ -8,6 +8,7 @@ TODO:
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
+ - https://github.com/omry/omegaconf
 """
 import abc
 import types
