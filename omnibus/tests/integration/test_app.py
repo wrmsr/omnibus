@@ -93,7 +93,7 @@ def test_app():
     binder.bind_callable(
         lifecycles.ContextManagerLifecycle,
         key=inject.Key(lifecycles.ContextManagerLifecycle, replserver.ReplServer),
-        inputs={'obj': replserver.ReplServer},
+        kwargs={'obj': replserver.ReplServer},
         as_eager_singleton=True)
 
     class ReplServerThread(lifecycles.ContextManageableLifecycle):

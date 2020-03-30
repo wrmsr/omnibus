@@ -230,7 +230,7 @@ class BinderImpl(Binder):
         key_ann = annotated_with if annotated_with is not NOT_SET else annotations.get('return')
         return Key(ta.get_type_hints(callable)['return'], key_ann)
 
-    def _get_callable_inputs(self, callable: ta.Callable) -> ta.Dict[str, Key]:
+    def _get_callable_kwargs(self, callable: ta.Callable) -> ta.Dict[str, Key]:
         annotations = get_annotations(callable)
         return {k: Key(v, annotations.get(k)) for k, v in ta.get_type_hints(callable).items() if k != 'return'}
 
@@ -239,7 +239,7 @@ class BinderImpl(Binder):
             callable: ta.Callable[..., T],
             *,
             prototype: ta.Callable[..., T] = None,
-            inputs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+            kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
             provider_factory: ta.Callable[..., Provider[T]] = CallableProvider[T],
     ) -> Provider[T]:
         check.callable(callable)
@@ -248,25 +248,25 @@ class BinderImpl(Binder):
         check.callable(prototype)
 
         sig = inspect.signature(prototype)
-        if inputs is None:
-            inputs = self._get_callable_inputs(prototype)
-        inputs_and_defaults = {
+        if kwargs is None:
+            kwargs = self._get_callable_kwargs(prototype)
+        kwargs_and_defaults = {
             k: (self._get_key(v), (
                 sig.parameters[k].default
                 if k in sig.parameters and sig.parameters[k].default is not inspect._empty
                 else NOT_SET
             ))
-            for k, v in inputs.items()
+            for k, v in kwargs.items()
         }
-        for k, (v, d) in inputs_and_defaults.items():
+        for k, (v, d) in kwargs_and_defaults.items():
             check.isinstance(k, str)
             check.isinstance(v, Key)
             if d is NOT_SET:
                 self._require_key(v, callable)
 
         def provide():
-            kwargs = {k: Injector.current.get_instance(v, d) for k, (v, d) in inputs_and_defaults.items()}
-            return callable(**kwargs)
+            instance_kwargs = {k: Injector.current.get_instance(v, d) for k, (v, d) in kwargs_and_defaults.items()}
+            return callable(**instance_kwargs)
 
         return provider_factory(provide)
 
@@ -277,7 +277,7 @@ class BinderImpl(Binder):
             key: Key[T] = None,
             annotated_with: ta.Any = NOT_SET,
 
-            inputs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+            kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
 
             as_singleton: bool = NOT_SET,
             as_eager_singleton: bool = NOT_SET,
@@ -291,7 +291,7 @@ class BinderImpl(Binder):
             key = self._get_callable_key(callable, annotated_with=annotated_with)
         check.isinstance(key, Key)
 
-        provide = self._make_callable_provider(callable, inputs=inputs)
+        provide = self._make_callable_provider(callable, kwargs=kwargs)
 
         scoping = self._get_scoping(
             as_singleton=as_singleton,

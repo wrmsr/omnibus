@@ -22,10 +22,10 @@ def test_base():
     # binder.bind_callable(lambda: 420, key=Key(int))
     binder.bind(int, to_instance=420)
 
-    # binder.bind_callable(lambda x: D(x), key=Key(D), inputs={'x': Key(int)}, in_=EagerSingletonScope)
+    # binder.bind_callable(lambda x: D(x), key=Key(D), kwargs={'x': Key(int)}, in_=EagerSingletonScope)
     binder.bind(D, as_eager_singleton=True)
 
-    # injector.install(lambda x: C(x), inputs={'x': Key(int)}, key=Key(C))
+    # injector.install(lambda x: C(x), kwargs={'x': Key(int)}, key=Key(C))
 
     class E:
         pass
