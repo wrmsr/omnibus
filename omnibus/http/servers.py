@@ -13,6 +13,8 @@ TODO:
  - asgi
  - http2?
  - uvloop?
+ - use consts not 200
+ - client too? tok-style sync+async?
 """
 import abc
 import contextlib
