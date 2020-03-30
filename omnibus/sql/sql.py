@@ -7,4 +7,5 @@ TODO:
  - state?
  - id_spans?
  - async, https://github.com/RazerM/sqlalchemy_aio or otherwise
+ - mycli, pgcli, innotop
 """

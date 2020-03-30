@@ -3,6 +3,7 @@ import collections
 import pickle
 import typing as ta
 
+import pyrsistent
 import pytest
 
 from .. import dataclasses as dc
@@ -167,3 +168,16 @@ def test_derive():
         x: int
         y: int
         s: str = dc.field(derive=lambda x, y: str(x + y))
+
+
+def test_pyrsistent():
+    v = pyrsistent.pvector(range(6))
+    v = v.set(3, 'a')
+    assert list(v) == [0, 1, 2, 'a', 4, 5]
+    v = v.mset(2, 'b', 4, 'c')
+    assert list(v) == [0, 1, 'b', 'a', 'c', 5]
+    e = v.evolver()
+    e[0] = 'd'
+    e[-1] = 'f'
+    v = e.persistent()
+    assert list(v) == ['d', 1, 'b', 'a', 'c', 'f']

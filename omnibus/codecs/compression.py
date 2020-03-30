@@ -1,3 +1,7 @@
+"""
+TOOD:
+ - snappy, lz4
+"""
 import contextlib
 import gzip as gzip_
 import io

@@ -2,7 +2,7 @@
 TODO:
  - converter
  - auto-typecheck-validation
- - tuple, pyrsistent, struct, struct-of-arrays. numpy?, mmap?
+ - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap?
   - with nesting
  - validate
  - jackson style json serdes interop

@@ -6,6 +6,7 @@ TODO:
  - WeakDict (key and value)
   - weak.py?
  - RingBuffer
+ - Persistent (iface + pyrsistent)
  - **KeyValues**
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap

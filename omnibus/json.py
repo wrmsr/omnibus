@@ -1,6 +1,6 @@
 """
 TODO:
- - orjson
+ - *both* orjson (default) and ujson
  - dumb coercers
   - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
  - combo Serde - codecify?

@@ -1,3 +1,7 @@
+"""
+TODO:
+ - msgpack, bson
+"""
 import io
 import pickle as pickle_
 import struct as struct_
