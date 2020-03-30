@@ -2,7 +2,7 @@ import typing as ta
 
 from .. import check
 from .. import lang
-from .types import NOT_SET
+from .types import MISSING
 
 
 K = ta.TypeVar('K')
@@ -60,7 +60,7 @@ class Flattening:
 
         def setdefault(self, key: K, supplier: ta.Callable[[], V]) -> V:
             ret = self.get(key)
-            if ret is NOT_SET:
+            if ret is MISSING:
                 ret = supplier()
                 self.put(key, ret)
             return ret
@@ -82,7 +82,7 @@ class Flattening:
             self._dict = {}
 
         def get(self, key: str) -> ta.Any:
-            return self._dict.get(key, NOT_SET)
+            return self._dict.get(key, MISSING)
 
         def put(self, key: str, value: ta.Any) -> None:
             check.arg(key not in self._dict)
@@ -100,13 +100,13 @@ class Flattening:
 
         def get(self, key: int) -> ta.Any:
             check.arg(key >= 0)
-            return self._list[key] if key < len(self._list) else NOT_SET
+            return self._list[key] if key < len(self._list) else MISSING
 
         def put(self, key: int, value: ta.Any) -> None:
             check.arg(key >= 0)
             if key >= len(self._list):
-                self._list.extend([NOT_SET] * (key - len(self._list) + 1))
-            check.arg(self._list[key] is NOT_SET)
+                self._list.extend([MISSING] * (key - len(self._list) + 1))
+            check.arg(self._list[key] is MISSING)
             self._list[key] = value
 
         def build(self) -> ta.Any:

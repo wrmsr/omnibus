@@ -8,9 +8,9 @@ from .types import AmbiguouslyRegisteredException  # noqa
 from .types import BaseRegistry  # noqa
 from .types import BaseRegistry  # noqa
 from .types import FrozenRegistrationException  # noqa
+from .types import MISSING  # noqa
 from .types import MultiRegistry  # noqa
 from .types import MultiRegistry  # noqa
-from .types import NOT_SET  # noqa
 from .types import NotRegisteredException  # noqa
 from .types import NotRegisteredException  # noqa
 from .types import Registry  # noqa

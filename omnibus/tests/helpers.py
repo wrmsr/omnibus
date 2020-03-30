@@ -22,8 +22,8 @@ def call_many_with_timeout(
         timeout_s = DEFAULT_TIMEOUT_S
 
     fns = list(fns)
-    not_set = object()
-    rets: T = [not_set] * len(fns)
+    missing = object()
+    rets: T = [missing] * len(fns)
     thread_exception: Exception = None
 
     def inner(fn, idx):
@@ -47,7 +47,7 @@ def call_many_with_timeout(
     if thread_exception is not None:
         raise thread_exception
     for ret in rets:
-        if ret is not_set:
+        if ret is missing:
             raise ValueError
 
     return rets

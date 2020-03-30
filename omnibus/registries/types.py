@@ -14,7 +14,7 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class NOT_SET(lang.Marker):
+class MISSING(lang.Marker):
     pass
 
 

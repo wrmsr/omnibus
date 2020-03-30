@@ -12,14 +12,14 @@ def sync_await(fn: ta.Callable[..., T], *args, **kwargs) -> T:
     async def gate():
         nonlocal ret
         ret = await fn(*args, **kwargs)
-    ret = not_set = object()
+    ret = missing = object()
     cr = gate()
     with contextlib.closing(cr):
         try:
             cr.send(None)
         except StopIteration:
             pass
-        if ret is not_set or cr.cr_await is not None or cr.cr_running:
+        if ret is missing or cr.cr_await is not None or cr.cr_running:
             raise TypeError('Not terminated')
     return ret
 

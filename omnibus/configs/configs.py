@@ -26,7 +26,7 @@ from .fields import EmptyFieldSource
 from .fields import FieldKwargs
 from .fields import FieldMetadata
 from .fields import FieldSource
-from .types import NOT_SET
+from .types import MISSING
 
 
 ConfigT = ta.TypeVar('ConfigT', bound='Config')
@@ -90,9 +90,9 @@ class _FieldDescriptor:
             return instance._values_by_field[self._metadata]
         except KeyError:
             value = instance._field_source.get(self._metadata)
-            if value is NOT_SET:
+            if value is MISSING:
                 value = self._metadata.default
-            if value is NOT_SET:
+            if value is MISSING:
                 raise KeyError(self._metadata)
             instance._values_by_field[self._metadata] = value
             return value
@@ -127,31 +127,31 @@ class _ConfigMeta(abc.ABCMeta):
         value: ta.Any
 
     def build_field_info(mcls, ns, name) -> FieldInfo:
-        annotation = ns.get('__annotations__', {}).get(name, NOT_SET)
-        value = ns.get(name, NOT_SET)
+        annotation = ns.get('__annotations__', {}).get(name, MISSING)
+        value = ns.get(name, MISSING)
         return _ConfigMeta.FieldInfo(name, annotation, value)
 
     def build_field_metadata(mcls, fi: FieldInfo) -> FieldMetadata:
         if isinstance(fi.value, _FieldDescriptor):
             return fi.value._metadata
 
-        type_ = NOT_SET
-        default = NOT_SET
+        type_ = MISSING
+        default = MISSING
         kwargs = {}
 
         if isinstance(fi.value, FieldKwargs):
             fkx = dict(fi.value._kwargs)
             type_ = fkx.pop('type')
-            if type_ is not NOT_SET:
+            if type_ is not MISSING:
                 type_ = fi.annotation
             default = fkx.pop('default')
             kwargs.update(fkx)
 
         else:
-            if fi.annotation is not NOT_SET:
+            if fi.annotation is not MISSING:
                 type_ = fi.annotation
             default = fi.value
-            if default is not NOT_SET and type_ is NOT_SET:
+            if default is not MISSING and type_ is MISSING:
                 type_ = type(default)
 
         return FieldMetadata(

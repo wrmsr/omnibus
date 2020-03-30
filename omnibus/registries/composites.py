@@ -5,8 +5,8 @@ from .. import check
 from .. import lang
 from .types import AmbiguouslyRegisteredException
 from .types import BaseRegistry
+from .types import MISSING
 from .types import MultiRegistry
-from .types import NOT_SET
 from .types import NotRegisteredException
 from .types import Registry
 
@@ -58,7 +58,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
             for child in self._children:
                 child.add_listener(self, listener)
 
-            self._version = NOT_SET
+            self._version = MISSING
             self._maybe_build()
 
     @property

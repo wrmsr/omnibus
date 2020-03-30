@@ -18,7 +18,7 @@ Self = ta.TypeVar('Self')
 BytesLike = ta.Union[bytes, bytearray]
 
 
-_NOT_SET = object()
+_MISSING = object()
 
 
 _CLS_DCT_ATTR_SETS = [
@@ -221,23 +221,23 @@ def anon_object(name: str) -> ta.Any:
 def dir_dict(
         obj: ta.Any,
         *,
-        default=_NOT_SET,
+        default=_MISSING,
         public: bool = False,
         filter: ta.Callable[[str], bool] = None,
 ) -> ta.Dict[str, ta.Any]:
     if filter is None:
         filter = lambda _: True  # noqa
-    args = (default,) if default is not _NOT_SET else ()
+    args = (default,) if default is not _MISSING else ()
     return {a: getattr(obj, a, *args) for a in dir(obj) if filter(a) and not (public and a.startswith('_'))}
 
 
 def cached_nullary(fn: ta.Callable[[], T]) -> ta.Callable[[], T]:
-    value = not_set = object()
+    value = missing = object()
 
     @functools.wraps(fn)
     def inner():
         nonlocal value
-        if value is not_set:
+        if value is missing:
             value = fn()
         return value
 

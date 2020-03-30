@@ -30,7 +30,7 @@ def hoist(depth=0):
 hoist()(contextlib.ExitStack.enter_context)
 
 
-class NOT_SET(lang.Marker):
+class MISSING(lang.Marker):
     pass
 
 
@@ -42,16 +42,16 @@ class Var(ta.Generic[T]):
 
     def __init__(
             self,
-            default: ta.Union[T, ta.Type[NOT_SET]] = NOT_SET,
+            default: ta.Union[T, ta.Type[MISSING]] = MISSING,
             *,
-            new: ta.Union[ta.Callable[[], T], ta.Type[NOT_SET]] = NOT_SET,
+            new: ta.Union[ta.Callable[[], T], ta.Type[MISSING]] = MISSING,
             validate: ta.Callable[[T], None] = None,
     ) -> None:
         super().__init__()
 
-        if default is not NOT_SET and new is not NOT_SET:
+        if default is not MISSING and new is not MISSING:
             raise TypeError('Cannot set both default and new')
-        elif default is not NOT_SET:
+        elif default is not MISSING:
             self._new = lambda: default
         else:
             self._new = new
@@ -125,7 +125,7 @@ class Var(ta.Generic[T]):
                     yield frame_binding._value
             frame = frame.f_back
 
-        if self._new is not NOT_SET:
+        if self._new is not MISSING:
             yield self._new()
 
     def __iter__(self) -> ta.Iterator[T]:

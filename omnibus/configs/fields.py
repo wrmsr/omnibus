@@ -4,7 +4,7 @@ import typing as ta
 from .. import check
 from .. import defs
 from .. import lang
-from .types import NOT_SET
+from .types import MISSING
 
 
 T = ta.TypeVar('T')
@@ -15,9 +15,9 @@ class FieldMetadata(lang.Final, ta.Generic[T]):
     def __init__(
             self,
             name: str,
-            type: type = NOT_SET,
+            type: type = MISSING,
             *,
-            default: ta.Any = NOT_SET,
+            default: ta.Any = MISSING,
             doc: str = None,
     ) -> None:
         super().__init__()
@@ -55,8 +55,8 @@ class FieldKwargs(lang.Final):
 
 
 def field(
-        default: ta.Any = NOT_SET,
-        type: type = NOT_SET,
+        default: ta.Any = MISSING,
+        type: type = MISSING,
         *,
         doc: str = None,
 ):
@@ -77,7 +77,7 @@ class FieldSource(lang.Abstract):
 class EmptyFieldSource(FieldSource):
 
     def get(self, field: FieldMetadata) -> ta.Any:
-        return NOT_SET
+        return MISSING
 
 
 class CompositeFieldSource(FieldSource):
@@ -90,9 +90,9 @@ class CompositeFieldSource(FieldSource):
     def get(self, field: FieldMetadata) -> ta.Any:
         for child in self._children:
             value = child.get(field)
-            if value is not NOT_SET:
+            if value is not MISSING:
                 return value
-        return NOT_SET
+        return MISSING
 
 
 class DictFieldSource(FieldSource):
@@ -103,4 +103,4 @@ class DictFieldSource(FieldSource):
         self._dct = check.not_none(dct)
 
     def get(self, field: FieldMetadata) -> ta.Any:
-        return self._dct.get(field.name, NOT_SET)
+        return self._dct.get(field.name, MISSING)

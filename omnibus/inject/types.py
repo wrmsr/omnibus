@@ -13,7 +13,7 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class NOT_SET(lang.Marker):
+class MISSING(lang.Marker):
     pass
 
 
@@ -180,7 +180,7 @@ class Injector(lang.Abstract):
     def get_instance(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
-            default: ta.Any = NOT_SET,
+            default: ta.Any = MISSING,
     ) -> T:
         raise NotImplementedError
 
@@ -216,15 +216,15 @@ class Binder(lang.Abstract):
             self,
             target: ta.Union[Key, ta.Type, ta.Any],
             *,
-            annotated_with: ta.Any = NOT_SET,
+            annotated_with: ta.Any = MISSING,
 
-            to: ta.Union[Key, ta.Type] = NOT_SET,
-            to_provider: ta.Union[Key, ta.Type] = NOT_SET,
-            to_instance: ta.Any = NOT_SET,
+            to: ta.Union[Key, ta.Type] = MISSING,
+            to_provider: ta.Union[Key, ta.Type] = MISSING,
+            to_instance: ta.Any = MISSING,
 
-            as_singleton: bool = NOT_SET,
-            as_eager_singleton: bool = NOT_SET,
-            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+            as_singleton: bool = MISSING,
+            as_eager_singleton: bool = MISSING,
+            in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
             source: BindingSource = BindingSource.EXPLICIT,
 
@@ -238,13 +238,13 @@ class Binder(lang.Abstract):
             callable: ta.Callable[..., T],
             *,
             key: Key[T] = None,
-            annotated_with: ta.Any = NOT_SET,
+            annotated_with: ta.Any = MISSING,
 
             kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
 
-            as_singleton: bool = NOT_SET,
-            as_eager_singleton: bool = NOT_SET,
-            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+            as_singleton: bool = MISSING,
+            as_eager_singleton: bool = MISSING,
+            in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
@@ -257,9 +257,9 @@ class Binder(lang.Abstract):
             *,
             key: Key[T] = None,
 
-            as_singleton: bool = NOT_SET,
-            as_eager_singleton: bool = NOT_SET,
-            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+            as_singleton: bool = MISSING,
+            as_eager_singleton: bool = MISSING,
+            in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binding:
@@ -278,13 +278,13 @@ class Binder(lang.Abstract):
         def bind(
                 self,
                 *,
-                to: ta.Union[Key, ta.Type] = NOT_SET,
-                to_provider: ta.Union[Key, ta.Type] = NOT_SET,
-                to_instance: ta.Any = NOT_SET,
+                to: ta.Union[Key, ta.Type] = MISSING,
+                to_provider: ta.Union[Key, ta.Type] = MISSING,
+                to_instance: ta.Any = MISSING,
 
-                as_singleton: bool = NOT_SET,
-                as_eager_singleton: bool = NOT_SET,
-                in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+                as_singleton: bool = MISSING,
+                as_eager_singleton: bool = MISSING,
+                in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
                 source: BindingSource = BindingSource.EXPLICIT,
         ) -> Binding:
@@ -297,9 +297,9 @@ class Binder(lang.Abstract):
             *,
             annotated_with: ta.Any = None,
 
-            as_singleton: bool = NOT_SET,
-            as_eager_singleton: bool = NOT_SET,
-            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+            as_singleton: bool = MISSING,
+            as_eager_singleton: bool = MISSING,
+            in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> SetBinder:
@@ -312,13 +312,13 @@ class Binder(lang.Abstract):
                 self,
                 assignment: K,
                 *,
-                to: ta.Union[Key, ta.Type] = NOT_SET,
-                to_provider: ta.Union[Key, ta.Type] = NOT_SET,
-                to_instance: ta.Any = NOT_SET,
+                to: ta.Union[Key, ta.Type] = MISSING,
+                to_provider: ta.Union[Key, ta.Type] = MISSING,
+                to_instance: ta.Any = MISSING,
 
-                as_singleton: bool = NOT_SET,
-                as_eager_singleton: bool = NOT_SET,
-                in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+                as_singleton: bool = MISSING,
+                as_eager_singleton: bool = MISSING,
+                in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
                 source: BindingSource = BindingSource.EXPLICIT,
         ) -> Binding:
@@ -332,9 +332,9 @@ class Binder(lang.Abstract):
             *,
             annotated_with: ta.Any = None,
 
-            as_singleton: bool = NOT_SET,
-            as_eager_singleton: bool = NOT_SET,
-            in_: ta.Union[ta.Type[Scope], ta.Type[NOT_SET]] = NOT_SET,
+            as_singleton: bool = MISSING,
+            as_eager_singleton: bool = MISSING,
+            in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> DictBinder:
@@ -355,6 +355,6 @@ class PrivateBinder(Binder):
             self,
             target: ta.Union[Key, ta.Type, ta.Any],
             *,
-            annotated_with: ta.Any = NOT_SET,
+            annotated_with: ta.Any = MISSING,
     ) -> None:
         raise NotImplementedError

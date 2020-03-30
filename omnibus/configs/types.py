@@ -1,5 +1,5 @@
 from .. import lang
 
 
-class NOT_SET(lang.Marker):
+class MISSING(lang.Marker):
     pass

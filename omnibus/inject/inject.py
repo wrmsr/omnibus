@@ -47,9 +47,9 @@ from .types import Injector
 from .types import InjectorConfig
 from .types import JitBindingSource
 from .types import Key
+from .types import MISSING
 from .types import MultiBinding
 from .types import MultiProvider
-from .types import NOT_SET
 from .types import PrivateElements
 from .types import Provider
 from .types import ProvisionListenerBinding
@@ -234,12 +234,12 @@ class InjectorImpl(Injector):
     def get_instance(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
-            default: ta.Any = NOT_SET,
+            default: ta.Any = MISSING,
     ) -> T:
-        binding = self.get_binding(target, has_default=default is not NOT_SET)
+        binding = self.get_binding(target, has_default=default is not MISSING)
 
         if binding is None:
-            check.state(default is not NOT_SET)
+            check.state(default is not MISSING)
             return default
 
         with self._CURRENT(self):

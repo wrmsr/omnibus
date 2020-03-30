@@ -20,9 +20,6 @@ CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
 ContextManageableT = ta.TypeVar('ContextManageableT', bound='ContextManageable')
 
 
-_NOT_SET = object()
-
-
 class ContextManaged:
 
     def __enter__(self: Self) -> Self:
