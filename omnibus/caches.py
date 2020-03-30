@@ -1,7 +1,7 @@
 """
 TODO:
  - dogpile
- - midpoint/arc
+ - midpoint/arc/lfu
  - thread scoped?
 """
 import collections
