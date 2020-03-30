@@ -239,7 +239,7 @@ class BinderImpl(Binder):
             callable: ta.Callable[..., T],
             *,
             prototype: ta.Callable[..., T] = None,
-            inputs: ta.Mapping[str, Key] = None,
+            inputs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
             provider_factory: ta.Callable[..., Provider[T]] = CallableProvider[T],
     ) -> Provider[T]:
         check.callable(callable)
@@ -251,7 +251,11 @@ class BinderImpl(Binder):
         if inputs is None:
             inputs = self._get_callable_inputs(prototype)
         inputs_and_defaults = {
-            k: (v, sig.parameters[k].default if sig.parameters[k].default is not inspect._empty else NOT_SET)
+            k: (self._get_key(v), (
+                sig.parameters[k].default
+                if k in sig.parameters and sig.parameters[k].default is not inspect._empty
+                else NOT_SET
+            ))
             for k, v in inputs.items()
         }
         for k, (v, d) in inputs_and_defaults.items():
@@ -273,7 +277,7 @@ class BinderImpl(Binder):
             key: Key[T] = None,
             annotated_with: ta.Any = NOT_SET,
 
-            inputs: ta.Mapping[str, Key] = None,
+            inputs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
 
             as_singleton: bool = NOT_SET,
             as_eager_singleton: bool = NOT_SET,

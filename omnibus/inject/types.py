@@ -240,7 +240,7 @@ class Binder(lang.Abstract):
             key: Key[T] = None,
             annotated_with: ta.Any = NOT_SET,
 
-            inputs: ta.Mapping[str, Key] = None,
+            inputs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
 
             as_singleton: bool = NOT_SET,
             as_eager_singleton: bool = NOT_SET,
