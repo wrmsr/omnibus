@@ -14,6 +14,9 @@ from .types import LifecycleStateException
 from .types import LifecycleStates
 
 
+T = ta.TypeVar('T')
+
+
 log = logging.getLogger(__name__)
 
 
@@ -205,6 +208,7 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
         check.none(self._lifecycle_context_manager)
         self._lifecycle_context_manager = LifecycleContextManager()
         self._lifecycle_context_manager.add(self)
+
         self._lifecycle_context_manager.__enter__()
         return self
 
@@ -216,3 +220,21 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
     ) -> ta.Optional[bool]:
         check.not_none(self._lifecycle_context_manager)
         return self._lifecycle_context_manager.__exit__(exc_type, exc_val, exc_tb)
+
+
+class ContextManagerLifecycle(ContextManageableLifecycle, lang.Final, ta.Generic[T]):
+
+    def __init__(self, obj: T) -> None:
+        super().__init__()
+
+        self._obj = check.not_none(obj)
+
+    @property
+    def obj(self) -> T:
+        return self._obj
+
+    def _do_lifecycle_start(self) -> None:
+        self._obj.__enter__()
+
+    def _do_lifecycle_stop(self) -> None:
+        self._obj.__exit__(None, None, None)

@@ -82,6 +82,14 @@ def test_app():
         path = os.path.join(tempfile.mkdtemp(), 'sock')
         return replserver.ReplServer(path)
 
+    binder.bind_callable(provide_replserver, as_eager_singleton=True)
+
+    @inject.annotate('replserver')
+    def provide_replserver_lifecycle(server: replserver.ReplServer) -> lifecycles.ContextManagerLifecycle:
+        return lifecycles.ContextManagerLifecycle(server)
+
+    binder.bind_callable(provide_replserver_lifecycle, as_eager_singleton=True)
+
     class ReplServerThread(lifecycles.ContextManageableLifecycle):
 
         def __init__(self, server: replserver.ReplServer) -> None:
@@ -98,7 +106,6 @@ def test_app():
             self._thread.join(5)
             check.state(not self._thread.is_alive())
 
-    binder.bind_callable(provide_replserver, as_eager_singleton=True)
     binder.bind(ReplServerThread, as_eager_singleton=True)
 
     injector = inject.create_injector(binder)

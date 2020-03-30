@@ -115,3 +115,21 @@ def test_lifecycle_context_manager():
     ) as lm:  # noqa
         assert l0.lifecycle_state is types_.LifecycleStates.STARTED
         assert l1.lifecycle_state is types_.LifecycleStates.STARTED
+
+
+def test_context_manager_lifecycle():
+    class CM:
+
+        def __enter__(self):
+            lst.append('enter')
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            lst.append('exit')
+
+    lst = []
+    cm = CM()
+    with manager_.ContextManagerLifecycle(cm):
+        pass
+
+    assert lst == ['enter', 'exit']
