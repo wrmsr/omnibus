@@ -11,6 +11,7 @@ import typing as ta
 import weakref
 
 from .. import check
+from .. import dataclasses as dc
 from .console import InteractiveSocketConsole
 
 
@@ -21,26 +22,31 @@ class ReplServer:
 
     CONNECTION_THREAD_NAME = 'ReplServerConnection'
 
+    @dc.dataclass(frozen=True)
+    class Config:
+        path: str
+        file_mode: int = None
+        poll_interval: float = 0.5
+        exit_timeout: float = 10.0
+
     def __init__(
             self,
-            path: str,
-            *,
-            file_mode: int = None,
-            poll_interval: float = 0.5,
-            exit_timeout: float = 10.0,
+            config: Config,
     ) -> None:
         super().__init__()
 
-        self._path = path
-        self._file_mode = file_mode
-        self._poll_interval = poll_interval
-        self._exit_timeout = exit_timeout
+        check.not_empty(config.path)
+        self._config = check.isinstance(config, ReplServer.Config)
 
         self._socket: sock.socket = None
         self._is_running = False
         self._consoles_by_threads: ta.MutableMapping[threading.Thread, InteractiveSocketConsole] = weakref.WeakKeyDictionary()  # noqa
         self._is_shutdown = threading.Event()
         self._should_shutdown = False
+
+    @property
+    def path(self) -> str:
+        return self._config.path
 
     def __enter__(self):
         check.state(not self._is_running)
@@ -49,22 +55,22 @@ class ReplServer:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self._is_shutdown.is_set():
-            self.shutdown(True, self._exit_timeout)
+            self.shutdown(True, self._config.exit_timeout)
 
     def run(self) -> None:
         check.state(not self._is_running)
         check.state(not self._is_shutdown.is_set())
 
-        if os.path.exists(self._path):
-            os.unlink(self._path)
+        if os.path.exists(self._config.path):
+            os.unlink(self._config.path)
 
         self._socket = sock.socket(sock.AF_UNIX, sock.SOCK_STREAM)
-        self._socket.settimeout(self._poll_interval)
-        self._socket.bind(self._path)
+        self._socket.settimeout(self._config.poll_interval)
+        self._socket.bind(self._config.path)
         with contextlib.closing(self._socket):
             self._socket.listen(1)
 
-            log.info(f'Repl server listening on file {self._path}')
+            log.info(f'Repl server listening on file {self._config.path}')
 
             self._is_running = True
             try:
@@ -74,7 +80,7 @@ class ReplServer:
                     except sock.timeout:
                         continue
 
-                    log.info(f'Got repl server connection on file {self._path}')
+                    log.info(f'Got repl server connection on file {self._config.path}')
 
                     def run(conn):
                         with contextlib.closing(conn):
@@ -85,7 +91,7 @@ class ReplServer:
 
                             log.info(
                                 f'Starting console {id(console)} repl server connection '
-                                f'on file {self._path} '
+                                f'on file {self._config.path} '
                                 f'on thread {threading.current_thread().ident}'
                             )
                             self._consoles_by_threads[threading.current_thread()] = console
@@ -105,11 +111,11 @@ class ReplServer:
 
                 for thread in self._consoles_by_threads.keys():
                     try:
-                        thread.join(self._exit_timeout)
+                        thread.join(self._config.exit_timeout)
                     except Exception:
                         log.exception('Error shutting down')
 
-                os.unlink(self._path)
+                os.unlink(self._config.path)
 
             finally:
                 self._is_shutdown.set()
@@ -122,5 +128,5 @@ class ReplServer:
 
 
 def run():
-    with ReplServer('repl.sock') as repl_server:
+    with ReplServer(ReplServer.Config('repl.sock')) as repl_server:
         repl_server.run()

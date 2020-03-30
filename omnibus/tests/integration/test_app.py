@@ -97,11 +97,8 @@ def test_app():
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
     binder.bind_provision_listener(LifecycleRegistrar())
 
-    def provide_replserver() -> replserver.ReplServer:
-        path = os.path.join(tempfile.mkdtemp(), 'sock')
-        return replserver.ReplServer(path)
-
-    binder.bind_callable(provide_replserver, as_eager_singleton=True)
+    binder.bind(replserver.ReplServer.Config(os.path.join(tempfile.mkdtemp(), 'sock')))
+    binder.bind(replserver.ReplServer, as_eager_singleton=True)
     bind_contextmanager_lifecycle(binder, replserver.ReplServer)
     binder.bind(ReplServerThread, as_eager_singleton=True)
 

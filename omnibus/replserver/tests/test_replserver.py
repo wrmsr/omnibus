@@ -52,7 +52,7 @@ def test_replserver():
                     break
 
     def inner():
-        server = server_.ReplServer(path)
+        server = server_.ReplServer(server_.ReplServer.Config(path))
         with lang.defer(lambda: server.shutdown(True, 5)):
             def run():
                 with server:
