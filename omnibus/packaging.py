@@ -56,6 +56,7 @@ def purge_libs():
             for target in glob.glob(os.path.join(path, item), recursive=True):
                 target = os.path.abspath(target)
                 if not target.startswith(abscwd):
+                    # FIXME: option to force
                     raise ValueError(target)
                 if os.path.isdir(target):
                     log.info(f'Removing tree {target}')
@@ -151,7 +152,12 @@ class BotoJsonZipFileLoader(BotoJsonPackedFileLoader):
         data_path = os.path.join(boto_path, 'data')
         if not os.path.isdir(data_path):
             raise ValueError(data_path)
+        abscwd = os.path.abspath(os.getcwd()) + os.sep
+        if not data_path.startswith(abscwd):
+            # FIXME: option to force
+            raise ValueError(data_path)
         shutil.make_archive(data_path, 'zip', boto_path, 'data')
+        shutil.rmtree(data_path)
 
     def packed_member_exists(self, member_name):
         with zipfile.ZipFile(self.get_packed_file_path()) as zf:
