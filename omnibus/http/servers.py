@@ -25,7 +25,6 @@ import typing as ta
 from .. import check
 from .. import dataclasses as dc
 from .. import lang
-from .. import lifecycles
 from .. import properties
 from .bind import Binder
 from .types import App
@@ -49,7 +48,7 @@ class SelectorProtocol(lang.Protocol):
         raise NotImplementedError
 
 
-class WsgiServer(lifecycles.ContextManageableLifecycle, lang.Abstract):
+class WsgiServer(lang.ContextManaged, lang.Abstract):
 
     if hasattr(selectors, 'PollSelector'):
         ServerSelector = selectors.PollSelector

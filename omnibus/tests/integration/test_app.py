@@ -3,6 +3,7 @@ import os.path
 import tempfile
 import threading
 import time
+import typing as ta
 
 import requests
 
@@ -12,6 +13,57 @@ from ... import http
 from ... import inject
 from ... import lifecycles
 from ... import replserver
+
+
+def bind_contextmanager_lifecycle(binder: inject.Binder, target: ta.Union[inject.Key, ta.Type]) -> None:
+    binder.bind_callable(
+        lifecycles.ContextManagerLifecycle,
+        key=inject.Key(lifecycles.ContextManagerLifecycle, target),
+        kwargs={'obj': target},
+        as_eager_singleton=True)
+
+
+class LifecycleRegistrar:
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._seen = ocol.IdentitySet()
+
+    def __call__(self, injector: inject.Injector, key, instance) -> None:
+        if (
+                isinstance(instance, lifecycles.Lifecycle) and
+                not isinstance(instance, lifecycles.LifecycleManager) and
+                instance not in self._seen
+        ):
+            man = injector.get_instance(lifecycles.LifecycleManager)
+            man.add(instance)
+            self._seen.add(instance)
+
+
+class ReplServerThread(lifecycles.ContextManageableLifecycle):
+
+    def __init__(self, server: replserver.ReplServer) -> None:
+        super().__init__()
+
+        self._server = server
+        self._thread = threading.Thread(target=server.run)
+
+    def _do_lifecycle_start(self) -> None:
+        self._thread.start()
+
+    def _do_lifecycle_stop(self) -> None:
+        self._server.shutdown()
+        self._thread.join(5)
+        check.state(not self._thread.is_alive())
+
+
+def provide_binder(config: http.bind.Binder.Config) -> http.bind.Binder:
+    if isinstance(config, http.bind.TcpBinder.Config):
+        return http.bind.TcpBinder(config)
+    elif isinstance(config, http.bind.UnixBinder.Config):
+        return http.bind.UnixBinder(config)
+    else:
+        raise TypeError(config)
 
 
 def test_app():
@@ -40,40 +92,7 @@ def test_app():
         server.shutdown()
         return [b'hi']
 
-    class LifecycleRegistrar:
-
-        def __init__(self) -> None:
-            super().__init__()
-            self._seen = ocol.IdentitySet()
-
-        def __call__(self, injector: inject.Injector, key, instance) -> None:
-            if (
-                    isinstance(instance, lifecycles.Lifecycle) and
-                    not isinstance(instance, lifecycles.LifecycleManager) and
-                    instance not in self._seen
-            ):
-                man = injector.get_instance(lifecycles.LifecycleManager)
-                man.add(instance)
-                self._seen.add(instance)
-
-    def provide_binder(config: http.bind.Binder.Config) -> http.bind.Binder:
-        if isinstance(config, http.bind.TcpBinder.Config):
-            return http.bind.TcpBinder(config)
-        elif isinstance(config, http.bind.UnixBinder.Config):
-            return http.bind.UnixBinder(config)
-        else:
-            raise TypeError(config)
-
     binder = inject.create_binder()
-
-    binder.bind(http.App, to_instance=app)
-
-    binder.bind(http.bind.TcpBinder.Config('0.0.0.0', port))
-    binder.bind(http.bind.Binder.Config, to=http.bind.TcpBinder.Config)
-    binder.bind_callable(provide_binder)
-
-    binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
-    binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
 
     binder.bind(lifecycles.LifecycleManager, as_eager_singleton=True)
     binder.bind_provision_listener(LifecycleRegistrar())
@@ -83,36 +102,18 @@ def test_app():
         return replserver.ReplServer(path)
 
     binder.bind_callable(provide_replserver, as_eager_singleton=True)
-
-    # @inject.annotate(replserver.ReplServer)
-    # def provide_replserver_lifecycle(server: replserver.ReplServer) -> lifecycles.ContextManagerLifecycle:
-    #     return lifecycles.ContextManagerLifecycle(server)
-    #
-    # binder.bind_callable(provide_replserver_lifecycle, as_eager_singleton=True)
-
-    binder.bind_callable(
-        lifecycles.ContextManagerLifecycle,
-        key=inject.Key(lifecycles.ContextManagerLifecycle, replserver.ReplServer),
-        kwargs={'obj': replserver.ReplServer},
-        as_eager_singleton=True)
-
-    class ReplServerThread(lifecycles.ContextManageableLifecycle):
-
-        def __init__(self, server: replserver.ReplServer) -> None:
-            super().__init__()
-
-            self._server = server
-            self._thread = threading.Thread(target=server.run)
-
-        def _do_lifecycle_start(self) -> None:
-            self._thread.start()
-
-        def _do_lifecycle_stop(self) -> None:
-            self._server.shutdown()
-            self._thread.join(5)
-            check.state(not self._thread.is_alive())
-
+    bind_contextmanager_lifecycle(binder, replserver.ReplServer)
     binder.bind(ReplServerThread, as_eager_singleton=True)
+
+    binder.bind(http.bind.TcpBinder.Config('0.0.0.0', port))
+    binder.bind(http.bind.Binder.Config, to=http.bind.TcpBinder.Config)
+    binder.bind_callable(provide_binder)
+
+    binder.bind(http.wsgiref.ThreadSpawningWsgiRefServer, as_eager_singleton=True)
+    binder.bind(http.servers.WsgiServer, to=http.wsgiref.ThreadSpawningWsgiRefServer)
+    bind_contextmanager_lifecycle(binder, http.servers.WsgiServer)
+
+    binder.bind(http.App, to_instance=app)
 
     injector = inject.create_injector(binder)
 
