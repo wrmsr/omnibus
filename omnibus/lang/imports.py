@@ -5,8 +5,6 @@ import types
 import typing as ta
 import warnings
 
-import pkg_resources
-
 from .classes import staticfunction
 from .lang import cached_nullary
 
@@ -21,6 +19,9 @@ def warn_unstable():
 
 def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
     return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))
+
+
+_pkg_resources = lazy_import('pkg_resources')
 
 
 def import_module(dotted_path: str) -> types.ModuleType:
@@ -60,7 +61,7 @@ def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterat
         if module.__file__ is None:
             return
 
-        for file in pkg_resources.resource_listdir(dir, '.'):
+        for file in _pkg_resources().resource_listdir(dir, '.'):
             if file.endswith('.py') and not file.startswith('_'):
                 yield dir + '.' + file[:-3]
             elif recursive and '.' not in file:
