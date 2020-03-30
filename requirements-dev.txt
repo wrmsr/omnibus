@@ -20,6 +20,7 @@ flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2
 ipython==7.13.0
+mypy==0.770
 objgraph==3.4.1
 pipdeptree==0.13.2
 pyrasite==2.0

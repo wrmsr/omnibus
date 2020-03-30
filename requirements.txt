@@ -19,7 +19,6 @@ httptools==0.1.1
 jmespath==0.9.5
 lz4==3.0.2
 msgpack==1.0.0
-mypy==0.770
 mysql-connector-python==8.0.19
 orjson==2.6.2
 pg8000==1.14.1
