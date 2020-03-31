@@ -161,6 +161,8 @@ def test_coerce():
     class C:
         s: str = dc.field(coerce=str)
 
+    assert isinstance(C(1).s, str)
+
 
 def test_derive():
     @dc.dataclass(frozen=True)

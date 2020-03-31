@@ -1,6 +1,6 @@
 """
 TODO:
- - move out of test?
+ - move out of test
 """
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative

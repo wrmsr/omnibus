@@ -12,7 +12,7 @@ TODO:
   - debug app
  - asgi
  - http2?
- - uvloop?
+ - uvloop. (uvloop good and pure, sanic bad and disgusting)
  - use consts not 200
  - client too? tok-style sync+async?
 """
