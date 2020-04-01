@@ -48,6 +48,8 @@ RUN ( \
 \
 )
 
+RUN echo "\n\n" >> ~/.bashrc
+
 
 # Python build
 
@@ -93,7 +95,8 @@ RUN ( \
 RUN ( \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     echo "\
-        source ~/.cargo/env \n\
+source ~/.cargo/env \n\
+\n\
     " >> ~/.bashrc \
 )
 
@@ -103,8 +106,9 @@ RUN ( \
 RUN ( \
     cd ~ && git clone https://github.com/pyenv/pyenv .pyenv && \
     echo "\
-        PYENV_ROOT=~/.pyenv \n\
-        PATH=\"~/.pyenv/bin:$PATH\" \n\
+PYENV_ROOT=~/.pyenv \n\
+PATH=\"~/.pyenv/bin:\$PATH\" \n\
+\n\
     " >> ~/.bashrc \
 )
 
@@ -135,6 +139,7 @@ filetype indent plugin on \n\
 
 RUN echo "\
 TERM=screen-256color \n\
+\n\
 " >> ~/.bashrc
 
 RUN echo 'source ~/.bashrc' >> ~/.bash_profile
@@ -146,4 +151,4 @@ WORKDIR /omnibus
 
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["sleep", "infinity"]
+CMD ["sh", "-c", "echo 'Ready' && sleep infinity"]

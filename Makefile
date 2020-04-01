@@ -248,6 +248,10 @@ docker-clean:
 docker-stop:
 	(cd docker && make stop)
 
+.PHONY: docker-rmdev
+docker-rmdev:
+	(cd docker && make rmdev)
+
 .PHONY: docker-reup
 docker-reup:
 	(cd docker && make reup)

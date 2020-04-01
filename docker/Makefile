@@ -57,6 +57,10 @@ up:
 down:
 	docker-compose down
 
+.PHONY: rmdev
+rmdev:
+	docker-compose rm -sf omnibus-dev
+
 .PHONY: reup
 reup: stop
 	docker-compose rm -sf $(DOCKER_COMPOSE_SERVICES)
