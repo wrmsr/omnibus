@@ -198,7 +198,7 @@ test-install: dist
 	fi ; \
 
 	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
-		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup;e=setup.EXTRAS_REQUIRE;print(("["+",".join(e)+"]") if e else "")')
+		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup; e=setup.EXTRAS_REQUIRE; print(("["+",".join(e)+"]") if e else "")')
 
 	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
 
