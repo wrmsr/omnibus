@@ -8,6 +8,7 @@ TODO:
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - field.__doc__
+ - pyo3 + cy struct type interop
 """
 import abc
 import collections
