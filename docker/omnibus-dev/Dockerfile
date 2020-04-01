@@ -76,9 +76,9 @@ RUN ( \
 # JDK
 
 RUN ( \
-    sudo add-apt-repository ppa:openjdk-r/ppa && \
-    sudo apt-get update && \
-    sudo apt-get install -y openjdk-8-jdk openjdk-13-jdk \
+    add-apt-repository ppa:openjdk-r/ppa && \
+    apt-get update && \
+    apt-get install -y openjdk-8-jdk openjdk-13-jdk \
 )
 
 RUN ( \
@@ -88,11 +88,21 @@ RUN ( \
 )
 
 
+# rustup
+
+RUN ( \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
+    echo "\
+        source ~/.cargo/env \n\
+    " >> ~/.bashrc \
+)
+
+
 # pyenv
 
 RUN ( \
     cd ~ && git clone https://github.com/pyenv/pyenv .pyenv && \
-	echo "\
+    echo "\
         PYENV_ROOT=~/.pyenv \n\
         PATH=\"~/.pyenv/bin:$PATH\" \n\
     " >> ~/.bashrc \
@@ -102,8 +112,8 @@ RUN ( \
 # jp
 
 RUN ( \
-    sudo wget https://github.com/jmespath/jp/releases/download/0.1.3/jp-linux-amd64 -O /usr/local/bin/jp && \
-    sudo chmod +x /usr/local/bin/jp \
+    wget https://github.com/jmespath/jp/releases/download/0.1.3/jp-linux-amd64 -O /usr/local/bin/jp && \
+    chmod +x /usr/local/bin/jp \
 )
 
 
