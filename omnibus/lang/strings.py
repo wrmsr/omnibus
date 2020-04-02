@@ -186,7 +186,7 @@ class DelimitedEscaping:
                     i += 1
                     buf.write(s[i])
                 else:
-                    if c not in self._escaped_chars:
+                    if c in self._escaped_chars:
                         raise ValueError(s)
                     buf.write(c)
 
