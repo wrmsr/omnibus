@@ -4,6 +4,7 @@ import random
 
 import pytest
 
+from .. import collections as collections_
 from .. import frozen as frozen_
 from .. import identity as identity_
 from .. import ordered as ordered_
@@ -157,3 +158,26 @@ def test_wrapped():
     w.append(5)
     assert l == [15]
     assert w == [5]
+
+
+def test_unify():
+    l = [
+        {1, 2},
+        {1, 3},
+        {4, 5},
+        {5, 6},
+        {7, 8},
+    ]
+
+    r = collections_.unify(l)
+
+    x = [
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8},
+    ]
+
+    def munge(lst):
+        return frozenset(map(frozenset, lst))
+
+    assert munge(r) == munge(x)

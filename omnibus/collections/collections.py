@@ -45,31 +45,29 @@ def histogram(seq: ta.Iterable[ta.Any]) -> ta.Dict[ta.Any, int]:
     return ret
 
 
-"""
-    public static <T> List<Set<T>> unify(Iterable<Set<T>> sets)
-    {
-        List<Set<T>> rem = newArrayList(sets);
-        List<Set<T>> ret = new ArrayList<>();
-        while (!rem.isEmpty()) {
-            Set<T> cur = rem.remove(rem.size() - 1);
-            boolean moved;
-            do {
-                moved = false;
-                for (int i = rem.size() - 1; i >= 0; --i) {
-                    if (rem.get(i).stream().anyMatch(cur::contains)) {
-                        cur.addAll(rem.remove(i));
-                        moved = true;
-                    }
-                }
-            }
-            while (moved);
-            ret.add(cur);
-        }
-        if (!ret.isEmpty()) {
-            Set<T> all = ret.stream().flatMap(Set::stream).collect(toImmutableSet());
-            int num = ret.stream().map(Set::size).reduce(Integer::sum).get();
-            checkState(all.size() == num);
-        }
-        return ret;
-    }
-"""
+def unify(sets: ta.Iterable[ta.AbstractSet[T]]) -> ta.List[ta.Set[T]]:
+    rem: ta.List[ta.Set[T]] = [set(s) for s in sets]
+    ret: ta.List[ta.Set[T]] = []
+
+    while rem:
+        cur = rem.pop()
+        while True:
+            moved = False
+            i = len(rem) - 1
+            while i >= 0:
+                if any(e in cur for e in rem[i]):
+                    cur |= rem[i]
+                    del rem[i]
+                    moved = True
+                i -= 1
+            if not moved:
+                break
+        ret.append(cur)
+
+    if ret:
+        ret_set = {e for s in ret for e in s}
+        ret_len = sum(map(len, ret))
+        if ret_len != len(ret_set):
+            raise ValueError(ret)
+
+    return ret
