@@ -15,11 +15,14 @@ import collections
 import collections.abc
 import copy
 import dataclasses as dc_
+import inspect
+import types
 import typing as ta
 import weakref
 
 from . import check
 from . import lang
+from . import codegen
 
 
 lang.warn_unstable()
@@ -252,6 +255,38 @@ def dataclass(
                 def _replace(self, **kwargs):
                     return dcls(**{**self._asdict(shallow=True), **kwargs})
                 dcls._replace = _replace
+
+            fn: types.FunctionType = cls.__init__
+            argspec = inspect.getfullargspec(fn)
+            nsb = codegen.NamespaceBuilder()
+
+            lines = []
+
+            def _type_validator(f: Field):
+                def run(value: ta.Any) -> None:
+                    if not isinstance(value, f.type):
+                        raise TypeError(f"Field {f.name} must be of type {f.type}, got value {value}")
+
+                return run
+
+            vfs: ta.List[dc_.Field] = [f for f in fields(cls) if ValidateMetadata in f.metadata]
+            for vf in vfs:
+                v = vf.metadata[ValidateMetadata]
+                if callable(v):
+                    lines.append(f"{nsb.put(v)}({vf.name})")
+                elif v:
+                    lines.append(f"{nsb.put(_type_validator(vf))}({vf.name})")
+
+            if lines:
+                cg = codegen.Codegen()
+                cg(f'def {fn.__name__}({codegen.render_arg_spec(codegen.ArgSpec.from_inspect(argspec), nsb)}:\n')
+                with cg.indent():
+                    cg(f'{nsb.put(fn)}({", ".join(a for a in argspec.args)})\n')
+                    cg('\n'.join(lines))
+
+                ns = dict(nsb)
+                exec(cg.flip(), ns)
+                cls.__init__ = ns[fn.__name__]
 
             return dcls
 

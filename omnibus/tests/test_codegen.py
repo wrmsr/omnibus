@@ -7,7 +7,7 @@ from .. import codegen as cg
 def test_codegen():
     def run(fn):
         nsb = cg.NamespaceBuilder()
-        cg.build_function_def(cg.ArgSpec.from_inspect(inspect.getfullargspec(fn)), nsb)
+        cg.render_arg_spec(cg.ArgSpec.from_inspect(inspect.getfullargspec(fn)), nsb)
 
     run(lambda: None)
     run(lambda a: None)

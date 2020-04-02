@@ -127,7 +127,7 @@ class ArgSpec:
         )
 
 
-def build_function_def(arg_spec: ArgSpec, ns_builder: NamespaceBuilder) -> str:
+def render_arg_spec(arg_spec: ArgSpec, ns_builder: NamespaceBuilder) -> str:
     check.isinstance(arg_spec, ArgSpec)
 
     anns = {}
