@@ -54,7 +54,7 @@ class DelimitedEscaping:
         self._escaped_chars = frozenset(escaped_chars)
 
         for c in [delimit_char, quote_char, escape_char]:
-            if not isinstance(c, str) or len(c) == 1:
+            if not isinstance(c, str) or len(c) != 1:
                 raise TypeError(c)
         for c in self._escaped_chars:
             if not isinstance(c, str):
@@ -125,94 +125,82 @@ class DelimitedEscaping:
         else:
             return s
 
+    def delimit_many(self, strs: ta.Iterable[str]) -> str:
+        if isinstance(strs, str):
+            raise TypeError(strs)
+        buf = io.StringIO()
+        count = 0
+        for s in strs:
+            if count:
+                buf.write(self._delimit_char)
+            count += 1
+            if self.contains_escaped_char(s):
+                buf.write(self.quote(s))
+            else:
+                buf.write(s)
+        return buf.getvalue()
 
-"""
-    public String delimit(String... strs)
-    {
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (String str : strs) {
-            if (count++ > 0) {
-                sb.append(delimitChar);
-            }
-            if (containsEscapedChar(str)) {
-                sb.append(quote(str));
-            }
-            else {
-                sb.append(str);
-            }
-        }
-        return sb.toString();
-    }
+    def delimit(self, s: str) -> str:
+        if not isinstance(s, str):
+            raise TypeError(s)
+        return self.delimit_many([s])
 
-    public String delimit(Iterable<String> strs)
-    {
-        return delimit(StreamSupport.stream(strs.spliterator(), false).toArray(String[]::new));
-    }
+    def undelimit(self, s: str) -> ta.List[str]:
+        ret = []
+        buf = io.StringIO()
+        count = 0
+        i = 0
 
-    public List<String> undelimit(String str)
-    {
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        int i = 0;
+        while i < len(s):
+            c = s[i]
 
-        while (i < str.length()) {
-            char c = str.charAt(i);
+            if count:
+                if c != self._delimit_char or i >= (len(s) - 1):
+                    raise ValueError(s)
+                i += 1
+                c = s[i]
 
-            if (count > 0) {
-                checkArgument(c == delimitChar);
-                checkArgument(i < str.length() - 1);
-                c = str.charAt(++i);
-            }
+            quoted = c == self._quote_char
+            if quoted:
+                if i >= (len(s) - 1):
+                    raise ValueError(s)
+                i += 1
+                c = s[i]
+            unquoted = False
 
-            boolean quoted = c == quoteChar;
-            if (quoted) {
-                checkArgument(i < str.length() - 1);
-                c = str.charAt(++i);
-            }
-            boolean unquoted = false;
+            while True:
+                if c == self._delimit_char:
+                    if not quoted:
+                        break
+                    else:
+                        buf.write(c)
+                elif c == self._quote_char:
+                    if not quoted:
+                        raise ValueError(s)
+                    unquoted = True
+                    i += 1
+                    break
+                elif c == self._escape_char:
+                    if not quoted or i > (len(s) - 2):
+                        raise ValueError(s)
+                    i += 1
+                    buf.write(s[i])
+                else:
+                    if c not in self._escaped_chars:
+                        raise ValueError(s)
+                    buf.write(c)
 
-            while (true) {
-                if (c == delimitChar) {
-                    if (!quoted) {
-                        break;
-                    }
-                    else {
-                        sb.append(c);
-                    }
-                }
-                else if (c == quoteChar) {
-                    checkArgument(quoted);
-                    unquoted = true;
-                    i++;
-                    break;
-                }
-                else if (c == escapeChar) {
-                    checkArgument(quoted);
-                    checkArgument(i <= str.length() - 2);
-                    sb.append(str.charAt(++i));
-                }
-                else {
-                    checkArgument(!escapedChars.contains(c));
-                    sb.append(c);
-                }
+                i += 1
+                if i == len(s):
+                    break
+                c = s[i]
 
-                if (++i == str.length()) {
-                    break;
-                }
-                c = str.charAt(i);
-            }
+            if quoted and not unquoted:
+                raise ValueError(s)
 
-            if (quoted) {
-                checkArgument(unquoted);
-            }
+            ret.append(buf.getvalue())
+            buf.seek(0)
+            buf.truncate()
+            count += 1
 
-            builder.add(sb.toString());
-            sb = new StringBuilder();
-            count++;
-        }
-
-        return builder.build();
-    }
-"""
+        return ret

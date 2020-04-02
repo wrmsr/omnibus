@@ -552,20 +552,14 @@ def test_maybe():
     assert maybes_.Maybe.empty().map(lambda v: v + 1) is maybes_.Maybe.empty()
 
 
-def test_delimited_escaper():
-    """
-    public void testDelimitedEscaper()
-            throws Throwable
-    {
-        DelimitedEscaper de = new DelimitedEscaper('.', '"', '\\', ImmutableSet.of());
+def test_delimited_escaping():
+    de = strings_.DelimitedEscaping('.', '"', '\\')
+    assert de.quote('abc') == 'abc'
+    assert de.quote('a.bc') == '"a\\.bc"'
 
-        assertEquals(de.quote("abc"), "abc");
-        assertEquals(de.quote("a.bc"), "\"a\\.bc\"");
+    parts = ['abc', 'de.f', 'g', 'f']
+    delimited = de.delimit_many(parts)
+    assert delimited == 'abc."de\\.f".g.f'
 
-        List<String> parts = ImmutableList.of("abc", "de.f", "g", "f");
-        String delimited = de.delimit(parts);
-        assertEquals(delimited, "abc.\"de\\.f\".g.f");
-        List<String> undelimited = de.undelimit(delimited);
-        assertEquals(undelimited, parts);
-    }
-    """
+    undelimited = de.undelimit(delimited)
+    assert undelimited == parts

@@ -99,6 +99,7 @@ from .maybes import maybe  # noqa
 from .maybes import MaybeNotPresentException  # noqa
 from .strings import camelize  # noqa
 from .strings import decamelize  # noqa
+from .strings import DelimitedEscaping  # noqa
 from .strings import indent_lines  # noqa
 from .strings import is_dunder  # noqa
 from .strings import is_sunder  # noqa
