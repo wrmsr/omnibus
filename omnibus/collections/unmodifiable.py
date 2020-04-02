@@ -29,14 +29,26 @@ class UnmodifiableSequence(ta.Sequence[T], Unmodifiable, lang.Final):
     def __eq__(self, o: object) -> bool:
         return self._target == o
 
+    def __ge__(self, other: object) -> bool:
+        return self._target >= other
+
     def __getitem__(self, i: ta.Union[int, slice]) -> T:
         return self._target[i]
+
+    def __gt__(self, other: object) -> bool:
+        return self._target > other
 
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self._target)
 
+    def __le__(self, other: object) -> bool:
+        return self._target <= other
+
     def __len__(self) -> int:
         return len(self._target)
+
+    def __lt__(self, other: object) -> bool:
+        return self._target < other
 
     def __ne__(self, o: object) -> bool:
         return self._target != o
@@ -120,14 +132,26 @@ class UnmodifiableMapping(ta.Mapping[K, V], Unmodifiable, lang.Final):
     def __eq__(self, o: object) -> bool:
         return self._target == o
 
+    def __ge__(self, other: object) -> bool:
+        return self._target >= other
+
     def __getitem__(self, k: K) -> V:
         return self._target[k]
+
+    def __gt__(self, other: object) -> bool:
+        return self._target > other
 
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self._target)
 
+    def __le__(self, other: object) -> bool:
+        return self._target <= other
+
     def __len__(self) -> int:
         return len(self._target)
+
+    def __lt__(self, other: object) -> bool:
+        return self._target < other
 
     def __ne__(self, o: object) -> bool:
         return self._target != o

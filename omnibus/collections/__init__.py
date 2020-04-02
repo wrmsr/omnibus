@@ -22,6 +22,9 @@ from .sorted import SortedList  # noqa
 from .sorted import SortedListDict  # noqa
 from .sorted import SortedMapping  # noqa
 from .sorted import SortedMutableMapping  # noqa
+from .unmodifiable import Unmodifiable  # noqa
 from .unmodifiable import UnmodifiableMapping  # noqa
 from .unmodifiable import UnmodifiableSequence  # noqa
 from .unmodifiable import UnmodifiableSet  # noqa
+from .wrapped import Wrapped  # noqa
+from .wrapped import WrappedSequence  # noqa
