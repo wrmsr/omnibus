@@ -192,10 +192,19 @@ def test_default_validation():
     @dc.dataclass()
     class Point:
         x: int
-        y: int
+        xs: ta.Iterable[int]
+        ys_by_x: ta.Mapping[int, str]
+        s: str
 
     xfld = dc.fields_dict(Point)['x']
     xfv = dc.build_default_field_validation(xfld)
     xfv(420)
     with pytest.raises(Exception):
         xfv(420.)
+
+    xsfld = dc.fields_dict(Point)['xs']
+    xsfv = dc.build_default_field_validation(xsfld)
+    xsfv([420])
+    for v in [420, [420.]]:
+        with pytest.raises(Exception):
+            xsfv(v)

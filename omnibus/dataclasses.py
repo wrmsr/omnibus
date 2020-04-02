@@ -432,15 +432,13 @@ SCALAR_ITERABLE_TYPES = {
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *SCALAR_ITERABLE_TYPES)
 def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.cls
-    isinstance(None, cls)  # noqa
+    cls = manifest.spec.erased_cls
     return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
 
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
 def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.cls
-    isinstance(None, cls)  # noqa
+    cls = manifest.spec.erased_cls
     [e] = manifest.spec.args
     ev = build_default_field_validation(fld, e)
 
@@ -454,8 +452,7 @@ def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Mapping)
 def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.cls
-    isinstance(None, cls)  # noqa
+    cls = manifest.spec.erased_cls
     k, v = manifest.spec.args
     kv = build_default_field_validation(fld, k)
     vv = build_default_field_validation(fld, v)
