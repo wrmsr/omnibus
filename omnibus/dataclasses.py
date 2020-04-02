@@ -6,7 +6,10 @@ TODO:
   - with nesting
   - 'Storage' impls: default, ... - both inline/classdef *and* 're-casting' against bltin dc
    - so 'Stubbing' ala compcache shaper..
- - validate
+ - validate: True=default, cls-lvl default on/off, unary void callable
+  - FieldValidator vs Validator - lambda x, y: vs lambda obj: - ~want both~
+   - dc.validate_fields(lambda x, y:)
+   - dc.validate(lambda obj:) - ~before~ post_init - ~could~ be used to do post-init shit but discourage w/ name
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - field.__doc__
@@ -415,12 +418,52 @@ FieldValidation = ta.Callable[[Field], FieldValidator[T]]
 DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
 
 
-def build_default_field_validation(fld: Field) -> FieldValidator:
-    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[fld.type or object]
+def build_default_field_validation(fld: Field, type=MISSING) -> FieldValidator:
+    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[type if type is not MISSING else (fld.type or object)]
     return dispatch.inject_manifest(impl, manifest)(fld)
 
 
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object)
+SCALAR_ITERABLE_TYPES = {
+    bytearray,
+    bytes,
+    str,
+}
+
+
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *SCALAR_ITERABLE_TYPES)
 def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.cls
+    isinstance(None, cls)  # noqa
     return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+
+
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
+def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
+    cls = manifest.cls
+    isinstance(None, cls)  # noqa
+    [e] = manifest.spec.args
+    ev = build_default_field_validation(fld, e)
+
+    def inner(value):
+        check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+        for e in value:
+            ev(e)
+
+    return inner
+
+
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Mapping)
+def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
+    cls = manifest.cls
+    isinstance(None, cls)  # noqa
+    k, v = manifest.spec.args
+    kv = build_default_field_validation(fld, k)
+    vv = build_default_field_validation(fld, v)
+
+    def inner(value):
+        check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+        for k, v in value.items():
+            kv(k)
+            vv(v)
+
+    return inner
