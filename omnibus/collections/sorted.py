@@ -11,7 +11,7 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class SortedList(lang.Abstract, ta.Generic[T]):
+class SortedCollection(lang.Abstract, ta.Collection[T]):
 
     Comparator = ta.Callable[[T, T], int]
 
@@ -54,7 +54,7 @@ class SortedList(lang.Abstract, ta.Generic[T]):
         raise NotImplementedError
 
 
-class SkipList(SortedList[T]):
+class SkipList(SortedCollection[T]):
     """https://gist.github.com/icejoywoo/3bf0c54983a725fa3917"""
 
     class _Node:
@@ -90,12 +90,12 @@ class SkipList(SortedList[T]):
             self,
             *,
             max_height: int = 16,
-            comparator: SortedList.Comparator[T] = None,
+            comparator: SortedCollection.Comparator[T] = None,
     ) -> None:
         super().__init__()
 
         if comparator is None:
-            comparator = SortedList.default_comparator
+            comparator = SortedCollection.default_comparator
         self._compare = comparator
         self._max_height = max_height
         self._head = SkipList._Node(None, self._max_height)
@@ -257,13 +257,13 @@ class SortedMutableMapping(ta.MutableMapping[K, V], SortedMapping[K, V]):
 class SortedListDict(SortedMutableMapping[K, V]):
 
     Item = ta.Tuple[K, V]
-    _impl: SortedList[Item]
+    _impl: SortedCollection[Item]
 
     @staticmethod
     def _item_comparator(a: Item, b: Item) -> int:
-        return SortedList.default_comparator(a[0], b[0])
+        return SortedCollection.default_comparator(a[0], b[0])
 
-    def __init__(self, impl: SortedList[Item], *args, **kwargs) -> None:
+    def __init__(self, impl: SortedCollection[Item], *args, **kwargs) -> None:
         self._impl = impl
 
         super().__init__(*args, **kwargs)

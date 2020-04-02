@@ -18,7 +18,7 @@ from .ordered import OrderedSet  # noqa
 from .sorted import SkipList   # noqa
 from .sorted import SkipListDict   # noqa
 from .sorted import SortedContainersDict  # noqa
-from .sorted import SortedList  # noqa
+from .sorted import SortedCollection  # noqa
 from .sorted import SortedListDict  # noqa
 from .sorted import SortedMapping  # noqa
 from .sorted import SortedMutableMapping  # noqa

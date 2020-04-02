@@ -46,7 +46,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
         if not len(self._target) == len(o):
             return False
         for l, r in zip(self, o):
-            if l != o:
+            if l != r:
                 return False
         return True
 

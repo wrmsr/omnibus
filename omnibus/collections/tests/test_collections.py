@@ -9,6 +9,7 @@ from .. import identity as identity_
 from .. import ordered as ordered_
 from .. import sorted as sorted_
 from .. import unmodifiable as unmodifiable_
+from .. import wrapped as wrapped_
 from ...tests import helpers
 
 
@@ -146,3 +147,13 @@ def test_unmodifiable():
         s.add(4)
     with pytest.raises(Exception):
         d[5] = 6
+
+
+def test_wrapped():
+    l = []
+    w = wrapped_.WrappedSequence(lambda x: x + 10, lambda x: x - 10, l)
+
+    assert not w
+    w.append(5)
+    assert l == [15]
+    assert w == [5]
