@@ -17,6 +17,7 @@ TODO:
  - redundant providers / resolve
  - override
  - custom scopes: async/cvar/dyn?
+ - assisted injection + config (dc) interop - adapter for externals w/ some-kwargs-injected some-kwargs-config'd
 """
 import collections
 import threading

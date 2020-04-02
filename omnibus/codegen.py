@@ -69,6 +69,9 @@ class NameGeneratorImpl:
                 return name
 
 
+name_generator = NameGeneratorImpl
+
+
 class NamespaceBuilder(ta.Mapping[str, ta.Any]):
 
     def __init__(self, name_generator: NameGenerator = None) -> None:
@@ -127,8 +130,11 @@ class ArgSpec:
         )
 
 
-def render_arg_spec(arg_spec: ArgSpec, ns_builder: NamespaceBuilder) -> str:
-    check.isinstance(arg_spec, ArgSpec)
+def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder: NamespaceBuilder) -> str:
+    if isinstance(arg_spec, inspect.FullArgSpec):
+        arg_spec = ArgSpec.from_inspect(arg_spec)
+    else:
+        check.isinstance(arg_spec, ArgSpec)
 
     anns = {}
 
@@ -139,17 +145,21 @@ def render_arg_spec(arg_spec: ArgSpec, ns_builder: NamespaceBuilder) -> str:
         return ': ' + anns[n]
 
     args: ta.List[str] = []
+
     if arg_spec.args:
         nd = len(arg_spec.args) - len(arg_spec.defaults or [])
         args.extend(f"{a}{ann(a)}" for a in arg_spec.args[:nd])
         for a in arg_spec.args[nd:]:
             args.append(f"{a}{ann(a)}{' = ' if a in arg_spec.annotations else '='}{ns_builder.put(a)}")
+
     if arg_spec.varargs:
         args.append(f'*{arg_spec.varargs}' + ann(arg_spec.varargs))
     elif arg_spec.kwonlyargs:
         args.append('*')
+
     for kw, d in zip(arg_spec.kwonlyargs, arg_spec.kwonlydefaults):
         args.append(f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}{ns_builder.put(d)}")
+
     if arg_spec.varkw:
         args.append(f'**{arg_spec.varkw}' + ann(arg_spec.varkw))
 
@@ -162,11 +172,18 @@ def render_arg_spec(arg_spec: ArgSpec, ns_builder: NamespaceBuilder) -> str:
 
 class Codegen:
 
-    def __init__(self, out=None, *, indent: str = '    ') -> None:
+    DEFAULT_INDENT = ' ' * 4
+
+    def __init__(
+            self,
+            *,
+            buf: io.StringIO = None,
+            indent: str = None,
+    ) -> None:
         super().__init__()
 
-        self._out = out if out is not None else io.StringIO()
-        self._indent = check.isinstance(indent, str)
+        self._buf = buf if buf is not None else io.StringIO()
+        self._indent = check.isinstance(indent, str) if indent is not None else self.DEFAULT_INDENT
         self._level = 0
 
     @contextlib.contextmanager
@@ -180,7 +197,7 @@ class Codegen:
     def __call__(self, s: str) -> None:
         i = self._indent * self._level
         s = '\n'.join([(i + l) if l else '' for l in textwrap.dedent(s).split('\n')])
-        self._out.write(s)
+        self._buf.write(s)
 
     def __str__(self) -> str:
-        return self._out.getvalue()
+        return self._buf.getvalue()

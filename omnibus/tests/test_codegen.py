@@ -22,7 +22,7 @@ def test_codegen():
 
 
 def test_namegen():
-    ng = cg.NameGeneratorImpl()
+    ng = cg.name_generator()
     assert ng() == '_0'
     assert ng() == '_1'
 
