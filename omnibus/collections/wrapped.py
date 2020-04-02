@@ -45,8 +45,22 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
     def __contains__(self, x: object) -> bool:
         return self._encoder(x) in self._target
 
+    def __eq__(self, o: object) -> bool:
+        if not len(self._target) == len(o):
+            return False
+        for l, r in zip(self, o):
+            if l != o:
+                return False
+        return True
+
+    def __iter__(self) -> ta.Iterator[TT]:
+        return map(self._decoder, self._target)
+
     def __getitem__(self, i: ta.Union[int, slice]) -> T:
         return self._decoder(self._target[i])
+
+    def __len__(self) -> int:
+        return len(self._target)
 
     def __lt__(self, s: ta.AbstractSet[ta.Any]) -> bool:
         missing = object()
@@ -61,31 +75,17 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
                 return False
         return False
 
-    def index(self, x: ta.Any, *args, **kwargs) -> int:
-        return self._target.index(self._encoder(x), *args, **kwargs)
-
-    def count(self, x: ta.Any) -> int:
-        return self._target.count(self._encoder(x))
-
-    def __iter__(self) -> ta.Iterator[TT]:
-        return map(self._decoder, self._target)
+    def __ne__(self, o: object) -> bool:
+        return not self.__eq__(o)
 
     def __reversed__(self) -> ta.Iterator[TT]:
         return map(self._decoder, reversed(self._target))
 
-    def __len__(self) -> int:
-        return len(self._target)
+    def count(self, x: ta.Any) -> int:
+        return self._target.count(self._encoder(x))
 
-    def __eq__(self, o: object) -> bool:
-        if not len(self._target) == len(o):
-            return False
-        for l, r in zip(self, o):
-            if l != o:
-                return False
-        return True
-
-    def __ne__(self, o: object) -> bool:
-        return not self.__eq__(o)
+    def index(self, x: ta.Any, *args, **kwargs) -> int:
+        return self._target.index(self._encoder(x), *args, **kwargs)
 
 
 @functools.total_ordering
@@ -133,8 +133,20 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
 
+    def __and__(self, s: ta.AbstractSet[ta.Any]) -> ta.AbstractSet[T]:
+        return self._target & s
+
     def __contains__(self, x: object) -> bool:
         return self._encoder(x) in self._target
+
+    def __eq__(self, o: object) -> bool:
+        return self._target == o
+
+    def __iter__(self) -> ta.Iterator[T]:
+        return iter(self._target)
+
+    def __len__(self) -> int:
+        return len(self._target)
 
     def __lt__(self, s: ta.AbstractSet[ta.Any]) -> bool:
         missing = object()
@@ -149,8 +161,8 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
                 return False
         return False
 
-    def __and__(self, s: ta.AbstractSet[ta.Any]) -> ta.AbstractSet[T]:
-        return self._target & s
+    def __ne__(self, o: object) -> bool:
+        return self._target != o
 
     def __or__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:
         return self._target | s
@@ -161,23 +173,11 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
     def __xor__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:
         return self._target ^ s
 
-    def __len__(self) -> int:
-        return len(self._target)
-
-    def __iter__(self) -> ta.Iterator[T]:
-        return iter(self._target)
-
-    def __eq__(self, o: object) -> bool:
-        return self._target == o
-
-    def __ne__(self, o: object) -> bool:
-        return self._target != o
-
     def isdisjoint(self, s: ta.Iterable[ta.Any]) -> bool:
         return self._target.isdisjoint(s)
 
 
-class WrappedMapping(ta.MutableMapping[K, V]):
+class WrappedMapping(ta.MutableMapping[KT, VT], ta.Generic[KF, KT, VF, VT]):
     """
  '__contains__',
  '__delitem__',
@@ -199,7 +199,10 @@ class WrappedMapping(ta.MutableMapping[K, V]):
  'values',
     """
 
-    def __init__(self, target: ta.Mapping[K, V]) -> None:
+    def __init__(
+            self,
+            target: ta.Mapping[K, V],
+    ) -> None:
         super().__init__()
 
         self._target = check.not_none(target)
@@ -207,8 +210,23 @@ class WrappedMapping(ta.MutableMapping[K, V]):
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
 
+    def __contains__(self, o: object) -> bool:
+        return o in self._target
+
+    def __eq__(self, o: object) -> bool:
+        return self._target == o
+
     def __getitem__(self, k: K) -> V:
         return self._target[k]
+
+    def __iter__(self) -> ta.Iterator[T]:
+        return iter(self._target)
+
+    def __ne__(self, o: object) -> bool:
+        return self._target != o
+
+    def __len__(self) -> int:
+        return len(self._target)
 
     def get(self, k: K, default=None) -> ta.Optional[V]:
         return self._target.get(k)
@@ -221,18 +239,3 @@ class WrappedMapping(ta.MutableMapping[K, V]):
 
     def values(self) -> ta.ValuesView[V]:
         return self._target.values()
-
-    def __contains__(self, o: object) -> bool:
-        return o in self._target
-
-    def __len__(self) -> int:
-        return len(self._target)
-
-    def __iter__(self) -> ta.Iterator[T]:
-        return iter(self._target)
-
-    def __eq__(self, o: object) -> bool:
-        return self._target == o
-
-    def __ne__(self, o: object) -> bool:
-        return self._target != o
