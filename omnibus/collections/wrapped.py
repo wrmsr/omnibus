@@ -82,7 +82,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
     def __reversed__(self) -> ta.Iterator[TT]:
         return map(self._decoder, reversed(self._target))
 
-    def __setitem__(self, idx: ta.Union[int, slice], obj: ta.Union[TT. ta.Iterable[TT]]) -> None:
+    def __setitem__(self, idx: ta.Union[int, slice], obj: ta.Union[TT, ta.Iterable[TT]]) -> None:
         if isinstance(idx, int):
             self._target[idx] = self._encoder(obj)
         elif isinstance(idx, slice):
