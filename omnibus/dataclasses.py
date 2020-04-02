@@ -4,6 +4,8 @@ TODO:
  - auto-typecheck-validation
  - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv
   - with nesting
+  - 'Storage' impls: default, ... - both inline/classdef *and* 're-casting' against bltin dc
+   - so 'Stubbing' ala compcache shaper..
  - validate
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
@@ -21,8 +23,9 @@ import typing as ta
 import weakref
 
 from . import check
-from . import lang
 from . import codegen
+from . import dispatch
+from . import lang
 
 
 lang.warn_unstable()
@@ -130,8 +133,7 @@ def _asdict_inner(obj, dict_factory):
     elif isinstance(obj, (list, tuple)):
         return type(obj)(_asdict_inner(v, dict_factory) for v in obj)
     elif isinstance(obj, collections.defaultdict):
-        return type(obj)(obj.default_factory,
-                         ((_asdict_inner(k, dict_factory), _asdict_inner(v, dict_factory)) for k, v in obj.items()))
+        return type(obj)(obj.default_factory, ((_asdict_inner(k, dict_factory), _asdict_inner(v, dict_factory)) for k, v in obj.items()))  # noqa
     elif isinstance(obj, dict):
         return type(obj)((_asdict_inner(k, dict_factory), _asdict_inner(v, dict_factory)) for k, v in obj.items())
     else:
@@ -156,8 +158,7 @@ def _astuple_inner(obj, tuple_factory):
     elif isinstance(obj, (list, tuple)):
         return type(obj)(_astuple_inner(v, tuple_factory) for v in obj)
     elif isinstance(obj, collections.defaultdict):
-        return type(obj)(obj.default_factory,
-                         ((_asdict_inner(k, tuple_factory), _asdict_inner(v, tuple_factory)) for k, v in obj.items()))
+        return type(obj)(obj.default_factory, ((_asdict_inner(k, tuple_factory), _asdict_inner(v, tuple_factory)) for k, v in obj.items()))  # noqa
     elif isinstance(obj, dict):
         return type(obj)((_astuple_inner(k, tuple_factory), _astuple_inner(v, tuple_factory)) for k, v in obj.items())
     else:
@@ -265,7 +266,7 @@ def dataclass(
 
             if lines:
                 cg = codegen.Codegen()
-                cg(f'def {fn.__name__}({codegen.render_arg_spec(codegen.ArgSpec.from_inspect(argspec), nsb)}:\n')
+                cg(f'def {fn.__name__}({codegen.render_arg_spec(argspec, nsb)}:\n')
                 with cg.indent():
                     cg(f'{nsb.put(fn)}({", ".join(a for a in argspec.args)})\n')
                     cg('\n'.join(lines))
@@ -407,3 +408,19 @@ class VirtualClass(metaclass=_VirtualClassMeta):
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError
+
+
+Validator = ta.Callable[[T], None]
+Validation = ta.Callable[[], Validator[T]]
+DEFAULT_VALIDATION_DISPATCHER: dispatch.Dispatcher[Validation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
+
+
+def build_default_validation(cls) -> Validator:
+    impl, manifest = DEFAULT_VALIDATION_DISPATCHER[cls]
+    return dispatch.inject_manifest(impl, manifest)()
+
+
+@DEFAULT_VALIDATION_DISPATCHER.registering(object)
+def default_validation(*, manifest: dispatch.Manifest) -> Validator:
+    cls = manifest.cls
+    return lambda value: check.isinstance(value, cls)
