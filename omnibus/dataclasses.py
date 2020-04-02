@@ -36,13 +36,20 @@ FrozenInstanceError = dc_.FrozenInstanceError
 InitVar = dc_.InitVar
 MISSING = dc_.MISSING
 
-fields = dc_.fields
 is_dataclass = dc_.is_dataclass
-make_dataclass = dc_.make_dataclass
 replace = dc_.replace
 
 
 _ORIGIN = '__dataclass_origin__'
+
+
+def make_dataclass(*args, **kwargs):
+    # FIXME
+    raise NotImplementedError
+
+
+def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[Field]:
+    return dc_.fields(class_or_instance)
 
 
 def fields_dict(class_or_instance) -> ta.Dict[str, Field]:
@@ -324,6 +331,7 @@ class _Meta(abc.ABCMeta):
             bases,
             namespace,
             *,
+            slots=False,
             abstract=False,
             final=False,
             sealed=False,
@@ -340,12 +348,24 @@ class _Meta(abc.ABCMeta):
             bases += (lang.Sealed,)
 
         cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
+        flds = fields(cls)
+
+        rebuild = False
+
+        check.isinstance(slots, bool)
+        if slots and '__slots__' not in namespace:
+            namespace['__slots__'] = tuple(f.name for f in flds)
+            rebuild = True
+        if '__slots__' not in namespace:
+            for fld in fields(cls):
+                if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
+                    namespace[fld.name] = MISSING
+                    rebuild = True
 
         def _build_init():
             def __init__(self):
                 raise NotImplementedError
             return __init__
-        rebuild = False
 
         if abstract and '__init__' not in cls.__abstractmethods__:
             kwargs['init'] = False
