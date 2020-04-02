@@ -1,10 +1,6 @@
-"""
-TODO:
- - async test
- - greenlet test
-"""
 import contextlib
 
+from . import helpers
 from .. import dynamic as dyn
 
 
@@ -94,3 +90,54 @@ def test_cm():
         es.enter_context(cm2())
         assert v() == 421
     assert v() == 420
+
+
+@helpers.skip_if_cant_import('greenlet')
+def test_greenlet():
+    import greenlet
+
+    def test1():
+        assert list(v.values) == [0]
+        with v(2):
+            assert list(v.values) == [2, 0]
+            gr2.switch()
+            with v(3):
+                assert list(v.values) == [3, 2, 0]
+                gr2.switch()
+                assert list(v.values) == [3, 2, 0]
+            assert list(v.values) == [2, 0]
+        assert list(v.values) == [0]
+        nonlocal done
+        done += 1
+
+    def test2():
+        def f():
+            assert list(v.values) == [4, 0]
+            with v(5):
+                assert list(v.values) == [5, 4, 0]
+                gr1.switch()
+                assert list(v.values) == [5, 4, 0]
+            assert list(v.values) == [4, 0]
+
+        assert list(v.values) == [0]
+        with v(4):
+            assert list(v.values) == [4, 0]
+            f()
+            assert list(v.values) == [4, 0]
+        assert list(v.values) == [0]
+        nonlocal done
+        done += 1
+        gr1.switch()
+
+    done = 0
+    v = dyn.Var(0)
+    assert list(v.values) == [0]
+    with v(1):
+        assert list(v.values) == [1, 0]
+
+    gr1 = greenlet.greenlet(test1)
+    gr2 = greenlet.greenlet(test2)
+    gr1.switch()
+    assert done == 2
+
+    assert list(v.values) == [0]

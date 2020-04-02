@@ -1,6 +1,7 @@
 """
 TODO:
  - clj-style binding conveyance
+ - contextvar/async interop
 """
 import contextlib
 import functools
@@ -68,7 +69,7 @@ class Var(ta.Generic[T]):
         else:
             raise TypeError(args)
 
-    def binding(self, value: T, *, offset: int = 1) -> ta.ContextManager[T]:
+    def binding(self, value: T, *, offset: int = 0) -> ta.ContextManager[T]:
         if self._validate is not None:
             self._validate(self.value)
         return Binding(self, value, offset=offset)
@@ -114,7 +115,7 @@ class Var(ta.Generic[T]):
 
     @property
     def values(self) -> ta.Iterator[T]:
-        frame = sys._getframe(1).f_back
+        frame = sys._getframe().f_back
         while frame:
             try:
                 frame_bindings = self._bindings_by_frame[frame]
@@ -145,7 +146,7 @@ class Binding(ta.Generic[T]):
     _frame_bindings = None
     _level = None
 
-    def __init__(self, var: Var[T], value: T, *, offset: int = 1) -> None:
+    def __init__(self, var: Var[T], value: T, *, offset: int = 0) -> None:
         super().__init__()
 
         self._var = var
