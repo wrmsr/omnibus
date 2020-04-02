@@ -2,7 +2,7 @@
 TODO:
  - converter
  - auto-typecheck-validation
- - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap?
+ - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv
   - with nesting
  - validate
  - jackson style json serdes interop
@@ -264,7 +264,7 @@ def dataclass(
                     cg('\n'.join(lines))
 
                 ns = dict(nsb)
-                exec(cg.flip(), ns)
+                exec(str(cg), ns)
                 cls.__init__ = ns[fn.__name__]
 
             return dcls

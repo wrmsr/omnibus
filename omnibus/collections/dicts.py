@@ -1,7 +1,9 @@
+"""
+TODO:
+ - dict update w policy (replace, check, raise)
+"""
 import collections.abc
 import typing as ta
-
-from .. import lang
 
 
 K = ta.TypeVar('K')
@@ -43,35 +45,3 @@ def yield_dict_init(*args, **kwargs) -> ta.Iterable[ta.Tuple[ta.Any, ta.Any]]:
                 yield (k, v)
     for k, v in kwargs.items():
         yield (k, v)
-
-
-class WrappedKeyDict(ta.MutableMapping[K, V]):
-
-    def __init__(self, wrapper: ta.Callable[[K], ta.Any], unwrapper: ta.Callable[[ta.Any], K], *args, **kwargs) -> None:
-        super().__init__()
-        self._dct = {}
-        self._wrapper = wrapper
-        self._unwrapper = unwrapper
-        for k, v in yield_dict_init(*args, **kwargs):
-            self[k] = v
-
-    def __repr__(self) -> str:
-        return lang.attr_repr(self, '_dct')
-
-    def __setitem__(self, k: K, v: V) -> None:
-        self._dct[self._wrapper(k)] = v
-
-    def __delitem__(self, k: K) -> None:
-        del self._dct[self._wrapper(k)]
-
-    def __getitem__(self, k: K) -> V:
-        return self._dct[self._wrapper(k)]
-
-    def __len__(self) -> int:
-        return len(self._dct)
-
-    def __iter__(self) -> ta.Iterator[K]:
-        return iter(map(self._unwrapper, self._dct))
-
-    def clear(self):
-        self._dct.clear()

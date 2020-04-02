@@ -43,3 +43,33 @@ def histogram(seq: ta.Iterable[ta.Any]) -> ta.Dict[ta.Any, int]:
         except KeyError:
             ret[item] = 1
     return ret
+
+
+"""
+    public static <T> List<Set<T>> unify(Iterable<Set<T>> sets)
+    {
+        List<Set<T>> rem = newArrayList(sets);
+        List<Set<T>> ret = new ArrayList<>();
+        while (!rem.isEmpty()) {
+            Set<T> cur = rem.remove(rem.size() - 1);
+            boolean moved;
+            do {
+                moved = false;
+                for (int i = rem.size() - 1; i >= 0; --i) {
+                    if (rem.get(i).stream().anyMatch(cur::contains)) {
+                        cur.addAll(rem.remove(i));
+                        moved = true;
+                    }
+                }
+            }
+            while (moved);
+            ret.add(cur);
+        }
+        if (!ret.isEmpty()) {
+            Set<T> all = ret.stream().flatMap(Set::stream).collect(toImmutableSet());
+            int num = ret.stream().map(Set::size).reduce(Integer::sum).get();
+            checkState(all.size() == num);
+        }
+        return ret;
+    }
+"""

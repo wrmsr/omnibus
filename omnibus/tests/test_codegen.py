@@ -38,4 +38,4 @@ def test_namegen():
         g('there\n')
 
     print()
-    print(g.flip())
+    print(str(g))

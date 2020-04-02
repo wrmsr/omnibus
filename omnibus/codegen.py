@@ -182,6 +182,5 @@ class Codegen:
         s = '\n'.join([(i + l) if l else '' for l in textwrap.dedent(s).split('\n')])
         self._out.write(s)
 
-    def flip(self) -> str:
-        self._out.seek(0)
-        return self._out.read()
+    def __str__(self) -> str:
+        return self._out.getvalue()
