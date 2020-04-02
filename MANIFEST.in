@@ -4,8 +4,6 @@ include LICENSE-*
 
 graft omnibus
 
-global-exclude *.py[co]
-global-exclude __pycache__
 global-exclude .DS_Store
 global-exclude .gitignore
 
