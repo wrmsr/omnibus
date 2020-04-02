@@ -3,6 +3,7 @@ import itertools
 import typing as ta
 
 from .. import check
+from .. import lang
 
 
 TF = ta.TypeVar('TF')
@@ -13,16 +14,17 @@ VF = ta.TypeVar('VF')
 VT = ta.TypeVar('VT')
 
 
+class Wrapped(lang.Abstract):
+    pass
+
+
 @functools.total_ordering
-class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
+class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.Final):
     """
- '__delitem__',
  '__iadd__',
- '__setitem__',
  'append',
  'clear',
  'extend',
- 'insert',
  'pop',
  'remove',
     """
@@ -31,7 +33,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
             self,
             encoder: ta.Callable[[TF], TT],
             decoder: ta.Callable[[TT], TF],
-            target: ta.Sequence[TF],
+            target: ta.MutableSequence[TF],
     ) -> None:
         super().__init__()
 
@@ -44,6 +46,41 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
 
     def __contains__(self, x: object) -> bool:
         return self._encoder(x) in self._target
+
+    def insert(self, idx: int, o: TT) -> None:
+        self._target.insert(idx, self._encoder(o))
+
+    def __setitem__(self, idx: ta.Union[int, slice], obj: ta.Union[TT. ta.Iterable[TT]]) -> None:
+        if isinstance(idx, int):
+            self._target[idx] = self._encoder(obj)
+        elif isinstance(idx, slice):
+            self._target[idx] = map(self._encoder, obj)
+        else:
+            raise TypeError(idx)
+
+    def __delitem__(self, idx: ta.Union[int, slice]) -> None:
+        del self._target[idx]
+
+    def append(self, obj: TT) -> None:
+        self._target.append(self._encoder(obj))
+
+    def clear(self) -> None:
+        self._target.clear()
+
+    def extend(self, it: ta.Iterable[TT]) -> None:
+        self._target.extend(map(self._encoder, it))
+
+    def reverse(self) -> None:
+        return WrappedSequence()
+
+    def pop(self, index: int = ...) -> _T:
+        return super().pop(index)
+
+    def remove(self, object: _T) -> None:
+        super().remove(object)
+
+    def __iadd__(self, x: Iterable[_T]) -> MutableSequence[_T]:
+        return super().__iadd__(x)
 
     def __eq__(self, o: object) -> bool:
         if not len(self._target) == len(o):
@@ -89,7 +126,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
 
 
 @functools.total_ordering
-class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
+class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT], Wrapped, lang.Final):
     """
  '__and__',
  '__contains__',
@@ -122,7 +159,7 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
             self,
             encoder: ta.Callable[[TF], TT],
             decoder: ta.Callable[[TT], TF],
-            target: ta.Sequence[TF],
+            target: ta.MutableSet[TF],
     ) -> None:
         super().__init__()
 
@@ -177,7 +214,7 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
         return self._target.isdisjoint(s)
 
 
-class WrappedMapping(ta.MutableMapping[KT, VT], ta.Generic[KF, KT, VF, VT]):
+class WrappedMapping(ta.MutableMapping[KT, VT], ta.Generic[KF, KT, VF, VT], Wrapped, lang.Final):
     """
  '__contains__',
  '__delitem__',
@@ -201,7 +238,7 @@ class WrappedMapping(ta.MutableMapping[KT, VT], ta.Generic[KF, KT, VF, VT]):
 
     def __init__(
             self,
-            target: ta.Mapping[K, V],
+            target: ta.MutableMapping[KF, VF],
     ) -> None:
         super().__init__()
 

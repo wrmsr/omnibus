@@ -1,6 +1,6 @@
 """
 TODO:
- - total_ordering
+ - hash/total_ordering - FrozenDict retains insertion order honoring, sort keys on demand
  - dict operators
  - list operators
  - views, slices
@@ -9,6 +9,7 @@ import collections.abc
 import itertools
 import typing as ta
 
+from .. import lang
 from .dicts import yield_dict_init
 
 
@@ -17,11 +18,11 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class Frozen:
+class Frozen(lang.Abstract):
     pass
 
 
-class FrozenDict(ta.Mapping[K, V], Frozen):
+class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
 
     def __new__(cls, *args, **kwargs) -> 'FrozenDict[K, V]':
         if len(args) == 1 and Frozen in type(args[0]).__bases__:
@@ -74,7 +75,7 @@ class FrozenDict(ta.Mapping[K, V], Frozen):
         return type(self)(itertools.chain(self.items(), new.items()))
 
 
-class FrozenList(ta.Sequence[T], Frozen):
+class FrozenList(ta.Sequence[T], Frozen, lang.Final):
 
     def __init__(self, it: ta.Iterable[T] = None) -> None:
         super().__init__()

@@ -1,6 +1,7 @@
 import typing as ta
 
 from .. import check
+from .. import lang
 
 
 T = ta.TypeVar('T')
@@ -8,7 +9,11 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class UnmodifiableSequence(ta.Sequence[T]):
+class Unmodifiable(lang.Abstract):
+    pass
+
+
+class UnmodifiableSequence(ta.Sequence[T], Unmodifiable, lang.Final):
 
     def __init__(self, target: ta.Sequence[T]) -> None:
         super().__init__()
@@ -46,7 +51,7 @@ class UnmodifiableSequence(ta.Sequence[T]):
         return self._target.index(x, *args, **kwargs)
 
 
-class UnmodifiableSet(ta.AbstractSet[T]):
+class UnmodifiableSet(ta.AbstractSet[T], Unmodifiable, lang.Final):
 
     def __init__(self, target: ta.AbstractSet[T]) -> None:
         super().__init__()
@@ -99,7 +104,7 @@ class UnmodifiableSet(ta.AbstractSet[T]):
         return self._target.isdisjoint(s)
 
 
-class UnmodifiableMapping(ta.Mapping[K, V]):
+class UnmodifiableMapping(ta.Mapping[K, V], Unmodifiable, lang.Final):
 
     def __init__(self, target: ta.Mapping[K, V]) -> None:
         super().__init__()
