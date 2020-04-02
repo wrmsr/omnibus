@@ -186,3 +186,7 @@ def test_pyrsistent():
     e[-1] = 'f'
     v = e.persistent()
     assert list(v) == ['d', 1, 'b', 'a', 'c', 'f']
+
+
+def test_default_validation():
+
