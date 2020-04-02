@@ -1,3 +1,8 @@
+"""
+TODO:
+ - async test
+ - greenlet test
+"""
 import contextlib
 
 from .. import dynamic as dyn

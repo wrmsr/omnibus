@@ -189,4 +189,13 @@ def test_pyrsistent():
 
 
 def test_default_validation():
+    @dc.dataclass()
+    class Point:
+        x: int
+        y: int
 
+    xfld = dc.fields_dict(Point)['x']
+    xfv = dc.build_default_field_validation(xfld)
+    xfv(420)
+    with pytest.raises(Exception):
+        xfv(420.)

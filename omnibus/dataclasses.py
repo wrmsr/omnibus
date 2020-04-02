@@ -410,17 +410,17 @@ class VirtualClass(metaclass=_VirtualClassMeta):
         raise TypeError
 
 
-Validator = ta.Callable[[T], None]
-Validation = ta.Callable[[], Validator[T]]
-DEFAULT_VALIDATION_DISPATCHER: dispatch.Dispatcher[Validation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
+FieldValidator = ta.Callable[[T], None]
+FieldValidation = ta.Callable[[Field], FieldValidator[T]]
+DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
 
 
-def build_default_validation(cls) -> Validator:
-    impl, manifest = DEFAULT_VALIDATION_DISPATCHER[cls]
-    return dispatch.inject_manifest(impl, manifest)()
+def build_default_field_validation(fld: Field) -> FieldValidator:
+    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[fld.type or object]
+    return dispatch.inject_manifest(impl, manifest)(fld)
 
 
-@DEFAULT_VALIDATION_DISPATCHER.registering(object)
-def default_validation(*, manifest: dispatch.Manifest) -> Validator:
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object)
+def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.cls
-    return lambda value: check.isinstance(value, cls)
+    return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
