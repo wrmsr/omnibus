@@ -131,14 +131,19 @@ def test_pickle():
 
 def test_implicit_abc():
     @dc.dataclass(frozen=True)
-    class C:
+    class C0:
         x: int
 
-    assert issubclass(C, dc.VirtualClass)
-    assert isinstance(C(1), dc.VirtualClass)
+    @dc.dc_.dataclass(frozen=True)
+    class C1:
+        x: int
 
-    assert not issubclass(int, dc.VirtualClass)
-    assert not isinstance(1, dc.VirtualClass)
+    for C in [C0, C1]:
+        assert issubclass(C, dc.VirtualClass)
+        assert isinstance(C(1), dc.VirtualClass)
+
+        assert not issubclass(int, dc.VirtualClass)
+        assert not isinstance(1, dc.VirtualClass)
 
 
 def test_validate():
