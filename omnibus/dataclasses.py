@@ -235,27 +235,6 @@ def dataclass(
 
     def wrap(cls):
         def post_process(dcls):
-            if not hasattr(dcls, '_fields_by_name'):
-                dcls._fields_by_name = {f.name: f for f in fields(dcls)}
-
-            if not hasattr(dcls, '_asdict'):
-                def _asdict(self, *args, **kwargs):
-                    return asdict(self, *args, **kwargs)
-                dcls._asdict = _asdict
-
-            if not hasattr(dcls, '_astuple'):
-                def _astuple(self, *args, **kwargs):
-                    return astuple(self, *args, **kwargs)
-                dcls._astuple = _astuple
-
-            if not hasattr(dcls, '_fields'):
-                dcls._fields = tuple(f.name for f in fields(dcls))
-
-            if not hasattr(dcls, '_replace'):
-                def _replace(self, **kwargs):
-                    return dcls(**{**self._asdict(shallow=True), **kwargs})
-                dcls._replace = _replace
-
             fn: types.FunctionType = cls.__init__
             argspec = inspect.getfullargspec(fn)
             nsb = codegen.NamespaceBuilder()
@@ -323,7 +302,7 @@ def dataclass(
 class SimplePickle:
 
     def __reduce__(self):
-        return (Reducer(), (type(self).__module__, type(self).__qualname__, self._asdict(),))
+        return (Reducer(), (type(self).__module__, type(self).__qualname__, asdict(self),))
 
 
 class Reducer:
