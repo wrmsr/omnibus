@@ -1,5 +1,6 @@
 """
 TODO:
+ - **overhaul to conform to _abc**
  - cythonize stuff
  - Multimap - SetMultimap
  - IdentityWeakKeyDict
