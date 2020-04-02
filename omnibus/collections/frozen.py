@@ -1,5 +1,6 @@
 """
 TODO:
+ - __eq__ consistency
  - hash/total_ordering - FrozenDict retains insertion order honoring, sort keys on demand
  - dict operators
  - list operators

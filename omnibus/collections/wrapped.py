@@ -1,3 +1,7 @@
+"""
+TODO:
+ - __add__ handle 'cannot add tuple and list' somehow - functools.__wrapped__ equiv?
+"""
 import functools
 import itertools
 import typing as ta
@@ -36,6 +40,13 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
 
+    def __add__(self, o: object) -> ta.MutableSequence[TT]:
+        return WrappedSequence(
+            self._encoder,
+            self._decoder,
+            self._target + list(map(self._encoder, o))
+        )
+
     def __contains__(self, x: object) -> bool:
         return self._encoder(x) in self._target
 
@@ -53,7 +64,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
     def __getitem__(self, i: ta.Union[int, slice]) -> TT:
         return self._decoder(self._target[i])
 
-    def __iadd__(self, it: ta.Iterable[TT]) -> ta.MutableSequence[TF]:
+    def __iadd__(self, it: ta.Iterable[TT]) -> ta.MutableSequence[TT]:
         self._target += map(self._encoder, it)
         return self
 
@@ -121,29 +132,19 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
 # @functools.total_ordering
 # class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT], Wrapped, lang.Final):
 #     """
-#     '__and__',
-#     '__contains__',
-#     '__eq__',
 #     '__iand__',
 #     '__ior__',
 #     '__isub__',
 #     '__iter__',
 #     '__ixor__',
 #     '__len__',
-#     '__ne__',
-#     '__new__',
-#     '__or__',
 #     '__rand__',
-#     '__repr__',
 #     '__ror__',
 #     '__rsub__',
 #     '__rxor__',
-#     '__sub__',
-#     '__xor__',
 #     'add',
 #     'clear',
 #     'discard',
-#     'isdisjoint',
 #     'pop',
 #     'remove',
 #     """
@@ -164,16 +165,26 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
 #         return '%s(%r)' % (type(self).__name__, self._target)
 #
 #     def __and__(self, s: ta.AbstractSet[ta.Any]) -> ta.AbstractSet[TT]:
-#         return self._target & s
+#         return WrappedSet(
+#             self._encoder,
+#             self._decoder,
+#             self._target & set(map(self._encoder(s))),
+#         )
 #
 #     def __contains__(self, x: object) -> bool:
 #         return self._encoder(x) in self._target
 #
 #     def __eq__(self, o: object) -> bool:
-#         return self._target == o
+#         if not len(self._target) == len(o):
+#             return False
+#         if not all(i in o for i in self):
+#             return False
+#         if not all(i in self for i in o):
+#             return False
+#         return True
 #
 #     def __iter__(self) -> ta.Iterator[TT]:
-#         return iter(self._target)
+#         return map(self._decoder, self._target)
 #
 #     def __len__(self) -> int:
 #         return len(self._target)
@@ -205,8 +216,8 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
 #
 #     def isdisjoint(self, s: ta.Iterable[ta.Any]) -> bool:
 #         return self._target.isdisjoint(s)
-#
-#
+
+
 # class WrappedMapping(ta.MutableMapping[KT, VT], ta.Generic[KF, KT, VF, VT], Wrapped, lang.Final):
 #     """
 #     '__contains__',
