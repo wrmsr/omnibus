@@ -1,6 +1,7 @@
 """
 TODO:
  - __add__ handle 'cannot add tuple and list' somehow - functools.__wrapped__ equiv?
+  - do as set/frozenset __or__ - lval wins
 """
 import functools
 import itertools
