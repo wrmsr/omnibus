@@ -1,3 +1,5 @@
+import functools
+import itertools
 import typing as ta
 
 from .. import check
@@ -11,6 +13,7 @@ VF = ta.TypeVar('VF')
 VT = ta.TypeVar('VT')
 
 
+@functools.total_ordering
 class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
     """
  '__delitem__',
@@ -39,17 +42,30 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
 
+    def __contains__(self, x: object) -> bool:
+        return self._encoder(x) in self._target
+
     def __getitem__(self, i: ta.Union[int, slice]) -> T:
         return self._decoder(self._target[i])
+
+    def __lt__(self, s: ta.AbstractSet[ta.Any]) -> bool:
+        missing = object()
+        for l, r in itertools.zip_longest(self, s, fillvalue=missing):
+            if l is missing:
+                return False
+            elif r is missing:
+                return True
+            elif l < r:
+                return True
+            elif r < l:
+                return False
+        return False
 
     def index(self, x: ta.Any, *args, **kwargs) -> int:
         return self._target.index(self._encoder(x), *args, **kwargs)
 
     def count(self, x: ta.Any) -> int:
         return self._target.count(self._encoder(x))
-
-    def __contains__(self, x: object) -> bool:
-        return self._encoder(x) in self._target
 
     def __iter__(self) -> ta.Iterator[TT]:
         return map(self._decoder, self._target)
@@ -72,6 +88,7 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT]):
         return not self.__eq__(o)
 
 
+@functools.total_ordering
 class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
     """
  '__and__',
@@ -117,19 +134,20 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
         return '%s(%r)' % (type(self).__name__, self._target)
 
     def __contains__(self, x: object) -> bool:
-        return x in self._target
-
-    def __le__(self, s: ta.AbstractSet[ta.Any]) -> bool:
-        return self._target <= s
+        return self._encoder(x) in self._target
 
     def __lt__(self, s: ta.AbstractSet[ta.Any]) -> bool:
-        return self._target > s
-
-    def __gt__(self, s: ta.AbstractSet[ta.Any]) -> bool:
-        return self._target > s
-
-    def __ge__(self, s: ta.AbstractSet[ta.Any]) -> bool:
-        return self._target >= s
+        missing = object()
+        for l, r in itertools.zip_longest(self, s, fillvalue=missing):
+            if l is missing:
+                return False
+            elif r is missing:
+                return True
+            elif l < r:
+                return True
+            elif r < l:
+                return False
+        return False
 
     def __and__(self, s: ta.AbstractSet[ta.Any]) -> ta.AbstractSet[T]:
         return self._target & s
@@ -143,9 +161,6 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
     def __xor__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:
         return self._target ^ s
 
-    def isdisjoint(self, s: ta.Iterable[ta.Any]) -> bool:
-        return self._target.isdisjoint(s)
-
     def __len__(self) -> int:
         return len(self._target)
 
@@ -157,6 +172,9 @@ class WrappedSet(ta.MutableSet[TT], ta.Generic[TF, TT]):
 
     def __ne__(self, o: object) -> bool:
         return self._target != o
+
+    def isdisjoint(self, s: ta.Iterable[ta.Any]) -> bool:
+        return self._target.isdisjoint(s)
 
 
 class WrappedMapping(ta.MutableMapping[K, V]):

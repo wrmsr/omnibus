@@ -1,5 +1,6 @@
 """
 TODO:
+ - total_ordering
  - dict operators
  - list operators
  - views, slices
@@ -38,28 +39,28 @@ class FrozenDict(ta.Mapping[K, V], Frozen):
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._dct)
 
+    def __eq__(self, other) -> bool:
+        return type(self) == type(other) and self._dct == other._dct
+
     def __getitem__(self, key: K) -> V:
         return self._dct[key]
 
-    def __len__(self) -> int:
-        return len(self._dct)
-
-    def __iter__(self) -> ta.Iterator[K]:
-        return iter(self._dct)
+    def __getstate__(self):
+        return tuple(self.items())
 
     def __hash__(self) -> int:
         if self._hash is None:
             self._hash = hash((k, self[k]) for k in sorted(self))
         return self._hash
 
-    def __eq__(self, other) -> bool:
-        return type(self) == type(other) and self._dct == other._dct
+    def __iter__(self) -> ta.Iterator[K]:
+        return iter(self._dct)
+
+    def __len__(self) -> int:
+        return len(self._dct)
 
     def __ne__(self, other) -> bool:
         return not (self == other)
-
-    def __getstate__(self):
-        return tuple(self.items())
 
     def __setstate__(self, t):
         self.__init__(t)
@@ -83,26 +84,16 @@ class FrozenList(ta.Sequence[T], Frozen):
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._tup)
 
-    def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':
-        return FrozenList(self._tup[idx])
-
-    def __len__(self) -> int:
-        return len(self._tup)
-
-    def index(self, x: ta.Any, *args, **kwargs) -> int:
-        return self._tup.index(x, *args, **kwargs)
-
-    def count(self, x: ta.Any) -> int:
-        return super().count(x)
+    def __add__(self, o) -> 'FrozenList[T]':
+        if isinstance(o, FrozenList):
+            return FrozenList(self._tup + o._tup)
+        elif isinstance(o, collections.abc.Sequence):
+            return FrozenList(self._tup + tuple(o))
+        else:
+            return NotImplemented
 
     def __contains__(self, x: object) -> bool:
         return x in self._tup
-
-    def __iter__(self) -> ta.Iterator[T]:
-        return iter(self._tup)
-
-    def __reversed__(self) -> ta.Iterator[T]:
-        return reversed(self._tup)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, FrozenList):
@@ -112,16 +103,17 @@ class FrozenList(ta.Sequence[T], Frozen):
         else:
             return False
 
+    def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':
+        return FrozenList(self._tup[idx])
+
+    def __iter__(self) -> ta.Iterator[T]:
+        return iter(self._tup)
+
+    def __len__(self) -> int:
+        return len(self._tup)
+
     def __ne__(self, o: object) -> bool:
         return not self.__eq__(o)
-
-    def __add__(self, o) -> 'FrozenList[T]':
-        if isinstance(o, FrozenList):
-            return FrozenList(self._tup + o._tup)
-        elif isinstance(o, collections.abc.Sequence):
-            return FrozenList(self._tup + tuple(o))
-        else:
-            return NotImplemented
 
     def __radd__(self, o) -> 'FrozenList[T]':
         if isinstance(o, FrozenList):
@@ -130,3 +122,12 @@ class FrozenList(ta.Sequence[T], Frozen):
             return FrozenList(tuple(o) + self._tup)
         else:
             return NotImplemented
+
+    def __reversed__(self) -> ta.Iterator[T]:
+        return reversed(self._tup)
+
+    def count(self, x: ta.Any) -> int:
+        return super().count(x)
+
+    def index(self, x: ta.Any, *args, **kwargs) -> int:
+        return self._tup.index(x, *args, **kwargs)
