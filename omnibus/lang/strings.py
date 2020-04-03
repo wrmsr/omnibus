@@ -2,6 +2,9 @@ import io
 import typing as ta
 
 
+T = ta.TypeVar('T')
+
+
 def camelize(name: str) -> str:
     return ''.join(map(str.capitalize, name.split('_')))
 
@@ -204,3 +207,57 @@ class DelimitedEscaping:
             count += 1
 
         return ret
+
+
+class Redacted(ta.Generic[T]):
+
+    def __new__(cls, value, *args, **kwargs):
+        if isinstance(value, Redacted):
+            return value
+        return super().__new__(cls, *args, **kwargs)
+
+    def __init__(self, value: T) -> None:
+        if value is self:
+            return
+        super().__init__()
+        if isinstance(value, Redacted):
+            raise TypeError(value)
+        self._value = value
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}@{hex(id(self))[2:]}'
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __hash__(self) -> int:
+        return hash(self._value)
+
+    def __eq__(self, o: object) -> bool:
+        return self._value == (o._value if isinstance(o, Redacted) else o)
+
+    def __ne__(self, o: object) -> bool:
+        return self._value != (o._value if isinstance(o, Redacted) else o)
+
+    def __lt__(self, o: object) -> bool:
+        return self._value < (o._value if isinstance(o, Redacted) else o)
+
+    def __le__(self, o: object) -> bool:
+        return self._value <= (o._value if isinstance(o, Redacted) else o)
+
+    def __gt__(self, o: object) -> bool:
+        return self._value > (o._value if isinstance(o, Redacted) else o)
+
+    def __ge__(self, o: object) -> bool:
+        return self._value >= (o._value if isinstance(o, Redacted) else o)
+
+    @property
+    def value(self) -> T:
+        return self._value
+
+
+def redact(value: T) -> Redacted[T]:
+    return Redacted(value)

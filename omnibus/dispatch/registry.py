@@ -112,7 +112,7 @@ class _ClassMeta(abc.ABCMeta):
             else:
                 if isinstance(reg, Property):
                     reg.register(value, cls_dct=self._dict)
-                    self._dict[f'__{hex(id(value))}'] = value
+                    self._dict[f'__{hex(id(value))[2:]}'] = value
 
         def __delitem__(self, key):
             del self._dict[key]

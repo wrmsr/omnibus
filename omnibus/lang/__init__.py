@@ -105,3 +105,5 @@ from .strings import indent_lines  # noqa
 from .strings import is_dunder  # noqa
 from .strings import is_sunder  # noqa
 from .strings import prefix_lines  # noqa
+from .strings import redact  # noqa
+from .strings import Redacted  # noqa

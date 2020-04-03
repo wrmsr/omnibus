@@ -563,3 +563,14 @@ def test_delimited_escaping():
 
     undelimited = de.undelimit(delimited)
     assert undelimited == parts
+
+
+def test_redact():
+    barf = strings_.redact('barf')
+    assert barf.value == 'barf'
+    assert strings_.redact(barf) is barf
+    assert 'barf' not in str(barf)
+    assert 'barf' not in repr(barf)
+    assert barf == 'barf'
+    assert barf != 'barfx'
+    assert barf < 'barfx'

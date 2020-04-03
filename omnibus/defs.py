@@ -45,7 +45,7 @@ def _repr_guard(fn):
                 del _REPR_SEEN.ids
         else:
             if id(obj) in ids:
-                return f'<seen@{hex(id(obj))}>'
+                return f'<seen@{hex(id(obj)[2:])}>'
             ids.add(id(obj))
             return fn(obj, *args, **kwargs)
     return inner
@@ -62,7 +62,7 @@ def build_attr_repr(obj, *, mro=False):
         attrs = obj.__repr_attrs__
     return '%s@%s(%s)' % (
         type(obj).__name__,
-        hex(id(obj)),
+        hex(id(obj))[2:],
         ', '.join('%s=%s' % (attr, '<self>' if value is obj else _repr(value))
                   for attr in attrs for value in [getattr(obj, attr)]))
 
@@ -71,7 +71,7 @@ def build_attr_repr(obj, *, mro=False):
 def build_repr(obj, *attrs):
     return '%s@%s(%s)' % (
         type(obj).__name__,
-        hex(id(obj)),
+        hex(id(obj))[2:],
         ', '.join('%s=%r' % (attr, getattr(obj, attr)) for attr in attrs))
 
 
