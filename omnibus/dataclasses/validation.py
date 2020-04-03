@@ -75,4 +75,5 @@ def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest)
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(VirtualClass)
 def dataclass_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    raise NotImplementedError
+    # FIXME: recurse?
+    return default_field_validation(fld, manifest=manifest)

@@ -63,7 +63,7 @@ class _Meta(abc.ABCMeta):
             namespace['__init__'] = abc.abstractmethod(_build_init())
             rebuild = True
         elif not abstract and '__init__' in cls.__abstractmethods__:
-            bases = (lang.new_type('ConcreteDataclass', (Dataclass,), {'__init__': _build_init()}, init=False),) + bases
+            bases = (lang.new_type('$Dataclass', (Dataclass,), {'__init__': _build_init()}, init=False),) + bases
             rebuild = True
 
         if pickle and cls.__reduce__ is object.__reduce__:

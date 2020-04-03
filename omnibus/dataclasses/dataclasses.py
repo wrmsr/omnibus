@@ -233,20 +233,21 @@ def dataclass(
 
             lines = []
 
-            def _type_validator(f: Field):
-                def run(value: ta.Any) -> None:
-                    if not isinstance(value, f.type):
-                        raise TypeError(f"Field {f.name} must be of type {f.type}, got value {value}")
-
-                return run
+            def _type_validator(fld: Field):
+                from .validation import build_default_field_validation
+                return build_default_field_validation(fld)
 
             vfs: ta.List[dc_.Field] = [f for f in fields(cls) if ValidateMetadata in f.metadata]
             for vf in vfs:
                 v = vf.metadata[ValidateMetadata]
                 if callable(v):
                     lines.append(f"{nsb.put(v)}({vf.name})")
-                elif v:
+                elif v is True:
                     lines.append(f"{nsb.put(_type_validator(vf))}({vf.name})")
+                elif v is False or v is None:
+                    pass
+                else:
+                    raise TypeError(v)
 
             if lines:
                 cg = codegen.Codegen()
