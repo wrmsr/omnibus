@@ -3,14 +3,14 @@ TODO:
  - order=False, kwwonly=False
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
- - redaction
- - converter
+ - redaction - RedactedStr type?
  - auto-typecheck-validation
  - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv
   - with nesting
   - 'Storage' impls: default, ... - both inline/classdef *and* 're-casting' against bltin dc
    - so 'Stubbing' ala compcache shaper..
- - validate: True=default, cls-lvl default on/off, unary void callable
+ - coerce: True=just call w val, cls-lvl default on/off, unary void callable
+ - validate: True=default, cls-lvl default on/off, unary void callable ...
   - FieldValidator vs Validator - lambda x, y: vs lambda obj: - ~want both~
    - dc.validate_fields(lambda x, y:)
    - dc.validate(lambda obj:) - ~before~ post_init - ~could~ be used to do post-init shit but discourage w/ name

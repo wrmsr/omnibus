@@ -15,6 +15,7 @@ TODO:
   - https://github.com/facebookresearch/hydra
  - pyo3 adapter (serde?)
  - newable-style object graphs, refs
+ - cmdline overrides (env-var? dict?)
 """
 import abc
 import types
