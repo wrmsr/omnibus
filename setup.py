@@ -114,8 +114,28 @@ else:
         ])
 
 
+class Distribution(setuptools.dist.Distribution):
+
+    dev = 0
+    _omnibus_name_set = False
+
+    def _get_toplevel_options(self):
+        return super()._get_toplevel_options() + [
+            ('dev', None, 'dev subproject'),
+        ]
+
+    def parse_command_line(self):
+        ok = super().parse_command_line()
+        if not self._omnibus_name_set:
+            self.metadata.name = ABOUT['__title__'] + ('-dev' if self.dev else '')
+            self._omnibus_name_set = True
+        return ok
+
+
 if __name__ == '__main__':
     setuptools.setup(
+        distclass=Distribution,
+
         name=ABOUT['__title__'],
         version=ABOUT['__version__'],
         description=ABOUT['__description__'],

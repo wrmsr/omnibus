@@ -1,4 +1,4 @@
-import datetime
+import pkgutil
 import sys
 
 
@@ -6,8 +6,7 @@ if not sys.version_info >= (3, 7):
     raise EnvironmentError
 
 
-# http://bugs.python.org/issue7980
-datetime.datetime.strptime('2000-01-01', '%Y-%m-%d')
+__path__ = pkgutil.extend_path(__path__, __name__)
 
 
 def _test_install():

@@ -2,6 +2,7 @@
 TODO:
  - **overhaul to conform to _abc**
  - cythonize stuff
+  - http://www.cplusplus.com/reference/stl/ for int/long/float/double/ptr/bytes/PyObject
  - Multimap - SetMultimap
  - IdentityWeakKeyDict
  - WeakDict (key and value)
