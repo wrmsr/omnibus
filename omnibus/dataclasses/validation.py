@@ -29,6 +29,12 @@ def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> Fiel
     return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
 
 
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(reflect.UnionVirtualClass)
+def union_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
+    print(manifest.spec.args)
+    raise TypeError
+
+
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
 def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.spec.erased_cls

@@ -217,6 +217,7 @@ def test_default_validation():
         ys_by_x: ta.Mapping[int, float]
         s: str
         d: dict
+        oi: ta.Optional[int]
 
     xfld = dc.fields_dict(Point)['x']
     xfv = validation_.build_default_field_validation(xfld)
@@ -253,6 +254,13 @@ def test_default_validation():
     dfv({1: 2})
     with pytest.raises(Exception):
         sfv(())
+
+    oifld = dc.fields_dict(Point)['oi']
+    oifv = validation_.build_default_field_validation(oifld)
+    oifv(None)
+    oifv(420)
+    with pytest.raises(Exception):
+        oifv(420.)
 
 
 def test_info():

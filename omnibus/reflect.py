@@ -125,9 +125,30 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
         ]
 
 
+class _UnionVirtualClassMeta(type):
+
+    def __subclasscheck__(cls, subclass):
+        return isinstance(subclass, GenericAlias) and cls.__origin__ is ta.Union
+
+    def __instancecheck__(cls, instance):
+        raise TypeError
+
+
+class UnionVirtualClass(metaclass=_UnionVirtualClassMeta):
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+
 def erase_generic(cls: TypeLike) -> ta.Optional[ta.Type]:
     if isinstance(cls, GenericAlias):
-        return cls.__origin__
+        if cls.__origin__ is ta.Union:
+            return UnionVirtualClass
+        else:
+            return cls.__origin__
     elif isinstance(cls, type):
         return cls
     else:
