@@ -10,7 +10,7 @@ from .types import MISSING
 T = ta.TypeVar('T')
 
 
-class FieldMetadata(lang.Final, ta.Generic[T]):
+class FieldInfo(lang.Final, ta.Generic[T]):
 
     def __init__(
             self,
@@ -70,13 +70,13 @@ def field(
 class FieldSource(lang.Abstract):
 
     @abc.abstractmethod
-    def get(self, field: FieldMetadata) -> ta.Any:
+    def get(self, field: FieldInfo) -> ta.Any:
         raise NotImplementedError
 
 
 class EmptyFieldSource(FieldSource):
 
-    def get(self, field: FieldMetadata) -> ta.Any:
+    def get(self, field: FieldInfo) -> ta.Any:
         return MISSING
 
 
@@ -87,7 +87,7 @@ class CompositeFieldSource(FieldSource):
 
         self._children = children
 
-    def get(self, field: FieldMetadata) -> ta.Any:
+    def get(self, field: FieldInfo) -> ta.Any:
         for child in self._children:
             value = child.get(field)
             if value is not MISSING:
@@ -102,5 +102,5 @@ class DictFieldSource(FieldSource):
 
         self._dct = check.not_none(dct)
 
-    def get(self, field: FieldMetadata) -> ta.Any:
+    def get(self, field: FieldInfo) -> ta.Any:
         return self._dct.get(field.name, MISSING)

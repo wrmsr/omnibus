@@ -4,7 +4,6 @@ import weakref
 
 from .. import check
 from .. import defs
-from .. import lang
 from .. import properties
 
 

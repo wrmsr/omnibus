@@ -23,8 +23,8 @@ from .. import lang
 from .. import properties
 from .fields import DictFieldSource
 from .fields import EmptyFieldSource
+from .fields import FieldInfo
 from .fields import FieldKwargs
-from .fields import FieldMetadata
 from .fields import FieldSource
 from .types import MISSING
 
@@ -37,11 +37,11 @@ IGNORED_NAMESPACE_KEYS: ta.Set[str] = {
 }
 
 
-class ConfigMetadata(lang.Final):
+class ConfigInfo(lang.Final):
 
     def __init__(
             self,
-            fields: ta.Iterable[FieldMetadata],
+            fields: ta.Iterable[FieldInfo],
     ) -> None:
         super().__init__()
 
@@ -52,11 +52,11 @@ class ConfigMetadata(lang.Final):
     cls = properties.set_once()
 
     @property
-    def fields(self) -> ta.Iterable[FieldMetadata]:
+    def fields(self) -> ta.Iterable[FieldInfo]:
         return self._fields
 
     @property
-    def fields_by_name(self) -> ta.Mapping[str, FieldMetadata]:
+    def fields_by_name(self) -> ta.Mapping[str, FieldInfo]:
         return self._fields_by_name
 
 
@@ -69,16 +69,16 @@ class ConfigSource(lang.Abstract):
 
 class _FieldDescriptor:
 
-    def __init__(self, metadata: FieldMetadata) -> None:
+    def __init__(self, info: FieldInfo) -> None:
         super().__init__()
 
-        self._metadata = check.isinstance(metadata, FieldMetadata)
+        self._info = check.isinstance(info, FieldInfo)
 
     defs.repr('name')
 
     @property
     def name(self) -> str:
-        return self._metadata.name
+        return self._info.name
 
     def __set_name__(self, owner, name):
         check.state(name == self.name)
@@ -87,14 +87,14 @@ class _FieldDescriptor:
         if not isinstance(instance, Config):
             raise TypeError(instance)
         try:
-            return instance._values_by_field[self._metadata]
+            return instance._values_by_field[self._info]
         except KeyError:
-            value = instance._field_source.get(self._metadata)
+            value = instance._field_source.get(self._info)
             if value is MISSING:
-                value = self._metadata.default
+                value = self._info.default
             if value is MISSING:
-                raise KeyError(self._metadata)
-            instance._values_by_field[self._metadata] = value
+                raise KeyError(self._info)
+            instance._values_by_field[self._info] = value
             return value
 
 
@@ -121,19 +121,19 @@ def get_namespace_field_names(ns: ta.Mapping[str, ta.Any]) -> ta.List[str]:
 
 class _ConfigMeta(abc.ABCMeta):
 
-    class FieldInfo(ta.NamedTuple):
+    class Field(ta.NamedTuple):
         name: str
         annotation: ta.Any
         value: ta.Any
 
-    def build_field_info(mcls, ns, name) -> FieldInfo:
+    def build_field(mcls, ns, name) -> Field:
         annotation = ns.get('__annotations__', {}).get(name, MISSING)
         value = ns.get(name, MISSING)
-        return _ConfigMeta.FieldInfo(name, annotation, value)
+        return _ConfigMeta.Field(name, annotation, value)
 
-    def build_field_metadata(mcls, fi: FieldInfo) -> FieldMetadata:
+    def build_field_info(mcls, fi: Field) -> FieldInfo:
         if isinstance(fi.value, _FieldDescriptor):
-            return fi.value._metadata
+            return fi.value._info
 
         type_ = MISSING
         default = MISSING
@@ -154,7 +154,7 @@ class _ConfigMeta(abc.ABCMeta):
             if default is not MISSING and type_ is MISSING:
                 type_ = type(default)
 
-        return FieldMetadata(
+        return FieldInfo(
             fi.name,
             type_,
             default=default,
@@ -164,21 +164,21 @@ class _ConfigMeta(abc.ABCMeta):
     def __new__(mcls, name, bases, namespace):
         base_mro = c3.merge([list(b.__mro__) for b in bases])
 
-        field_infos = {
+        fields = {
             fi.name: fi
             for ns in [b.__dict__ for b in reversed(base_mro)] + [namespace]
             for name in reversed(get_namespace_field_names(ns))
-            for fi in [mcls.build_field_info(mcls, ns, name)]
+            for fi in [mcls.build_field(mcls, ns, name)]
         }
 
-        field_metadatas = {
-            fmd.name: fmd
-            for fi in reversed(list(field_infos.values()))
-            for fmd in [mcls.build_field_metadata(mcls, fi)]
+        field_infos = {
+            fi.name: fi
+            for f in reversed(list(fields.values()))
+            for fi in [mcls.build_field_info(mcls, f)]
         }
 
-        config_metadata = ConfigMetadata(
-            field_metadatas.values()
+        config_info = ConfigInfo(
+            field_infos.values()
         )
 
         newns = {
@@ -188,14 +188,14 @@ class _ConfigMeta(abc.ABCMeta):
                 if not is_field_name(name) or not is_field_value(name, namespace)
             },
             **{
-                name: _FieldDescriptor(field_metadatas[name])
+                name: _FieldDescriptor(field_infos[name])
                 for name in get_namespace_field_names(namespace)
             },
-            '__metadata__': config_metadata,
+            '__info__': config_info,
         }
 
         cls = super().__new__(mcls, name, bases, newns)
-        config_metadata.cls = cls
+        config_info.cls = cls
         return cls
 
 
@@ -206,7 +206,7 @@ class Config(metaclass=_ConfigMeta):
 
         self._field_source = check.isinstance(field_source, FieldSource)
 
-        self._values_by_field: ta.Dict[FieldMetadata, ta.Any] = {}
+        self._values_by_field: ta.Dict[FieldInfo, ta.Any] = {}
 
     def __new__(cls, field_source: FieldSource = EmptyFieldSource(), **kwargs):
         if cls is Config:
