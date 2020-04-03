@@ -142,9 +142,13 @@ class Distribution(setuptools.dist.Distribution):
                     obj.filelist.prune('omnibus/dev')
                 else:
                     for e in os.listdir('omnibus'):
+                        if e == 'dev':
+                            continue
                         e = 'omnibus/' + e
-                        if os.path.isdir(e) or (os.path.isfile(e) and e.endswith('.py') and not e.startswith('_')):
+                        if os.path.isdir(e):
                             obj.filelist.prune(e)
+                        elif os.path.isfile(e) and e.endswith('.py') and not e.startswith('_'):
+                            obj.filelist.exclude(e)
             orig_find_sources, obj.find_sources = obj.find_sources, find_sources
 
         return obj
