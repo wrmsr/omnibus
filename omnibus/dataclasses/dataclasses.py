@@ -24,6 +24,7 @@ import inspect
 import types
 import typing as ta
 
+from .. import check
 from .. import codegen
 from .. import lang
 
@@ -174,6 +175,7 @@ def field(
         hash=None,
         compare=True,
         metadata=None,
+
         size=None,
         validate=None,
         coerce=None,
@@ -213,7 +215,9 @@ def dataclass(
         order=False,
         unsafe_hash=None,
         frozen=False,
+
         reorder=False,
+        validate=False,
         **kwargs
 ) -> ta.Type[T]:
     fwd_kwargs = dict(
@@ -224,6 +228,9 @@ def dataclass(
         unsafe_hash=unsafe_hash,
         frozen=frozen,
     )
+
+    check.isinstance(reorder, bool)
+    check.isinstance(validate, bool)
 
     def wrap(cls):
         def post_process(dcls):
@@ -237,17 +244,16 @@ def dataclass(
                 from .validation import build_default_field_validation
                 return build_default_field_validation(fld)
 
-            vfs: ta.List[dc_.Field] = [f for f in fields(cls) if ValidateMetadata in f.metadata]
-            for vf in vfs:
-                v = vf.metadata[ValidateMetadata]
-                if callable(v):
-                    lines.append(f"{nsb.put(v)}({vf.name})")
-                elif v is True:
-                    lines.append(f"{nsb.put(_type_validator(vf))}({vf.name})")
-                elif v is False or v is None:
+            for fld in fields(cls):
+                vm = fld.metadata.get(ValidateMetadata)
+                if callable(vm):
+                    lines.append(f"{nsb.put(vm)}({fld.name})")
+                elif vm is True or (vm is None and validate is True):
+                    lines.append(f"{nsb.put(_type_validator(fld))}({fld.name})")
+                elif vm is False or vm is None:
                     pass
                 else:
-                    raise TypeError(v)
+                    raise TypeError(vm)
 
             if lines:
                 cg = codegen.Codegen()
