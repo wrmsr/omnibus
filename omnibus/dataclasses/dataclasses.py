@@ -127,7 +127,7 @@ def _asdict_inner(obj, dict_factory):
 
 def astuple(obj, *, tuple_factory=tuple):
     if not dc_._is_dataclass_instance(obj):
-        raise TypeError("astuple() should be called on dataclass instances")
+        raise TypeError('astuple() should be called on dataclass instances')
     return _astuple_inner(obj, tuple_factory)
 
 
@@ -247,9 +247,9 @@ def dataclass(
             for fld in fields(cls):
                 vm = fld.metadata.get(ValidateMetadata)
                 if callable(vm):
-                    lines.append(f"{nsb.put(vm)}({fld.name})")
+                    lines.append(f'{nsb.put(vm)}({fld.name})')
                 elif vm is True or (vm is None and validate is True):
-                    lines.append(f"{nsb.put(_type_validator(fld))}({fld.name})")
+                    lines.append(f'{nsb.put(_type_validator(fld))}({fld.name})')
                 elif vm is False or vm is None:
                     pass
                 else:
