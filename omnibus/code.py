@@ -5,13 +5,9 @@ import sys
 import textwrap
 import types
 import typing as ta
+import weakref
 
 from . import lang
-
-
-Code = types.CodeType
-Function = types.FunctionType
-Frame = types.FrameType
 
 
 CODE_ARGS = [
@@ -128,10 +124,10 @@ def get_code_flag_names(flags: int) -> ta.List[str]:
     return [k for k, v in CO_FLAG_VALUES.items() if flags & v]
 
 
-def recode_func(func: Function, code_bytes: ta.Union[bytes, bytearray]) -> ta.Iterable[ta.Any]:
+def recode_func(func: types.FunctionType, code_bytes: ta.Union[bytes, bytearray]) -> ta.Iterable[ta.Any]:
     codeargs = [getattr(func.__code__, f'co_{k}') for k in CODE_ARGS]
     codeargs[CODE_ARGS.index('code')] = bytes(code_bytes)
-    code = Code(*codeargs)
+    code = types.CodeType(*codeargs)
 
     funcargs = [getattr(func, f'__{k}__') for k in FUNCTION_ARGS]
     funcargs[FUNCTION_ARGS.index('code')] = code
@@ -142,11 +138,14 @@ def instruction_bytes(instrs: ta.Iterable[dis.Instruction]) -> bytes:
     return bytes(b if b is not None else 0 for instr in instrs for b in [instr.opcode, instr.arg])
 
 
-class AmbiguousFrameException(Exception):
+class AmbiguousCodeException(Exception):
     pass
 
 
-def get_frame_function(frame: Frame) -> Function:
+_FUNCTIONS_BY_CODE: ta.MutableMapping[types.CodeType, types.FunctionType] = weakref.WeakValueDictionary()
+
+
+def get_code_function(code: types.CodeType) -> types.FunctionType:
     """
     AmbiguousFrameException should always be handled gracefully - in the presence of multiple threads (and even
     recursive invocations within a single thread) the originally invoking function may have already had its code
@@ -154,13 +153,17 @@ def get_frame_function(frame: Frame) -> Function:
     redone and corrected in subsequent invocations.
     """
 
-    refs = gc.get_referrers(frame.f_code)
-    funcs = [
-        r for r in refs if (
-            isinstance(r, Function) and
-            r.__code__ is frame.f_code
-        )
-    ]
-    if len(funcs) != 1:
-        raise AmbiguousFrameException
-    return funcs[0]
+    try:
+        return _FUNCTIONS_BY_CODE[code]
+    except KeyError:
+        refs = gc.get_referrers(code)
+        funcs = [
+            r for r in refs if (
+                isinstance(r, types.FunctionType) and
+                r.__code__ is code
+            )
+        ]
+        if len(funcs) != 1:
+            raise AmbiguousCodeException(code)
+        func = _FUNCTIONS_BY_CODE[code] = funcs[0]
+        return func
