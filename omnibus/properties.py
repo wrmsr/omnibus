@@ -17,10 +17,6 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class CONSUMED(lang.Marker):
-    pass
-
-
 class Property(ta.Generic[T]):
     pass
 

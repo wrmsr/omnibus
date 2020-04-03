@@ -1,5 +1,6 @@
 """
 TODO:
+ - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
  - converter
  - auto-typecheck-validation
@@ -42,6 +43,8 @@ replace = dc_.replace
 
 
 _ORIGIN = '__dataclass_origin__'
+_FIELD_VALIDATORS = '__dataclass_field_validators__'
+_VALIDATORS = '__dataclass_validators__'
 
 
 def make_dataclass(*args, **kwargs):

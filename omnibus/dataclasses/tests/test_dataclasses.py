@@ -11,6 +11,8 @@ from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import validation as validation_
 from .. import virtual as virtual_
+from ... import check
+from ... import lang
 
 
 T = ta.TypeVar('T')
@@ -150,19 +152,27 @@ def test_implicit_abc():
         assert not isinstance(1, virtual_.VirtualClass)
 
 
+@lang.cls_dct_fn()
+def validate(cls_dct, validator):
+    check.callable(validator)
+    cls_dct.setdefault('__dataclass_validators__', []).append(validator)
+
+
 def test_validate():
     @dc.dataclass(frozen=True)
     class C:
         x: int = dc.field(validate=lambda x: x > 0)
         y: int
 
-        # dc.validate(lambda x, y: x > y)
+        validate(lambda x, y: x > y)
 
         # @dc.validate
         # @staticmethod
         # def _validate(x, y):
         #     if not (x > y):
         #         raise ValueError
+
+    assert C.__dataclass_validators__
 
 
 def test_coerce():
