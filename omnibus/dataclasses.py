@@ -30,6 +30,7 @@ from . import check
 from . import codegen
 from . import dispatch
 from . import lang
+from . import reflect
 
 
 lang.warn_unstable()
@@ -440,31 +441,45 @@ def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> Fiel
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
 def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.spec.erased_cls
-    [e] = manifest.spec.args
-    ev = build_default_field_validation(fld, e)
+    if isinstance(manifest.spec, reflect.NonGenericTypeSpec):
+        return default_field_validation(fld, manifest=manifest)
 
-    def inner(value):
-        check.isinstance(value, cls, f'Invalid type for field {fld.name}')
-        for e in value:
-            ev(e)
+    elif isinstance(manifest.spec, reflect.ParameterizedGenericTypeSpec):
+        [e] = manifest.spec.args
+        ev = build_default_field_validation(fld, e)
 
-    return inner
+        def inner(value):
+            check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+            for e in value:
+                ev(e)
+
+        return inner
+
+    else:
+        raise TypeError(manifest.spec)
 
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Mapping)
 def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.spec.erased_cls
-    k, v = manifest.spec.args
-    kv = build_default_field_validation(fld, k)
-    vv = build_default_field_validation(fld, v)
+    if isinstance(manifest.spec, reflect.NonGenericTypeSpec):
+        return default_field_validation(fld, manifest=manifest)
 
-    def inner(value):
-        check.isinstance(value, cls, f'Invalid type for field {fld.name}')
-        for k, v in value.items():
-            kv(k)
-            vv(v)
+    elif isinstance(manifest.spec, reflect.ParameterizedGenericTypeSpec):
+        k, v = manifest.spec.args
+        kv = build_default_field_validation(fld, k)
+        vv = build_default_field_validation(fld, v)
 
-    return inner
+        def inner(value):
+            check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+            for k, v in value.items():
+                kv(k)
+                vv(v)
+
+        return inner
+
+    else:
+        raise TypeError(manifest.spec)
 
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(VirtualClass)
