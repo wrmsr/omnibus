@@ -36,6 +36,17 @@ class DataclassInfo:
     def fields_by_name(self) -> ta.Mapping[str, Field]:
         return {fld.name: fld for fld in self.fields}
 
+    def _get_merged_mro_attr_list(self, att: str) -> ta.List:
+        return [v for c in reversed(self._cls.__mro__) for v in getattr(c, att, [])]
+
+    @properties.cached
+    def field_validators(self) -> ta.List:
+        return self._get_merged_mro_attr_list('__dataclass_field_validators__')
+
+    @properties.cached
+    def validators(self) -> ta.List:
+        return self._get_merged_mro_attr_list('__dataclass_validators__')
+
 
 def get_info(cls: type) -> DataclassInfo:
     try:

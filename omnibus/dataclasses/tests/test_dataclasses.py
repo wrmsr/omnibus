@@ -154,6 +154,12 @@ def test_implicit_abc():
 
 
 @lang.cls_dct_fn()
+def field_validate(cls_dct, field_validator):
+    check.callable(field_validator)
+    cls_dct.setdefault('__dataclass_field_validators__', []).append(field_validator)
+
+
+@lang.cls_dct_fn()
 def validate(cls_dct, validator):
     check.callable(validator)
     cls_dct.setdefault('__dataclass_validators__', []).append(validator)
@@ -251,9 +257,21 @@ def test_default_validation():
 
 def test_info():
     @dc.dataclass()
-    class Point:
+    class A:
         x: int
         y: int
 
-    info = info_.get_info(Point)
+        field_validate(lambda x, y: x > y)
+        validate(lambda pt: pt.x > pt.y)
+
+    @dc.dataclass()
+    class B(A):
+        z: int
+
+        field_validate(lambda x, z: x > z)
+        validate(lambda pt: pt.x > pt.z)
+
+    info = info_.get_info(B)
+    print(info.validators)
+    print(info.field_validators)
     print(info)
