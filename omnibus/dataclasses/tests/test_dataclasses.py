@@ -7,6 +7,7 @@ import pyrsistent
 import pytest
 
 from .. import dataclasses as dc
+from .. import info as info_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import validation as validation_
@@ -246,3 +247,13 @@ def test_default_validation():
     dfv({1: 2})
     with pytest.raises(Exception):
         sfv(())
+
+
+def test_info():
+    @dc.dataclass()
+    class Point:
+        x: int
+        y: int
+
+    info = info_.get_info(Point)
+    print(info)
