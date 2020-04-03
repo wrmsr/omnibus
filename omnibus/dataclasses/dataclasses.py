@@ -16,7 +16,6 @@ TODO:
  - field.__doc__
  - pyo3 + cy struct type interop
 """
-import abc
 import collections
 import collections.abc
 import copy
@@ -24,16 +23,9 @@ import dataclasses as dc_
 import inspect
 import types
 import typing as ta
-import weakref
 
-from . import check
-from . import codegen
-from . import dispatch
-from . import lang
-from . import reflect
-
-
-lang.warn_unstable()
+from .. import codegen
+from .. import lang
 
 
 T = ta.TypeVar('T')
@@ -102,19 +94,6 @@ def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
 
 def _has_default(fld: Field) -> bool:
     return fld.default is not MISSING or fld.default_factory is not MISSING
-
-
-TypeHints = ta.Mapping[str, ta.Any]
-
-_TYPE_HINTS: ta.MutableMapping[type, TypeHints] = weakref.WeakKeyDictionary()
-
-
-def _get_mro_type_hints(cls: type) -> TypeHints:
-    try:
-        return _TYPE_HINTS[cls]
-    except KeyError:
-        ret = _TYPE_HINTS[cls] = ta.get_type_hints(cls)
-        return ret
 
 
 def asdict(obj, *, dict_factory=dict, shallow=False):
@@ -310,171 +289,3 @@ def dataclass(
     if _cls is None:
         return wrap
     return wrap(_cls)
-
-
-class SimplePickle:
-
-    def __reduce__(self):
-        return (Reducer(), (type(self).__module__, type(self).__qualname__, asdict(self),))
-
-
-class Reducer:
-
-    def __call__(self, mod, name, dct):
-        cur = __import__(mod)
-        for part in mod.split('.')[1:]:
-            cur = getattr(cur, part)
-        for part in name.split('.'):
-            cur = getattr(cur, part)
-        return cur(**dct)
-
-
-class _Meta(abc.ABCMeta):
-
-    def __new__(
-            mcls,
-            name,
-            bases,
-            namespace,
-            *,
-            slots=False,
-            abstract=False,
-            final=False,
-            sealed=False,
-            pickle=False,
-            **kwargs
-    ):
-        check.arg(not (abstract and final))
-        namespace = dict(namespace)
-
-        bases = tuple(b for b in bases if b is not Dataclass)
-        if final and lang.Final not in bases:
-            bases += (lang.Final,)
-        if sealed and lang.Sealed not in bases:
-            bases += (lang.Sealed,)
-
-        cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
-        flds = fields(cls)
-
-        rebuild = False
-
-        check.isinstance(slots, bool)
-        if slots and '__slots__' not in namespace:
-            namespace['__slots__'] = tuple(f.name for f in flds)
-            rebuild = True
-        if '__slots__' not in namespace:
-            for fld in fields(cls):
-                if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
-                    namespace[fld.name] = MISSING
-                    rebuild = True
-
-        def _build_init():
-            def __init__(self):
-                raise NotImplementedError
-            return __init__
-
-        if abstract and '__init__' not in cls.__abstractmethods__:
-            kwargs['init'] = False
-            namespace['__init__'] = abc.abstractmethod(_build_init())
-            rebuild = True
-        elif not abstract and '__init__' in cls.__abstractmethods__:
-            bases = (lang.new_type('ConcreteDataclass', (Dataclass,), {'__init__': _build_init()}, init=False),) + bases
-            rebuild = True
-
-        if pickle and cls.__reduce__ is object.__reduce__:
-            namespace['__reduce__'] = SimplePickle.__reduce__
-            rebuild = True
-
-        if rebuild:
-            cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
-        return cls
-
-
-class Dataclass(metaclass=_Meta):
-
-    def __post_init__(self) -> None:
-        # lang.maybe_call(super() ?
-        pass
-
-
-class _VirtualClassMeta(type):
-
-    def __subclasscheck__(cls, subclass):
-        return is_dataclass(subclass)
-
-    def __instancecheck__(cls, instance):
-        return is_dataclass(instance)
-
-
-class VirtualClass(metaclass=_VirtualClassMeta):
-
-    def __new__(cls, *args, **kwargs):
-        raise TypeError
-
-    def __init_subclass__(cls, **kwargs):
-        raise TypeError
-
-
-FieldValidator = ta.Callable[[T], None]
-FieldValidation = ta.Callable[[Field], FieldValidator[T]]
-DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
-
-
-def build_default_field_validation(fld: Field, type=MISSING) -> FieldValidator:
-    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[type if type is not MISSING else (fld.type or object)]
-    return dispatch.inject_manifest(impl, manifest)(fld)
-
-
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *lang.BUILTIN_SCALAR_ITERABLE_TYPES)
-def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.spec.erased_cls
-    return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
-
-
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
-def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.spec.erased_cls
-    if isinstance(manifest.spec, reflect.NonGenericTypeSpec):
-        return default_field_validation(fld, manifest=manifest)
-
-    elif isinstance(manifest.spec, reflect.ParameterizedGenericTypeSpec):
-        [e] = manifest.spec.args
-        ev = build_default_field_validation(fld, e)
-
-        def inner(value):
-            check.isinstance(value, cls, f'Invalid type for field {fld.name}')
-            for e in value:
-                ev(e)
-
-        return inner
-
-    else:
-        raise TypeError(manifest.spec)
-
-
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Mapping)
-def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    cls = manifest.spec.erased_cls
-    if isinstance(manifest.spec, reflect.NonGenericTypeSpec):
-        return default_field_validation(fld, manifest=manifest)
-
-    elif isinstance(manifest.spec, reflect.ParameterizedGenericTypeSpec):
-        k, v = manifest.spec.args
-        kv = build_default_field_validation(fld, k)
-        vv = build_default_field_validation(fld, v)
-
-        def inner(value):
-            check.isinstance(value, cls, f'Invalid type for field {fld.name}')
-            for k, v in value.items():
-                kv(k)
-                vv(v)
-
-        return inner
-
-    else:
-        raise TypeError(manifest.spec)
-
-
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(VirtualClass)
-def dataclass_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    raise NotImplementedError

@@ -7,6 +7,10 @@ import pyrsistent
 import pytest
 
 from .. import dataclasses as dc
+from .. import metaclass as metaclass_
+from .. import pickling as pickling_
+from .. import validation as validation_
+from .. import virtual as virtual_
 
 
 T = ta.TypeVar('T')
@@ -37,7 +41,7 @@ def test_defaultdict():
 
 
 def test_meta():
-    class Point(dc.Dataclass):
+    class Point(metaclass_.Dataclass):
         x: int
         y: int
 
@@ -46,7 +50,7 @@ def test_meta():
     pt.z = 2
     assert pt.z == 2
 
-    class Iface(dc.Dataclass, abstract=True, sealed=True, pickle=True):
+    class Iface(metaclass_.Dataclass, abstract=True, sealed=True, pickle=True):
         x: int
 
     with pytest.raises(TypeError):
@@ -62,7 +66,7 @@ def test_meta():
     pt.z = 3
     assert pt.z == 3
 
-    class FrozenIface(dc.Dataclass, abstract=True, sealed=True, pickle=True, frozen=True):
+    class FrozenIface(metaclass_.Dataclass, abstract=True, sealed=True, pickle=True, frozen=True):
         x: int
 
     class FrozenImpl(FrozenIface, final=True, frozen=True):
@@ -81,7 +85,7 @@ def test_meta():
         class Impl2(Impl):
             pass
 
-    class Abs(dc.Dataclass, abstract=True):
+    class Abs(metaclass_.Dataclass, abstract=True):
         x: int
 
         @abc.abstractproperty
@@ -105,14 +109,14 @@ def test_meta():
     with pytest.raises(TypeError):
         AbsImpl2(1)
 
-    class Gen(dc.Dataclass, ta.Generic[T]):
+    class Gen(metaclass_.Dataclass, ta.Generic[T]):
         val: T
 
     assert Gen(1).val == 1
 
 
 @dc.dataclass(reorder=True)
-class A(dc.SimplePickle):
+class A(pickling_.SimplePickle):
     x: int
     y: int
     z: int = 0
@@ -139,11 +143,11 @@ def test_implicit_abc():
         x: int
 
     for C in [C0, C1]:
-        assert issubclass(C, dc.VirtualClass)
-        assert isinstance(C(1), dc.VirtualClass)
+        assert issubclass(C, virtual_.VirtualClass)
+        assert isinstance(C(1), virtual_.VirtualClass)
 
-        assert not issubclass(int, dc.VirtualClass)
-        assert not isinstance(1, dc.VirtualClass)
+        assert not issubclass(int, virtual_.VirtualClass)
+        assert not isinstance(1, virtual_.VirtualClass)
 
 
 def test_validate():
@@ -198,13 +202,13 @@ def test_default_validation():
         d: dict
 
     xfld = dc.fields_dict(Point)['x']
-    xfv = dc.build_default_field_validation(xfld)
+    xfv = validation_.build_default_field_validation(xfld)
     xfv(420)
     with pytest.raises(Exception):
         xfv(420.)
 
     xsfld = dc.fields_dict(Point)['xs']
-    xsfv = dc.build_default_field_validation(xsfld)
+    xsfv = validation_.build_default_field_validation(xsfld)
     xsfv([420])
     xsfv({420})
     xsfv(frozenset([420]))
@@ -213,7 +217,7 @@ def test_default_validation():
             xsfv(v)
 
     ysbyxfld = dc.fields_dict(Point)['ys_by_x']
-    ysbyxfv = dc.build_default_field_validation(ysbyxfld)
+    ysbyxfv = validation_.build_default_field_validation(ysbyxfld)
     ysbyxfv({})
     ysbyxfv({420: 421.})
     for v in [{420: 420}, {420.: 420.}]:
@@ -221,13 +225,13 @@ def test_default_validation():
             ysbyxfv(v)
 
     sfld = dc.fields_dict(Point)['s']
-    sfv = dc.build_default_field_validation(sfld)
+    sfv = validation_.build_default_field_validation(sfld)
     sfv('420')
     with pytest.raises(Exception):
         sfv(420)
 
     dfld = dc.fields_dict(Point)['d']
-    dfv = dc.build_default_field_validation(dfld)
+    dfv = validation_.build_default_field_validation(dfld)
     dfv({})
     dfv({1: 2})
     with pytest.raises(Exception):
