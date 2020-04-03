@@ -26,6 +26,7 @@ from . import codecs
 from . import defs
 from . import dispatch
 from . import lang
+from . import reflect
 
 # try:
 #     import orjson as json_
@@ -189,27 +190,55 @@ class DatetimeSerde(Serde[datetime.datetime, str]):
 class MappingSerde(Serde[ta.Mapping[K, V], ta.Mapping]):
 
     def serialization(self) -> Serializer[ta.Mapping[K, V], ta.Mapping]:
-        k, v = self.manifest.spec.args
-        kj = build_serializer(k)
-        vj = build_serializer(v)
-        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            k, v = self.manifest.spec.args
+            kj = build_serializer(k)
+            vj = build_serializer(v)
+            return lambda value: {kj(k): vj(v) for k, v in value.items()}
+
+        else:
+            raise TypeError(self.manifest.spec)
 
     def deserialization(self) -> Deserializer[ta.Mapping, ta.Mapping[K, V]]:
-        k, v = self.manifest.spec.args
-        kj = build_deserializer(k)
-        vj = build_deserializer(v)
-        return lambda dct: {kj(k): vj(v) for k, v in dct.items()}
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            k, v = self.manifest.spec.args
+            kj = build_deserializer(k)
+            vj = build_deserializer(v)
+            return lambda value: {kj(k): vj(v) for k, v in value.items()}
+
+        else:
+            raise TypeError(self.manifest.spec)
 
 
 @registering_serde(collections.abc.Set)
 class SetSerde(Serde[ta.AbstractSet[V], ta.Sequence]):
 
     def serialization(self) -> Serializer[ta.AbstractSet[V], ta.Sequence]:
-        [v] = self.manifest.spec.args
-        vj = build_serializer(v)
-        return lambda vs: [vj(v) for v in vs]
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            [v] = self.manifest.spec.args
+            vj = build_serializer(v)
+            return lambda value: [vj(v) for v in value]
+
+        else:
+            raise TypeError(self.manifest.spec)
 
     def deserialization(self) -> Deserializer[ta.Sequence, ta.AbstractSet[V]]:
-        [v] = self.manifest.spec.args
-        vj = build_deserializer(v)
-        return lambda vs: {vj(v) for v in vs}
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            [v] = self.manifest.spec.args
+            vj = build_deserializer(v)
+            return lambda value: {vj(v) for v in value}
+
+        else:
+            raise TypeError(self.manifest.spec)
