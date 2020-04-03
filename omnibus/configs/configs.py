@@ -23,9 +23,9 @@ from .. import lang
 from .. import properties
 from .fields import DictFieldSource
 from .fields import EmptyFieldSource
-from .fields import FieldInfo
 from .fields import FieldKwargs
 from .fields import FieldSource
+from .fields import FieldSpec
 from .types import MISSING
 
 
@@ -37,11 +37,11 @@ IGNORED_NAMESPACE_KEYS: ta.Set[str] = {
 }
 
 
-class ConfigInfo(lang.Final):
+class ConfigSpec(lang.Final):
 
     def __init__(
             self,
-            fields: ta.Iterable[FieldInfo],
+            fields: ta.Iterable[FieldSpec],
     ) -> None:
         super().__init__()
 
@@ -52,11 +52,11 @@ class ConfigInfo(lang.Final):
     cls = properties.set_once()
 
     @property
-    def fields(self) -> ta.Iterable[FieldInfo]:
+    def fields(self) -> ta.Iterable[FieldSpec]:
         return self._fields
 
     @property
-    def fields_by_name(self) -> ta.Mapping[str, FieldInfo]:
+    def fields_by_name(self) -> ta.Mapping[str, FieldSpec]:
         return self._fields_by_name
 
 
@@ -69,16 +69,16 @@ class ConfigSource(lang.Abstract):
 
 class _FieldDescriptor:
 
-    def __init__(self, info: FieldInfo) -> None:
+    def __init__(self, spec: FieldSpec) -> None:
         super().__init__()
 
-        self._info = check.isinstance(info, FieldInfo)
+        self._spec = check.isinstance(spec, FieldSpec)
 
     defs.repr('name')
 
     @property
     def name(self) -> str:
-        return self._info.name
+        return self._spec.name
 
     def __set_name__(self, owner, name):
         check.state(name == self.name)
@@ -87,14 +87,14 @@ class _FieldDescriptor:
         if not isinstance(instance, Config):
             raise TypeError(instance)
         try:
-            return instance._values_by_field[self._info]
+            return instance._values_by_field[self._spec]
         except KeyError:
-            value = instance._field_source.get(self._info)
+            value = instance._field_source.get(self._spec)
             if value is MISSING:
-                value = self._info.default
+                value = self._spec.default
             if value is MISSING:
-                raise KeyError(self._info)
-            instance._values_by_field[self._info] = value
+                raise KeyError(self._spec)
+            instance._values_by_field[self._spec] = value
             return value
 
 
@@ -131,9 +131,9 @@ class _ConfigMeta(abc.ABCMeta):
         value = ns.get(name, MISSING)
         return _ConfigMeta.Field(name, annotation, value)
 
-    def build_field_info(mcls, fi: Field) -> FieldInfo:
+    def build_field_spec(mcls, fi: Field) -> FieldSpec:
         if isinstance(fi.value, _FieldDescriptor):
-            return fi.value._info
+            return fi.value._spec
 
         type_ = MISSING
         default = MISSING
@@ -154,7 +154,7 @@ class _ConfigMeta(abc.ABCMeta):
             if default is not MISSING and type_ is MISSING:
                 type_ = type(default)
 
-        return FieldInfo(
+        return FieldSpec(
             fi.name,
             type_,
             default=default,
@@ -165,20 +165,20 @@ class _ConfigMeta(abc.ABCMeta):
         base_mro = c3.merge([list(b.__mro__) for b in bases])
 
         fields = {
-            fi.name: fi
+            f.name: f
             for ns in [b.__dict__ for b in reversed(base_mro)] + [namespace]
             for name in reversed(get_namespace_field_names(ns))
-            for fi in [mcls.build_field(mcls, ns, name)]
+            for f in [mcls.build_field(mcls, ns, name)]
         }
 
-        field_infos = {
-            fi.name: fi
+        field_specs = {
+            fs.name: fs
             for f in reversed(list(fields.values()))
-            for fi in [mcls.build_field_info(mcls, f)]
+            for fs in [mcls.build_field_spec(mcls, f)]
         }
 
-        config_info = ConfigInfo(
-            field_infos.values()
+        config_spec = ConfigSpec(
+            field_specs.values()
         )
 
         newns = {
@@ -188,14 +188,14 @@ class _ConfigMeta(abc.ABCMeta):
                 if not is_field_name(name) or not is_field_value(name, namespace)
             },
             **{
-                name: _FieldDescriptor(field_infos[name])
+                name: _FieldDescriptor(field_specs[name])
                 for name in get_namespace_field_names(namespace)
             },
-            '__info__': config_info,
+            '__spec__': config_spec,
         }
 
         cls = super().__new__(mcls, name, bases, newns)
-        config_info.cls = cls
+        config_spec.cls = cls
         return cls
 
 
@@ -206,7 +206,7 @@ class Config(metaclass=_ConfigMeta):
 
         self._field_source = check.isinstance(field_source, FieldSource)
 
-        self._values_by_field: ta.Dict[FieldInfo, ta.Any] = {}
+        self._values_by_field: ta.Dict[FieldSpec, ta.Any] = {}
 
     def __new__(cls, field_source: FieldSource = EmptyFieldSource(), **kwargs):
         if cls is Config:

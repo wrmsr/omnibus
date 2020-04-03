@@ -7,9 +7,9 @@ import pyrsistent
 import pytest
 
 from .. import dataclasses as dc
-from .. import info as info_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
+from .. import specs as specs_
 from .. import validation as validation_
 from .. import virtual as virtual_
 from ... import check
@@ -263,7 +263,7 @@ def test_default_validation():
         oifv(420.)
 
 
-def test_info():
+def test_spec():
     @dc.dataclass()
     class A:
         x: int
@@ -279,7 +279,7 @@ def test_info():
         field_validate(lambda x, z: x > z)
         validate(lambda pt: pt.x > pt.z)
 
-    info = info_.get_info(B)
-    print(info.validators)
-    print(info.field_validators)
-    print(info)
+    spec = specs_.get_spec(B)
+    print(spec.validators)
+    print(spec.field_validators)
+    print(spec)

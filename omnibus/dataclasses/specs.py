@@ -10,10 +10,10 @@ from .. import properties
 Field = dc_.Field
 
 
-INFO_BY_CLS = weakref.WeakKeyDictionary()
+SPECS_BY_CLS = weakref.WeakKeyDictionary()
 
 
-class DataclassInfo:
+class DataclassSpec:
 
     def __init__(self, cls: type) -> None:
         super().__init__()
@@ -47,9 +47,9 @@ class DataclassInfo:
         return self._get_merged_mro_attr_list('__dataclass_validators__')
 
 
-def get_info(cls: type) -> DataclassInfo:
+def get_spec(cls: type) -> DataclassSpec:
     try:
-        return INFO_BY_CLS[cls]
+        return SPECS_BY_CLS[cls]
     except KeyError:
-        info = INFO_BY_CLS[cls] = DataclassInfo(cls)
-        return info
+        spec = SPECS_BY_CLS[cls] = DataclassSpec(cls)
+        return spec
