@@ -3,6 +3,7 @@ TODO:
  - order=False, kwwonly=False
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
+ - redaction
  - converter
  - auto-typecheck-validation
  - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv

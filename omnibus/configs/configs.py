@@ -4,13 +4,17 @@ TODO:
   - akin to inj not being required
   - honor frozen
  - polled sources: file (+url), sql, redis
+  - atomicity - class UsernameAndPassword etc
  - pushed sources: zk
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
- - https://github.com/omry/omegaconf / https://github.com/facebookresearch/hydra ?
  - yaml forest
+  - search_path (registry?), pkg:// prefix, origin tracking
+  - yamls pointing at other yamls..
+  - https://github.com/facebookresearch/hydra
  - pyo3 adapter (serde?)
+ - newable-style object graphs, refs
 """
 import abc
 import types

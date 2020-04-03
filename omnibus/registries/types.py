@@ -1,6 +1,7 @@
 """
 TODO:
  - DictReg.weak? key/val? currently _cannot remove_
+ - *ordering* - insert
 """
 import abc
 import typing as ta
