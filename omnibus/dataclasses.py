@@ -1,5 +1,6 @@
 """
 TODO:
+ - *default null makes optional.. lol..*
  - converter
  - auto-typecheck-validation
  - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv
@@ -464,3 +465,8 @@ def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest)
             vv(v)
 
     return inner
+
+
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(VirtualClass)
+def dataclass_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
+    raise NotImplementedError
