@@ -170,10 +170,12 @@ dist: build flake test
 	$(eval DIST_BUILD_PYTHON:=$(realpath .venv/bin/python))
 
 	cp -rv \
-		setup.py \
-		README.md \
+		LICENSE \
+		LICENSE-* \
 		MANIFEST.in \
 		omnibus \
+		README.md \
+		setup.py \
 	\
 		"$(DIST_BUILD_DIR)"
 

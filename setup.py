@@ -1,6 +1,7 @@
 import fnmatch
 import glob
 import os
+import os.path
 import sys
 
 import setuptools.command.build_ext
@@ -130,6 +131,23 @@ class Distribution(setuptools.dist.Distribution):
             self.metadata.name = ABOUT['__title__'] + ('-dev' if self.dev else '')
             self._omnibus_name_set = True
         return ok
+
+    def get_command_obj(self, command, create=1):
+        obj = super().get_command_obj(command, create)
+
+        if command == 'egg_info':
+            def find_sources():
+                orig_find_sources()
+                if not self.dev:
+                    obj.filelist.prune('omnibus/dev')
+                else:
+                    for e in os.listdir('omnibus'):
+                        e = 'omnibus/' + e
+                        if os.path.isdir(e) or (os.path.isfile(e) and e.endswith('.py') and not e.startswith('_')):
+                            obj.filelist.prune(e)
+            orig_find_sources, obj.find_sources = obj.find_sources, find_sources
+
+        return obj
 
 
 if __name__ == '__main__':
