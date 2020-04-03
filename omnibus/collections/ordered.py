@@ -1,6 +1,7 @@
 """
 TODO:
  - clean tf up lol
+ - https://github.com/LuminosoInsight/ordered-set/blob/master/ordered_set.py
 """
 import typing as ta
 
