@@ -171,7 +171,6 @@ dist: build flake test
 
 	cp -rv \
 		LICENSE \
-		LICENSE-* \
 		MANIFEST.in \
 		omnibus \
 		README.md \
