@@ -2,7 +2,7 @@
 TODO:
  - __eq__ consistency
  - hash/total_ordering - FrozenDict retains insertion order honoring, sort keys on demand
- - dict operators
+ - dict operators (inc __or__ / __ror__ / __ior__)
  - list operators
  - views, slices
 """

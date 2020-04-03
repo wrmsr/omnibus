@@ -1,3 +1,7 @@
+"""
+TODO:
+ - return bool not raise, don't throw/catch in unions
+"""
 import collections.abc
 import dataclasses as dc_
 import typing as ta

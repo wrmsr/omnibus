@@ -43,9 +43,9 @@ is_dataclass = dc_.is_dataclass
 replace = dc_.replace
 
 
-_ORIGIN = '__dataclass_origin__'
-_FIELD_VALIDATORS = '__dataclass_field_validators__'
-_VALIDATORS = '__dataclass_validators__'
+ORIGIN_ATTR = '__dataclass_origin__'
+FIELD_VALIDATORS_ATTR = '__dataclass_field_validators__'
+VALIDATORS_ATTR = '__dataclass_validators__'
 
 
 def make_dataclass(*args, **kwargs):
@@ -278,7 +278,7 @@ def dataclass(
             if list(flds.keys()) != list(new_flds.keys()):
                 _check_bases(cls.__mro__, frozen=frozen)
                 anns = {name: fld.type for name, fld in new_flds.items()}
-                ns = {'__annotations__': anns, _ORIGIN: cls, **new_flds}
+                ns = {'__annotations__': anns, ORIGIN_ATTR: cls, **new_flds}
                 new_dc = dc_.dataclass(type('_Reordered', (object,), ns), **fwd_kwargs)
                 ret = post_process(type(cls.__name__, (new_dc, cls), {}))
                 ret.__module__ = cls.__module__

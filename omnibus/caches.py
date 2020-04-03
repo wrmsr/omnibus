@@ -3,6 +3,7 @@ TODO:
  - dogpile
  - midpoint/arc/lfu
  - thread scoped?
+ - __sizeof__ interop
 """
 import collections
 import contextlib
