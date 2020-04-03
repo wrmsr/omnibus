@@ -1,7 +1,6 @@
 import fnmatch
 import glob
 import os
-import os.path
 import sys
 
 import setuptools.command.build_ext
@@ -117,69 +116,8 @@ else:
         ])
 
 
-class Distribution(setuptools.dist.Distribution):
-
-    dev = 0
-    _omnibus_attrs_set = False
-
-    def _get_toplevel_options(self):
-        return super()._get_toplevel_options() + [
-            ('dev', None, 'omnibus-dev'),
-        ]
-
-    def parse_command_line(self):
-        ok = super().parse_command_line()
-
-        if not self._omnibus_attrs_set:
-            if self.dev:
-                self.install_requires = [ABOUT['__title__'] + '==' + ABOUT['__version__']]
-                self.extras_require = {}
-                self.metadata.provides_extras = type(self.metadata.provides_extras)()
-
-            self.metadata.name = ABOUT['__title__'] + ('-dev' if self.dev else '')
-
-            self._omnibus_attrs_set = True
-
-        return ok
-
-    def get_command_obj(self, command, create=1):
-        obj = super().get_command_obj(command, create)
-
-        if command == 'egg_info':
-            def obj_find_sources():
-                from setuptools.command.egg_info import manifest_maker
-                manifest_filename = os.path.join(obj.egg_info, "SOURCES.txt")
-                mm = manifest_maker(obj.distribution)
-                mm.manifest = manifest_filename
-
-                def mm_write_manifest(*args, **kwargs):
-                    if not self.dev:
-                        mm.filelist.prune('omnibus/dev')
-                    else:
-                        for e in os.listdir('omnibus'):
-                            if e == 'dev':
-                                continue
-                            e = 'omnibus/' + e
-                            if os.path.isdir(e):
-                                mm.filelist.prune(e)
-                            elif os.path.isfile(e) and e.endswith('.py') and not e.startswith('_'):
-                                mm.filelist.exclude(e)
-
-                    orig_mm_write_manifest(*args, **kwargs)
-                orig_mm_write_manifest, mm.write_manifest = mm.write_manifest, mm_write_manifest
-
-                mm.run()
-                obj.filelist = mm.filelist
-
-            obj.find_sources = obj_find_sources
-
-        return obj
-
-
 if __name__ == '__main__':
     setuptools.setup(
-        distclass=Distribution,
-
         name=ABOUT['__title__'],
         version=ABOUT['__version__'],
         description=ABOUT['__description__'],
