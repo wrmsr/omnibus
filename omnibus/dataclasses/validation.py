@@ -26,13 +26,27 @@ def build_default_field_validation(fld: Field, type=MISSING) -> FieldValidator:
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *lang.BUILTIN_SCALAR_ITERABLE_TYPES)
 def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.spec.erased_cls
-    return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+
+    def inner(value):
+        if not isinstance(value, cls):
+            raise TypeError(f'Invalid type for field {fld.name}', value)
+    return inner
 
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(reflect.UnionVirtualClass)
 def union_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
-    print(manifest.spec.args)
-    raise TypeError
+    uvs = [build_default_field_validation(fld, type=a) for a in manifest.spec.args]
+
+    def inner(value):
+        for uv in uvs:
+            try:
+                uv(value)
+            except TypeError:
+                pass
+            else:
+                return
+        raise TypeError(f'Invalid type for field {fld.name}', value)
+    return inner
 
 
 @DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(collections.abc.Iterable)
@@ -49,7 +63,6 @@ def iterable_default_field_validation(fld: Field, *, manifest: dispatch.Manifest
             check.isinstance(value, cls, f'Invalid type for field {fld.name}')
             for e in value:
                 ev(e)
-
         return inner
 
     else:
@@ -72,7 +85,6 @@ def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest)
             for k, v in value.items():
                 kv(k)
                 vv(v)
-
         return inner
 
     else:
