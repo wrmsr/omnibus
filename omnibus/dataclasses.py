@@ -425,14 +425,7 @@ def build_default_field_validation(fld: Field, type=MISSING) -> FieldValidator:
     return dispatch.inject_manifest(impl, manifest)(fld)
 
 
-SCALAR_ITERABLE_TYPES = {
-    bytearray,
-    bytes,
-    str,
-}
-
-
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *SCALAR_ITERABLE_TYPES)
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(object, *lang.BUILTIN_SCALAR_ITERABLE_TYPES)
 def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     cls = manifest.spec.erased_cls
     return lambda value: check.isinstance(value, cls, f'Invalid type for field {fld.name}')

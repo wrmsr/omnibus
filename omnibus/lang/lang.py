@@ -18,6 +18,13 @@ Self = ta.TypeVar('Self')
 BytesLike = ta.Union[bytes, bytearray]
 
 
+BUILTIN_SCALAR_ITERABLE_TYPES = {
+    bytearray,
+    bytes,
+    str,
+}
+
+
 _MISSING = object()
 
 

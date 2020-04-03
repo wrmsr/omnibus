@@ -66,6 +66,7 @@ from .lang import Accessor  # noqa
 from .lang import anon_object  # noqa
 from .lang import arg_repr  # noqa
 from .lang import attr_repr  # noqa
+from .lang import BUILTIN_SCALAR_ITERABLE_TYPES  # noqa
 from .lang import BytesLike  # noqa
 from .lang import cached_nullary  # noqa
 from .lang import ClassDctFn  # noqa
