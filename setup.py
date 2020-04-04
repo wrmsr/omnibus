@@ -63,26 +63,26 @@ EXTRAS_REQUIRE = {
 DEBUG = 'DEBUG' in os.environ
 
 
-EXT_MODULES = []
+EXT_MODULES = [
+    *[
+        setuptools.Extension(
+            'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
+            sources=[fpath]
+        )
+        for fpath in glob.glob('omnibus/_ext/cc/*.cc')
+    ]
+]
+
 
 try:
     import Cython
-
 except ImportError:
     pass
-
 else:
     import Cython.Build
     import Cython.Compiler.Options
 
     EXT_MODULES.extend([
-        *[
-            setuptools.Extension(
-                'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
-                sources=[fpath]
-            )
-            for fpath in glob.glob('omnibus/_ext/cc/*.cc')
-        ],
         *Cython.Build.cythonize(
             [
                 setuptools.Extension(
@@ -102,18 +102,19 @@ else:
         ),
     ])
 
-    if APPLE:
-        EXT_MODULES.extend([
-            setuptools.Extension(
-                'omnibus._ext.m.' + os.path.basename(fpath).rpartition('.')[0],
-                sources=[fpath],
-                extra_link_args=[
-                    '-framework', 'AppKit',
-                    '-framework', 'CoreFoundation',
-                ]
-            )
-            for fpath in glob.glob('omnibus/_ext/m/*.m')
-        ])
+
+if APPLE:
+    EXT_MODULES.extend([
+        setuptools.Extension(
+            'omnibus._ext.m.' + os.path.basename(fpath).rpartition('.')[0],
+            sources=[fpath],
+            extra_link_args=[
+                '-framework', 'AppKit',
+                '-framework', 'CoreFoundation',
+            ]
+        )
+        for fpath in glob.glob('omnibus/_ext/m/*.m')
+    ])
 
 
 if __name__ == '__main__':

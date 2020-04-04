@@ -15,7 +15,7 @@ PYENV_BREW_DEPS:= \
 	zlib \
 
 
-# Aggregates
+### Aggregates
 
 all: build flake test test-37
 
@@ -24,7 +24,7 @@ venv-all: venv venv-37 docker-venv docker-venv-37
 test-all: venv-all test test-37 docker-test docker-test-37
 
 
-# Clean
+### Clean
 
 .PHONY: clean
 clean:
@@ -52,7 +52,7 @@ clean:
 	fi
 
 
-# Venvs
+### Venvs
 
 .PHONY: brew
 brew:
@@ -124,18 +124,22 @@ venv-37:
 	$(call do-venv,.venv-37,$(PYTHON_37_VERSION))
 
 
-# Build
+### Build
+
+define do-build
+	$(1)/bin/python setup.py build_ext --inplace
+endef
 
 .PHONY: build
 build: venv
-	.venv/bin/python setup.py build_ext --inplace
+	$(call do-build,.venv)
 
 .PHONY: build-37
 build-37: venv-37
-	.venv-37/bin/python setup.py build_ext --inplace
+	$(call do-build,.venv-37)
 
 
-# Check
+### Check
 
 .PHONY: flake
 flake: venv
@@ -146,7 +150,7 @@ typecheck: venv
 	.venv/bin/mypy --ignore-missing-imports omnibus | awk '{c+=1;print $$0}END{print c}'
 
 
-# Test
+### Test
 
 .PHONY: test
 test: build
@@ -161,7 +165,7 @@ test-verbose: build
 	.venv/bin/pytest -svvv omnibus
 
 
-# Dist
+### Dist
 
 define do-dist
 	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
@@ -240,7 +244,7 @@ test-pypi:
 	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
 
 
-# Deps
+### Deps
 
 .PHONY: depupdates
 dep-updates: venv
@@ -253,7 +257,7 @@ dep-tree: test-install
 	.venv-install/bin/pipdeptree
 
 
-# Docker
+### Docker
 
 .PHONY: docker-clean
 docker-clean:
@@ -275,6 +279,11 @@ docker-reup:
 docker-invalidate:
 	date +%s > .dockertimestamp
 
+
+### Docker Proxies
+
+## Venvs
+
 .PHONY: docker-venv
 docker-venv:
 	./docker-dev make _docker-venv
@@ -291,10 +300,30 @@ _docker-venv:
 _docker-venv-37:
 	$(call do-venv,.venv-docker-37,$(PYTHON_37_VERSION))
 
+## Build
+
+.PHONY: docker-build
+docker-build: docker-venv
+	./docker-dev make _docker-build
+
+.PHONY: docker-build-37
+docker-build-37: docker-venv-37
+	./docker-dev make _docker-build-37
+
+.PHONY: _docker-build
+_docker-build:
+	$(call do-build,.venv-docker)
+
+.PHONY: _docker-build-37
+_docker-build-37:
+	$(call do-build,.venv-docker-37)
+
+## Test
+
 .PHONY: docker-test
-docker-test: docker-venv
+docker-test: docker-build
 	./docker-dev .venv-docker/bin/pytest -v omnibus
 
 .PHONY: docker-test-37
-docker-test-37: docker-venv-37
+docker-test-37: docker-build-37
 	./docker-dev .venv-docker-37/bin/pytest -v omnibus
