@@ -10,6 +10,7 @@ global-exclude .gitignore
 global-exclude **/tests/**
 exclude omnibus/conftest.py
 
+exclude omnibus/_ext/cy/*.cpp
 include omnibus/_ext/cc/*.cc
 include omnibus/_ext/cc/*.h
 include omnibus/_ext/cy/*.pyd

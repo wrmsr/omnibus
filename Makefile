@@ -190,11 +190,12 @@ define do-dist
 		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision" ; \
 	fi
 
-	"$(DIST_BUILD_PYTHON)" -m pip install wheel
 	if [ "$(1)" = ".venv" ] ; then \
 		cd build && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
 	fi
+
 	cd build && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
+
 	if [ ! -d ./dist ] ; then \
 		mkdir dist ; \
 	fi

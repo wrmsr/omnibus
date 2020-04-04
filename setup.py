@@ -67,7 +67,8 @@ EXT_MODULES = [
     *[
         setuptools.Extension(
             'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
-            sources=[fpath]
+            sources=[fpath],
+            optioal=True,
         )
         for fpath in glob.glob('omnibus/_ext/cc/*.cc')
     ]
@@ -89,6 +90,7 @@ else:
                     'omnibus._ext.cy.' + os.path.basename(fpath).rpartition('.')[0],
                     sources=[fpath],
                     language='c++',
+                    optioal=True,
                 )
                 for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
             ],
@@ -111,7 +113,8 @@ if APPLE:
             extra_link_args=[
                 '-framework', 'AppKit',
                 '-framework', 'CoreFoundation',
-            ]
+            ],
+            optioal=True,
         )
         for fpath in glob.glob('omnibus/_ext/m/*.m')
     ])
