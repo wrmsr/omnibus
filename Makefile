@@ -82,7 +82,7 @@ define do-venv
 					PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
 				done ; \
 				\
-				PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
+				PYTHON_CONFIGURE_OPTS="--enable-framework --enable-universalsdk= --with-universal-archs=intel" ; \
 				if brew --prefix tcl-tk ; then \
 					TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
 					TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
