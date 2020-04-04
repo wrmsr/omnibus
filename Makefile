@@ -23,6 +23,8 @@ venv-all: venv venv-37 docker-venv docker-venv-37
 
 test-all: venv-all test test-37 docker-test docker-test-37
 
+dist-all: venv-all dist dist-37 docker-dist docker-dist-37
+
 
 ### Clean
 
@@ -186,6 +188,7 @@ define do-dist
 		build/ || :
 
 	find build -name '*.so' -delete
+	cd build && "$(DIST_BUILD_PYTHON)" setup.py clean
 
 	if [ ! -f "omnibus/.revision" ] ; then \
 		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision" ; \
