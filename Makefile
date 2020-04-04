@@ -219,11 +219,11 @@ test-install: dist
 	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
 
 .PHONY: dist
-dist: build
+dist: venv
 	$(call do-dist,.venv)
 
 .PHONY: dist-37
-dist-37: build-37
+dist-37: venv-37
 	$(call do-dist,.venv-37)
 
 .PHONY:
@@ -336,11 +336,11 @@ docker-test-37: docker-build-37
 ## Dist
 
 .PHONY: docker-dist
-docker-dist: docker-build
+docker-dist: docker-venv
 	./docker-dev make _docker-dist
 
 .PHONY: docker-dist-37
-docker-dist-37: docker-build-37
+docker-dist-37: docker-venv-37
 	./docker-dev make _docker-dist-37
 
 .PHONY: _docker-dist
