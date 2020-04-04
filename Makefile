@@ -168,8 +168,9 @@ test-verbose: build
 ### Dist
 
 define do-dist
-	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
-	$(eval DIST_BUILD_PYTHON:=$(realpath $(1)/bin/python))
+	rm -rf build
+	mkdir build
+	$(eval DIST_BUILD_PYTHON:=$(shell echo "$(shell pwd)/$(1)/bin/python"))
 
 	cp -rv \
 		LICENSE \
@@ -178,25 +179,26 @@ define do-dist
 		README.md \
 		setup.py \
 	\
-		"$(DIST_BUILD_DIR)"
+		build/
 	cp -rv \
 		LICENSE-* \
 	\
-		"$(DIST_BUILD_DIR)" || :
+		build/ || :
+	find build -name '*.so' -delete
 
 	if [ ! -f "omnibus/.revision" ] ; then \
-		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision" ; \
+		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision" ; \
 	fi
 
 	"$(DIST_BUILD_PYTHON)" -m pip install wheel
 	if [ "$(1)" = ".venv" ] ; then \
-		cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
+		cd build && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
 	fi
-	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
+	cd build && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
 	if [ ! -d ./dist ] ; then \
 		mkdir dist ; \
 	fi
-	cp $(DIST_BUILD_DIR)/dist/* ./dist/
+	cp build/dist/* ./dist/
 endef
 
 .PHONY: test-install
