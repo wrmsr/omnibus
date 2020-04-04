@@ -58,7 +58,7 @@ clean:
 brew:
 	brew install $(PYENV_BREW_DEPS)
 
-define setup-venv
+define do-venv
 	if [ ! -d $(1) ] ; then \
 		set -e ; \
 		\
@@ -117,21 +117,22 @@ endef
 
 .PHONY: venv
 venv:
-	$(call setup-venv,.venv,$(PYTHON_VERSION))
+	$(call do-venv,.venv,$(PYTHON_VERSION))
 
 .PHONY: venv-37
 venv-37:
-	$(call setup-venv,.venv-37,$(PYTHON_37_VERSION))
+	$(call do-venv,.venv-37,$(PYTHON_37_VERSION))
 
 
 # Build
 
-.PHONY: ext
-ext: venv
+.PHONY: build
+build: venv
 	.venv/bin/python setup.py build_ext --inplace
 
-.PHONY: build
-build: ext
+.PHONY: build-37
+build-37: venv-37
+	.venv-37/bin/python setup.py build_ext --inplace
 
 
 # Check
@@ -162,12 +163,9 @@ test-verbose: build
 
 # Dist
 
-.PHONY: dist
-dist: build flake test
-	rm -rf dist
-
+define do-dist
 	$(eval DIST_BUILD_DIR:=$(shell mktemp -d))
-	$(eval DIST_BUILD_PYTHON:=$(realpath .venv/bin/python))
+	$(eval DIST_BUILD_PYTHON:=$(realpath $(1)/bin/python))
 
 	cp -rv \
 		LICENSE \
@@ -189,7 +187,11 @@ dist: build flake test
 	"$(DIST_BUILD_PYTHON)" -m pip install wheel
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
-	cp -rv "$(DIST_BUILD_DIR)/dist" ./
+	if [ ! -d ./dist ] ; then \
+		mkdir dist ; \
+	fi
+	cp $(DIST_BUILD_DIR)/dist/* ./dist/
+endef
 
 .PHONY: test-install
 test-install: dist
@@ -206,6 +208,14 @@ test-install: dist
 		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup; e=setup.EXTRAS_REQUIRE; print(("["+",".join(e)+"]") if e else "")')
 
 	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
+
+.PHONY: dist
+dist: build
+	$(call do-dist,.venv)
+
+.PHONY: dist-37
+dist-37: build-37
+	$(call do-dist,.venv-37)
 
 .PHONY:
 publish: clean dist test-install
@@ -275,11 +285,11 @@ docker-venv-37:
 
 .PHONY: _docker-venv
 _docker-venv:
-	$(call setup-venv,.venv-docker,$(PYTHON_VERSION))
+	$(call do-venv,.venv-docker,$(PYTHON_VERSION))
 
 .PHONY: _docker-venv-37
 _docker-venv-37:
-	$(call setup-venv,.venv-docker-37,$(PYTHON_37_VERSION))
+	$(call do-venv,.venv-docker-37,$(PYTHON_37_VERSION))
 
 .PHONY: docker-test
 docker-test: docker-venv
