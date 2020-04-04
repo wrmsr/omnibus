@@ -99,3 +99,22 @@ def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest)
 def dataclass_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     # FIXME: recurse?
     return default_field_validation(fld, manifest=manifest)
+
+
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(lang.Redacted)
+def redacted_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
+    cls = manifest.spec.erased_cls
+    if isinstance(manifest.spec, reflect.NonGenericTypeSpec):
+        return default_field_validation(fld, manifest=manifest)
+
+    elif isinstance(manifest.spec, reflect.ParameterizedGenericTypeSpec):
+        [v] = manifest.spec.args
+        vv = build_default_field_validation(fld, v)
+
+        def inner(value):
+            check.isinstance(value, cls, f'Invalid type for field {fld.name}')
+            vv(value.value)
+        return inner
+
+    else:
+        raise TypeError(manifest.spec)
