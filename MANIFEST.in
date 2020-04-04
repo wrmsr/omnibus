@@ -2,10 +2,11 @@ include README.md
 include LICENSE
 include LICENSE-*
 
-global-exclude *.py[co]
-global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.so
 global-exclude .DS_Store
 global-exclude .gitignore
+global-exclude __pycache__
 
 global-exclude **/tests/**
 exclude omnibus/conftest.py
@@ -13,6 +14,7 @@ exclude omnibus/conftest.py
 exclude omnibus/_ext/cy/*.cpp
 include omnibus/_ext/cc/*.cc
 include omnibus/_ext/cc/*.h
+include omnibus/_ext/cy/*.pxd
 include omnibus/_ext/cy/*.pyi
 include omnibus/_ext/cy/*.pyx
 include omnibus/_ext/m/*.h

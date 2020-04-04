@@ -184,6 +184,7 @@ define do-dist
 		LICENSE-* \
 	\
 		build/ || :
+
 	find build -name '*.so' -delete
 
 	if [ ! -f "omnibus/.revision" ] ; then \
