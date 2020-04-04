@@ -177,6 +177,10 @@ dist: build flake test
 		setup.py \
 	\
 		"$(DIST_BUILD_DIR)"
+	cp -rv \
+		LICENSE-* \
+	\
+		"$(DIST_BUILD_DIR)" || :
 
 	if [ ! -f "omnibus/.revision" ] ; then \
 		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision" ; \
