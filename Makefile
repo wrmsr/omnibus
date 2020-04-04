@@ -189,7 +189,9 @@ define do-dist
 	fi
 
 	"$(DIST_BUILD_PYTHON)" -m pip install wheel
-	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip
+	if [ "$(1)" = ".venv" ] ; then \
+		cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
+	fi
 	cd "$(DIST_BUILD_DIR)" && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
 	if [ ! -d ./dist ] ; then \
 		mkdir dist ; \
@@ -327,3 +329,21 @@ docker-test: docker-build
 .PHONY: docker-test-37
 docker-test-37: docker-build-37
 	./docker-dev .venv-docker-37/bin/pytest -v omnibus
+
+## Dist
+
+.PHONY: docker-dist
+docker-dist: docker-build
+	./docker-dev make _docker-dist
+
+.PHONY: docker-dist-37
+docker-dist-37: docker-build-37
+	./docker-dev make _docker-dist-37
+
+.PHONY: _docker-dist
+_docker-dist:
+	$(call do-dist,.venv-docker)
+
+.PHONY: _docker-dist-37
+_docker-dist-37:
+	$(call do-dist,.venv-docker-37)

@@ -10,7 +10,9 @@ global-exclude .gitignore
 global-exclude **/tests/**
 exclude omnibus/conftest.py
 
-prune omnibus/_ext/cc
-exclude omnibus/_ext/cy/**/*.c
-exclude omnibus/_ext/cy/**/*.cpp
-prune omnibus/_ext/rs
+include omnibus/_ext/cc/*.cc
+include omnibus/_ext/cc/*.h
+include omnibus/_ext/cy/*.pyd
+include omnibus/_ext/cy/*.pyx
+include omnibus/_ext/m/*.h
+include omnibus/_ext/m/*.m

@@ -117,29 +117,8 @@ if APPLE:
     ])
 
 
-cmdclass = {}
-
-
-try:
-    from wheel.bdist_wheel import bdist_wheel
-except ImportError:
-    pass
-else:
-    class _bdist_wheel(bdist_wheel):
-        def get_tag(self):
-            tag = bdist_wheel.get_tag(self)
-            repl = 'macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64'
-            if tag[2] == 'macosx_10_6_intel':
-                tag = (tag[0], tag[1], repl)
-            return tag
-
-    cmdclass['bdist_wheel'] = _bdist_wheel
-
-
 if __name__ == '__main__':
     setuptools.setup(
-        cmdclass=cmdclass,
-
         name=ABOUT['__title__'],
         version=ABOUT['__version__'],
         description=ABOUT['__description__'],
