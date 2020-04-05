@@ -1,12 +1,13 @@
 import abc
 import collections
+import dataclasses as dc
 import pickle
 import typing as ta
 
 import pyrsistent
 import pytest
 
-from .. import dataclasses as dc
+from .. import dataclasses as dataclasses_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import specs as specs_
@@ -20,25 +21,25 @@ T = ta.TypeVar('T')
 
 
 def test_reorder():
-    @dc.dataclass()
+    @dataclasses_.dataclass()
     class C:
         x: int
         y: int = 5
 
-    @dc.dataclass(reorder=True)
+    @dataclasses_.dataclass(reorder=True)
     class D(C):
         z: int
 
-    assert [f.name for f in dc.fields(D)] == ['x', 'z', 'y']
+    assert [f.name for f in dataclasses_.fields(D)] == ['x', 'z', 'y']
 
 
 def test_defaultdict():
-    @dc.dc_.dataclass()
+    @dataclasses_.dataclass()
     class C:
         d: dict
 
     c = C(collections.defaultdict(lambda: 3, {}))
-    d = dc.asdict(c)
+    d = dataclasses_.asdict(c)
     assert isinstance(d['d'], collections.defaultdict)
     assert d['d']['a'] == 3
 
@@ -118,14 +119,14 @@ def test_meta():
     assert Gen(1).val == 1
 
 
-@dc.dataclass(reorder=True)
+@dataclasses_.dataclass(reorder=True)
 class A(pickling_.SimplePickle):
     x: int
     y: int
     z: int = 0
 
 
-@dc.dataclass(reorder=True)
+@dataclasses_.dataclass(reorder=True)
 class B(A):
     a: int
 
@@ -137,11 +138,11 @@ def test_pickle():
 
 
 def test_implicit_abc():
-    @dc.dataclass(frozen=True)
+    @dataclasses_.dataclass(frozen=True)
     class C0:
         x: int
 
-    @dc.dc_.dataclass(frozen=True)
+    @dc.dataclass(frozen=True)
     class C1:
         x: int
 
@@ -166,14 +167,14 @@ def validate(cls_dct, validator):
 
 
 def test_validate():
-    @dc.dataclass(frozen=True)
+    @dataclasses_.dataclass(frozen=True)
     class C:
-        x: int = dc.field(validate=lambda x: x > 0)
+        x: int = dataclasses_.field(validate=lambda x: x > 0)
         y: int
 
         validate(lambda x, y: x > y)
 
-        # @dc.validate
+        # @dataclasses_.validate
         # @staticmethod
         # def _validate(x, y):
         #     if not (x > y):
@@ -183,17 +184,17 @@ def test_validate():
 
 
 def test_coerce():
-    @dc.dataclass(frozen=True)
+    @dataclasses_.dataclass(frozen=True)
     class C:
-        s: str = dc.field(coerce=str)
+        s: str = dataclasses_.field(coerce=str)
 
 
 def test_derive():
-    @dc.dataclass(frozen=True)
+    @dataclasses_.dataclass(frozen=True)
     class C:
         x: int
         y: int
-        s: str = dc.field(derive=lambda x, y: str(x + y))
+        s: str = dataclasses_.field(derive=lambda x, y: str(x + y))
 
 
 def test_pyrsistent():
@@ -210,7 +211,7 @@ def test_pyrsistent():
 
 
 def test_default_validation():
-    @dc.dataclass()
+    @dataclasses_.dataclass()
     class Point:
         x: int
         xs: ta.Iterable[int]
@@ -219,13 +220,13 @@ def test_default_validation():
         d: dict
         oi: ta.Optional[int]
 
-    xfld = dc.fields_dict(Point)['x']
+    xfld = dataclasses_.fields_dict(Point)['x']
     xfv = validation_.build_default_field_validation(xfld)
     xfv(420)
     with pytest.raises(Exception):
         xfv(420.)
 
-    xsfld = dc.fields_dict(Point)['xs']
+    xsfld = dataclasses_.fields_dict(Point)['xs']
     xsfv = validation_.build_default_field_validation(xsfld)
     xsfv([420])
     xsfv({420})
@@ -234,7 +235,7 @@ def test_default_validation():
         with pytest.raises(Exception):
             xsfv(v)
 
-    ysbyxfld = dc.fields_dict(Point)['ys_by_x']
+    ysbyxfld = dataclasses_.fields_dict(Point)['ys_by_x']
     ysbyxfv = validation_.build_default_field_validation(ysbyxfld)
     ysbyxfv({})
     ysbyxfv({420: 421.})
@@ -242,20 +243,20 @@ def test_default_validation():
         with pytest.raises(Exception):
             ysbyxfv(v)
 
-    sfld = dc.fields_dict(Point)['s']
+    sfld = dataclasses_.fields_dict(Point)['s']
     sfv = validation_.build_default_field_validation(sfld)
     sfv('420')
     with pytest.raises(Exception):
         sfv(420)
 
-    dfld = dc.fields_dict(Point)['d']
+    dfld = dataclasses_.fields_dict(Point)['d']
     dfv = validation_.build_default_field_validation(dfld)
     dfv({})
     dfv({1: 2})
     with pytest.raises(Exception):
         sfv(())
 
-    oifld = dc.fields_dict(Point)['oi']
+    oifld = dataclasses_.fields_dict(Point)['oi']
     oifv = validation_.build_default_field_validation(oifld)
     oifv(None)
     oifv(420)
@@ -264,7 +265,7 @@ def test_default_validation():
 
 
 def test_spec():
-    @dc.dataclass()
+    @dataclasses_.dataclass()
     class A:
         x: int
         y: int
@@ -272,7 +273,7 @@ def test_spec():
         field_validate(lambda x, y: x > y)
         validate(lambda pt: pt.x > pt.y)
 
-    @dc.dataclass()
+    @dataclasses_.dataclass()
     class B(A):
         z: int
 
@@ -281,5 +282,5 @@ def test_spec():
 
     spec = specs_.get_spec(B)
     print(spec.validators)
-    print(spec.field_validators)
+    print(spec.fields_validators)
     print(spec)

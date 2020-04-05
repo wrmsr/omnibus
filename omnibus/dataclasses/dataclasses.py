@@ -22,7 +22,7 @@ TODO:
 import collections
 import collections.abc
 import copy
-import dataclasses as dc_
+import dataclasses as dc
 import inspect
 import types
 import typing as ta
@@ -30,23 +30,10 @@ import typing as ta
 from .. import check
 from .. import codegen
 from .. import lang
+from .types import ORIGIN_ATTR
 
 
 T = ta.TypeVar('T')
-
-
-Field = dc_.Field
-FrozenInstanceError = dc_.FrozenInstanceError
-InitVar = dc_.InitVar
-MISSING = dc_.MISSING
-
-is_dataclass = dc_.is_dataclass
-replace = dc_.replace
-
-
-ORIGIN_ATTR = '__dataclass_origin__'
-FIELD_VALIDATORS_ATTR = '__dataclass_field_validators__'
-VALIDATORS_ATTR = '__dataclass_validators__'
 
 
 def make_dataclass(*args, **kwargs):
@@ -54,26 +41,26 @@ def make_dataclass(*args, **kwargs):
     raise NotImplementedError
 
 
-def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[Field]:
-    return dc_.fields(class_or_instance)
+def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[dc.Field]:
+    return dc.fields(class_or_instance)
 
 
-def fields_dict(class_or_instance) -> ta.Dict[str, Field]:
+def fields_dict(class_or_instance) -> ta.Dict[str, dc.Field]:
     return {f.name: f for f in fields(class_or_instance)}
 
 
-def _compose_fields(cls: ta.Type) -> ta.Dict[str, Field]:
+def _compose_fields(cls: ta.Type) -> ta.Dict[str, dc.Field]:
     fields = {}
 
     for b in cls.__mro__[-1:0:-1]:
-        base_fields = getattr(b, dc_._FIELDS, None)
+        base_fields = getattr(b, dc._FIELDS, None)
         if base_fields:
             for f in base_fields.values():
                 fields[f.name] = f
 
     cls_annotations = cls.__dict__.get('__annotations__', {})
 
-    cls_fields = [dc_._get_field(cls, name, type) for name, type in cls_annotations.items()]
+    cls_fields = [dc._get_field(cls, name, type) for name, type in cls_annotations.items()]
     for f in cls_fields:
         fields[f.name] = f
 
@@ -84,10 +71,10 @@ def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
     any_frozen_base = False
     has_dataclass_bases = False
     for b in mro[-1:0:-1]:
-        base_fields = getattr(b, dc_._FIELDS, None)
+        base_fields = getattr(b, dc._FIELDS, None)
         if base_fields:
             has_dataclass_bases = True
-            if getattr(b, dc_._PARAMS).frozen:
+            if getattr(b, dc._PARAMS).frozen:
                 any_frozen_base = True
 
     if has_dataclass_bases:
@@ -98,12 +85,12 @@ def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
             raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
 
-def _has_default(fld: Field) -> bool:
-    return fld.default is not MISSING or fld.default_factory is not MISSING
+def _has_default(fld: dc.Field) -> bool:
+    return fld.default is not dc.MISSING or fld.default_factory is not dc.MISSING
 
 
 def asdict(obj, *, dict_factory=dict, shallow=False):
-    if not dc_._is_dataclass_instance(obj):
+    if not dc._is_dataclass_instance(obj):
         raise TypeError('asdict() should be called on dataclass instances')
     if shallow:
         return {f.name: getattr(obj, f.name) for f in fields(obj)}
@@ -112,7 +99,7 @@ def asdict(obj, *, dict_factory=dict, shallow=False):
 
 def _asdict_inner(obj, dict_factory):
     # https://bugs.python.org/issue35540
-    if dc_._is_dataclass_instance(obj):
+    if dc._is_dataclass_instance(obj):
         result = []
         for f in fields(obj):
             value = _asdict_inner(getattr(obj, f.name), dict_factory)
@@ -131,13 +118,13 @@ def _asdict_inner(obj, dict_factory):
 
 
 def astuple(obj, *, tuple_factory=tuple):
-    if not dc_._is_dataclass_instance(obj):
+    if not dc._is_dataclass_instance(obj):
         raise TypeError('astuple() should be called on dataclass instances')
     return _astuple_inner(obj, tuple_factory)
 
 
 def _astuple_inner(obj, tuple_factory):
-    if dc_._is_dataclass_instance(obj):
+    if dc._is_dataclass_instance(obj):
         result = []
         for f in fields(obj):
             value = _astuple_inner(getattr(obj, f.name), tuple_factory)
@@ -173,8 +160,8 @@ class DeriveMetadata(lang.Marker):
 
 def field(
         *,
-        default=MISSING,
-        default_factory=MISSING,
+        default=dc.MISSING,
+        default_factory=dc.MISSING,
         init=True,
         repr=True,
         hash=None,
@@ -186,7 +173,7 @@ def field(
         coerce=None,
         derive=None,
         **kwargs
-) -> dc_.Field:
+) -> dc.Field:
     md = {}
     if size is not None:
         md[SizeMetadata] = size
@@ -199,7 +186,7 @@ def field(
     if md:
         metadata = {**(metadata or {}), **md}
 
-    return dc_.field(
+    return dc.field(
         default=default,
         default_factory=default_factory,
         init=init,
@@ -245,7 +232,7 @@ def dataclass(
 
             lines = []
 
-            def _type_validator(fld: Field):
+            def _type_validator(fld: dc.Field):
                 from .validation import build_default_field_validation
                 return build_default_field_validation(fld)
 
@@ -280,13 +267,13 @@ def dataclass(
                 _check_bases(cls.__mro__, frozen=frozen)
                 anns = {name: fld.type for name, fld in new_flds.items()}
                 ns = {'__annotations__': anns, ORIGIN_ATTR: cls, **new_flds}
-                new_dc = dc_.dataclass(type('_Reordered', (object,), ns), **fwd_kwargs)
+                new_dc = dc.dataclass(type('_Reordered', (object,), ns), **fwd_kwargs)
                 ret = post_process(type(cls.__name__, (new_dc, cls), {}))
                 ret.__module__ = cls.__module__
                 return ret
 
         return post_process(
-            dc_.dataclass(
+            dc.dataclass(
                 cls,
                 init=init,
                 repr=repr,
