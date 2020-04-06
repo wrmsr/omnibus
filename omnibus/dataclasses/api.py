@@ -25,10 +25,13 @@ import copy
 import dataclasses as dc
 import typing as ta
 
+from .. import check
+from .. import lang
 from .types import CoerceMetadata
 from .types import DeriveMetadata
 from .types import SizeMetadata
 from .types import ValidateMetadata
+from .types import VALIDATORS_ATTR
 
 
 T = ta.TypeVar('T')
@@ -138,3 +141,9 @@ def field(
         metadata=metadata,
         **kwargs
     )
+
+
+@lang.cls_dct_fn()
+def validate(cls_dct, validator):
+    check.callable(validator)
+    cls_dct.setdefault(VALIDATORS_ATTR, []).append(validator)

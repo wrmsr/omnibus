@@ -5,7 +5,6 @@ import weakref
 from .. import check
 from .. import defs
 from .. import properties
-from .types import FIELDS_VALIDATORS_ATTR
 from .types import VALIDATORS_ATTR
 
 
@@ -31,7 +30,7 @@ class FieldSpec:
         return self._field
 
 
-class DataclassSpec:
+class DataSpec:
 
     def __init__(self, cls: type) -> None:
         super().__init__()
@@ -61,17 +60,13 @@ class DataclassSpec:
         return [v for c in reversed(self._cls.__mro__) for v in getattr(c, att, [])]
 
     @properties.cached
-    def fields_validators(self) -> ta.List:
-        return self._get_merged_mro_attr_list(FIELDS_VALIDATORS_ATTR)
-
-    @properties.cached
     def validators(self) -> ta.List:
         return self._get_merged_mro_attr_list(VALIDATORS_ATTR)
 
 
-def get_spec(cls: type) -> DataclassSpec:
+def get_spec(cls: type) -> DataSpec:
     try:
         return SPECS_BY_CLS[cls]
     except KeyError:
-        spec = SPECS_BY_CLS[cls] = DataclassSpec(cls)
+        spec = SPECS_BY_CLS[cls] = DataSpec(cls)
         return spec

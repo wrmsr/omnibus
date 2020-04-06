@@ -14,8 +14,6 @@ from .. import pickling as pickling_
 from .. import specs as specs_
 from .. import validation as validation_
 from .. import virtual as virtual_
-from ... import check
-from ... import lang
 
 
 T = ta.TypeVar('T')
@@ -155,25 +153,13 @@ def test_implicit_abc():
         assert not isinstance(1, virtual_.VirtualClass)
 
 
-@lang.cls_dct_fn()
-def field_validate(cls_dct, field_validator):
-    check.callable(field_validator)
-    cls_dct.setdefault('__dataclass_field_validators__', []).append(field_validator)
-
-
-@lang.cls_dct_fn()
-def validate(cls_dct, validator):
-    check.callable(validator)
-    cls_dct.setdefault('__dataclass_validators__', []).append(validator)
-
-
 def test_validate():
     @build_.dataclass(frozen=True)
     class C:
         x: int = api_.field(validate=lambda x: x > 0)
         y: int
 
-        validate(lambda x, y: x > y)
+        api_.validate(lambda x, y: x > y)
 
         # @dataclasses_.validate
         # @staticmethod
@@ -271,17 +257,14 @@ def test_spec():
         x: int
         y: int
 
-        field_validate(lambda x, y: x > y)
-        validate(lambda pt: pt.x > pt.y)
+        api_.validate(lambda pt: pt.x > pt.y)
 
     @build_.dataclass()
     class B(A):
         z: int
 
-        field_validate(lambda x, z: x > z)
-        validate(lambda pt: pt.x > pt.z)
+        api_.validate(lambda pt: pt.x > pt.z)
 
     spec = specs_.get_spec(B)
     print(spec.validators)
-    print(spec.fields_validators)
     print(spec)

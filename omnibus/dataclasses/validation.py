@@ -4,26 +4,24 @@ TODO:
 """
 import collections.abc
 import dataclasses as dc
-import typing as ta
 
 from .. import check
 from .. import dispatch
 from .. import lang
 from .. import reflect
+from .types import FieldValidation
+from .types import FieldValidator
 from .virtual import VirtualClass
 
 
-T = ta.TypeVar('T')
 Field = dc.Field
-MISSING = dc.MISSING
 
-FieldValidator = ta.Callable[[T], None]
-FieldValidation = ta.Callable[[Field], FieldValidator[T]]
+
 DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
 
 
-def build_default_field_validation(fld: Field, type=MISSING) -> FieldValidator:
-    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[type if type is not MISSING else (fld.type or object)]
+def build_default_field_validation(fld: Field, type=dc.MISSING) -> FieldValidator:
+    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[type if type is not dc.MISSING else (fld.type or object)]
     return dispatch.inject_manifest(impl, manifest)(fld)
 
 
