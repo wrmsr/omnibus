@@ -1,4 +1,5 @@
 import dataclasses as dc
+import functools
 import inspect
 import types
 import typing as ta
@@ -6,11 +7,25 @@ import typing as ta
 from .. import check
 from .. import codegen
 from .specs import DataSpec
+from .types import CheckException
 from .types import ORIGIN_ATTR
 from .types import ValidateMetadata
 
 
 T = ta.TypeVar('T')
+
+
+def _get_fn_args(fn) -> ta.List[str]:
+    argspec = inspect.getfullargspec(fn)
+    if (
+            argspec.varargs or
+            argspec.varkw or
+            argspec.defaults or
+            argspec.kwonlyargs or
+            argspec.kwonlydefaults
+    ):
+        raise TypeError(fn)
+    return list(argspec.args)
 
 
 def post_process(
@@ -23,7 +38,7 @@ def post_process(
 
     init_fn: types.FunctionType = cls.__init__
     init_argspec = inspect.getfullargspec(init_fn)
-    init_nsb = codegen.NamespaceBuilder()
+    init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=spec.fields_by_name))
     init_lines = []
 
     def _type_validator(fld: dc.Field):
@@ -40,6 +55,28 @@ def post_process(
             pass
         else:
             raise TypeError(vld_md)
+
+    for vld in spec.validators:
+        vld_args = _get_fn_args(vld)
+        for arg in vld_args:
+            check.in_(arg, spec.fields_by_name)
+        init_lines.append(f'{init_nsb.put(vld)}({", ".join(vld_args)})')
+
+    for chk in spec.checkers:
+        chk_args = _get_fn_args(chk)
+        for arg in chk_args:
+            check.in_(arg, spec.fields_by_name)
+
+        def build_chk_exc(chk, chk_args, *args):
+            if len(chk_args) != len(args):
+                raise TypeError(chk_args, args)
+            raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
+        bound_build_chk_exc = functools.partial(build_chk_exc, chk, chk_args)
+
+        init_lines.append(
+            f'if not {init_nsb.put(chk)}({", ".join(chk_args)}): '
+            f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+        )
 
     if init_lines:
         cg = codegen.Codegen()

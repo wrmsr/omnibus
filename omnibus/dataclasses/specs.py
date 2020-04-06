@@ -5,12 +5,14 @@ import weakref
 from .. import check
 from .. import defs
 from .. import properties
+from .types import Checker
+from .types import CHECKERS_ATTR
 from .types import Deriver
 from .types import DERIVERS_ATTR
 from .types import POST_INITS_ATTR
 from .types import PostInit
-from .types import VALIDATORS_ATTR
 from .types import Validator
+from .types import VALIDATORS_ATTR
 
 
 Field = dc.Field
@@ -63,6 +65,10 @@ class DataSpec:
 
     def _get_merged_mro_attr_list(self, att: str) -> ta.List:
         return [v for c in reversed(self._cls.__mro__) for v in getattr(c, att, [])]
+
+    @properties.cached
+    def checkers(self) -> ta.List[Checker]:
+        return self._get_merged_mro_attr_list(CHECKERS_ATTR)
 
     @properties.cached
     def derivers(self) -> ta.List[Deriver]:

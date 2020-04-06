@@ -12,8 +12,10 @@ from .. import build as build_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import specs as specs_
+from .. import types as types_
 from .. import validation as validation_
 from .. import virtual as virtual_
+from ... import check
 
 
 T = ta.TypeVar('T')
@@ -257,14 +259,19 @@ def test_spec():
         x: int
         y: int
 
-        api_.validate(lambda pt: pt.x > pt.y)
+        api_.validate(lambda x, y: check.arg(x > y))
 
     @build_.dataclass()
     class B(A):
         z: int
 
-        api_.validate(lambda pt: pt.x > pt.z)
+        api_.check(lambda x, z: x > z)
 
     spec = specs_.get_spec(B)
     print(spec.validators)
     print(spec)
+
+    A(2, 1)
+    B(2, 1, 0)
+    with pytest.raises(types_.CheckException):
+        B(2, 1, 3)
