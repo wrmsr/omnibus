@@ -6,7 +6,7 @@ from .dataclasses import field  # noqa
 from .dataclasses import fields  # noqa
 from .dataclasses import fields_dict  # noqa
 from .dataclasses import make_dataclass  # noqa
-from .metaclass import Dataclass  # noqa
+from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
 from .validation import build_default_field_validation  # noqa
 from .validation import DEFAULT_FIELD_VALIDATION_DISPATCHER  # noqa

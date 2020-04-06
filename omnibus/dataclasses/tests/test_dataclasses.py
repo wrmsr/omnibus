@@ -45,7 +45,7 @@ def test_defaultdict():
 
 
 def test_meta():
-    class Point(metaclass_.Dataclass):
+    class Point(metaclass_.Data):
         x: int
         y: int
 
@@ -54,7 +54,7 @@ def test_meta():
     pt.z = 2
     assert pt.z == 2
 
-    class Iface(metaclass_.Dataclass, abstract=True, sealed=True, pickle=True):
+    class Iface(metaclass_.Data, abstract=True, sealed=True, pickle=True):
         x: int
 
     with pytest.raises(TypeError):
@@ -70,7 +70,7 @@ def test_meta():
     pt.z = 3
     assert pt.z == 3
 
-    class FrozenIface(metaclass_.Dataclass, abstract=True, sealed=True, pickle=True, frozen=True):
+    class FrozenIface(metaclass_.Data, abstract=True, sealed=True, pickle=True, frozen=True):
         x: int
 
     class FrozenImpl(FrozenIface, final=True, frozen=True):
@@ -89,7 +89,7 @@ def test_meta():
         class Impl2(Impl):
             pass
 
-    class Abs(metaclass_.Dataclass, abstract=True):
+    class Abs(metaclass_.Data, abstract=True):
         x: int
 
         @abc.abstractproperty
@@ -113,7 +113,7 @@ def test_meta():
     with pytest.raises(TypeError):
         AbsImpl2(1)
 
-    class Gen(metaclass_.Dataclass, ta.Generic[T]):
+    class Gen(metaclass_.Data, ta.Generic[T]):
         val: T
 
     assert Gen(1).val == 1
