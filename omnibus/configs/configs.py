@@ -3,6 +3,7 @@ TODO:
  - *YES* - dataclass interop - bidirectional for injection
   - akin to inj not being required
   - honor frozen
+  - full on merge with dataclasses? configs just a special storage backend?
  - polled sources: file (+url), sql, redis
   - atomicity - class UsernameAndPassword etc
  - pushed sources: zk

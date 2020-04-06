@@ -2,9 +2,11 @@ import re
 import textwrap
 
 from .. import configs as configs_
+from .. import dataclasses as dataclasses_
 from .. import dotenv as dotenv_
 from .. import fields as fields_
 from .. import flattening as flattening_
+from ... import dataclasses as dc
 
 
 def test_flattening():
@@ -84,3 +86,13 @@ def test_dotenv():
 
     assert m0 is not None
     assert m1 is not None
+
+
+def test_dataclasses():
+    @dc.dataclass(frozen=True)
+    class ConfigDc:
+        username: str
+        password: str
+
+    DcConfig = dataclasses_.build_dataclass_config(ConfigDc)
+    assert DcConfig is not None

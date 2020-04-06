@@ -9,6 +9,8 @@ from .api import validate  # noqa
 from .build import dataclass  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
+from .specs import DataSpec  # noa
+from .specs import get_spec  # noa
 from .types import Checker  # noqa
 from .types import CheckException  # noqa
 from .types import Deriver  # noqa
