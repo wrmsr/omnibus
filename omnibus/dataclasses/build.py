@@ -23,29 +23,29 @@ def post_process(
     argspec = inspect.getfullargspec(fn)
     nsb = codegen.NamespaceBuilder()
 
-    lines = []
+    init_lines = []
 
     def _type_validator(fld: dc.Field):
         from .validation import build_default_field_validation
         return build_default_field_validation(fld)
 
     for fld in fields(cls):
-        vm = fld.metadata.get(ValidateMetadata)
-        if callable(vm):
-            lines.append(f'{nsb.put(vm)}({fld.name})')
-        elif vm is True or (vm is None and validate is True):
-            lines.append(f'{nsb.put(_type_validator(fld))}({fld.name})')
-        elif vm is False or vm is None:
+        vld_md = fld.metadata.get(ValidateMetadata)
+        if callable(vld_md):
+            init_lines.append(f'{nsb.put(vld_md)}({fld.name})')
+        elif vld_md is True or (vld_md is None and validate is True):
+            init_lines.append(f'{nsb.put(_type_validator(fld))}({fld.name})')
+        elif vld_md is False or vld_md is None:
             pass
         else:
-            raise TypeError(vm)
+            raise TypeError(vld_md)
 
-    if lines:
+    if init_lines:
         cg = codegen.Codegen()
         cg(f'def {fn.__name__}({codegen.render_arg_spec(argspec, nsb)}:\n')
         with cg.indent():
             cg(f'{nsb.put(fn)}({", ".join(a for a in argspec.args)})\n')
-            cg('\n'.join(lines))
+            cg('\n'.join(init_lines))
 
         ns = dict(nsb)
         exec(str(cg), ns)
