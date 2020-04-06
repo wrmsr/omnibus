@@ -27,6 +27,7 @@ RUN ( \
         make \
         man \
         moreutils \
+        nano \
         ncdu \
         net-tools \
         netcat \
