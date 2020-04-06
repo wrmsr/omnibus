@@ -72,7 +72,6 @@ import subprocess
 import typing as ta
 
 from .. import configs
-from .. import lifecycles
 from .. import properties
 
 
@@ -83,7 +82,7 @@ class NginxConfig(configs.Config):
     read_timeout = 5.
 
 
-class NginxProcess(lifecycles.ContextManageableLifecycle):
+class NginxProcess:
 
     def __init__(self, config: NginxConfig = NginxConfig()) -> None:
         super().__init__()
@@ -125,9 +124,3 @@ class NginxProcess(lifecycles.ContextManageableLifecycle):
                 cfg_line = line.partition(': ')[2]
                 return shlex.split(cfg_line)
         return None
-
-    def _do_lifecycle_start(self) -> None:
-        super()._do_lifecycle_start()
-
-    def _do_lifecycle_stop(self) -> None:
-        super()._do_lifecycle_stop()

@@ -31,6 +31,10 @@ class DeriveMetadata(lang.Marker):
     pass
 
 
+class DocMetadata(lang.Marker):
+    pass
+
+
 class SizeMetadata(lang.Marker):
     pass
 

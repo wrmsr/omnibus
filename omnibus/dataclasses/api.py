@@ -13,7 +13,6 @@ TODO:
  - validate: True=default, cls-lvl default on/off, unary void callable ...
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
- - field.__doc__
  - pyo3 + cy struct type interop
 """
 import collections
@@ -30,6 +29,7 @@ from .types import CoerceMetadata
 from .types import DeriveMetadata
 from .types import Deriver
 from .types import DERIVERS_ATTR
+from .types import DocMetadata
 from .types import POST_INITS_ATTR
 from .types import PostInit
 from .types import SizeMetadata
@@ -117,21 +117,24 @@ def field(
         compare=True,
         metadata=None,
 
-        size=None,
-        validate=None,
         coerce=None,
         derive=None,
+        doc=None,
+        size=None,
+        validate=None,
         **kwargs
 ) -> dc.Field:
     md = {}
-    if size is not None:
-        md[SizeMetadata] = size
-    if validate is not None:
-        md[ValidateMetadata] = validate
     if coerce is not None:
         md[CoerceMetadata] = coerce
     if derive is not None:
         md[DeriveMetadata] = derive
+    if doc is not None:
+        md[DocMetadata] = doc
+    if size is not None:
+        md[SizeMetadata] = size
+    if validate is not None:
+        md[ValidateMetadata] = validate
     if md:
         metadata = {**(metadata or {}), **md}
 
