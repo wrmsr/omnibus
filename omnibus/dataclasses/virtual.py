@@ -1,13 +1,13 @@
-import dataclasses as dc_
+import dataclasses as dc
 
 
 class _VirtualClassMeta(type):
 
     def __subclasscheck__(cls, subclass):
-        return dc_.is_dataclass(subclass)
+        return dc.is_dataclass(subclass)
 
     def __instancecheck__(cls, instance):
-        return dc_.is_dataclass(instance)
+        return dc.is_dataclass(instance)
 
 
 class VirtualClass(metaclass=_VirtualClassMeta):

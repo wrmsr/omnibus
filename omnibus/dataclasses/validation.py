@@ -3,7 +3,7 @@ TODO:
  - return bool not raise, don't throw/catch in unions
 """
 import collections.abc
-import dataclasses as dc_
+import dataclasses as dc
 import typing as ta
 
 from .. import check
@@ -14,8 +14,8 @@ from .virtual import VirtualClass
 
 
 T = ta.TypeVar('T')
-Field = dc_.Field
-MISSING = dc_.MISSING
+Field = dc.Field
+MISSING = dc.MISSING
 
 FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[Field], FieldValidator[T]]

@@ -7,7 +7,8 @@ import typing as ta
 import pyrsistent
 import pytest
 
-from .. import dataclasses as dataclasses_
+from .. import api as api_
+from .. import build as build_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import specs as specs_
@@ -21,25 +22,25 @@ T = ta.TypeVar('T')
 
 
 def test_reorder():
-    @dataclasses_.dataclass()
+    @build_.dataclass()
     class C:
         x: int
         y: int = 5
 
-    @dataclasses_.dataclass(reorder=True)
+    @build_.dataclass(reorder=True)
     class D(C):
         z: int
 
-    assert [f.name for f in dataclasses_.fields(D)] == ['x', 'z', 'y']
+    assert [f.name for f in api_.fields(D)] == ['x', 'z', 'y']
 
 
 def test_defaultdict():
-    @dataclasses_.dataclass()
+    @build_.dataclass()
     class C:
         d: dict
 
     c = C(collections.defaultdict(lambda: 3, {}))
-    d = dataclasses_.asdict(c)
+    d = api_.asdict(c)
     assert isinstance(d['d'], collections.defaultdict)
     assert d['d']['a'] == 3
 
@@ -119,14 +120,14 @@ def test_meta():
     assert Gen(1).val == 1
 
 
-@dataclasses_.dataclass(reorder=True)
+@build_.dataclass(reorder=True)
 class A(pickling_.SimplePickle):
     x: int
     y: int
     z: int = 0
 
 
-@dataclasses_.dataclass(reorder=True)
+@build_.dataclass(reorder=True)
 class B(A):
     a: int
 
@@ -138,7 +139,7 @@ def test_pickle():
 
 
 def test_implicit_abc():
-    @dataclasses_.dataclass(frozen=True)
+    @build_.dataclass(frozen=True)
     class C0:
         x: int
 
@@ -167,9 +168,9 @@ def validate(cls_dct, validator):
 
 
 def test_validate():
-    @dataclasses_.dataclass(frozen=True)
+    @build_.dataclass(frozen=True)
     class C:
-        x: int = dataclasses_.field(validate=lambda x: x > 0)
+        x: int = api_.field(validate=lambda x: x > 0)
         y: int
 
         validate(lambda x, y: x > y)
@@ -184,17 +185,17 @@ def test_validate():
 
 
 def test_coerce():
-    @dataclasses_.dataclass(frozen=True)
+    @build_.dataclass(frozen=True)
     class C:
-        s: str = dataclasses_.field(coerce=str)
+        s: str = api_.field(coerce=str)
 
 
 def test_derive():
-    @dataclasses_.dataclass(frozen=True)
+    @build_.dataclass(frozen=True)
     class C:
         x: int
         y: int
-        s: str = dataclasses_.field(derive=lambda x, y: str(x + y))
+        s: str = api_.field(derive=lambda x, y: str(x + y))
 
 
 def test_pyrsistent():
@@ -211,7 +212,7 @@ def test_pyrsistent():
 
 
 def test_default_validation():
-    @dataclasses_.dataclass()
+    @build_.dataclass()
     class Point:
         x: int
         xs: ta.Iterable[int]
@@ -220,13 +221,13 @@ def test_default_validation():
         d: dict
         oi: ta.Optional[int]
 
-    xfld = dataclasses_.fields_dict(Point)['x']
+    xfld = api_.fields_dict(Point)['x']
     xfv = validation_.build_default_field_validation(xfld)
     xfv(420)
     with pytest.raises(Exception):
         xfv(420.)
 
-    xsfld = dataclasses_.fields_dict(Point)['xs']
+    xsfld = api_.fields_dict(Point)['xs']
     xsfv = validation_.build_default_field_validation(xsfld)
     xsfv([420])
     xsfv({420})
@@ -235,7 +236,7 @@ def test_default_validation():
         with pytest.raises(Exception):
             xsfv(v)
 
-    ysbyxfld = dataclasses_.fields_dict(Point)['ys_by_x']
+    ysbyxfld = api_.fields_dict(Point)['ys_by_x']
     ysbyxfv = validation_.build_default_field_validation(ysbyxfld)
     ysbyxfv({})
     ysbyxfv({420: 421.})
@@ -243,20 +244,20 @@ def test_default_validation():
         with pytest.raises(Exception):
             ysbyxfv(v)
 
-    sfld = dataclasses_.fields_dict(Point)['s']
+    sfld = api_.fields_dict(Point)['s']
     sfv = validation_.build_default_field_validation(sfld)
     sfv('420')
     with pytest.raises(Exception):
         sfv(420)
 
-    dfld = dataclasses_.fields_dict(Point)['d']
+    dfld = api_.fields_dict(Point)['d']
     dfv = validation_.build_default_field_validation(dfld)
     dfv({})
     dfv({1: 2})
     with pytest.raises(Exception):
         sfv(())
 
-    oifld = dataclasses_.fields_dict(Point)['oi']
+    oifld = api_.fields_dict(Point)['oi']
     oifv = validation_.build_default_field_validation(oifld)
     oifv(None)
     oifv(420)
@@ -265,7 +266,7 @@ def test_default_validation():
 
 
 def test_spec():
-    @dataclasses_.dataclass()
+    @build_.dataclass()
     class A:
         x: int
         y: int
@@ -273,7 +274,7 @@ def test_spec():
         field_validate(lambda x, y: x > y)
         validate(lambda pt: pt.x > pt.y)
 
-    @dataclasses_.dataclass()
+    @build_.dataclass()
     class B(A):
         z: int
 

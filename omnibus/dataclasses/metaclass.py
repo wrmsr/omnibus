@@ -1,17 +1,14 @@
 import abc
-import dataclasses as dc_
+import dataclasses as dc
 import typing as ta
 
 from .. import check
 from .. import lang
-from .dataclasses import dataclass
+from .build import dataclass
 from .pickling import SimplePickle
 
 
 T = ta.TypeVar('T')
-
-
-MISSING = dc_.MISSING
 
 
 class _Meta(abc.ABCMeta):
@@ -39,7 +36,7 @@ class _Meta(abc.ABCMeta):
             bases += (lang.Sealed,)
 
         cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
-        flds = dc_.fields(cls)
+        flds = dc.fields(cls)
 
         rebuild = False
 
@@ -48,9 +45,9 @@ class _Meta(abc.ABCMeta):
             namespace['__slots__'] = tuple(f.name for f in flds)
             rebuild = True
         if '__slots__' not in namespace:
-            for fld in dc_.fields(cls):
+            for fld in dc.fields(cls):
                 if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
-                    namespace[fld.name] = MISSING
+                    namespace[fld.name] = dc.MISSING
                     rebuild = True
 
         def _build_init():

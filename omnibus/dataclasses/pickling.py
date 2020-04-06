@@ -1,4 +1,4 @@
-from .dataclasses import asdict
+from .api import asdict
 
 
 class SimplePickle:

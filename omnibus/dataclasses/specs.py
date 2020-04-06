@@ -1,4 +1,4 @@
-import dataclasses as dc_
+import dataclasses as dc
 import typing as ta
 import weakref
 
@@ -9,7 +9,7 @@ from .types import FIELDS_VALIDATORS_ATTR
 from .types import VALIDATORS_ATTR
 
 
-Field = dc_.Field
+Field = dc.Field
 
 
 SPECS_BY_CLS = weakref.WeakKeyDictionary()
@@ -36,7 +36,7 @@ class DataclassSpec:
     def __init__(self, cls: type) -> None:
         super().__init__()
 
-        check.arg(dc_.is_dataclass(cls))
+        check.arg(dc.is_dataclass(cls))
         self._cls = check.isinstance(cls, type)
 
     defs.repr('cls')
@@ -46,8 +46,12 @@ class DataclassSpec:
         return self._cls
 
     @properties.cached
+    def params(self) -> dc._DataclassParams:
+        return check.isinstance(getattr(self._cls, dc._PARAMS), dc._DataclassParams)
+
+    @properties.cached
     def fields(self) -> ta.Sequence[Field]:
-        return dc_.fields(self._cls)
+        return dc.fields(self._cls)
 
     @properties.cached
     def fields_by_name(self) -> ta.Mapping[str, Field]:

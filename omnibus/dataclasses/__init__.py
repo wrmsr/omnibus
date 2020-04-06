@@ -1,11 +1,11 @@
 from .. import lang
-from .dataclasses import asdict  # noqa
-from .dataclasses import astuple  # noqa
-from .dataclasses import dataclass  # noqa
-from .dataclasses import field  # noqa
-from .dataclasses import fields  # noqa
-from .dataclasses import fields_dict  # noqa
-from .dataclasses import make_dataclass  # noqa
+from .api import asdict  # noqa
+from .api import astuple  # noqa
+from .api import field  # noqa
+from .api import fields  # noqa
+from .api import fields_dict  # noqa
+from .api import make_dataclass  # noqa
+from .build import dataclass  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
 from .validation import build_default_field_validation  # noqa
