@@ -29,8 +29,13 @@ from .. import check
 from .. import lang
 from .types import CoerceMetadata
 from .types import DeriveMetadata
+from .types import Deriver
+from .types import DERIVERS_ATTR
+from .types import POST_INITS_ATTR
+from .types import PostInit
 from .types import SizeMetadata
 from .types import ValidateMetadata
+from .types import Validator
 from .types import VALIDATORS_ATTR
 
 
@@ -144,6 +149,18 @@ def field(
 
 
 @lang.cls_dct_fn()
-def validate(cls_dct, validator):
+def derive(cls_dct, deriver: Deriver) -> None:
+    check.callable(deriver)
+    cls_dct.setdefault(DERIVERS_ATTR, []).append(deriver)
+
+
+@lang.cls_dct_fn()
+def post_init(cls_dct, post_init: PostInit) -> None:
+    check.callable(post_init)
+    cls_dct.setdefault(POST_INITS_ATTR, []).append(post_init)
+
+
+@lang.cls_dct_fn()
+def validate(cls_dct, validator: Validator) -> None:
     check.callable(validator)
     cls_dct.setdefault(VALIDATORS_ATTR, []).append(validator)
