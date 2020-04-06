@@ -163,7 +163,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
     if arg_spec.varkw:
         args.append(f'**{arg_spec.varkw}' + ann(arg_spec.varkw))
 
-    line = f"{', '.join(args)})"
+    line = f"({', '.join(args)})"
     if arg_spec.annotations and 'return' in arg_spec.annotations:
         line += f" -> {arg_spec.annotations['return']}"
 

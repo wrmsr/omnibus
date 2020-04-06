@@ -78,9 +78,32 @@ def post_process(
             f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
         )
 
+    if spec.post_inits:
+        post_init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names={'args', 'kwargs'}))
+        post_init_lines = []
+
+        for pi in spec.post_inits:
+            post_init_lines.append(f'{post_init_nsb.put(pi)}(self)')
+
+        cg = codegen.Codegen()
+        cg(f'def __post_init__(self, *args, **kwargs):\n')
+        with cg.indent():
+            post_init_fn = cls.__dict__.get('__post_init__')
+            if post_init_fn is not None:
+                cg(f'{post_init_nsb.put(post_init_fn)}(self, *args, **kwargs)\n')
+            elif hasattr(cls, '__post_init__'):
+                cg(f'{post_init_fn.put(super)}({post_init_fn.put(cls)}, self).__post_init__(*args, **kwargs)')
+            else:
+                init_lines.append(f'self.__post_init__()')
+            cg('\n'.join(post_init_lines))
+
+        ns = dict(post_init_nsb)
+        exec(str(cg), ns)
+        cls.__post_init__ = ns['__post_init__']
+
     if init_lines:
         cg = codegen.Codegen()
-        cg(f'def {init_fn.__name__}({codegen.render_arg_spec(init_argspec, init_nsb)}:\n')
+        cg(f'def {init_fn.__name__}{codegen.render_arg_spec(init_argspec, init_nsb)}:\n')
         with cg.indent():
             cg(f'{init_nsb.put(init_fn)}({", ".join(a for a in init_argspec.args)})\n')
             cg('\n'.join(init_lines))

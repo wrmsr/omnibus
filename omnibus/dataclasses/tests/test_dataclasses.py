@@ -275,3 +275,16 @@ def test_spec():
     B(2, 1, 0)
     with pytest.raises(types_.CheckException):
         B(2, 1, 3)
+
+
+def test_post_init():
+    class Point(metaclass_.Data):
+        x: int
+        y: int
+
+        api_.post_init(lambda pt: l.append(pt))
+
+    l = []
+    Point(1, 2)
+    Point(3, 4)
+    assert len(l) == 2
