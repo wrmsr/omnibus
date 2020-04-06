@@ -11,9 +11,6 @@ TODO:
    - so 'Stubbing' ala compcache shaper..
  - coerce: True=just call w val, cls-lvl default on/off, unary void callable
  - validate: True=default, cls-lvl default on/off, unary void callable ...
-  - FieldValidator vs Validator - lambda x, y: vs lambda obj: - ~want both~
-   - dc.validate_fields(lambda x, y:)
-   - dc.validate(lambda obj:) - ~before~ post_init - ~could~ be used to do post-init shit but discourage w/ name
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - field.__doc__
