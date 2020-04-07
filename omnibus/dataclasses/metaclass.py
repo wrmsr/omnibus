@@ -74,5 +74,11 @@ class _Meta(abc.ABCMeta):
 
 class Data(metaclass=_Meta):
 
-    def __post_init__(self) -> None:
-        pass
+    def __post_init__(self, *args, **kwargs) -> None:
+        try:
+            spi = super().__post_init__
+        except AttributeError:
+            if args or kwargs:
+                raise TypeError(args, kwargs)
+        else:
+            spi(*args, **kwargs)

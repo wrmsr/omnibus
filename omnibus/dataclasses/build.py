@@ -244,12 +244,22 @@ class InitBuilder:
 
         self._cp = check.isinstance(cp, ClassProcessor)
 
+        self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=cp.fields))
+
     @property
     def cp(self) -> ClassProcessor:
         return self._cp
 
+    @property
+    def nsb(self) -> codegen.NamespaceBuilder:
+        return self._nsb
+
+    @properties.cached
+    def self_name(self) -> str:
+        return '__dataclass_self__' if 'self' in self.cp.fields else 'self'
+
     @staticmethod
-    def _get_fn_args(fn) -> ta.List[str]:
+    def get_flat_fn_args(fn) -> ta.List[str]:
         argspec = inspect.getfullargspec(fn)
         if (
                 argspec.varargs or
@@ -284,13 +294,13 @@ class InitBuilder:
                 raise TypeError(vld_md)
 
         for vld in self.cp.defdecls[ValidatorDefdecl]:
-            vld_args = self._get_fn_args(vld.fn)
+            vld_args = self.get_flat_fn_args(vld.fn)
             for arg in vld_args:
                 check.in_(arg, self.cp.fields)
             init_lines.append(f'{init_nsb.put(vld.fn)}({", ".join(vld_args)})')
 
         for chk in self.cp.defdecls[CheckerDefdcel]:
-            chk_args = self._get_fn_args(chk.fn)
+            chk_args = self.get_flat_fn_args(chk.fn)
             for arg in chk_args:
                 check.in_(arg, self.cp.fields)
 
@@ -340,20 +350,16 @@ class InitBuilder:
             exec(str(cg), ns)
             self.cp.cls.__init__ = ns[init_fn.__name__]
 
-    def __call__(self) -> None:
-        # Does this class have a post-init function?
-        has_post_init = hasattr(self.cp.cls, dc._POST_INIT_NAME)
+    @properties.cached
+    def init_fields(self) -> ta.List[dc.Field]:
+        return [f for f in self.cp.fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
 
-        # Include InitVars and regular fields (so, not ClassVars).
-        flds = [f for f in self.cp.fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
-
-        self_name = '__dataclass_self__' if 'self' in self.cp.fields else 'self'
-
+    def check_defaults(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
         # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
         # us in case we build up the function using ast.
         seen_default = False
-        for f in flds:
+        for f in self.init_fields:
             # Only consider fields in the __init__ call.
             if f.init:
                 if not (f.default is dc.MISSING and f.default_factory is dc.MISSING):
@@ -361,31 +367,41 @@ class InitBuilder:
                 elif seen_default:
                     raise TypeError(f'non-default argument {f.name!r} follows default argument')
 
-        locals = {f'_type_{f.name}': f.type for f in flds}
+    def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
+        ret = []
+        for f in self.init_fields:
+            line = dc._field_init(f, self.cp.params.frozen, locals, self.self_name)
+            # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
+            if line:
+                ret.append(line)
+        return ret
+
+    def build_post_init_lines(self) -> ta.List[str]:
+        ret = []
+        if hasattr(self.cp.cls, dc._POST_INIT_NAME):
+            params_str = ','.join(f.name for f in self.init_fields if f._field_type is dc._FIELD_INITVAR)
+            ret.append(f'{self.self_name}.{dc._POST_INIT_NAME}({params_str})')
+        return ret
+
+    def __call__(self) -> None:
+        self.check_defaults()
+
+        locals = {f'_type_{f.name}': f.type for f in self.init_fields}
         locals.update({
             'MISSING': dc.MISSING,
             '_HAS_DEFAULT_FACTORY': dc._HAS_DEFAULT_FACTORY,
         })
 
         body_lines = []
-        for f in flds:
-            line = dc._field_init(f, self.cp.params.frozen, locals, self_name)
-            # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
-            if line:
-                body_lines.append(line)
+        body_lines.extend(self.build_field_init_lines(locals))
+        body_lines.extend(self.build_post_init_lines())
 
-        # Does this class have a post-init function?
-        if has_post_init:
-            params_str = ','.join(f.name for f in flds if f._field_type is dc._FIELD_INITVAR)
-            body_lines.append(f'{self_name}.{dc._POST_INIT_NAME}({params_str})')
-
-        # If no body lines, use 'pass'.
         if not body_lines:
             body_lines = ['pass']
 
         return dc._create_fn(
             '__init__',
-            [self_name] + [dc._init_param(f) for f in flds if f.init],
+            [self.self_name] + [dc._init_param(f) for f in self.init_fields if f.init],
             body_lines,
             locals=locals,
             globals=self.cp.globals,
@@ -393,38 +409,38 @@ class InitBuilder:
         )
 
 
-def _compose_fields(cls: ta.Type) -> ta.Dict[str, dc.Field]:
-    fields = {}
-    for b in cls.__mro__[-1:0:-1]:
-        base_fields = getattr(b, dc._FIELDS, None)
-        if base_fields:
-            for f in base_fields.values():
-                fields[f.name] = f
-    cls_annotations = cls.__dict__.get('__annotations__', {})
-    cls_fields = [dc._get_field(cls, name, type) for name, type in cls_annotations.items()]
-    for f in cls_fields:
-        fields[f.name] = f
-    return fields
+# def _compose_fields(cls: ta.Type) -> ta.Dict[str, dc.Field]:
+#     fields = {}
+#     for b in cls.__mro__[-1:0:-1]:
+#         base_fields = getattr(b, dc._FIELDS, None)
+#         if base_fields:
+#             for f in base_fields.values():
+#                 fields[f.name] = f
+#     cls_annotations = cls.__dict__.get('__annotations__', {})
+#     cls_fields = [dc._get_field(cls, name, type) for name, type in cls_annotations.items()]
+#     for f in cls_fields:
+#         fields[f.name] = f
+#     return fields
 
 
-def _has_default(fld: dc.Field) -> bool:
-    return fld.default is not dc.MISSING or fld.default_factory is not dc.MISSING
+# def _has_default(fld: dc.Field) -> bool:
+#     return fld.default is not dc.MISSING or fld.default_factory is not dc.MISSING
 
 
-def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
-    any_frozen_base = False
-    has_dataclass_bases = False
-    for b in mro[-1:0:-1]:
-        base_fields = getattr(b, dc._FIELDS, None)
-        if base_fields:
-            has_dataclass_bases = True
-            if getattr(b, dc._PARAMS).frozen:
-                any_frozen_base = True
-    if has_dataclass_bases:
-        if any_frozen_base and not frozen:
-            raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-        if not any_frozen_base and frozen:
-            raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
+# def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
+#     any_frozen_base = False
+#     has_dataclass_bases = False
+#     for b in mro[-1:0:-1]:
+#         base_fields = getattr(b, dc._FIELDS, None)
+#         if base_fields:
+#             has_dataclass_bases = True
+#             if getattr(b, dc._PARAMS).frozen:
+#                 any_frozen_base = True
+#     if has_dataclass_bases:
+#         if any_frozen_base and not frozen:
+#             raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+#         if not any_frozen_base and frozen:
+#             raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
 
 # def _do_reorder(cls, params):
