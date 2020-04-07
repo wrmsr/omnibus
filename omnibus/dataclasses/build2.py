@@ -29,6 +29,12 @@ class ClassProcessor:
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, dc._DataclassParams)
 
+    def _set_new_attribute(self, name, value):
+        if name in self._cls.__dict__:
+            return True
+        setattr(self._cls, name, value)
+        return False
+
     def __call__(self, init, repr, eq, order, unsafe_hash, frozen):
         fields = {}
 
@@ -62,7 +68,7 @@ class ClassProcessor:
 
         # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
         # attributes) where we can.
-        cls_fields = [_get_field(self._cls, name, type) for name, type in cls_annotations.items()]
+        cls_fields = [dc._get_field(self._cls, name, type) for name, type in cls_annotations.items()]
         for f in cls_fields:
             fields[f.name] = f
 
@@ -112,8 +118,7 @@ class ClassProcessor:
 
             # Include InitVars and regular fields (so, not ClassVars).
             flds = [f for f in fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
-            _set_new_attribute(
-                self._cls,
+            self._set_new_attribute(
                 '__init__',
                 _init_fn(
                     flds,
@@ -129,13 +134,13 @@ class ClassProcessor:
 
         if self._params.repr:
             flds = [f for f in field_list if f.repr]
-            _set_new_attribute(self._cls, '__repr__', _repr_fn(flds, globals))
+            self._set_new_attribute('__repr__', _repr_fn(flds, globals))
 
         if self._params.eq:
             flds = [f for f in field_list if f.compare]
             self_tuple = _tuple_str('self', flds)
             other_tuple = _tuple_str('other', flds)
-            _set_new_attribute(self._cls, '__eq__', _cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=globals))
+            self._set_new_attribute('__eq__', _cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=globals))
 
         if self._params.order:
             flds = [f for f in field_list if f.compare]
@@ -147,13 +152,13 @@ class ClassProcessor:
                 ('__gt__', '>'),
                 ('__ge__', '>='),
             ]:
-                if _set_new_attribute(self._cls, name, _cmp_fn(name, op, self_tuple, other_tuple, globals=globals)):
+                if self._set_new_attribute(name, _cmp_fn(name, op, self_tuple, other_tuple, globals=globals)):
                     raise TypeError(
                         f'Cannot overwrite attribute {name} in class {self._cls.__name__}. Consider using functools.total_ordering')
 
         if self._params.frozen:
             for fn in _frozen_get_del_attr(self._cls, field_list, globals):
-                if _set_new_attribute(self._cls, fn.__name__, fn):
+                if self._set_new_attribute(fn.__name__, fn):
                     raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self._cls.__name__}')
 
         hash_action = _hash_action[bool(self._params.unsafe_hash), bool(self._params.eq), bool(self._params.frozen), has_explicit_hash]
