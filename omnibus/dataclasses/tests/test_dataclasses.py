@@ -10,6 +10,7 @@ import pytest
 from .. import api as api_
 from .. import build as build_
 from .. import build2 as build2_
+from .. import defdecls as defdecls_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import specs as specs_
@@ -299,3 +300,14 @@ def test_build2():
     build2_.ClassProcessor(Point, build2_.params(frozen=True))()
 
     assert Point(1, 2).y == 2
+
+
+def test_defdecls():
+    @dc.dataclass()
+    class Point:
+        x: int
+        y: int
+
+        defdecls_.CheckerDefdcel.install(lambda x: x > 1)
+
+    cdd = defdecls_.ClsDefdecls(Point)
