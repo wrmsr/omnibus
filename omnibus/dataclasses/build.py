@@ -31,6 +31,7 @@ from .internals import FIELD_INITVAR
 from .internals import FIELDS
 from .internals import frozen_get_del_attr
 from .internals import get_field
+from .internals import get_field_type
 from .internals import HAS_DEFAULT_FACTORY
 from .internals import hash_action
 from .internals import init_param
@@ -161,7 +162,7 @@ class Fields(ta.Sequence[dc.Field]):
     def by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
         ret = {}
         for f in self:
-            ret.setdefault(f._field_type, {})[f.name] = f
+            ret.setdefault(get_field_type(f), {})[f.name] = f
         return ret
 
     @properties.cached
@@ -356,7 +357,7 @@ class InitBuilder:
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.fields if f._field_type in (FIELD, FIELD_INITVAR)]
+        return [f for f in self.fields if get_field_type(f) in (FIELD, FIELD_INITVAR)]
 
     def check_invariants(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
@@ -445,7 +446,7 @@ class InitBuilder:
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []
         if hasattr(self.ctx.cls, POST_INIT_NAME):
-            params_str = ','.join(f.name for f in self.init_fields if f._field_type is FIELD_INITVAR)
+            params_str = ','.join(f.name for f in self.init_fields if get_field_type(f) is FIELD_INITVAR)
             ret.append(f'{self.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 

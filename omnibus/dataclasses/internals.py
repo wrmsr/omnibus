@@ -25,3 +25,7 @@ field_init = dc._field_init
 tuple_str = dc._tuple_str
 create_fn = dc._create_fn
 init_param = dc._init_param
+
+
+def get_field_type(fld: dc.Field) -> dc._FIELD_BASE:
+    return fld._field_type

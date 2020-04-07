@@ -54,7 +54,7 @@ class DataSpec:
 
     @properties.cached
     def params(self) -> DataclassParams:
-        return check.isinstance(getattr(self._cls, PARAMS), dc._DataclassParams)
+        return check.isinstance(getattr(self._cls, PARAMS), DataclassParams)
 
     @properties.cached
     def fields(self) -> ta.Sequence[Field]:
