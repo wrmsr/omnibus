@@ -10,9 +10,15 @@ from .. import codegen
 from .. import lang
 from .. import properties
 from .defdecls import CheckerDefdcel
+from .defdecls import CheckerDefdcel
+from .defdecls import ClsDefdecls
 from .defdecls import DeriverDefdecl
+from .defdecls import get_cls_defdecls
 from .defdecls import PostInitDefdecl
 from .defdecls import ValidatorDefdecl
+from .types import CheckException
+from .types import METADATA_ATTR
+from .types import ValidateMetadata
 
 
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
@@ -51,6 +57,14 @@ class ClassProcessor(ta.Generic[TypeT]):
     @property
     def params(self) -> dc._DataclassParams:
         return self._params
+
+    @properties.cached
+    def metadata(self) -> ta.Mapping[type, ta.Any]:
+        return self.cls.__dict__.get(METADATA_ATTR, {})
+
+    @properties.cached
+    def defdecls(self) -> ClsDefdecls:
+        return get_cls_defdecls(self.cls)
 
     def check_invariants(self) -> None:
         if self.params.order and not self.params.eq:
@@ -244,7 +258,8 @@ class InitBuilder:
             raise TypeError(fn)
         return list(argspec.args)
 
-    def post_process(self, validate=False):
+    def install_post_processing(self, validate=False) -> None:
+        # FIXME: pure builder, no install..
         init_fn: types.FunctionType = self.cp.cls.__init__
         init_argspec = inspect.getfullargspec(init_fn)
         init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=self.cp.fields))
@@ -254,7 +269,7 @@ class InitBuilder:
             from .validation import build_default_field_validation
             return build_default_field_validation(fld)
 
-        for fld in spec.fields:
+        for fld in self.cp.fields.values():
             vld_md = fld.metadata.get(ValidateMetadata)
             if callable(vld_md):
                 init_lines.append(f'{init_nsb.put(vld_md)}({fld.name})')
@@ -265,13 +280,13 @@ class InitBuilder:
             else:
                 raise TypeError(vld_md)
 
-        for vld in spec.defdecls[ValidatorDefdecl]:
+        for vld in self.cp.defdecls[ValidatorDefdecl]:
             vld_args = self._get_fn_args(vld.fn)
             for arg in vld_args:
                 check.in_(arg, self.cp.fields)
             init_lines.append(f'{init_nsb.put(vld.fn)}({", ".join(vld_args)})')
 
-        for chk in spec.defdecls[CheckerDefdcel]:
+        for chk in self.cp.defdecls[CheckerDefdcel]:
             chk_args = self._get_fn_args(chk.fn)
             for arg in chk_args:
                 check.in_(arg, self.cp.fields)
@@ -288,28 +303,28 @@ class InitBuilder:
                 f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
             )
 
-        if spec.defdecls[PostInitDefdecl]:
+        if self.cp.defdecls[PostInitDefdecl]:
             post_init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names={'args', 'kwargs'}))
             post_init_lines = []
 
-            for pi in spec.defdecls[PostInitDefdecl]:
+            for pi in self.cp.defdecls[PostInitDefdecl]:
                 post_init_lines.append(f'{post_init_nsb.put(pi.fn)}(self)')
 
             cg = codegen.Codegen()
             cg(f'def __post_init__(self, *args, **kwargs):\n')
             with cg.indent():
-                post_init_fn = cls.__dict__.get('__post_init__')
+                post_init_fn = self.cp.cls.__dict__.get('__post_init__')
                 if post_init_fn is not None:
                     cg(f'{post_init_nsb.put(post_init_fn)}(self, *args, **kwargs)\n')
-                elif hasattr(cls, '__post_init__'):
-                    cg(f'{post_init_fn.put(super)}({post_init_fn.put(cls)}, self).__post_init__(*args, **kwargs)')
+                elif hasattr(self.cp.cls, '__post_init__'):
+                    cg(f'{post_init_fn.put(super)}({post_init_fn.put(self.cls)}, self).__post_init__(*args, **kwargs)')
                 else:
                     init_lines.append(f'self.__post_init__()')
                 cg('\n'.join(post_init_lines))
 
             ns = dict(post_init_nsb)
             exec(str(cg), ns)
-            cls.__post_init__ = ns['__post_init__']
+            self.cp.cls.__post_init__ = ns['__post_init__']
 
         if init_lines:
             cg = codegen.Codegen()
@@ -320,9 +335,7 @@ class InitBuilder:
 
             ns = dict(init_nsb)
             exec(str(cg), ns)
-            cls.__init__ = ns[init_fn.__name__]
-
-        return dcls
+            self.cp.cls.__init__ = ns[init_fn.__name__]
 
     def __call__(self) -> None:
         # Does this class have a post-init function?
