@@ -35,8 +35,18 @@ class ClassProcessor(ta.Generic[TypeT]):
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, dc._DataclassParams)
 
+        self._check_invariants()
+
+    def _check_invariants(self) -> None:
         if self._params.order and not self._params.eq:
             raise ValueError('eq must be true if order is true')
+
+        any_frozen_base = any(getattr(b, dc._PARAMS).frozen for b in self._dataclass_rmro)
+        if any_frozen_base:
+            if any_frozen_base and not self._params.frozen:
+                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+            if not any_frozen_base and self._params.frozen:
+                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     def _set_new_attribute(self, name: str, value: ta.Any) -> bool:
         if name in self._cls.__dict__:
@@ -54,14 +64,6 @@ class ClassProcessor(ta.Generic[TypeT]):
     @properties.cached
     def _dataclass_rmro(self) -> ta.List[type]:
         return [b for b in self._cls.__mro__[-1:0:-1] if getattr(b, dc._FIELDS, None)]
-
-    def _check_frozen_bases(self) -> None:
-        any_frozen_base = any(getattr(b, dc._PARAMS).frozen for b in self._dataclass_rmro)
-        if any_frozen_base:
-            if any_frozen_base and not self._params.frozen:
-                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            if not any_frozen_base and self._params.frozen:
-                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     @properties.cached
     def _fields(self) -> ta.Mapping[str, dc.Field]:
@@ -196,16 +198,13 @@ class ClassProcessor(ta.Generic[TypeT]):
         ]:
             if self._set_new_attribute(name, dc._cmp_fn(name, op, self_tuple, other_tuple, globals=self._globals)):
                 raise TypeError(
-                    f'Cannot overwrite attribute {name} in class {self._cls.__name__}. Consider using functools.total_ordering')
+                    f'Cannot overwrite attribute {name} in class {self._cls.__name__}. '
+                    f'Consider using functools.total_ordering')
 
     def _install_frozen(self) -> None:
         for fn in dc._frozen_get_del_attr(self._cls, self._instance_fields, self._globals):
             if self._set_new_attribute(fn.__name__, fn):
                 raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self._cls.__name__}')
-
-    def _maybe_install_doc(self) -> None:
-        if not getattr(self._cls, '__doc__'):
-            self._cls.__doc__ = (self._cls.__name__ + str(inspect.signature(self._cls)).replace(' -> None', ''))
 
     def _maybe_install_hash(self) -> bool:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
@@ -225,10 +224,12 @@ class ClassProcessor(ta.Generic[TypeT]):
         else:
             return False
 
+    def _maybe_install_doc(self) -> None:
+        if not getattr(self._cls, '__doc__'):
+            self._cls.__doc__ = (self._cls.__name__ + str(inspect.signature(self._cls)).replace(' -> None', ''))
+
     def __call__(self) -> TypeT:
         setattr(self._cls, dc._PARAMS, self._params)
-
-        self._check_frozen_bases()
 
         self._install_fields()
 
@@ -248,6 +249,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             self._install_frozen()
 
         self._maybe_install_hash()
+
         self._maybe_install_doc()
 
         return self._cls
