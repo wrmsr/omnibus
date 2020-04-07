@@ -10,6 +10,7 @@ TODO:
  - RingBuffer
  - Persistent (iface + pyrsistent, immutables (magicstack hamt))
  - **KeyValues**
+  - old repo, support scalars/slices/tuples/ranges intermixed - spans now?
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)

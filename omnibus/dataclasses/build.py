@@ -63,7 +63,7 @@ class ExtraParams:
     validate: bool = False
 
 
-class ClassProcessor(ta.Generic[TypeT]):
+class BuildContext(ta.Generic[TypeT]):
 
     def __init__(
             self,
@@ -76,8 +76,6 @@ class ClassProcessor(ta.Generic[TypeT]):
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, DataclassParams)
         self._extra_params = check.isinstance(extra_params, ExtraParams)
-
-        self.check_invariants()
 
     @property
     def cls(self) -> TypeT:
@@ -107,23 +105,6 @@ class ClassProcessor(ta.Generic[TypeT]):
     def dc_rmro(self) -> ta.List[type]:
         return [b for b in self.rmro if getattr(b, FIELDS, None)]
 
-    def check_invariants(self) -> None:
-        if self.params.order and not self.params.eq:
-            raise ValueError('eq must be true if order is true')
-
-        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.dc_rmro)
-        if any_frozen_base:
-            if any_frozen_base and not self.params.frozen:
-                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            if not any_frozen_base and self.params.frozen:
-                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
-
-    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
-        if name in self.cls.__dict__:
-            return True
-        setattr(self.cls, name, value)
-        return False
-
     @properties.cached
     def globals(self) -> ta.MutableMapping[str, ta.Any]:
         if self.cls.__module__ in sys.modules:
@@ -131,10 +112,97 @@ class ClassProcessor(ta.Generic[TypeT]):
         else:
             return {}
 
+
+class Fields(ta.Sequence[dc.Field]):
+
+    def __init__(self, fields: ta.Iterable[dc.Field]) -> None:
+        super().__init__()
+
+        self._list = list(fields)
+
+        by_name = {}
+        for fld in self._list:
+            if fld.name in by_name:
+                raise NameError(fld.name)
+            by_name[fld.name] = fld
+        self._by_name = by_name
+
+    @property
+    def all(self) -> ta.Sequence[dc.Field]:
+        return self._list
+
+    def __getitem__(self, item: ta.Union[int, slice, str]) -> dc.Field:
+        if isinstance(item, (int, slice)):
+            return self._list[item]
+        elif isinstance(item, str):
+            return self._by_name[item]
+        else:
+            raise TypeError(item)
+
+    def __contains__(self, item: ta.Union[dc.Field, str]) -> bool:
+        if isinstance(item, dc.Field):
+            return item in self._list
+        elif isinstance(item, str):
+            return item in self._by_name
+        else:
+            raise TypeError(item)
+
+    def __len__(self) -> int:
+        return len(self._list)
+
+    def __iter__(self) -> ta.Iterable[dc.Field]:
+        return iter(self._list)
+
     @properties.cached
-    def fields(self) -> ta.Mapping[str, dc.Field]:
+    def by_name(self) -> ta.Mapping[str, dc.Field]:
+        return self._by_name
+
+    @properties.cached
+    def by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
+        ret = {}
+        for f in self:
+            ret.setdefault(f._field_type, {})[f.name] = f
+        return ret
+
+    @properties.cached
+    def instance(self) -> ta.List[dc.Field]:
+        return list(self.by_field_type.get(FIELD, {}).values())
+
+
+class ClassProcessor(ta.Generic[TypeT]):
+
+    def __init__(self, ctx: BuildContext[TypeT]) -> None:
+        super().__init__()
+
+        self._ctx = check.isinstance(ctx, BuildContext)
+
+        self.check_invariants()
+
+    @property
+    def ctx(self) -> BuildContext:
+        return self._ctx
+
+    def check_invariants(self) -> None:
+        if self.ctx.params.order and not self.ctx.params.eq:
+            raise ValueError('eq must be true if order is true')
+
+        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.dc_rmro)
+        if any_frozen_base:
+            if any_frozen_base and not self.ctx.params.frozen:
+                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+            if not any_frozen_base and self.ctx.params.frozen:
+                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
+
+    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
+        if name in self.ctx.cls.__dict__:
+            return True
+        setattr(self.ctx.cls, name, value)
+        return False
+
+    @properties.cached
+    def fields(self) -> Fields:
         fields = {}
-        for b in self.dc_rmro:
+        for b in self.ctx.dc_rmro:
             base_fields = getattr(b, FIELDS, None)
             if base_fields:
                 for f in base_fields.values():
@@ -147,63 +215,52 @@ class ClassProcessor(ta.Generic[TypeT]):
         # attributes, if a field has a default.  If the default value is a Field(), then it contains additional info
         # beyond (and possibly including) the actual default value.  Pseudo-fields ClassVars and InitVars are included,
         # despite the fact that they're not real fields.  That's dealt with later.
-        cls_annotations = self.cls.__dict__.get('__annotations__', {})
+        cls_annotations = self.ctx.cls.__dict__.get('__annotations__', {})
 
         # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
         # attributes) where we can.
-        cls_fields = [get_field(self.cls, name, type) for name, type in cls_annotations.items()]
+        cls_fields = [get_field(self.ctx.cls, name, type) for name, type in cls_annotations.items()]
         for f in cls_fields:
             fields[f.name] = f
 
             # If the class attribute (which is the default value for this field) exists and is of type 'Field', replace
             # it with the real default.  This is so that normal class introspection sees a real default value, not a
             # Field.
-            if isinstance(getattr(self.cls, f.name, None), dc.Field):
+            if isinstance(getattr(self.ctx.cls, f.name, None), dc.Field):
                 if f.default is dc.MISSING:
                     # If there's no default, delete the class attribute. This happens if we specify field(repr=False),
                     # for example (that is, we specified a field object, but no default value).  Also if we're using a
                     # default factory.  The class attribute should not be set at all in the post-processed class.
-                    delattr(self.cls, f.name)
+                    delattr(self.ctx.cls, f.name)
                 else:
-                    setattr(self.cls, f.name, f.default)
+                    setattr(self.ctx.cls, f.name, f.default)
 
         # Do we have any Field members that don't also have annotations?
-        for name, value in self.cls.__dict__.items():
+        for name, value in self.ctx.cls.__dict__.items():
             if isinstance(value, dc.Field) and name not in cls_annotations:
                 raise TypeError(f'{name!r} is a field but has no type annotation')
 
-        return fields
+        return Fields(fields.values())
 
     def install_fields(self) -> None:
-        setattr(self.cls, FIELDS, self.fields)
-
-    @properties.cached
-    def field_maps_by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
-        ret = {}
-        for f in self.fields.values():
-            ret.setdefault(f._field_type, {})[f.name] = f
-        return ret
-
-    @properties.cached
-    def instance_fields(self) -> ta.List[dc.Field]:
-        return list(self.field_maps_by_field_type.get(FIELD, {}).values())
+        setattr(self.ctx.cls, FIELDS, dict(self.fields))
 
     def install_init(self) -> None:
-        fn = InitBuilder(self)()
+        fn = InitBuilder(self.ctx, self.fields)()
         self.set_new_attribute('__init__', fn)
 
     def install_repr(self) -> None:
-        flds = [f for f in self.instance_fields if f.repr]
-        self.set_new_attribute('__repr__', repr_fn(flds, self.globals))
+        flds = [f for f in self.fields.instance if f.repr]
+        self.set_new_attribute('__repr__', repr_fn(flds, self.ctx.globals))
 
     def install_eq(self) -> None:
-        flds = [f for f in self.instance_fields if f.compare]
+        flds = [f for f in self.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
-        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.globals))
+        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.ctx.globals))
 
     def install_order(self) -> None:
-        flds = [f for f in self.instance_fields if f.compare]
+        flds = [f for f in self.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
         for name, op in [
@@ -212,79 +269,82 @@ class ClassProcessor(ta.Generic[TypeT]):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.globals)):
+            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.ctx.globals)):
                 raise TypeError(
-                    f'Cannot overwrite attribute {name} in class {self.cls.__name__}. '
+                    f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
 
     def install_frozen(self) -> None:
-        for fn in frozen_get_del_attr(self.cls, self.instance_fields, self.globals):
+        for fn in frozen_get_del_attr(self.ctx.cls, self.fields.instance, self.ctx.globals):
             if self.set_new_attribute(fn.__name__, fn):
-                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.cls.__name__}')
+                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
 
     def maybe_install_hash(self) -> bool:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
         # was not auto-generated, but it close enough.
-        class_hash = self.cls.__dict__.get('__hash__', dc.MISSING)
-        has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self.cls.__dict__))
+        class_hash = self.ctx.cls.__dict__.get('__hash__', dc.MISSING)
+        has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self.ctx.cls.__dict__))
         ha = hash_action[(
-            bool(self.params.unsafe_hash),
-            bool(self.params.eq),
-            bool(self.params.frozen),
+            bool(self.ctx.params.unsafe_hash),
+            bool(self.ctx.params.eq),
+            bool(self.ctx.params.frozen),
             has_explicit_hash,
         )]
         if ha:
-            self.cls.__hash__ = ha(self.cls, self.instance_fields, self.globals)
+            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.fields.instance, self.ctx.globals)
             return True
         else:
             return False
 
     def maybe_install_doc(self) -> None:
-        if not getattr(self.cls, '__doc__'):
-            self.cls.__doc__ = (self.cls.__name__ + str(inspect.signature(self.cls)).replace(' -> None', ''))
+        if not getattr(self.ctx.cls, '__doc__'):
+            self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
 
-    def __call__(self) -> TypeT:
-        setattr(self.cls, PARAMS, self.params)
+    def __call__(self) -> None:
+        setattr(self.ctx.cls, PARAMS, self.ctx.params)
 
         self.install_fields()
 
-        if self.params.init:
+        if self.ctx.params.init:
             self.install_init()
 
-        if self.params.repr:
+        if self.ctx.params.repr:
             self.install_repr()
 
-        if self.params.eq:
+        if self.ctx.params.eq:
             self.install_eq()
 
-        if self.params.order:
+        if self.ctx.params.order:
             self.install_order()
 
-        if self.params.frozen:
+        if self.ctx.params.frozen:
             self.install_frozen()
 
         self.maybe_install_hash()
 
         self.maybe_install_doc()
 
-        return self.cls
-
 
 class InitBuilder:
 
-    def __init__(self, cp: ClassProcessor) -> None:
+    def __init__(self, ctx: BuildContext, fields: Fields) -> None:
         super().__init__()
 
-        self._cp = check.isinstance(cp, ClassProcessor)
+        self._ctx = check.isinstance(ctx, BuildContext)
+        self._fields = check.isinstance(fields, Fields)
 
-        self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=cp.fields))
+        self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=fields))
 
         self.check_invariants()
 
     @property
-    def cp(self) -> ClassProcessor:
-        return self._cp
+    def ctx(self) -> BuildContext:
+        return self._ctx
+
+    @property
+    def fields(self) -> Fields:
+        return self._fields
 
     @property
     def nsb(self) -> codegen.NamespaceBuilder:
@@ -292,11 +352,11 @@ class InitBuilder:
 
     @properties.cached
     def self_name(self) -> str:
-        return '__dataclass_self__' if 'self' in self.cp.fields else 'self'
+        return '__dataclass_self__' if 'self' in self.fields else 'self'
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.cp.fields.values() if f._field_type in (FIELD, FIELD_INITVAR)]
+        return [f for f in self.fields if f._field_type in (FIELD, FIELD_INITVAR)]
 
     def check_invariants(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
@@ -330,11 +390,11 @@ class InitBuilder:
             return build_default_field_validation(fld)
 
         ret = []
-        for fld in self.cp.fields.values():
+        for fld in self.fields.values():
             vld_md = fld.metadata.get(ValidateMetadata)
             if callable(vld_md):
                 ret.append(f'{self.nsb.put(vld_md)}({fld.name})')
-            elif vld_md is True or (vld_md is None and self.cp.extra_params.validate is True):
+            elif vld_md is True or (vld_md is None and self.ctx.extra_params.validate is True):
                 ret.append(f'{self.nsb.put(_type_validator(fld))}({fld.name})')
             elif vld_md is False or vld_md is None:
                 pass
@@ -344,20 +404,20 @@ class InitBuilder:
 
     def build_validator_lines(self) -> ta.List[str]:
         ret = []
-        for vld in self.cp.defdecls[ValidatorDefdecl]:
+        for vld in self.ctx.defdecls[ValidatorDefdecl]:
             vld_args = self.get_flat_fn_args(vld.fn)
             for arg in vld_args:
-                check.in_(arg, self.cp.fields)
+                check.in_(arg, self.fields)
             ret.append(f'{self.nsb.put(vld.fn)}({", ".join(vld_args)})')
         return ret
 
     def build_check_lines(self) -> ta.List[str]:
         ret = []
 
-        for chk in self.cp.defdecls[CheckerDefdcel]:
+        for chk in self.ctx.defdecls[CheckerDefdcel]:
             chk_args = self.get_flat_fn_args(chk.fn)
             for arg in chk_args:
-                check.in_(arg, self.cp.fields)
+                check.in_(arg, self.fields)
 
             def build_chk_exc(chk, chk_args, *args):
                 if len(chk_args) != len(args):
@@ -376,7 +436,7 @@ class InitBuilder:
     def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
         ret = []
         for f in self.init_fields:
-            line = field_init(f, self.cp.params.frozen, locals, self.self_name)
+            line = field_init(f, self.ctx.params.frozen, locals, self.self_name)
             # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
             if line:
                 ret.append(line)
@@ -384,14 +444,14 @@ class InitBuilder:
 
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []
-        if hasattr(self.cp.cls, POST_INIT_NAME):
+        if hasattr(self.ctx.cls, POST_INIT_NAME):
             params_str = ','.join(f.name for f in self.init_fields if f._field_type is FIELD_INITVAR)
             ret.append(f'{self.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
     def build_extra_post_init_lines(self) -> ta.List[str]:
         ret = []
-        for pi in self.cp.defdecls[PostInitDefdecl]:
+        for pi in self.ctx.defdecls[PostInitDefdecl]:
             ret.append(f'{self.nsb.put(pi.fn)}({self.self_name})')
         return ret
 
@@ -420,7 +480,7 @@ class InitBuilder:
             [self.self_name] + [init_param(f) for f in self.init_fields if f.init],
             lines,
             locals=locals,
-            globals=self.cp.globals,
+            globals=self.ctx.globals,
             return_type=None,
         )
 
@@ -453,7 +513,9 @@ def dataclass(
     check.isinstance(validate, bool)
 
     def build(cls):
-        return ClassProcessor(cls, params, extra_params)()
+        ctx = BuildContext(cls, params, extra_params)
+        ClassProcessor(ctx)()
+        return cls
 
     if _cls is None:
         return build
