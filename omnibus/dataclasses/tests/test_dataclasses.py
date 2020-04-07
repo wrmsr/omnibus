@@ -308,4 +308,4 @@ def test_defdecls():
 
         defdecls_.CheckerDefdcel.install(lambda x: x > 1)
 
-    cdd = defdecls_.ClsDefdecls(Point)
+    cdd = defdecls_.get_cls_defdecls(Point)

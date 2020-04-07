@@ -11,6 +11,7 @@ from .. import check
 from .. import defs
 from .. import properties
 from .defdecls import ClsDefdecls
+from .defdecls import get_cls_defdecls
 
 
 Field = dc.Field
@@ -63,7 +64,7 @@ class DataSpec:
 
     @properties.cached
     def defdecls(self) -> ClsDefdecls:
-        return ClsDefdecls(self._cls)
+        return get_cls_defdecls(self._cls)
 
     def _get_merged_mro_attr_list(self, att: str) -> ta.List:
         return [v for c in reversed(self._cls.__mro__) for v in getattr(c, att, [])]

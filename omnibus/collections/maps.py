@@ -52,7 +52,7 @@ def yield_dict_init(*args, **kwargs) -> ta.Iterable[ta.Tuple[ta.Any, ta.Any]]:
         yield (k, v)
 
 
-class ItemListTypeMap:
+class ItemListTypeMap(ta.Generic[T]):
 
     def __init__(self, items: ta.Iterable[T], *, weak: bool = False) -> None:
         super().__init__()
