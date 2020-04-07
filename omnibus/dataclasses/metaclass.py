@@ -11,6 +11,57 @@ from .pickling import SimplePickle
 T = ta.TypeVar('T')
 
 
+# def _compose_fields(cls: ta.Type) -> ta.Dict[str, dc.Field]:
+#     fields = {}
+#     for b in cls.__mro__[-1:0:-1]:
+#         base_fields = getattr(b, FIELDS, None)
+#         if base_fields:
+#             for f in base_fields.values():
+#                 fields[f.name] = f
+#     cls_annotations = cls.__dict__.get('__annotations__', {})
+#     cls_fields = [get_field(cls, name, type) for name, type in cls_annotations.items()]
+#     for f in cls_fields:
+#         fields[f.name] = f
+#     return fields
+
+
+# def _has_default(fld: dc.Field) -> bool:
+#     return fld.default is not dc.MISSING or fld.default_factory is not dc.MISSING
+
+
+# def _check_bases(mro: ta.Sequence[ta.Type], *, frozen=False) -> None:
+#     any_frozen_base = False
+#     has_dataclass_bases = False
+#     for b in mro[-1:0:-1]:
+#         base_fields = getattr(b, FIELDS, None)
+#         if base_fields:
+#             has_dataclass_bases = True
+#             if getattr(b, PARAMS).frozen:
+#                 any_frozen_base = True
+#     if has_dataclass_bases:
+#         if any_frozen_base and not frozen:
+#             raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+#         if not any_frozen_base and frozen:
+#             raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
+
+
+# def _do_reorder(cls, params):
+#     flds = _compose_fields(cls)
+#     new_flds = {k: v for d in [False, True] for k, v in flds.items() if _has_default(v) == d}
+#     if list(flds.keys()) != list(new_flds.keys()):
+#         _check_bases(cls.__mro__, frozen=params.frozen)
+#         anns = {name: fld.type for name, fld in new_flds.items()}
+#         ns = {'__annotations__': anns, METADATA_ATTR: {OriginMetadata: cls}, **new_flds}
+#         new_dc = dc.dataclass(type('_Reordered', (object,), ns))  #, **fwd_kwargs)
+#         ret = post_process(cls, type(cls.__name__, (new_dc, cls), {}))  # , **post_process_kwargs)
+#         ret.__module__ = cls.__module__
+#         return ret
+
+
+# class OriginMetadata(lang.Marker):
+#     pass
+
+
 class _Meta(abc.ABCMeta):
 
     def __new__(
@@ -24,6 +75,7 @@ class _Meta(abc.ABCMeta):
             final=False,
             sealed=False,
             pickle=False,
+            reorder=False,
             **kwargs
     ):
         check.arg(not (abstract and final))
