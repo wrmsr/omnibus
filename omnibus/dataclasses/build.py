@@ -57,17 +57,24 @@ def build_params(
     return DataclassParams(init, repr, eq, order, unsafe_hash, frozen)
 
 
+@dc.dataclass(frozen=True)
+class ExtraParams:
+    validate = False
+
+
 class ClassProcessor(ta.Generic[TypeT]):
 
     def __init__(
             self,
             cls: TypeT,
             params: DataclassParams,
+            extra_params: ExtraParams = ExtraParams(),
     ) -> None:
         super().__init__()
 
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, DataclassParams)
+        self._extra_params = check.isinstance(extra_params, ExtraParams)
 
         self.check_invariants()
 
@@ -78,6 +85,10 @@ class ClassProcessor(ta.Generic[TypeT]):
     @property
     def params(self) -> DataclassParams:
         return self._params
+
+    @property
+    def extra_params(self) -> ExtraParams:
+        return self._extra_params
 
     @properties.cached
     def metadata(self) -> ta.Mapping[type, ta.Any]:
@@ -177,10 +188,8 @@ class ClassProcessor(ta.Generic[TypeT]):
         return list(self.field_maps_by_field_type.get(FIELD, {}).values())
 
     def install_init(self) -> None:
-        ib = InitBuilder(self)
-        fn = ib()
+        ib = InitBuilder(self)()
         self.set_new_attribute('__init__', fn)
-        ib.install_post_processing()
 
     def install_repr(self) -> None:
         flds = [f for f in self.instance_fields if f.repr]
@@ -270,6 +279,8 @@ class InitBuilder:
 
         self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=cp.fields))
 
+        self.check_invariants()
+
     @property
     def cp(self) -> ClassProcessor:
         return self._cp
@@ -281,6 +292,23 @@ class InitBuilder:
     @properties.cached
     def self_name(self) -> str:
         return '__dataclass_self__' if 'self' in self.cp.fields else 'self'
+
+    @properties.cached
+    def init_fields(self) -> ta.List[dc.Field]:
+        return [f for f in self.cp.fields.values() if f._field_type in (FIELD, FIELD_INITVAR)]
+
+    def check_invariants(self) -> None:
+        # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
+        # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
+        # us in case we build up the function using ast.
+        seen_default = False
+        for f in self.init_fields:
+            # Only consider fields in the __init__ call.
+            if f.init:
+                if not (f.default is dc.MISSING and f.default_factory is dc.MISSING):
+                    seen_default = True
+                elif seen_default:
+                    raise TypeError(f'non-default argument {f.name!r} follows default argument')
 
     @staticmethod
     def get_flat_fn_args(fn) -> ta.List[str]:
@@ -295,33 +323,35 @@ class InitBuilder:
             raise TypeError(fn)
         return list(argspec.args)
 
-    def install_post_processing(self, validate=False) -> None:
-        # FIXME: pure builder, no install..
-        init_fn: types.FunctionType = self.cp.cls.__init__
-        init_argspec = inspect.getfullargspec(init_fn)
-        init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=self.cp.fields))
-        init_lines = []
-
+    def build_validate_lines(self) -> ta.List[str]:
         def _type_validator(fld: dc.Field):
             from .validation import build_default_field_validation
             return build_default_field_validation(fld)
 
+        ret = []
         for fld in self.cp.fields.values():
             vld_md = fld.metadata.get(ValidateMetadata)
             if callable(vld_md):
-                init_lines.append(f'{init_nsb.put(vld_md)}({fld.name})')
-            elif vld_md is True or (vld_md is None and validate is True):
-                init_lines.append(f'{init_nsb.put(_type_validator(fld))}({fld.name})')
+                ret.append(f'{self.nsb.put(vld_md)}({fld.name})')
+            elif vld_md is True or (vld_md is None and self.cp.extra_params.validate is True):
+                ret.append(f'{self.nsb.put(_type_validator(fld))}({fld.name})')
             elif vld_md is False or vld_md is None:
                 pass
             else:
                 raise TypeError(vld_md)
+        return ret
 
+    def build_validator_lines(self) -> ta.List[str]:
+        ret = []
         for vld in self.cp.defdecls[ValidatorDefdecl]:
             vld_args = self.get_flat_fn_args(vld.fn)
             for arg in vld_args:
                 check.in_(arg, self.cp.fields)
-            init_lines.append(f'{init_nsb.put(vld.fn)}({", ".join(vld_args)})')
+            ret.append(f'{self.nsb.put(vld.fn)}({", ".join(vld_args)})')
+        return ret
+
+    def build_check_lines(self) -> ta.List[str]:
+        ret = []
 
         for chk in self.cp.defdecls[CheckerDefdcel]:
             chk_args = self.get_flat_fn_args(chk.fn)
@@ -335,61 +365,12 @@ class InitBuilder:
 
             bound_build_chk_exc = functools.partial(build_chk_exc, chk, chk_args)
 
-            init_lines.append(
-                f'if not {init_nsb.put(chk.fn)}({", ".join(chk_args)}): '
-                f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+            ret.append(
+                f'if not {self.nsb.put(chk.fn)}({", ".join(chk_args)}): '
+                f'raise {self.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
             )
 
-        if self.cp.defdecls[PostInitDefdecl]:
-            post_init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names={'args', 'kwargs'}))
-            post_init_lines = []
-
-            for pi in self.cp.defdecls[PostInitDefdecl]:
-                post_init_lines.append(f'{post_init_nsb.put(pi.fn)}(self)')
-
-            cg = codegen.Codegen()
-            cg(f'def __post_init__(self, *args, **kwargs):\n')
-            with cg.indent():
-                post_init_fn = self.cp.cls.__dict__.get('__post_init__')
-                if post_init_fn is not None:
-                    cg(f'{post_init_nsb.put(post_init_fn)}(self, *args, **kwargs)\n')
-                elif hasattr(self.cp.cls, '__post_init__'):
-                    cg(f'{post_init_fn.put(super)}({post_init_fn.put(self.cls)}, self).__post_init__(*args, **kwargs)')
-                else:
-                    init_lines.append(f'self.__post_init__()')
-                cg('\n'.join(post_init_lines))
-
-            ns = dict(post_init_nsb)
-            exec(str(cg), ns)
-            self.cp.cls.__post_init__ = ns['__post_init__']
-
-        if init_lines:
-            cg = codegen.Codegen()
-            cg(f'def {init_fn.__name__}{codegen.render_arg_spec(init_argspec, init_nsb)}:\n')
-            with cg.indent():
-                cg(f'{init_nsb.put(init_fn)}({", ".join(a for a in init_argspec.args)})\n')
-                cg('\n'.join(init_lines))
-
-            ns = dict(init_nsb)
-            exec(str(cg), ns)
-            self.cp.cls.__init__ = ns[init_fn.__name__]
-
-    @properties.cached
-    def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.cp.fields.values() if f._field_type in (FIELD, FIELD_INITVAR)]
-
-    def check_defaults(self) -> None:
-        # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
-        # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
-        # us in case we build up the function using ast.
-        seen_default = False
-        for f in self.init_fields:
-            # Only consider fields in the __init__ call.
-            if f.init:
-                if not (f.default is dc.MISSING and f.default_factory is dc.MISSING):
-                    seen_default = True
-                elif seen_default:
-                    raise TypeError(f'non-default argument {f.name!r} follows default argument')
+        return ret
 
     def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
         ret = []
@@ -407,26 +388,34 @@ class InitBuilder:
             ret.append(f'{self.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
-    def __call__(self) -> None:
-        self.check_defaults()
+    def build_extra_post_init_lines(self) -> ta.List[str]:
+        ret = []
+        for pi in self.cp.defdecls[PostInitDefdecl]:
+            ret.append(f'{ret.put(pi.fn)}({self.self_name})')
+        return ret
 
+    def __call__(self) -> None:
         locals = {f'_type_{f.name}': f.type for f in self.init_fields}
         locals.update({
             'MISSING': dc.MISSING,
             '_HAS_DEFAULT_FACTORY': HAS_DEFAULT_FACTORY,
         })
 
-        body_lines = []
-        body_lines.extend(self.build_field_init_lines(locals))
-        body_lines.extend(self.build_post_init_lines())
+        lines = []
+        lines.extend(self.build_validate_lines())
+        lines.extend(self.build_validator_lines())
+        lines.extend(self.build_check_lines())
+        lines.extend(self.build_field_init_lines(locals))
+        lines.extend(self.build_post_init_lines())
+        lines.extend(self.build_extra_post_init_lines())
 
-        if not body_lines:
-            body_lines = ['pass']
+        if not lines:
+            lines = ['pass']
 
         return create_fn(
             '__init__',
             [self.self_name] + [init_param(f) for f in self.init_fields if f.init],
-            body_lines,
+            lines,
             locals=locals,
             globals=self.cp.globals,
             return_type=None,
@@ -454,14 +443,14 @@ def dataclass(
         frozen=frozen,
     )
 
-    extra_kwargs = dict(
+    extra_params = ExtraParams(
         validate=validate,
     )
 
     check.isinstance(validate, bool)
 
     def build(cls):
-        return ClassProcessor(cls, params)()
+        return ClassProcessor(cls, params, extra_params)()
 
     if _cls is None:
         return build
