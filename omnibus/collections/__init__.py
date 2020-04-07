@@ -1,8 +1,5 @@
 from .collections import histogram  # noqa
 from .collections import toposort  # noqa
-from .dicts import guarded_dict_update  # noqa
-from .dicts import multikey_dict  # noqa
-from .dicts import yield_dict_init  # noqa
 from .frozen import Frozen  # noqa
 from .frozen import FrozenDict  # noqa
 from .frozen import FrozenList  # noqa
@@ -12,6 +9,10 @@ from .identity import IdentityHashableSet  # noqa
 from .identity import IdentityKeyDict  # noqa
 from .identity import IdentitySet  # noqa
 from .identity import IdentityWrapper  # noqa
+from .maps import guarded_map_update  # noqa
+from .maps import ItemListTypeMap  # noqa
+from .maps import multikey_dict  # noqa
+from .maps import yield_dict_init  # noqa
 from .ordered import OrderedFrozenSet  # noqa
 from .ordered import OrderedSet  # noqa
 from .sorted import SkipList   # noqa

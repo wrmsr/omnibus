@@ -1,11 +1,18 @@
 import dataclasses as dc
+import functools
 import inspect
 import sys
+import types
 import typing as ta
 
 from .. import check
+from .. import codegen
 from .. import lang
 from .. import properties
+from .defdecls import CheckerDefdcel
+from .defdecls import DeriverDefdecl
+from .defdecls import PostInitDefdecl
+from .defdecls import ValidatorDefdecl
 
 
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
@@ -223,6 +230,99 @@ class InitBuilder:
     @property
     def cp(self) -> ClassProcessor:
         return self._cp
+
+    @staticmethod
+    def _get_fn_args(fn) -> ta.List[str]:
+        argspec = inspect.getfullargspec(fn)
+        if (
+                argspec.varargs or
+                argspec.varkw or
+                argspec.defaults or
+                argspec.kwonlyargs or
+                argspec.kwonlydefaults
+        ):
+            raise TypeError(fn)
+        return list(argspec.args)
+
+    def post_process(self, validate=False):
+        init_fn: types.FunctionType = self.cp.cls.__init__
+        init_argspec = inspect.getfullargspec(init_fn)
+        init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=self.cp.fields))
+        init_lines = []
+
+        def _type_validator(fld: dc.Field):
+            from .validation import build_default_field_validation
+            return build_default_field_validation(fld)
+
+        for fld in spec.fields:
+            vld_md = fld.metadata.get(ValidateMetadata)
+            if callable(vld_md):
+                init_lines.append(f'{init_nsb.put(vld_md)}({fld.name})')
+            elif vld_md is True or (vld_md is None and validate is True):
+                init_lines.append(f'{init_nsb.put(_type_validator(fld))}({fld.name})')
+            elif vld_md is False or vld_md is None:
+                pass
+            else:
+                raise TypeError(vld_md)
+
+        for vld in spec.defdecls[ValidatorDefdecl]:
+            vld_args = self._get_fn_args(vld.fn)
+            for arg in vld_args:
+                check.in_(arg, self.cp.fields)
+            init_lines.append(f'{init_nsb.put(vld.fn)}({", ".join(vld_args)})')
+
+        for chk in spec.defdecls[CheckerDefdcel]:
+            chk_args = self._get_fn_args(chk.fn)
+            for arg in chk_args:
+                check.in_(arg, self.cp.fields)
+
+            def build_chk_exc(chk, chk_args, *args):
+                if len(chk_args) != len(args):
+                    raise TypeError(chk_args, args)
+                raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
+
+            bound_build_chk_exc = functools.partial(build_chk_exc, chk, chk_args)
+
+            init_lines.append(
+                f'if not {init_nsb.put(chk.fn)}({", ".join(chk_args)}): '
+                f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+            )
+
+        if spec.defdecls[PostInitDefdecl]:
+            post_init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names={'args', 'kwargs'}))
+            post_init_lines = []
+
+            for pi in spec.defdecls[PostInitDefdecl]:
+                post_init_lines.append(f'{post_init_nsb.put(pi.fn)}(self)')
+
+            cg = codegen.Codegen()
+            cg(f'def __post_init__(self, *args, **kwargs):\n')
+            with cg.indent():
+                post_init_fn = cls.__dict__.get('__post_init__')
+                if post_init_fn is not None:
+                    cg(f'{post_init_nsb.put(post_init_fn)}(self, *args, **kwargs)\n')
+                elif hasattr(cls, '__post_init__'):
+                    cg(f'{post_init_fn.put(super)}({post_init_fn.put(cls)}, self).__post_init__(*args, **kwargs)')
+                else:
+                    init_lines.append(f'self.__post_init__()')
+                cg('\n'.join(post_init_lines))
+
+            ns = dict(post_init_nsb)
+            exec(str(cg), ns)
+            cls.__post_init__ = ns['__post_init__']
+
+        if init_lines:
+            cg = codegen.Codegen()
+            cg(f'def {init_fn.__name__}{codegen.render_arg_spec(init_argspec, init_nsb)}:\n')
+            with cg.indent():
+                cg(f'{init_nsb.put(init_fn)}({", ".join(a for a in init_argspec.args)})\n')
+                cg('\n'.join(init_lines))
+
+            ns = dict(init_nsb)
+            exec(str(cg), ns)
+            cls.__init__ = ns[init_fn.__name__]
+
+        return dcls
 
     def __call__(self) -> None:
         # Does this class have a post-init function?
