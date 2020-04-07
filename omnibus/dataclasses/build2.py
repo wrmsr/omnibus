@@ -25,39 +25,28 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen):
             if getattr(b, dc._PARAMS).frozen:
                 any_frozen_base = True
 
-    # Annotations that are defined in this class (not in base
-    # classes).  If __annotations__ isn't present, then this class
-    # adds no new annotations.  We use this to compute fields that are
-    # added by this class.
+    # Annotations that are defined in this class (not in base classes).  If __annotations__ isn't present, then this
+    # class adds no new annotations.  We use this to compute fields that are added by this class.
     #
-    # Fields are found from cls_annotations, which is guaranteed to be
-    # ordered.  Default values are from class attributes, if a field
-    # has a default.  If the default value is a Field(), then it
-    # contains additional info beyond (and possibly including) the
-    # actual default value.  Pseudo-fields ClassVars and InitVars are
-    # included, despite the fact that they're not real fields.  That's
-    # dealt with later.
+    # Fields are found from cls_annotations, which is guaranteed to be ordered.  Default values are from class
+    # attributes, if a field has a default.  If the default value is a Field(), then it contains additional info beyond
+    # (and possibly including) the actual default value.  Pseudo-fields ClassVars and InitVars are included, despite the
+    # fact that they're not real fields.  That's dealt with later.
     cls_annotations = cls.__dict__.get('__annotations__', {})
 
-    # Now find fields in our class.  While doing so, validate some
-    # things, and set the default values (as class attributes) where
-    # we can.
+    # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
+    # attributes) where we can.
     cls_fields = [_get_field(cls, name, type) for name, type in cls_annotations.items()]
     for f in cls_fields:
         fields[f.name] = f
 
-        # If the class attribute (which is the default value for this
-        # field) exists and is of type 'Field', replace it with the
-        # real default.  This is so that normal class introspection
-        # sees a real default value, not a Field.
+        # If the class attribute (which is the default value for this field) exists and is of type 'Field', replace it
+        # with the real default.  This is so that normal class introspection sees a real default value, not a Field.
         if isinstance(getattr(cls, f.name, None), dc.Field):
             if f.default is dc.MISSING:
-                # If there's no default, delete the class attribute.
-                # This happens if we specify field(repr=False), for
-                # example (that is, we specified a field object, but
-                # no default value).  Also if we're using a default
-                # factory.  The class attribute should not be set at
-                # all in the post-processed class.
+                # If there's no default, delete the class attribute. This happens if we specify field(repr=False), for
+                # example (that is, we specified a field object, but no default value).  Also if we're using a default
+                # factory.  The class attribute should not be set at all in the post-processed class.
                 delattr(cls, f.name)
             else:
                 setattr(cls, f.name, f.default)
@@ -79,20 +68,16 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen):
             raise TypeError('cannot inherit frozen dataclass from a '
                             'non-frozen one')
 
-    # Remember all of the fields on our class (including bases).  This
-    # also marks this class as being a dataclass.
+    # Remember all of the fields on our class (including bases).  This also marks this class as being a dataclass.
     setattr(cls, dc._FIELDS, fields)
 
-    # Was this class defined with an explicit __hash__?  Note that if
-    # __eq__ is defined in this class, then python will automatically
-    # set __hash__ to None.  This is a heuristic, as it's possible
-    # that such a __hash__ == None was not auto-generated, but it
-    # close enough.
+    # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python will
+    # automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None was not
+    # auto-generated, but it close enough.
     class_hash = cls.__dict__.get('__hash__', dc.MISSING)
     has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in cls.__dict__))
 
-    # If we're generating ordering methods, we must be generating the
-    # eq methods.
+    # If we're generating ordering methods, we must be generating the eq methods.
     if order and not eq:
         raise ValueError('eq must be true if order is true')
 
