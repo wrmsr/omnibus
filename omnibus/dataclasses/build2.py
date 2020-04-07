@@ -35,40 +35,48 @@ class ClassProcessor(ta.Generic[TypeT]):
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, dc._DataclassParams)
 
-        self._check_invariants()
+        self.check_invariants()
 
-    def _check_invariants(self) -> None:
-        if self._params.order and not self._params.eq:
+    @property
+    def cls(self) -> TypeT:
+        return self._cls
+
+    @property
+    def params(self) -> dc._DataclassParams:
+        return self._params
+
+    def check_invariants(self) -> None:
+        if self.params.order and not self.params.eq:
             raise ValueError('eq must be true if order is true')
 
-        any_frozen_base = any(getattr(b, dc._PARAMS).frozen for b in self._dataclass_rmro)
+        any_frozen_base = any(getattr(b, dc._PARAMS).frozen for b in self.dataclass_rmro)
         if any_frozen_base:
-            if any_frozen_base and not self._params.frozen:
+            if any_frozen_base and not self.params.frozen:
                 raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            if not any_frozen_base and self._params.frozen:
+            if not any_frozen_base and self.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
-    def _set_new_attribute(self, name: str, value: ta.Any) -> bool:
-        if name in self._cls.__dict__:
+    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
+        if name in self.cls.__dict__:
             return True
-        setattr(self._cls, name, value)
+        setattr(self.cls, name, value)
         return False
 
     @properties.cached
-    def _globals(self) -> ta.MutableMapping[str, ta.Any]:
-        if self._cls.__module__ in sys.modules:
-            return sys.modules[self._cls.__module__].__dict__
+    def globals(self) -> ta.MutableMapping[str, ta.Any]:
+        if self.cls.__module__ in sys.modules:
+            return sys.modules[self.cls.__module__].__dict__
         else:
             return {}
 
     @properties.cached
-    def _dataclass_rmro(self) -> ta.List[type]:
-        return [b for b in self._cls.__mro__[-1:0:-1] if getattr(b, dc._FIELDS, None)]
+    def dataclass_rmro(self) -> ta.List[type]:
+        return [b for b in self.cls.__mro__[-1:0:-1] if getattr(b, dc._FIELDS, None)]
 
     @properties.cached
-    def _fields(self) -> ta.Mapping[str, dc.Field]:
+    def fields(self) -> ta.Mapping[str, dc.Field]:
         fields = {}
-        for b in self._dataclass_rmro:
+        for b in self.dataclass_rmro:
             base_fields = getattr(b, dc._FIELDS, None)
             if base_fields:
                 for f in base_fields.values():
@@ -81,55 +89,149 @@ class ClassProcessor(ta.Generic[TypeT]):
         # attributes, if a field has a default.  If the default value is a Field(), then it contains additional info
         # beyond (and possibly including) the actual default value.  Pseudo-fields ClassVars and InitVars are included,
         # despite the fact that they're not real fields.  That's dealt with later.
-        cls_annotations = self._cls.__dict__.get('__annotations__', {})
+        cls_annotations = self.cls.__dict__.get('__annotations__', {})
 
         # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
         # attributes) where we can.
-        cls_fields = [dc._get_field(self._cls, name, type) for name, type in cls_annotations.items()]
+        cls_fields = [dc._get_field(self.cls, name, type) for name, type in cls_annotations.items()]
         for f in cls_fields:
             fields[f.name] = f
 
             # If the class attribute (which is the default value for this field) exists and is of type 'Field', replace
             # it with the real default.  This is so that normal class introspection sees a real default value, not a
             # Field.
-            if isinstance(getattr(self._cls, f.name, None), dc.Field):
+            if isinstance(getattr(self.cls, f.name, None), dc.Field):
                 if f.default is dc.MISSING:
                     # If there's no default, delete the class attribute. This happens if we specify field(repr=False),
                     # for example (that is, we specified a field object, but no default value).  Also if we're using a
                     # default factory.  The class attribute should not be set at all in the post-processed class.
-                    delattr(self._cls, f.name)
+                    delattr(self.cls, f.name)
                 else:
-                    setattr(self._cls, f.name, f.default)
+                    setattr(self.cls, f.name, f.default)
 
         # Do we have any Field members that don't also have annotations?
-        for name, value in self._cls.__dict__.items():
+        for name, value in self.cls.__dict__.items():
             if isinstance(value, dc.Field) and name not in cls_annotations:
                 raise TypeError(f'{name!r} is a field but has no type annotation')
 
         return fields
 
-    def _install_fields(self) -> None:
-        setattr(self._cls, dc._FIELDS, self._fields)
+    def install_fields(self) -> None:
+        setattr(self.cls, dc._FIELDS, self.fields)
 
     @properties.cached
-    def _field_maps_by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
+    def field_maps_by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
         ret = {}
-        for f in self._fields.values():
+        for f in self.fields.values():
             ret.setdefault(f._field_type, {})[f.name] = f
         return ret
 
     @properties.cached
-    def _instance_fields(self) -> ta.List[dc.Field]:
-        return list(self._field_maps_by_field_type.get(dc._FIELD, {}).values())
+    def instance_fields(self) -> ta.List[dc.Field]:
+        return list(self.field_maps_by_field_type.get(dc._FIELD, {}).values())
 
-    def _install_init(self) -> None:
+    def install_init(self) -> None:
+        fn = InitBuilder(self)()
+        self.set_new_attribute('__init__', fn)
+
+    def install_repr(self) -> None:
+        flds = [f for f in self.instance_fields if f.repr]
+        self.set_new_attribute('__repr__', dc._repr_fn(flds, self.globals))
+
+    def install_eq(self) -> None:
+        flds = [f for f in self.instance_fields if f.compare]
+        self_tuple = dc._tuple_str('self', flds)
+        other_tuple = dc._tuple_str('other', flds)
+        self.set_new_attribute('__eq__', dc._cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.globals))
+
+    def install_order(self) -> None:
+        flds = [f for f in self.instance_fields if f.compare]
+        self_tuple = dc._tuple_str('self', flds)
+        other_tuple = dc._tuple_str('other', flds)
+        for name, op in [
+            ('__lt__', '<'),
+            ('__le__', '<='),
+            ('__gt__', '>'),
+            ('__ge__', '>='),
+        ]:
+            if self.set_new_attribute(name, dc._cmp_fn(name, op, self_tuple, other_tuple, globals=self.globals)):
+                raise TypeError(
+                    f'Cannot overwrite attribute {name} in class {self.cls.__name__}. '
+                    f'Consider using functools.total_ordering')
+
+    def install_frozen(self) -> None:
+        for fn in dc._frozen_get_del_attr(self.cls, self.instance_fields, self.globals):
+            if self.set_new_attribute(fn.__name__, fn):
+                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.cls.__name__}')
+
+    def maybe_install_hash(self) -> bool:
+        # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
+        # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
+        # was not auto-generated, but it close enough.
+        class_hash = self.cls.__dict__.get('__hash__', dc.MISSING)
+        has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self.cls.__dict__))
+        hash_action = dc._hash_action[(
+            bool(self.params.unsafe_hash),
+            bool(self.params.eq),
+            bool(self.params.frozen),
+            has_explicit_hash,
+        )]
+        if hash_action:
+            self.cls.__hash__ = hash_action(self.cls, self.instance_fields, self.globals)
+            return True
+        else:
+            return False
+
+    def maybe_install_doc(self) -> None:
+        if not getattr(self.cls, '__doc__'):
+            self.cls.__doc__ = (self.cls.__name__ + str(inspect.signature(self.cls)).replace(' -> None', ''))
+
+    def __call__(self) -> TypeT:
+        setattr(self.cls, dc._PARAMS, self.params)
+
+        self.install_fields()
+
+        if self.params.init:
+            self.install_init()
+
+        if self.params.repr:
+            self.install_repr()
+
+        if self.params.eq:
+            self.install_eq()
+
+        if self.params.order:
+            self.install_order()
+
+        if self.params.frozen:
+            self.install_frozen()
+
+        self.maybe_install_hash()
+
+        self.maybe_install_doc()
+
+        return self.cls
+
+
+class InitBuilder:
+
+    def __init__(self, cp: ClassProcessor) -> None:
+        super().__init__()
+
+        self._cp = check.isinstance(cp, ClassProcessor)
+
+    @property
+    def cp(self) -> ClassProcessor:
+        return self._cp
+
+    def __call__(self) -> None:
         # Does this class have a post-init function?
-        has_post_init = hasattr(self._cls, dc._POST_INIT_NAME)
+        has_post_init = hasattr(self.cp.cls, dc._POST_INIT_NAME)
 
         # Include InitVars and regular fields (so, not ClassVars).
-        flds = [f for f in self._fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
+        flds = [f for f in self.cp.fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
 
-        self_name = '__dataclass_self__' if 'self' in self._fields else 'self'
+        self_name = '__dataclass_self__' if 'self' in self.cp.fields else 'self'
 
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
         # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
@@ -151,7 +253,7 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         body_lines = []
         for f in flds:
-            line = dc._field_init(f, self._params.frozen, locals, self_name)
+            line = dc._field_init(f, self.cp.params.frozen, locals, self_name)
             # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
             if line:
                 body_lines.append(line)
@@ -165,91 +267,11 @@ class ClassProcessor(ta.Generic[TypeT]):
         if not body_lines:
             body_lines = ['pass']
 
-        fn = dc._create_fn(
+        return dc._create_fn(
             '__init__',
             [self_name] + [dc._init_param(f) for f in flds if f.init],
             body_lines,
             locals=locals,
-            globals=self._globals,
+            globals=self.cp.globals,
             return_type=None,
         )
-
-        self._set_new_attribute('__init__', fn)
-
-    def _install_repr(self) -> None:
-        flds = [f for f in self._instance_fields if f.repr]
-        self._set_new_attribute('__repr__', dc._repr_fn(flds, self._globals))
-
-    def _install_eq(self) -> None:
-        flds = [f for f in self._instance_fields if f.compare]
-        self_tuple = dc._tuple_str('self', flds)
-        other_tuple = dc._tuple_str('other', flds)
-        self._set_new_attribute('__eq__', dc._cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self._globals))
-
-    def _install_order(self) -> None:
-        flds = [f for f in self._instance_fields if f.compare]
-        self_tuple = dc._tuple_str('self', flds)
-        other_tuple = dc._tuple_str('other', flds)
-        for name, op in [
-            ('__lt__', '<'),
-            ('__le__', '<='),
-            ('__gt__', '>'),
-            ('__ge__', '>='),
-        ]:
-            if self._set_new_attribute(name, dc._cmp_fn(name, op, self_tuple, other_tuple, globals=self._globals)):
-                raise TypeError(
-                    f'Cannot overwrite attribute {name} in class {self._cls.__name__}. '
-                    f'Consider using functools.total_ordering')
-
-    def _install_frozen(self) -> None:
-        for fn in dc._frozen_get_del_attr(self._cls, self._instance_fields, self._globals):
-            if self._set_new_attribute(fn.__name__, fn):
-                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self._cls.__name__}')
-
-    def _maybe_install_hash(self) -> bool:
-        # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
-        # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
-        # was not auto-generated, but it close enough.
-        class_hash = self._cls.__dict__.get('__hash__', dc.MISSING)
-        has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self._cls.__dict__))
-        hash_action = dc._hash_action[(
-            bool(self._params.unsafe_hash),
-            bool(self._params.eq),
-            bool(self._params.frozen),
-            has_explicit_hash,
-        )]
-        if hash_action:
-            self._cls.__hash__ = hash_action(self._cls, self._instance_fields, self._globals)
-            return True
-        else:
-            return False
-
-    def _maybe_install_doc(self) -> None:
-        if not getattr(self._cls, '__doc__'):
-            self._cls.__doc__ = (self._cls.__name__ + str(inspect.signature(self._cls)).replace(' -> None', ''))
-
-    def __call__(self) -> TypeT:
-        setattr(self._cls, dc._PARAMS, self._params)
-
-        self._install_fields()
-
-        if self._params.init:
-            self._install_init()
-
-        if self._params.repr:
-            self._install_repr()
-
-        if self._params.eq:
-            self._install_eq()
-
-        if self._params.order:
-            self._install_order()
-
-        if self._params.frozen:
-            self._install_frozen()
-
-        self._maybe_install_hash()
-
-        self._maybe_install_doc()
-
-        return self._cls
