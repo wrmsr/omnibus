@@ -5,8 +5,11 @@ from .api import field  # noqa
 from .api import fields  # noqa
 from .api import fields_dict  # noqa
 from .api import make_dataclass  # noqa
-from .api import validate  # noqa
 from .build import dataclass  # noqa
+from .defdecls import check_ as check  # noqa
+from .defdecls import derive  # noqa
+from .defdecls import post_init  # noqa
+from .defdecls import validate  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
 from .specs import DataSpec  # noa

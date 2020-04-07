@@ -19,21 +19,11 @@ import copy
 import dataclasses as dc
 import typing as ta
 
-from .. import check as check_
-from .. import lang
-from .types import Checker
-from .types import CHECKERS_ATTR
 from .types import CoerceMetadata
 from .types import DeriveMetadata
-from .types import Deriver
-from .types import DERIVERS_ATTR
 from .types import DocMetadata
-from .types import POST_INITS_ATTR
-from .types import PostInit
 from .types import SizeMetadata
 from .types import ValidateMetadata
-from .types import Validator
-from .types import VALIDATORS_ATTR
 
 
 T = ta.TypeVar('T')
@@ -146,27 +136,3 @@ def field(
         metadata=metadata,
         **kwargs
     )
-
-
-@lang.cls_dct_fn()
-def check(cls_dct, checker: Checker) -> None:
-    check_.callable(checker)
-    cls_dct.setdefault(CHECKERS_ATTR, []).append(checker)
-
-
-@lang.cls_dct_fn()
-def derive(cls_dct, deriver: Deriver) -> None:
-    check_.callable(deriver)
-    cls_dct.setdefault(DERIVERS_ATTR, []).append(deriver)
-
-
-@lang.cls_dct_fn()
-def post_init(cls_dct, post_init: PostInit) -> None:
-    check_.callable(post_init)
-    cls_dct.setdefault(POST_INITS_ATTR, []).append(post_init)
-
-
-@lang.cls_dct_fn()
-def validate(cls_dct, validator: Validator) -> None:
-    check_.callable(validator)
-    cls_dct.setdefault(VALIDATORS_ATTR, []).append(validator)

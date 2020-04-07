@@ -11,6 +11,7 @@ from .types import Validator
 
 
 T = ta.TypeVar('T', bound=ta.Callable, covariant=True)
+DefdeclT = ta.TypeVar('DefdeclT', bound='Defdecl', covariant=True)
 
 
 DEFDECLS_ATR = '__dataclass_defdecls__'
@@ -38,20 +39,26 @@ class CallableDefdecl(Defdecl, ta.Generic[T], lang.Abstract):
         cls_dct.setdefault(DEFDECLS_ATR, []).append(cls(*args, **kwargs))
 
 
-class CheckerDefdcel(CallableDefdecl, lang.Final):
+class CheckerDefdcel(CallableDefdecl[Checker], lang.Final):
     pass
 
 
-class DeriverDefdecl(CallableDefdecl, lang.Final):
+class DeriverDefdecl(CallableDefdecl[Deriver], lang.Final):
     pass
 
 
-class PostInitDefdecl(CallableDefdecl, lang.Final):
+class PostInitDefdecl(CallableDefdecl[PostInit], lang.Final):
     pass
 
 
-class ValidatorDefdecl(CallableDefdecl, lang.Final):
+class ValidatorDefdecl(CallableDefdecl[Validator], lang.Final):
     pass
+
+
+check_ = CheckerDefdcel.install
+derive = DeriverDefdecl.install
+post_init = PostInitDefdecl.install
+validate = ValidatorDefdecl.install
 
 
 class ClsDefdecls:
@@ -83,7 +90,7 @@ class ClsDefdecls:
     def __iter__(self) -> ta.Iterable[Defdecl]:
         return iter(self.all)
 
-    def __getitem__(self, ddcls: type) -> ta.Sequence[Defdecl]:
+    def __getitem__(self, ddcls: ta.Type[DefdeclT]) -> ta.Sequence[DefdeclT]:
         try:
             return self._cache[ddcls]
         except KeyError:

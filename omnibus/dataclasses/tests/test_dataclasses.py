@@ -163,7 +163,7 @@ def test_validate():
         x: int = api_.field(validate=lambda x: x > 0)
         y: int
 
-        api_.validate(lambda x, y: x > y)
+        defdecls_.validate(lambda x, y: x > y)
 
         # @dataclasses_.validate
         # @staticmethod
@@ -171,7 +171,7 @@ def test_validate():
         #     if not (x > y):
         #         raise ValueError
 
-    assert C.__dataclass_validators__
+    # assert C.__dataclass_validators__
 
 
 def test_coerce():
@@ -261,17 +261,15 @@ def test_spec():
         x: int
         y: int
 
-        api_.validate(lambda x, y: check.arg(x > y))
+        defdecls_.validate(lambda x, y: check.arg(x > y))
 
     @build_.dataclass()
     class B(A):
         z: int
 
-        api_.check(lambda x, z: x > z)
+        defdecls_.check_(lambda x, z: x > z)
 
     spec = specs_.get_spec(B)
-    print(spec.validators)
-    print(spec)
 
     A(2, 1)
     B(2, 1, 0)
@@ -284,7 +282,7 @@ def test_post_init():
         x: int
         y: int
 
-        api_.post_init(lambda pt: l.append(pt))
+        defdecls_.post_init(lambda pt: l.append(pt))
 
     l = []
     Point(1, 2)

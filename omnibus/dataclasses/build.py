@@ -6,6 +6,10 @@ import typing as ta
 
 from .. import check
 from .. import codegen
+from .defdecls import CheckerDefdcel
+from .defdecls import DeriverDefdecl
+from .defdecls import PostInitDefdecl
+from .defdecls import ValidatorDefdecl
 from .specs import DataSpec
 from .types import CheckException
 from .types import ORIGIN_ATTR
@@ -56,14 +60,14 @@ def post_process(
         else:
             raise TypeError(vld_md)
 
-    for vld in spec.validators:
-        vld_args = _get_fn_args(vld)
+    for vld in spec.defdecls[ValidatorDefdecl]:
+        vld_args = _get_fn_args(vld.fn)
         for arg in vld_args:
             check.in_(arg, spec.fields_by_name)
-        init_lines.append(f'{init_nsb.put(vld)}({", ".join(vld_args)})')
+        init_lines.append(f'{init_nsb.put(vld.fn)}({", ".join(vld_args)})')
 
-    for chk in spec.checkers:
-        chk_args = _get_fn_args(chk)
+    for chk in spec.defdecls[CheckerDefdcel]:
+        chk_args = _get_fn_args(chk.fn)
         for arg in chk_args:
             check.in_(arg, spec.fields_by_name)
 
@@ -74,16 +78,16 @@ def post_process(
         bound_build_chk_exc = functools.partial(build_chk_exc, chk, chk_args)
 
         init_lines.append(
-            f'if not {init_nsb.put(chk)}({", ".join(chk_args)}): '
+            f'if not {init_nsb.put(chk.fn)}({", ".join(chk_args)}): '
             f'raise {init_nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
         )
 
-    if spec.post_inits:
+    if spec.defdecls[PostInitDefdecl]:
         post_init_nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names={'args', 'kwargs'}))
         post_init_lines = []
 
-        for pi in spec.post_inits:
-            post_init_lines.append(f'{post_init_nsb.put(pi)}(self)')
+        for pi in spec.defdecls[PostInitDefdecl]:
+            post_init_lines.append(f'{post_init_nsb.put(pi.fn)}(self)')
 
         cg = codegen.Codegen()
         cg(f'def __post_init__(self, *args, **kwargs):\n')
