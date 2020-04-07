@@ -9,7 +9,6 @@ import pytest
 
 from .. import api as api_
 from .. import build as build_
-from .. import build2 as build2_
 from .. import defdecls as defdecls_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
@@ -23,17 +22,17 @@ from ... import check
 T = ta.TypeVar('T')
 
 
-def test_reorder():
-    @build_.dataclass()
-    class C:
-        x: int
-        y: int = 5
-
-    @build_.dataclass(reorder=True)
-    class D(C):
-        z: int
-
-    assert [f.name for f in api_.fields(D)] == ['x', 'z', 'y']
+# def test_reorder():
+#     @build_.dataclass()
+#     class C:
+#         x: int
+#         y: int = 5
+#
+#     @build_.dataclass(reorder=True)
+#     class D(C):
+#         z: int
+#
+#     assert [f.name for f in api_.fields(D)] == ['x', 'z', 'y']
 
 
 def test_defaultdict():
@@ -122,22 +121,22 @@ def test_meta():
     assert Gen(1).val == 1
 
 
-@build_.dataclass(reorder=True)
-class A(pickling_.SimplePickle):
-    x: int
-    y: int
-    z: int = 0
-
-
-@build_.dataclass(reorder=True)
-class B(A):
-    a: int
-
-
-def test_pickle():
-    o0 = B(1, 2, 3, 4)
-    o1 = pickle.loads(pickle.dumps(o0))
-    assert o1 == o0
+# @build_.dataclass(reorder=True)
+# class A(pickling_.SimplePickle):
+#     x: int
+#     y: int
+#     z: int = 0
+#
+#
+# @build_.dataclass(reorder=True)
+# class B(A):
+#     a: int
+#
+#
+# def test_pickle():
+#     o0 = B(1, 2, 3, 4)
+#     o1 = pickle.loads(pickle.dumps(o0))
+#     assert o1 == o0
 
 
 def test_implicit_abc():
@@ -288,16 +287,6 @@ def test_post_init():
     Point(1, 2)
     Point(3, 4)
     assert len(l) == 2
-
-
-def test_build2():
-    class Point:
-        x: int
-        y: int
-
-    build2_.ClassProcessor(Point, build2_.params(frozen=True))()
-
-    assert Point(1, 2).y == 2
 
 
 def test_defdecls():
