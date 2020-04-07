@@ -1,27 +1,31 @@
 import dataclasses as dc
 import inspect
 import sys
+import typing as ta
 
 from .. import check
 
 
+TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
+
+
 def params(
         *,
-        init=None,
-        repr=None,
-        eq=None,
-        order=None,
+        init=True,
+        repr=True,
+        eq=True,
+        order=False,
         unsafe_hash=None,
-        frozen=None,
+        frozen=False,
 ):
     return dc._DataclassParams(init, repr, eq, order, unsafe_hash, frozen)
 
 
-class ClassProcessor:
+class ClassProcessor(ta.Generic[TypeT]):
 
     def __init__(
             self,
-            cls,
+            cls: TypeT,
             params: dc._DataclassParams,
     ) -> None:
         super().__init__()
@@ -29,13 +33,13 @@ class ClassProcessor:
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, dc._DataclassParams)
 
-    def _set_new_attribute(self, name, value):
+    def _set_new_attribute(self, name: str, value: ta.Any) -> bool:
         if name in self._cls.__dict__:
             return True
         setattr(self._cls, name, value)
         return False
 
-    def __call__(self, init, repr, eq, order, unsafe_hash, frozen):
+    def __call__(self) -> TypeT:
         fields = {}
 
         if self._cls.__module__ in sys.modules:
@@ -120,7 +124,7 @@ class ClassProcessor:
             flds = [f for f in fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
             self._set_new_attribute(
                 '__init__',
-                _init_fn(
+                dc._init_fn(
                     flds,
                     self._params.frozen,
                     has_post_init,
@@ -134,34 +138,34 @@ class ClassProcessor:
 
         if self._params.repr:
             flds = [f for f in field_list if f.repr]
-            self._set_new_attribute('__repr__', _repr_fn(flds, globals))
+            self._set_new_attribute('__repr__', dc._repr_fn(flds, globals))
 
         if self._params.eq:
             flds = [f for f in field_list if f.compare]
-            self_tuple = _tuple_str('self', flds)
-            other_tuple = _tuple_str('other', flds)
-            self._set_new_attribute('__eq__', _cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=globals))
+            self_tuple = dc._tuple_str('self', flds)
+            other_tuple = dc._tuple_str('other', flds)
+            self._set_new_attribute('__eq__', dc._cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=globals))
 
         if self._params.order:
             flds = [f for f in field_list if f.compare]
-            self_tuple = _tuple_str('self', flds)
-            other_tuple = _tuple_str('other', flds)
+            self_tuple = dc._tuple_str('self', flds)
+            other_tuple = dc._tuple_str('other', flds)
             for name, op in [
                 ('__lt__', '<'),
                 ('__le__', '<='),
                 ('__gt__', '>'),
                 ('__ge__', '>='),
             ]:
-                if self._set_new_attribute(name, _cmp_fn(name, op, self_tuple, other_tuple, globals=globals)):
+                if self._set_new_attribute(name, dc._cmp_fn(name, op, self_tuple, other_tuple, globals=globals)):
                     raise TypeError(
                         f'Cannot overwrite attribute {name} in class {self._cls.__name__}. Consider using functools.total_ordering')
 
         if self._params.frozen:
-            for fn in _frozen_get_del_attr(self._cls, field_list, globals):
+            for fn in dc._frozen_get_del_attr(self._cls, field_list, globals):
                 if self._set_new_attribute(fn.__name__, fn):
                     raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self._cls.__name__}')
 
-        hash_action = _hash_action[bool(self._params.unsafe_hash), bool(self._params.eq), bool(self._params.frozen), has_explicit_hash]
+        hash_action = dc._hash_action[bool(self._params.unsafe_hash), bool(self._params.eq), bool(self._params.frozen), has_explicit_hash]
         if hash_action:
             self._cls.__hash__ = hash_action(self._cls, field_list, globals)
 

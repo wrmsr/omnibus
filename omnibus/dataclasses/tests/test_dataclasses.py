@@ -9,6 +9,7 @@ import pytest
 
 from .. import api as api_
 from .. import build as build_
+from .. import build2 as build2_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_
 from .. import specs as specs_
@@ -288,3 +289,13 @@ def test_post_init():
     Point(1, 2)
     Point(3, 4)
     assert len(l) == 2
+
+
+def test_build2():
+    class Point:
+        x: int
+        y: int
+
+    build2_.ClassProcessor(Point, build2_.params(frozen=True))()
+
+    assert Point(1, 2).y == 2
