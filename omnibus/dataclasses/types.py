@@ -15,7 +15,11 @@ FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
 
-ORIGIN_ATTR = '__dataclass_origin__'
+METADATA_ATTR = '__dataclass_metadata__'
+
+
+class OriginMetadata(lang.Marker):
+    pass
 
 
 class CoerceMetadata(lang.Marker):

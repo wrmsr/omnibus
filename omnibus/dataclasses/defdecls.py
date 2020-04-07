@@ -6,6 +6,7 @@ from .. import lang
 from .. import properties
 from .types import Checker
 from .types import Deriver
+from .types import METADATA_ATTR
 from .types import PostInit
 from .types import Validator
 
@@ -14,7 +15,8 @@ T = ta.TypeVar('T', bound=ta.Callable, covariant=True)
 DefdeclT = ta.TypeVar('DefdeclT', bound='Defdecl', covariant=True)
 
 
-DEFDECLS_ATR = '__dataclass_defdecls__'
+class Defdecls(lang.Marker):
+    pass
 
 
 class Defdecl(lang.Abstract):
@@ -36,7 +38,7 @@ class CallableDefdecl(Defdecl, ta.Generic[T], lang.Abstract):
     @lang.cls_dct_fn()
     @classmethod
     def install(cls, cls_dct, *args, **kwargs) -> None:
-        cls_dct.setdefault(DEFDECLS_ATR, []).append(cls(*args, **kwargs))
+        cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Defdecls, []).append(cls(*args, **kwargs))
 
 
 class CheckerDefdcel(CallableDefdecl[Checker], lang.Final):
@@ -80,8 +82,8 @@ class ClsDefdecls:
         return [
             dd
             for bc in reversed(self._cls.__mro__)
-            if DEFDECLS_ATR in bc.__dict__
-            for dd in bc.__dict__[DEFDECLS_ATR]
+            if METADATA_ATTR in bc.__dict__
+            for dd in bc.__dict__[METADATA_ATTR].get(Defdecls, [])
         ]
 
     def __len__(self) -> int:

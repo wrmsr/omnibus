@@ -6,17 +6,22 @@ import typing as ta
 
 from .. import check
 from .. import codegen
+from .. import lang
 from .defdecls import CheckerDefdcel
 from .defdecls import DeriverDefdecl
 from .defdecls import PostInitDefdecl
 from .defdecls import ValidatorDefdecl
 from .specs import DataSpec
 from .types import CheckException
-from .types import ORIGIN_ATTR
+from .types import METADATA_ATTR
 from .types import ValidateMetadata
 
 
 T = ta.TypeVar('T')
+
+
+class OriginMetadata(lang.Marker):
+    pass
 
 
 def _get_fn_args(fn) -> ta.List[str]:
@@ -196,7 +201,7 @@ def dataclass(
             if list(flds.keys()) != list(new_flds.keys()):
                 _check_bases(cls.__mro__, frozen=frozen)
                 anns = {name: fld.type for name, fld in new_flds.items()}
-                ns = {'__annotations__': anns, ORIGIN_ATTR: cls, **new_flds}
+                ns = {'__annotations__': anns, METADATA_ATTR: {OriginMetadata: cls}, **new_flds}
                 new_dc = dc.dataclass(type('_Reordered', (object,), ns), **fwd_kwargs)
                 ret = post_process(cls, type(cls.__name__, (new_dc, cls), {}), **post_process_kwargs)
                 ret.__module__ = cls.__module__

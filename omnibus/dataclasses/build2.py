@@ -103,7 +103,7 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         # Do we have any Field members that don't also have annotations?
         for name, value in self._cls.__dict__.items():
-            if isinstance(value, dc.Field) and not name in cls_annotations:
+            if isinstance(value, dc.Field) and name not in cls_annotations:
                 raise TypeError(f'{name!r} is a field but has no type annotation')
 
         return fields
