@@ -25,9 +25,8 @@ from .defdecls import ValidatorDefdecl
 from .internals import cmp_fn
 from .internals import create_fn
 from .internals import DataclassParams
-from .internals import FIELD
+from .internals import FieldType
 from .internals import field_init
-from .internals import FIELD_INITVAR
 from .internals import FIELDS
 from .internals import frozen_get_del_attr
 from .internals import get_field
@@ -159,15 +158,15 @@ class Fields(ta.Sequence[dc.Field]):
         return self._by_name
 
     @properties.cached
-    def by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
+    def by_field_type(self) -> ta.Mapping[FieldType, ta.Sequence[dc.Field]]:
         ret = {}
         for f in self:
-            ret.setdefault(get_field_type(f), {})[f.name] = f
+            ret.setdefault(get_field_type(f), []).append(f)
         return ret
 
     @properties.cached
-    def instance(self) -> ta.List[dc.Field]:
-        return list(self.by_field_type.get(FIELD, {}).values())
+    def instance(self) -> ta.Sequence[dc.Field]:
+        return self.by_field_type.get(FieldType.INSTANCE, [])
 
 
 class ClassProcessor(ta.Generic[TypeT]):
@@ -357,7 +356,7 @@ class InitBuilder:
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.fields if get_field_type(f) in (FIELD, FIELD_INITVAR)]
+        return [f for f in self.fields if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
 
     def check_invariants(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
@@ -446,7 +445,7 @@ class InitBuilder:
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []
         if hasattr(self.ctx.cls, POST_INIT_NAME):
-            params_str = ','.join(f.name for f in self.init_fields if get_field_type(f) is FIELD_INITVAR)
+            params_str = ','.join(f.name for f in self.init_fields if get_field_type(f) is FieldType.INIT)
             ret.append(f'{self.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
