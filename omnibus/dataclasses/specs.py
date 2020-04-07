@@ -1,3 +1,8 @@
+"""
+TODO:
+ - *spec is authoritative*
+ - delegate to backends
+"""
 import dataclasses as dc
 import typing as ta
 import weakref

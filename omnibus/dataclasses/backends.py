@@ -5,7 +5,11 @@ TODO:
   - stubbing (query comp cache)
 
 NOTES:
- - change ctor
+ - can change ctor
+  - config takes only a source
+ - dc.replace has to work
+  - is only way to modify tuple/pyrsistent / any frozen
+   - backend.is_frozen
 
 Backends:
  - default

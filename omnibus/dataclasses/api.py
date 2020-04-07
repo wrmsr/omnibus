@@ -1,11 +1,12 @@
 """
 TODO:
+ - basically takeover dataclasses..
  - order=False, kwwonly=False
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
  - redaction - RedactedStr type?
  - auto-typecheck-validation
- - storage -> storage.py
+ - s/storage/backend/ -> backends.py
  - coerce: True=just call w val, cls-lvl default on/off, unary void callable
  - validate: True=default, cls-lvl default on/off, unary void callable ...
  - jackson style json serdes interop
