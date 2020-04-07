@@ -19,10 +19,15 @@ import copy
 import dataclasses as dc
 import typing as ta
 
+from .. import check
+from .context import BuildContext
+from .internals import DataclassParams
 from .internals import is_dataclass_instance
+from .process import ClassProcessor
 from .types import CoerceMetadata
 from .types import DeriveMetadata
 from .types import DocMetadata
+from .types import ExtraParams
 from .types import SizeMetadata
 from .types import ValidateMetadata
 
@@ -30,16 +35,24 @@ from .types import ValidateMetadata
 T = ta.TypeVar('T')
 
 
+Field = dc.Field
+FrozenInstanceError = dc.FrozenInstanceError
+InitVar = dc.InitVar
+is_dataclass = dc.is_dataclass
+MISSING = dc.MISSING
+replace = dc.replace
+
+
 def make_dataclass(*args, **kwargs):
     # FIXME
     raise NotImplementedError
 
 
-def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[dc.Field]:
+def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[Field]:
     return dc.fields(class_or_instance)
 
 
-def fields_dict(class_or_instance) -> ta.Dict[str, dc.Field]:
+def fields_dict(class_or_instance) -> ta.Dict[str, Field]:
     return {f.name: f for f in fields(class_or_instance)}
 
 
@@ -98,8 +111,8 @@ def _astuple_inner(obj, tuple_factory):
 
 def field(
         *,
-        default=dc.MISSING,
-        default_factory=dc.MISSING,
+        default=MISSING,
+        default_factory=MISSING,
         init=True,
         repr=True,
         hash=None,
@@ -112,7 +125,7 @@ def field(
         size=None,
         validate=None,
         **kwargs
-) -> dc.Field:
+) -> Field:
     md = {}
     if coerce is not None:
         md[CoerceMetadata] = coerce
@@ -137,3 +150,40 @@ def field(
         metadata=metadata,
         **kwargs
     )
+
+
+def dataclass(
+        _cls: ta.Type[T] = None,
+        *,
+        init=True,
+        repr=True,
+        eq=True,
+        order=False,
+        unsafe_hash=None,
+        frozen=False,
+
+        validate=False,
+) -> ta.Type[T]:
+    params = DataclassParams(
+        init=init,
+        repr=repr,
+        eq=eq,
+        order=order,
+        unsafe_hash=unsafe_hash,
+        frozen=frozen,
+    )
+
+    extra_params = ExtraParams(
+        validate=validate,
+    )
+
+    check.isinstance(validate, bool)
+
+    def build(cls):
+        ctx = BuildContext(cls, params, extra_params)
+        ClassProcessor(ctx)()
+        return cls
+
+    if _cls is None:
+        return build
+    return build(_cls)

@@ -46,3 +46,8 @@ class ValidateMetadata(lang.Marker):
 class CheckException(Exception):
     values: ta.Dict[str, ta.Any]
     checker: Checker
+
+
+@dc.dataclass(frozen=True)
+class ExtraParams:
+    validate: bool = False

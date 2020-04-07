@@ -2,7 +2,7 @@ import re
 import textwrap
 
 from .. import configs as configs_
-from .. import dataclasses as dataclasses_
+from .. import dataclasses as dataclasses_  # noqa
 from .. import dotenv as dotenv_
 from .. import fields as fields_
 from .. import flattening as flattening_

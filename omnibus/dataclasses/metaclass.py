@@ -4,7 +4,7 @@ import typing as ta
 
 from .. import check
 from .. import lang
-from .build import dataclass
+from .api import dataclass
 from .pickling import SimplePickle
 
 

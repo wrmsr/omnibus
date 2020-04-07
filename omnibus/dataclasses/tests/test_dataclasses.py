@@ -1,17 +1,16 @@
 import abc
 import collections
 import dataclasses as dc
-import pickle
+import pickle  # noqa
 import typing as ta
 
 import pyrsistent
 import pytest
 
 from .. import api as api_
-from .. import build as build_
 from .. import defdecls as defdecls_
 from .. import metaclass as metaclass_
-from .. import pickling as pickling_
+from .. import pickling as pickling_  # noqa
 from .. import specs as specs_
 from .. import types as types_
 from .. import validation as validation_
@@ -36,7 +35,7 @@ T = ta.TypeVar('T')
 
 
 def test_defaultdict():
-    @build_.dataclass()
+    @api_.dataclass()
     class C:
         d: dict
 
@@ -140,7 +139,7 @@ def test_meta():
 
 
 def test_implicit_abc():
-    @build_.dataclass(frozen=True)
+    @api_.dataclass(frozen=True)
     class C0:
         x: int
 
@@ -157,7 +156,7 @@ def test_implicit_abc():
 
 
 def test_validate():
-    @build_.dataclass(frozen=True)
+    @api_.dataclass(frozen=True)
     class C:
         x: int = api_.field(validate=lambda x: x > 0)
         y: int
@@ -174,13 +173,13 @@ def test_validate():
 
 
 def test_coerce():
-    @build_.dataclass(frozen=True)
+    @api_.dataclass(frozen=True)
     class C:
         s: str = api_.field(coerce=str)
 
 
 def test_derive():
-    @build_.dataclass(frozen=True)
+    @api_.dataclass(frozen=True)
     class C:
         x: int
         y: int
@@ -201,7 +200,7 @@ def test_pyrsistent():
 
 
 def test_default_validation():
-    @build_.dataclass()
+    @api_.dataclass()
     class Point:
         x: int
         xs: ta.Iterable[int]
@@ -255,20 +254,20 @@ def test_default_validation():
 
 
 def test_spec():
-    @build_.dataclass()
+    @api_.dataclass()
     class A:
         x: int
         y: int
 
         defdecls_.validate(lambda x, y: check.arg(x > y))
 
-    @build_.dataclass()
+    @api_.dataclass()
     class B(A):
         z: int
 
         defdecls_.check_(lambda x, z: x > z)
 
-    spec = specs_.get_spec(B)
+    spec = specs_.get_spec(B)  # noqa
 
     A(2, 1)
     B(2, 1, 0)
@@ -297,4 +296,4 @@ def test_defdecls():
 
         defdecls_.CheckerDefdcel.install(lambda x: x > 1)
 
-    cdd = defdecls_.get_cls_defdecls(Point)
+    cdd = defdecls_.get_cls_defdecls(Point)  # noqa
