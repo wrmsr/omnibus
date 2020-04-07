@@ -126,17 +126,53 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         # Include InitVars and regular fields (so, not ClassVars).
         flds = [f for f in self._fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
-        self._set_new_attribute(
+
+        self_name = '__dataclass_self__' if 'self' in self._fields else 'self'
+
+        # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
+        # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
+        # us in case we build up the function using ast.
+        seen_default = False
+        for f in flds:
+            # Only consider fields in the __init__ call.
+            if f.init:
+                if not (f.default is dc.MISSING and f.default_factory is dc.MISSING):
+                    seen_default = True
+                elif seen_default:
+                    raise TypeError(f'non-default argument {f.name!r} follows default argument')
+
+        locals = {f'_type_{f.name}': f.type for f in flds}
+        locals.update({
+            'MISSING': dc.MISSING,
+            '_HAS_DEFAULT_FACTORY': dc._HAS_DEFAULT_FACTORY,
+        })
+
+        body_lines = []
+        for f in flds:
+            line = dc._field_init(f, self._params.frozen, locals, self_name)
+            # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
+            if line:
+                body_lines.append(line)
+
+        # Does this class have a post-init function?
+        if has_post_init:
+            params_str = ','.join(f.name for f in flds if f._field_type is dc._FIELD_INITVAR)
+            body_lines.append(f'{self_name}.{dc._POST_INIT_NAME}({params_str})')
+
+        # If no body lines, use 'pass'.
+        if not body_lines:
+            body_lines = ['pass']
+
+        fn = dc._create_fn(
             '__init__',
-            dc._init_fn(
-                flds,
-                self._params.frozen,
-                has_post_init,
-                '__dataclass_self__' if 'self' in self._fields
-                else 'self',
-                self._globals,
-            )
+            [self_name] + [dc._init_param(f) for f in flds if f.init],
+            body_lines,
+            locals=locals,
+            globals=self._globals,
+            return_type=None,
         )
+
+        self._set_new_attribute('__init__', fn)
 
     def _install_repr(self) -> None:
         flds = [f for f in self._instance_fields if f.repr]
