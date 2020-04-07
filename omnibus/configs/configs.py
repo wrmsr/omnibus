@@ -1,5 +1,6 @@
 """
 TODO:
+ - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
  - *YES* - dataclass interop - bidirectional for injection
   - akin to inj not being required
   - honor frozen

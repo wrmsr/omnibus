@@ -2,6 +2,9 @@
 DECREE:
  - reorder ONLY available on meta - no cls swapping
  - Params = DataclassParams, ExtraParams, MetaParams
+
+TODO:
+ - policies? config policy requires custom getters
 """
 import dataclasses as dc
 import inspect
