@@ -19,6 +19,7 @@ import copy
 import dataclasses as dc
 import typing as ta
 
+from .internals import is_dataclass_instance
 from .types import CoerceMetadata
 from .types import DeriveMetadata
 from .types import DocMetadata
@@ -43,7 +44,7 @@ def fields_dict(class_or_instance) -> ta.Dict[str, dc.Field]:
 
 
 def asdict(obj, *, dict_factory=dict, shallow=False):
-    if not dc._is_dataclass_instance(obj):
+    if not is_dataclass_instance(obj):
         raise TypeError('asdict() should be called on dataclass instances')
     if shallow:
         return {f.name: getattr(obj, f.name) for f in fields(obj)}
@@ -52,7 +53,7 @@ def asdict(obj, *, dict_factory=dict, shallow=False):
 
 def _asdict_inner(obj, dict_factory):
     # https://bugs.python.org/issue35540
-    if dc._is_dataclass_instance(obj):
+    if is_dataclass_instance(obj):
         result = []
         for f in fields(obj):
             value = _asdict_inner(getattr(obj, f.name), dict_factory)
@@ -71,13 +72,13 @@ def _asdict_inner(obj, dict_factory):
 
 
 def astuple(obj, *, tuple_factory=tuple):
-    if not dc._is_dataclass_instance(obj):
+    if not is_dataclass_instance(obj):
         raise TypeError('astuple() should be called on dataclass instances')
     return _astuple_inner(obj, tuple_factory)
 
 
 def _astuple_inner(obj, tuple_factory):
-    if dc._is_dataclass_instance(obj):
+    if is_dataclass_instance(obj):
         result = []
         for f in fields(obj):
             value = _astuple_inner(getattr(obj, f.name), tuple_factory)

@@ -66,7 +66,7 @@ validate = ValidatorDefdecl.install
 def get_cls_defdecls(cls: type) -> ClsDefdecls:
     return ocol.ItemListTypeMap([
         dd
-        for bc in reversed(cls.__mro__)
+        for bc in cls.__mro__[-1:0:-1]
         if METADATA_ATTR in bc.__dict__
         for dd in bc.__dict__[METADATA_ATTR].get(Defdecls, [])
     ])

@@ -12,6 +12,8 @@ from .. import defs
 from .. import properties
 from .defdecls import ClsDefdecls
 from .defdecls import get_cls_defdecls
+from .internals import DataclassParams
+from .internals import PARAMS
 
 
 Field = dc.Field
@@ -51,8 +53,8 @@ class DataSpec:
         return self._cls
 
     @properties.cached
-    def params(self) -> dc._DataclassParams:
-        return check.isinstance(getattr(self._cls, dc._PARAMS), dc._DataclassParams)
+    def params(self) -> DataclassParams:
+        return check.isinstance(getattr(self._cls, PARAMS), dc._DataclassParams)
 
     @properties.cached
     def fields(self) -> ta.Sequence[Field]:
@@ -65,9 +67,6 @@ class DataSpec:
     @properties.cached
     def defdecls(self) -> ClsDefdecls:
         return get_cls_defdecls(self._cls)
-
-    def _get_merged_mro_attr_list(self, att: str) -> ta.List:
-        return [v for c in reversed(self._cls.__mro__) for v in getattr(c, att, [])]
 
 
 def get_spec(cls: type) -> DataSpec:

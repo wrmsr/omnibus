@@ -1,3 +1,8 @@
+"""
+DECREE:
+ - reorder ONLY available on meta - no cls swapping
+ - Params = DataclassParams, ExtraParams, MetaParams
+"""
 import dataclasses as dc
 import functools
 import inspect
@@ -16,10 +21,25 @@ from .defdecls import DeriverDefdecl
 from .defdecls import get_cls_defdecls
 from .defdecls import PostInitDefdecl
 from .defdecls import ValidatorDefdecl
+from .internals import cmp_fn
+from .internals import create_fn
+from .internals import DataclassParams
+from .internals import FIELD
+from .internals import field_init
+from .internals import FIELD_INITVAR
+from .internals import FIELDS
+from .internals import frozen_get_del_attr
+from .internals import get_field
+from .internals import HAS_DEFAULT_FACTORY
+from .internals import hash_action
+from .internals import init_param
+from .internals import PARAMS
+from .internals import POST_INIT_NAME
+from .internals import repr_fn
+from .internals import tuple_str
 from .types import CheckException
 from .types import METADATA_ATTR
 from .types import ValidateMetadata
-
 
 T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
@@ -34,7 +54,7 @@ def build_params(
         unsafe_hash=None,
         frozen=False,
 ):
-    return dc._DataclassParams(init, repr, eq, order, unsafe_hash, frozen)
+    return DataclassParams(init, repr, eq, order, unsafe_hash, frozen)
 
 
 class ClassProcessor(ta.Generic[TypeT]):
@@ -42,12 +62,12 @@ class ClassProcessor(ta.Generic[TypeT]):
     def __init__(
             self,
             cls: TypeT,
-            params: dc._DataclassParams,
+            params: DataclassParams,
     ) -> None:
         super().__init__()
 
         self._cls = check.isinstance(cls, type)
-        self._params = check.isinstance(params, dc._DataclassParams)
+        self._params = check.isinstance(params, DataclassParams)
 
         self.check_invariants()
 
@@ -56,7 +76,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         return self._cls
 
     @property
-    def params(self) -> dc._DataclassParams:
+    def params(self) -> DataclassParams:
         return self._params
 
     @properties.cached
@@ -67,11 +87,19 @@ class ClassProcessor(ta.Generic[TypeT]):
     def defdecls(self) -> ClsDefdecls:
         return get_cls_defdecls(self.cls)
 
+    @property
+    def rmro(self) -> ta.Iterable[type]:
+        return self.cls.__mro__[-1:0:-1]
+
+    @properties.cached
+    def dc_rmro(self) -> ta.List[type]:
+        return [b for b in self.rmro if getattr(b, FIELDS, None)]
+
     def check_invariants(self) -> None:
         if self.params.order and not self.params.eq:
             raise ValueError('eq must be true if order is true')
 
-        any_frozen_base = any(getattr(b, dc._PARAMS).frozen for b in self.dataclass_rmro)
+        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.dc_rmro)
         if any_frozen_base:
             if any_frozen_base and not self.params.frozen:
                 raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
@@ -92,14 +120,10 @@ class ClassProcessor(ta.Generic[TypeT]):
             return {}
 
     @properties.cached
-    def dataclass_rmro(self) -> ta.List[type]:
-        return [b for b in self.cls.__mro__[-1:0:-1] if getattr(b, dc._FIELDS, None)]
-
-    @properties.cached
     def fields(self) -> ta.Mapping[str, dc.Field]:
         fields = {}
-        for b in self.dataclass_rmro:
-            base_fields = getattr(b, dc._FIELDS, None)
+        for b in self.dc_rmro:
+            base_fields = getattr(b, FIELDS, None)
             if base_fields:
                 for f in base_fields.values():
                     fields[f.name] = f
@@ -115,7 +139,7 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
         # attributes) where we can.
-        cls_fields = [dc._get_field(self.cls, name, type) for name, type in cls_annotations.items()]
+        cls_fields = [get_field(self.cls, name, type) for name, type in cls_annotations.items()]
         for f in cls_fields:
             fields[f.name] = f
 
@@ -139,7 +163,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         return fields
 
     def install_fields(self) -> None:
-        setattr(self.cls, dc._FIELDS, self.fields)
+        setattr(self.cls, FIELDS, self.fields)
 
     @properties.cached
     def field_maps_by_field_type(self) -> ta.Mapping[str, ta.Sequence[dc.Field]]:
@@ -150,7 +174,7 @@ class ClassProcessor(ta.Generic[TypeT]):
 
     @properties.cached
     def instance_fields(self) -> ta.List[dc.Field]:
-        return list(self.field_maps_by_field_type.get(dc._FIELD, {}).values())
+        return list(self.field_maps_by_field_type.get(FIELD, {}).values())
 
     def install_init(self) -> None:
         ib = InitBuilder(self)
@@ -160,31 +184,31 @@ class ClassProcessor(ta.Generic[TypeT]):
 
     def install_repr(self) -> None:
         flds = [f for f in self.instance_fields if f.repr]
-        self.set_new_attribute('__repr__', dc._repr_fn(flds, self.globals))
+        self.set_new_attribute('__repr__', repr_fn(flds, self.globals))
 
     def install_eq(self) -> None:
         flds = [f for f in self.instance_fields if f.compare]
-        self_tuple = dc._tuple_str('self', flds)
-        other_tuple = dc._tuple_str('other', flds)
-        self.set_new_attribute('__eq__', dc._cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.globals))
+        self_tuple = tuple_str('self', flds)
+        other_tuple = tuple_str('other', flds)
+        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.globals))
 
     def install_order(self) -> None:
         flds = [f for f in self.instance_fields if f.compare]
-        self_tuple = dc._tuple_str('self', flds)
-        other_tuple = dc._tuple_str('other', flds)
+        self_tuple = tuple_str('self', flds)
+        other_tuple = tuple_str('other', flds)
         for name, op in [
             ('__lt__', '<'),
             ('__le__', '<='),
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.set_new_attribute(name, dc._cmp_fn(name, op, self_tuple, other_tuple, globals=self.globals)):
+            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.globals)):
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.cls.__name__}. '
                     f'Consider using functools.total_ordering')
 
     def install_frozen(self) -> None:
-        for fn in dc._frozen_get_del_attr(self.cls, self.instance_fields, self.globals):
+        for fn in frozen_get_del_attr(self.cls, self.instance_fields, self.globals):
             if self.set_new_attribute(fn.__name__, fn):
                 raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.cls.__name__}')
 
@@ -194,14 +218,14 @@ class ClassProcessor(ta.Generic[TypeT]):
         # was not auto-generated, but it close enough.
         class_hash = self.cls.__dict__.get('__hash__', dc.MISSING)
         has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self.cls.__dict__))
-        hash_action = dc._hash_action[(
+        ha = hash_action[(
             bool(self.params.unsafe_hash),
             bool(self.params.eq),
             bool(self.params.frozen),
             has_explicit_hash,
         )]
-        if hash_action:
-            self.cls.__hash__ = hash_action(self.cls, self.instance_fields, self.globals)
+        if ha:
+            self.cls.__hash__ = ha(self.cls, self.instance_fields, self.globals)
             return True
         else:
             return False
@@ -211,7 +235,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             self.cls.__doc__ = (self.cls.__name__ + str(inspect.signature(self.cls)).replace(' -> None', ''))
 
     def __call__(self) -> TypeT:
-        setattr(self.cls, dc._PARAMS, self.params)
+        setattr(self.cls, PARAMS, self.params)
 
         self.install_fields()
 
@@ -352,7 +376,7 @@ class InitBuilder:
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.cp.fields.values() if f._field_type in (dc._FIELD, dc._FIELD_INITVAR)]
+        return [f for f in self.cp.fields.values() if f._field_type in (FIELD, FIELD_INITVAR)]
 
     def check_defaults(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
@@ -370,7 +394,7 @@ class InitBuilder:
     def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
         ret = []
         for f in self.init_fields:
-            line = dc._field_init(f, self.cp.params.frozen, locals, self.self_name)
+            line = field_init(f, self.cp.params.frozen, locals, self.self_name)
             # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
             if line:
                 ret.append(line)
@@ -378,9 +402,9 @@ class InitBuilder:
 
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []
-        if hasattr(self.cp.cls, dc._POST_INIT_NAME):
-            params_str = ','.join(f.name for f in self.init_fields if f._field_type is dc._FIELD_INITVAR)
-            ret.append(f'{self.self_name}.{dc._POST_INIT_NAME}({params_str})')
+        if hasattr(self.cp.cls, POST_INIT_NAME):
+            params_str = ','.join(f.name for f in self.init_fields if f._field_type is FIELD_INITVAR)
+            ret.append(f'{self.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
     def __call__(self) -> None:
@@ -389,7 +413,7 @@ class InitBuilder:
         locals = {f'_type_{f.name}': f.type for f in self.init_fields}
         locals.update({
             'MISSING': dc.MISSING,
-            '_HAS_DEFAULT_FACTORY': dc._HAS_DEFAULT_FACTORY,
+            '_HAS_DEFAULT_FACTORY': HAS_DEFAULT_FACTORY,
         })
 
         body_lines = []
@@ -399,9 +423,9 @@ class InitBuilder:
         if not body_lines:
             body_lines = ['pass']
 
-        return dc._create_fn(
+        return create_fn(
             '__init__',
-            [self.self_name] + [dc._init_param(f) for f in self.init_fields if f.init],
+            [self.self_name] + [init_param(f) for f in self.init_fields if f.init],
             body_lines,
             locals=locals,
             globals=self.cp.globals,
@@ -412,12 +436,12 @@ class InitBuilder:
 # def _compose_fields(cls: ta.Type) -> ta.Dict[str, dc.Field]:
 #     fields = {}
 #     for b in cls.__mro__[-1:0:-1]:
-#         base_fields = getattr(b, dc._FIELDS, None)
+#         base_fields = getattr(b, FIELDS, None)
 #         if base_fields:
 #             for f in base_fields.values():
 #                 fields[f.name] = f
 #     cls_annotations = cls.__dict__.get('__annotations__', {})
-#     cls_fields = [dc._get_field(cls, name, type) for name, type in cls_annotations.items()]
+#     cls_fields = [get_field(cls, name, type) for name, type in cls_annotations.items()]
 #     for f in cls_fields:
 #         fields[f.name] = f
 #     return fields
@@ -431,10 +455,10 @@ class InitBuilder:
 #     any_frozen_base = False
 #     has_dataclass_bases = False
 #     for b in mro[-1:0:-1]:
-#         base_fields = getattr(b, dc._FIELDS, None)
+#         base_fields = getattr(b, FIELDS, None)
 #         if base_fields:
 #             has_dataclass_bases = True
-#             if getattr(b, dc._PARAMS).frozen:
+#             if getattr(b, PARAMS).frozen:
 #                 any_frozen_base = True
 #     if has_dataclass_bases:
 #         if any_frozen_base and not frozen:
