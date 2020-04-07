@@ -5,10 +5,7 @@ TODO:
  - *default null makes optional.. lol..*
  - redaction - RedactedStr type?
  - auto-typecheck-validation
- - tuple, pyrsistent (diy, not PRecord), struct, struct-of-arrays. numpy?, mmap? ObjectArrayBackedMap equiv
-  - with nesting
-  - 'Storage' impls: default, ... - both inline/classdef *and* 're-casting' against bltin dc
-   - so 'Stubbing' ala compcache shaper..
+ - storage -> storage.py
  - coerce: True=just call w val, cls-lvl default on/off, unary void callable
  - validate: True=default, cls-lvl default on/off, unary void callable ...
  - jackson style json serdes interop
