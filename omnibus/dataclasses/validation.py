@@ -1,6 +1,8 @@
 """
 TODO:
  - return bool not raise, don't throw/catch in unions
+  - *this is check vs validate*
+  - prob doable generically
 """
 import collections.abc
 import dataclasses as dc
