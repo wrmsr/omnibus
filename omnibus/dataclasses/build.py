@@ -59,7 +59,7 @@ def build_params(
 
 @dc.dataclass(frozen=True)
 class ExtraParams:
-    validate = False
+    validate: bool = False
 
 
 class ClassProcessor(ta.Generic[TypeT]):
@@ -188,7 +188,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         return list(self.field_maps_by_field_type.get(FIELD, {}).values())
 
     def install_init(self) -> None:
-        ib = InitBuilder(self)()
+        fn = InitBuilder(self)()
         self.set_new_attribute('__init__', fn)
 
     def install_repr(self) -> None:
