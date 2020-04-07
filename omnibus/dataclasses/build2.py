@@ -60,13 +60,11 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen):
     if has_dataclass_bases:
         # Raise an exception if any of our bases are frozen, but we're not.
         if any_frozen_base and not frozen:
-            raise TypeError('cannot inherit non-frozen dataclass from a '
-                            'frozen one')
+            raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
 
         # Raise an exception if we're frozen, but none of our bases are.
         if not any_frozen_base and frozen:
-            raise TypeError('cannot inherit frozen dataclass from a '
-                            'non-frozen one')
+            raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     # Remember all of the fields on our class (including bases).  This also marks this class as being a dataclass.
     setattr(cls, dc._FIELDS, fields)
@@ -94,7 +92,6 @@ def _process_class(cls, init, repr, eq, order, unsafe_hash, frozen):
                 flds,
                 frozen,
                 has_post_init,
-                # The name to use for the "self" param in __init__.  Use "self" if possible.
                 '__dataclass_self__' if 'self' in fields
                 else 'self',
                 globals,
