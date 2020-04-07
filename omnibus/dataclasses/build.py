@@ -12,6 +12,7 @@ import typing as ta
 
 from .. import check
 from .. import codegen
+from .. import collections as ocol
 from .. import lang
 from .. import properties
 from .defdecls import CheckerDefdcel
@@ -391,7 +392,7 @@ class InitBuilder:
     def build_extra_post_init_lines(self) -> ta.List[str]:
         ret = []
         for pi in self.cp.defdecls[PostInitDefdecl]:
-            ret.append(f'{ret.put(pi.fn)}({self.self_name})')
+            ret.append(f'{self.nsb.put(pi.fn)}({self.self_name})')
         return ret
 
     def __call__(self) -> None:
@@ -408,6 +409,8 @@ class InitBuilder:
         lines.extend(self.build_field_init_lines(locals))
         lines.extend(self.build_post_init_lines())
         lines.extend(self.build_extra_post_init_lines())
+
+        ocol.guarded_map_update(locals, self.nsb)
 
         if not lines:
             lines = ['pass']
