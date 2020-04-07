@@ -243,7 +243,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         return Fields(fields.values())
 
     def install_fields(self) -> None:
-        setattr(self.ctx.cls, FIELDS, dict(self.fields))
+        setattr(self.ctx.cls, FIELDS, dict(self.fields.by_name))
 
     def install_init(self) -> None:
         fn = InitBuilder(self.ctx, self.fields)()
@@ -390,7 +390,7 @@ class InitBuilder:
             return build_default_field_validation(fld)
 
         ret = []
-        for fld in self.fields.values():
+        for fld in self.fields:
             vld_md = fld.metadata.get(ValidateMetadata)
             if callable(vld_md):
                 ret.append(f'{self.nsb.put(vld_md)}({fld.name})')
