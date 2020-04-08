@@ -1,14 +1,10 @@
-import sys
-import types
 import typing as ta
 
 from .. import check
 from .. import properties
-from .defdecls import ClsDefdecls
-from .defdecls import get_cls_defdecls
 from .internals import DataclassParams
-from .internals import FIELDS
-from .types import METADATA_ATTR
+from .reflect import DataSpec
+from .reflect import get_cls_spec
 from .types import ExtraParams
 
 
@@ -42,24 +38,5 @@ class BuildContext(ta.Generic[TypeT]):
         return self._extra_params
 
     @properties.cached
-    def metadata(self) -> ta.Mapping[type, ta.Any]:
-        return self.cls.__dict__.get(METADATA_ATTR, {})
-
-    @properties.cached
-    def defdecls(self) -> ClsDefdecls:
-        return get_cls_defdecls(self.cls)
-
-    @property
-    def rmro(self) -> ta.Iterable[type]:
-        return reversed(self.cls.__mro__)
-
-    @properties.cached
-    def dc_rmro(self) -> ta.List[type]:
-        return [b for b in self.rmro if getattr(b, FIELDS, None)]
-
-    @properties.cached
-    def globals(self) -> ta.MutableMapping[str, ta.Any]:
-        if self.cls.__module__ in sys.modules:
-            return sys.modules[self.cls.__module__].__dict__
-        else:
-            return {}
+    def spec(self) -> DataSpec:
+        return get_cls_spec(self._cls)

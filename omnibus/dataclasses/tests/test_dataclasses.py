@@ -255,7 +255,7 @@ def test_default_validation():
 
 
 def test_spec():
-    defdecls_.ValidatorDefdecl.target
+    defdecls_.ValidatorDefdecl.tag
 
     @api_.dataclass()
     class A:

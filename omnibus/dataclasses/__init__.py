@@ -1,7 +1,9 @@
 from .. import lang
 from .api import asdict  # noqa
 from .api import astuple  # noqa
+from .api import check_ as check  # noqa
 from .api import dataclass  # noqa
+from .api import derive  # noqa
 from .api import field  # noqa
 from .api import Field  # noqa
 from .api import fields  # noqa
@@ -11,11 +13,9 @@ from .api import InitVar  # noqa
 from .api import is_dataclass  # noqa
 from .api import make_dataclass  # noqa
 from .api import MISSING  # noqa
+from .api import post_init  # noqa
 from .api import replace  # noqa
-from .defdecls import check_ as check  # noqa
-from .defdecls import derive  # noqa
-from .defdecls import post_init  # noqa
-from .defdecls import validate  # noqa
+from .api import validate  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
 from .reflect import DataSpec  # noqa

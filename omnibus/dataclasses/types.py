@@ -1,19 +1,40 @@
 import dataclasses as dc
 import typing as ta
 
+from .. import lang
+
 
 T = ta.TypeVar('T')
-
-Checker = ta.Callable[..., bool]
-Deriver = ta.Callable[..., T]
-PostInit = ta.Callable[[T], None]
-Validator = ta.NewType('Validator', ta.Callable[..., None])
 
 FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
 
 METADATA_ATTR = '__dataclass_metadata__'
+
+
+class Extras(lang.Marker):
+    pass
+
+
+@dc.dataclass(frozen=True)
+class Checker(lang.Final):
+    fn: ta.Callable[..., bool]
+
+
+@dc.dataclass(frozen=True)
+class Deriver(lang.Final):
+    fn: ta.Callable[..., T]
+
+
+@dc.dataclass(frozen=True)
+class PostInit(lang.Final):
+    fn: ta.Callable[[T], None]
+
+
+@dc.dataclass(frozen=True)
+class Validator(lang.Final):
+    fn: ta.Callable[..., None]
 
 
 @dc.dataclass(frozen=True)

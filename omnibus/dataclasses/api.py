@@ -28,14 +28,22 @@ import collections
 import collections.abc
 import copy
 import dataclasses as dc
+import functools
 import typing as ta
 
+from .. import lang
 from .context import BuildContext
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
 from .process import ClassProcessor
+from .types import Checker
+from .types import Deriver
 from .types import ExtraFieldParams
 from .types import ExtraParams
+from .types import Extras
+from .types import METADATA_ATTR
+from .types import PostInit
+from .types import Validator
 
 
 T = ta.TypeVar('T')
@@ -190,3 +198,18 @@ def dataclass(
     if _cls is None:
         return build
     return build(_cls)
+
+
+@lang.cls_dct_fn()
+def install(cls_dct, cls, *args, **kwargs) -> None:
+    if len(args) == 1 and isinstance(args[0], cls):
+        [obj] = args
+    else:
+        obj = cls(*args, **kwargs)
+    cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).append(obj)
+
+
+check_ = functools.partial(install, Checker)
+derive = functools.partial(install, Deriver)
+post_init = functools.partial(install, PostInit)
+validate = functools.partial(install, Validator)
