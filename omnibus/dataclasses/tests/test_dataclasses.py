@@ -294,9 +294,9 @@ def test_defdecls():
         x: int
         y: int
 
-        api_.CheckerDefdcel.install(lambda x: x > 1)
+        api_.check_(lambda x: x > 1)
 
-    cdd = api_.get_cls_defdecls(Point)  # noqa
+    cdd = reflect_.get_cls_spec(Point)  # noqa
 
 
 def test_field_attrs():
