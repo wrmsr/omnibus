@@ -16,6 +16,7 @@ from .. import types as types_
 from .. import validation as validation_
 from .. import virtual as virtual_
 from ... import check
+from ... import properties
 
 
 T = ta.TypeVar('T')
@@ -325,3 +326,22 @@ def test_field_attrs():
     assert B(0).x == 0
     assert B(0, 1).y == 0
     assert B(0, 1).x == 1
+
+
+def test_property():
+    @dc.dataclass()
+    class C:
+        x: int = 0
+
+        @property
+        def y(self) -> int:
+            return self.x + 1
+
+        z: ta.ClassVar[properties.SetOnceProperty[int]] = properties.set_once()
+
+    c = C(1)
+    assert c.y == 2
+    c.z = 3
+    assert c.z == 3
+    with pytest.raises(Exception):
+        c.z = 4
