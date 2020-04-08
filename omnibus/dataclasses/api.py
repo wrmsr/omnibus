@@ -18,6 +18,9 @@ TODO:
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - pyo3 + cy struct type interop
  - ExtraFieldParams?
+ - observable? dc.observe? per-cls/per-field? config-lvl?
+ - fix: validate/coerce on setattr
+ - per-field finality
 """
 import collections
 import collections.abc
