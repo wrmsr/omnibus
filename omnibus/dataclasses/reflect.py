@@ -4,6 +4,7 @@ TODO:
  - delegate to backends
 """
 import dataclasses as dc
+import sys
 import types
 import typing as ta
 import weakref
@@ -50,8 +51,12 @@ class DataSpec(ta.Generic[TypeT]):
         return check.isinstance(getattr(self._cls, PARAMS), DataclassParams)
 
     @properties.cached
+    def _metadata(self) -> ta.Mapping[type, ta.Any]:
+        return self.cls.__dict__.get(METADATA_ATTR, {})
+
+    @properties.cached
     def metadata(self) -> ta.Mapping[type, ta.Any]:
-        return self.cls.__dict__.get(METADATA_ATTR, types.MappingProxyType({}))
+        return types.MappingProxyType(self._metadata)
 
     @properties.cached
     def extra_params(self) -> ExtraParams:
@@ -66,26 +71,21 @@ class DataSpec(ta.Generic[TypeT]):
         check.state(hasattr(self._cls, FIELDS))
         return Fields(dc.fields(self._cls))
 
-    @property
-    def rmro(self) -> ta.Iterable[type]:
-        return reversed(self.cls.__mro__)
-
     @properties.cached
-    def dc_rmro(self) -> ta.List[type]:
-        return [b for b in self.rmro if getattr(b, FIELDS, None)]
+    def rmro(self) -> ta.Sequence[type]:
+        return tuple(reversed(self.cls.__mro__))
 
     @properties.cached
     def rmro_extras(self) -> ta.Sequence[ta.Any]:
-        return [
+        return tuple(
             e
-            for c in self.dc_rmro
-            for es in c.__dict__.get(METADATA_ATTR, {}).get(Extras, [])
-            for e in es
-        ]
+            for c in self.rmro
+            for e in c.__dict__.get(METADATA_ATTR, {}).get(Extras, [])
+        )
 
     @properties.cached
-    def rmro_extras_by_cls(self) -> ocol.ItemListTypeMap:
-        return ocol.ItemListTypeMap(self.rmro_extras)
+    def rmro_extras_by_cls(self) -> ocol.ItemSeqTypeMap:
+        return ocol.ItemSeqTypeMap(self.rmro_extras)
 
     @properties.cached
     def globals(self) -> ta.MutableMapping[str, ta.Any]:

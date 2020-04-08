@@ -8,7 +8,6 @@ import pyrsistent
 import pytest
 
 from .. import api as api_
-from .. import defdecls as defdecls_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
 from .. import reflect as reflect_
@@ -162,7 +161,7 @@ def test_validate():
         x: int = api_.field(validate=lambda x: x > 0)
         y: int
 
-        defdecls_.validate(lambda x, y: x > y)
+        api_.validate(lambda x, y: x > y)
 
         # @dataclasses_.validate
         # @staticmethod
@@ -255,20 +254,18 @@ def test_default_validation():
 
 
 def test_spec():
-    defdecls_.ValidatorDefdecl.tag
-
     @api_.dataclass()
     class A:
         x: int
         y: int
 
-        defdecls_.validate(lambda x, y: check.arg(x > y))
+        api_.validate(lambda x, y: check.arg(x > y))
 
     @api_.dataclass()
     class B(A):
         z: int
 
-        defdecls_.check_(lambda x, z: x > z)
+        api_.check_(lambda x, z: x > z)
 
     spec = reflect_.get_cls_spec(B)  # noqa
 
@@ -283,7 +280,7 @@ def test_post_init():
         x: int
         y: int
 
-        defdecls_.post_init(lambda pt: l.append(pt))
+        api_.post_init(lambda pt: l.append(pt))
 
     l = []
     Point(1, 2)
@@ -297,9 +294,9 @@ def test_defdecls():
         x: int
         y: int
 
-        defdecls_.CheckerDefdcel.install(lambda x: x > 1)
+        api_.CheckerDefdcel.install(lambda x: x > 1)
 
-    cdd = defdecls_.get_cls_defdecls(Point)  # noqa
+    cdd = api_.get_cls_defdecls(Point)  # noqa
 
 
 def test_field_attrs():

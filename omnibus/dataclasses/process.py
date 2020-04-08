@@ -47,7 +47,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         if self.ctx.params.order and not self.ctx.params.eq:
             raise ValueError('eq must be true if order is true')
 
-        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.dc_rmro)
+        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.spec.rmro if dc.is_dataclass(b))
         if any_frozen_base:
             if any_frozen_base and not self.ctx.params.frozen:
                 raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
@@ -61,13 +61,15 @@ class ClassProcessor(ta.Generic[TypeT]):
         return False
 
     def install_params(self) -> None:
-        setattr(self.ctx.cls, PARAMS, self.ctx.params)
+        self.set_new_attribute(PARAMS, self.ctx.params)
+        check.state(self.ctx.spec.params is self.ctx.params)
 
         if METADATA_ATTR in self.ctx.cls.__dict__:
             md = getattr(self.ctx.cls, METADATA_ATTR)
         else:
             md = {}
-            setattr(self.ctx.cls, METADATA_ATTR, md)
+            self.set_new_attribute(METADATA_ATTR, md)
+        check.state(self.ctx.spec._metadata is md)
 
         md[ExtraParams] = self.ctx.extra_params
 
@@ -88,13 +90,13 @@ class ClassProcessor(ta.Generic[TypeT]):
 
     def install_repr(self) -> None:
         flds = [f for f in self.fields.instance if f.repr]
-        self.set_new_attribute('__repr__', repr_fn(flds, self.ctx.globals))
+        self.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
 
     def install_eq(self) -> None:
         flds = [f for f in self.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
-        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.ctx.globals))
+        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.ctx.spec.globals))
 
     def install_order(self) -> None:
         flds = [f for f in self.fields.instance if f.compare]
@@ -106,13 +108,13 @@ class ClassProcessor(ta.Generic[TypeT]):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.ctx.globals)):
+            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.ctx.spec.globals)):
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
 
     def install_frozen(self) -> None:
-        for fn in frozen_get_del_attr(self.ctx.cls, self.fields.instance, self.ctx.globals):
+        for fn in frozen_get_del_attr(self.ctx.cls, self.fields.instance, self.ctx.spec.globals):
             if self.set_new_attribute(fn.__name__, fn):
                 raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
 
@@ -129,7 +131,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             has_explicit_hash,
         )]
         if ha:
-            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.fields.instance, self.ctx.globals)
+            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.fields.instance, self.ctx.spec.globals)
             return True
         else:
             return False

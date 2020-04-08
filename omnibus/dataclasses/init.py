@@ -8,9 +8,6 @@ from .. import codegen
 from .. import collections as ocol
 from .. import properties
 from .context import BuildContext
-from .defdecls import CheckerDefdcel
-from .defdecls import PostInitDefdecl
-from .defdecls import ValidatorDefdecl
 from .fields import Fields
 from .internals import create_fn
 from .internals import field_init
@@ -19,8 +16,11 @@ from .internals import get_field_type
 from .internals import HAS_DEFAULT_FACTORY
 from .internals import init_param
 from .internals import POST_INIT_NAME
+from .types import Checker
 from .types import CheckException
 from .types import ExtraFieldParams
+from .types import PostInit
+from .types import Validator
 
 
 T = ta.TypeVar('T')
@@ -105,7 +105,7 @@ class InitBuilder:
 
     def build_validator_lines(self) -> ta.List[str]:
         ret = []
-        for vld in self.ctx.defdecls[ValidatorDefdecl]:
+        for vld in self.ctx.spec.rmro_extras_by_cls[Validator]:
             vld_args = self.get_flat_fn_args(vld.fn)
             for arg in vld_args:
                 check.in_(arg, self.fields)
@@ -115,7 +115,7 @@ class InitBuilder:
     def build_check_lines(self) -> ta.List[str]:
         ret = []
 
-        for chk in self.ctx.defdecls[CheckerDefdcel]:
+        for chk in self.ctx.spec.rmro_extras_by_cls[Checker]:
             chk_args = self.get_flat_fn_args(chk.fn)
             for arg in chk_args:
                 check.in_(arg, self.fields)
@@ -152,7 +152,7 @@ class InitBuilder:
 
     def build_extra_post_init_lines(self) -> ta.List[str]:
         ret = []
-        for pi in self.ctx.defdecls[PostInitDefdecl]:
+        for pi in self.ctx.spec.rmro_extras_by_cls[PostInit]:
             ret.append(f'{self.nsb.put(pi.fn)}({self.self_name})')
         return ret
 
@@ -181,6 +181,6 @@ class InitBuilder:
             [self.self_name] + [init_param(f) for f in self.init_fields if f.init],
             lines,
             locals=locals,
-            globals=self.ctx.globals,
+            globals=self.ctx.spec.globals,
             return_type=None,
         )

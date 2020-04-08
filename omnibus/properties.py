@@ -17,6 +17,13 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
+def _global_property(fn):
+    if not fn.__name__.startswith('_'):
+        raise NameError(fn)
+    globals()[fn.__name__[1:]] = fn
+    return fn
+
+
 class Property(ta.Generic[T]):
     pass
 
@@ -53,11 +60,17 @@ class CachedProperty(Property[T]):
         return value
 
 
-def cached(fn: ta.Callable[..., T]) -> T:
+cached = property
+locked_cached = property
+
+
+@_global_property
+def _cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn)
 
 
-def locked_cached(fn: ta.Callable[..., T]) -> T:
+@_global_property
+def _locked_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, lock=True)
 
 
@@ -96,7 +109,12 @@ class SetOnceProperty(Property[T]):
         raise TypeError('Operation not supported')
 
 
-set_once = SetOnceProperty
+set_once = property
+
+
+@_global_property
+def _set_once(attr_name: str = None):
+    return SetOnceProperty(attr_name)
 
 
 class ClassProperty(Property[T]):
@@ -114,7 +132,11 @@ class ClassProperty(Property[T]):
         return self._func(cls)
 
 
-def class_(fn: ta.Callable[..., T]) -> T:
+class_ = property
+
+
+@_global_property
+def _class_(fn: ta.Callable[..., T]) -> T:
     return ClassProperty(fn)
 
 
@@ -160,11 +182,17 @@ class CachedClassProperty(Property[T]):
         return value
 
 
-def cached_class(fn: ta.Callable[..., T]) -> T:
+cached_class = property
+locked_cached_class = property
+
+
+@_global_property
+def _cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn)
 
 
-def locked_cached_class(fn: ta.Callable[..., T]) -> T:
+@_global_property
+def _locked_cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn, lock=True)
 
 
