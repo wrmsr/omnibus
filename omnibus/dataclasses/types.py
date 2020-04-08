@@ -7,7 +7,7 @@ T = ta.TypeVar('T')
 Checker = ta.Callable[..., bool]
 Deriver = ta.Callable[..., T]
 PostInit = ta.Callable[[T], None]
-Validator = ta.Callable[..., None]
+Validator = ta.NewType('Validator', ta.Callable[..., None])
 
 FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]

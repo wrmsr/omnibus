@@ -1,6 +1,7 @@
 import collections.abc
 import typing as ta
 
+from .. import check
 from .. import collections as ocol
 from .. import defs
 from .. import lang
@@ -40,10 +41,10 @@ class CallableDefdecl(Defdecl, ta.Generic[T], lang.Abstract):
 
     @properties.cached_class
     def target(cls) -> ta.Any:
-        [b] = [b for b in reflect.get_spec(cls).bases if b.erased_cls is CallableDefdecl]
-        [a] = b.args
-        a.erased_cls is collections.abc.Callable
-        breakpoint()
+        bcls = check.single(b for b in reflect.get_spec(cls).bases if b.erased_cls is CallableDefdecl)
+        arg = check.single(bcls.args)
+        check.state(arg.base.erased_cls is collections.abc.Callable)
+        return arg.cls
 
     @lang.cls_dct_fn()
     @classmethod

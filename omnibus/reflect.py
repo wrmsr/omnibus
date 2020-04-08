@@ -235,6 +235,9 @@ class SpecVisitor(ta.Generic[T]):
     def visit_union_spec(self, spec: 'UnionSpec') -> T:
         return self.visit_spec(spec)
 
+    def visit_new_type_spec(self, spec: 'NewTypeSpec') -> T:
+        return self.visit_spec(spec)
+
     def visit_type_spec(self, spec: 'TypeSpec') -> T:
         return self.visit_spec(spec)
 
@@ -376,6 +379,27 @@ class UnionSpec(Spec, lang.Final):
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_union_spec(self)
+
+
+class NewTypeSpec(Spec, lang.Final):
+
+    def __init__(self, cls: GenericAlias) -> None:
+        super().__init__(cls)
+
+        check.arg(is_new_type(cls))
+
+    defs.repr('name', 'cls')
+
+    @property
+    def name(self) -> str:
+        return self._cls.__name__
+
+    @properties.cached
+    def base(self) -> 'Spec':
+        return get_spec(self._cls.__supertype__)
+
+    def accept(self, visitor: SpecVisitor[T]) -> T:
+        return visitor.visit_new_type_spec(self)
 
 
 class TypeSpec(Spec, ta.Generic[T], lang.Sealed, lang.Abstract):
@@ -596,6 +620,8 @@ def _get_spec(cls: Specable) -> Spec:
             return SpecialParameterizedGenericTypeSpec(cls)
         else:
             return ExplicitParameterizedGenericTypeSpec(cls)
+    elif is_new_type(cls):
+        return NewTypeSpec(cls)
     elif not isinstance(cls, type):
         raise TypeError(cls)
     elif is_generic(cls) and cls.__parameters__:
