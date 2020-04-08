@@ -14,31 +14,17 @@ from .defdecls import ClsDefdecls
 from .defdecls import get_cls_defdecls
 from .internals import DataclassParams
 from .internals import PARAMS
+from .types import ExtraParams
+from .types import METADATA_ATTR
 
 
 Field = dc.Field
 
 
-SPECS_BY_CLS = weakref.WeakKeyDictionary()
+REFLECTS_BY_CLS = weakref.WeakKeyDictionary()
 
 
-class FieldSpec:
-
-    def __init__(self, field: Field) -> None:
-        super().__init__()
-
-        self._field = check.isinstance(field, Field)
-
-    @property
-    def name(self) -> str:
-        return self._field.name
-
-    @property
-    def field(self) -> Field:
-        return self._field
-
-
-class DataSpec:
+class DataReflect:
 
     def __init__(self, cls: type) -> None:
         super().__init__()
@@ -56,6 +42,14 @@ class DataSpec:
     def params(self) -> DataclassParams:
         return check.isinstance(getattr(self._cls, PARAMS), DataclassParams)
 
+    @property
+    def extra_params(self) -> ExtraParams:
+        return self._extra_params
+
+    @properties.cached
+    def metadata(self) -> ta.Mapping[type, ta.Any]:
+        return self.cls.__dict__.get(METADATA_ATTR, {})
+
     @properties.cached
     def fields(self) -> ta.Sequence[Field]:
         return dc.fields(self._cls)
@@ -69,9 +63,9 @@ class DataSpec:
         return get_cls_defdecls(self._cls)
 
 
-def get_spec(cls: type) -> DataSpec:
+def get_cls_reflect(cls: type) -> DataReflect:
     try:
-        return SPECS_BY_CLS[cls]
+        return REFLECTS_BY_CLS[cls]
     except KeyError:
-        spec = SPECS_BY_CLS[cls] = DataSpec(cls)
+        spec = REFLECTS_BY_CLS[cls] = DataReflect(cls)
         return spec

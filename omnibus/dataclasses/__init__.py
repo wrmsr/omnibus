@@ -18,8 +18,8 @@ from .defdecls import post_init  # noqa
 from .defdecls import validate  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
-from .specs import DataSpec  # noqa
-from .specs import get_spec  # noqa
+from .reflect import DataReflect  # noqa
+from .reflect import get_cls_reflect  # noqa
 from .types import Checker  # noqa
 from .types import CheckException  # noqa
 from .types import Deriver  # noqa
