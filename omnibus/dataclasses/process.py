@@ -13,16 +13,17 @@ import typing as ta
 from .. import check
 from .. import properties
 from .context import BuildContext
+from .fields import build_cls_fields
 from .fields import Fields
+from .init import InitBuilder
 from .internals import cmp_fn
-from .internals import FIELDS
 from .internals import frozen_get_del_attr
-from .internals import get_field
 from .internals import hash_action
 from .internals import PARAMS
 from .internals import repr_fn
 from .internals import tuple_str
-from .init import InitBuilder
+from .types import ExtraParams
+from .types import METADATA_ATTR
 
 
 T = ta.TypeVar('T')
@@ -59,51 +60,23 @@ class ClassProcessor(ta.Generic[TypeT]):
         setattr(self.ctx.cls, name, value)
         return False
 
+    def install_params(self) -> None:
+        setattr(self.ctx.cls, PARAMS, self.ctx.params)
+
+        if METADATA_ATTR in self.ctx.cls.__dict__:
+            md = getattr(self.ctx.cls, METADATA_ATTR)
+        else:
+            md = {}
+            setattr(self.ctx.cls, METADATA_ATTR, md)
+
+        md[ExtraParams] = self.ctx.extra_params
+
     @properties.cached
     def fields(self) -> Fields:
-        fields = {}
-        for b in self.ctx.dc_rmro:
-            base_fields = getattr(b, FIELDS, None)
-            if base_fields:
-                for f in base_fields.values():
-                    fields[f.name] = f
-
-        # Annotations that are defined in this class (not in base classes).  If __annotations__ isn't present, then this
-        # class adds no new annotations.  We use this to compute fields that are added by this class.
-        #
-        # Fields are found from cls_annotations, which is guaranteed to be ordered.  Default values are from class
-        # attributes, if a field has a default.  If the default value is a Field(), then it contains additional info
-        # beyond (and possibly including) the actual default value.  Pseudo-fields ClassVars and InitVars are included,
-        # despite the fact that they're not real fields.  That's dealt with later.
-        cls_annotations = self.ctx.cls.__dict__.get('__annotations__', {})
-
-        # Now find fields in our class.  While doing so, validate some things, and set the default values (as class
-        # attributes) where we can.
-        cls_fields = [get_field(self.ctx.cls, name, type) for name, type in cls_annotations.items()]
-        for f in cls_fields:
-            fields[f.name] = f
-
-            # If the class attribute (which is the default value for this field) exists and is of type 'Field', replace
-            # it with the real default.  This is so that normal class introspection sees a real default value, not a
-            # Field.
-            if isinstance(getattr(self.ctx.cls, f.name, None), dc.Field):
-                if f.default is dc.MISSING:
-                    # If there's no default, delete the class attribute. This happens if we specify field(repr=False),
-                    # for example (that is, we specified a field object, but no default value).  Also if we're using a
-                    # default factory.  The class attribute should not be set at all in the post-processed class.
-                    delattr(self.ctx.cls, f.name)
-                else:
-                    setattr(self.ctx.cls, f.name, f.default)
-
-        # Do we have any Field members that don't also have annotations?
-        for name, value in self.ctx.cls.__dict__.items():
-            if isinstance(value, dc.Field) and name not in cls_annotations:
-                raise TypeError(f'{name!r} is a field but has no type annotation')
-
-        return Fields(fields.values())
+        return build_cls_fields(self.ctx.cls, install=True)
 
     def install_fields(self) -> None:
-        setattr(self.ctx.cls, FIELDS, dict(self.fields.by_name))
+        check.not_none(self.fields)
 
     def install_init(self) -> None:
         fn = InitBuilder(self.ctx, self.fields)()
@@ -162,7 +135,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
 
     def __call__(self) -> None:
-        setattr(self.ctx.cls, PARAMS, self.ctx.params)
+        self.install_params()
 
         self.install_fields()
 

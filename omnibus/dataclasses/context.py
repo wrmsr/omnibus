@@ -50,7 +50,7 @@ class BuildContext(ta.Generic[TypeT]):
 
     @property
     def rmro(self) -> ta.Iterable[type]:
-        return self.cls.__mro__[-1:0:-1]
+        return reversed(self.cls.__mro__)
 
     @properties.cached
     def dc_rmro(self) -> ta.List[type]:

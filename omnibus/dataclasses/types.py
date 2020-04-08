@@ -51,3 +51,13 @@ class CheckException(Exception):
 @dc.dataclass(frozen=True)
 class ExtraParams:
     validate: bool = False
+
+
+@dc.dataclass(frozen=True)
+class MetaParams:
+    slots: bool = False
+    abstract: bool = False
+    final: bool = False
+    sealed: bool = False
+    pickle: bool = False
+    reorder: bool = False
