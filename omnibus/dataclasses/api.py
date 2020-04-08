@@ -21,6 +21,7 @@ TODO:
  - observable? dc.observe? per-cls/per-field? config-lvl?
  - fix: validate/coerce on setattr
  - per-field finality
+ - intern?
 """
 import collections
 import collections.abc
