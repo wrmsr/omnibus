@@ -20,7 +20,7 @@ from .internals import HAS_DEFAULT_FACTORY
 from .internals import init_param
 from .internals import POST_INIT_NAME
 from .types import CheckException
-from .types import ValidateMetadata
+from .types import ExtraFieldParams
 
 
 T = ta.TypeVar('T')
@@ -92,7 +92,7 @@ class InitBuilder:
 
         ret = []
         for fld in self.fields:
-            vld_md = fld.metadata.get(ValidateMetadata)
+            vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
             if callable(vld_md):
                 ret.append(f'{self.nsb.put(vld_md)}({fld.name})')
             elif vld_md is True or (vld_md is None and self.ctx.extra_params.validate is True):

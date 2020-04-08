@@ -29,17 +29,12 @@ import copy
 import dataclasses as dc
 import typing as ta
 
-from .. import check
 from .context import BuildContext
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
 from .process import ClassProcessor
-from .types import CoerceMetadata
-from .types import DeriveMetadata
-from .types import DocMetadata
+from .types import ExtraFieldParams
 from .types import ExtraParams
-from .types import SizeMetadata
-from .types import ValidateMetadata
 
 
 T = ta.TypeVar('T')
@@ -134,21 +129,19 @@ def field(
         doc=None,
         size=None,
         validate=None,
-        **kwargs
 ) -> Field:
-    md = {}
-    if coerce is not None:
-        md[CoerceMetadata] = coerce
-    if derive is not None:
-        md[DeriveMetadata] = derive
-    if doc is not None:
-        md[DocMetadata] = doc
-    if size is not None:
-        md[SizeMetadata] = size
-    if validate is not None:
-        md[ValidateMetadata] = validate
-    if md:
-        metadata = {**(metadata or {}), **md}
+    extra_field_params = ExtraFieldParams(
+        coerce=coerce,
+        derive=derive,
+        doc=doc,
+        size=size,
+        validate=validate,
+    )
+
+    metadata = dict(metadata or {})
+    if ExtraFieldParams in metadata:
+        raise KeyError(metadata, ExtraFieldParams)
+    metadata[ExtraFieldParams] = extra_field_params
 
     return dc.field(
         default=default,
@@ -158,7 +151,6 @@ def field(
         hash=hash,
         compare=compare,
         metadata=metadata,
-        **kwargs
     )
 
 
@@ -172,7 +164,7 @@ def dataclass(
         unsafe_hash=None,
         frozen=False,
 
-        validate=False,
+        validate=None,
         field_attrs=False,
 ) -> ta.Type[T]:
     params = DataclassParams(
@@ -188,8 +180,6 @@ def dataclass(
         validate=validate,
         field_attrs=field_attrs,
     )
-
-    check.isinstance(validate, bool)
 
     def build(cls):
         ctx = BuildContext(cls, params, extra_params)

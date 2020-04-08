@@ -1,8 +1,6 @@
 import dataclasses as dc
 import typing as ta
 
-from .. import lang
-
 
 T = ta.TypeVar('T')
 
@@ -18,30 +16,6 @@ FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 METADATA_ATTR = '__dataclass_metadata__'
 
 
-class OriginMetadata(lang.Marker):
-    pass
-
-
-class CoerceMetadata(lang.Marker):
-    pass
-
-
-class DeriveMetadata(lang.Marker):
-    pass
-
-
-class DocMetadata(lang.Marker):
-    pass
-
-
-class SizeMetadata(lang.Marker):
-    pass
-
-
-class ValidateMetadata(lang.Marker):
-    pass
-
-
 @dc.dataclass(frozen=True)
 class CheckException(Exception):
     values: ta.Dict[str, ta.Any]
@@ -49,8 +23,17 @@ class CheckException(Exception):
 
 
 @dc.dataclass(frozen=True)
+class ExtraFieldParams:
+    coerce: ta.Union[bool, ta.Callable] = None
+    derive: ta.Callable = None
+    doc: str = None
+    size: ta.Any = None
+    validate: ta.Union[bool, ta.Callable] = None
+
+
+@dc.dataclass(frozen=True)
 class ExtraParams:
-    validate: bool = False
+    validate: bool = None
     field_attrs: bool = False
 
 
