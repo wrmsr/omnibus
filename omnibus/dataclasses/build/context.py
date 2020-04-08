@@ -1,11 +1,11 @@
 import typing as ta
 
-from .. import check
-from .. import properties
-from .internals import DataclassParams
-from .reflect import DataSpec
-from .reflect import get_cls_spec
-from .types import ExtraParams
+from ... import check
+from ... import properties
+from ..internals import DataclassParams
+from ..reflect import DataSpec
+from ..reflect import get_cls_spec
+from ..types import ExtraParams
 
 
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)

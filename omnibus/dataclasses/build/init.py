@@ -3,24 +3,24 @@ import functools
 import inspect
 import typing as ta
 
-from .. import check
-from .. import codegen
-from .. import collections as ocol
-from .. import properties
+from ... import check
+from ... import codegen
+from ... import collections as ocol
+from ... import properties
+from ..fields import Fields
+from ..internals import create_fn
+from ..internals import field_init
+from ..internals import FieldType
+from ..internals import get_field_type
+from ..internals import HAS_DEFAULT_FACTORY
+from ..internals import init_param
+from ..internals import POST_INIT_NAME
+from ..types import Checker
+from ..types import CheckException
+from ..types import ExtraFieldParams
+from ..types import PostInit
+from ..types import Validator
 from .context import BuildContext
-from .fields import Fields
-from .internals import create_fn
-from .internals import field_init
-from .internals import FieldType
-from .internals import get_field_type
-from .internals import HAS_DEFAULT_FACTORY
-from .internals import init_param
-from .internals import POST_INIT_NAME
-from .types import Checker
-from .types import CheckException
-from .types import ExtraFieldParams
-from .types import PostInit
-from .types import Validator
 
 
 T = ta.TypeVar('T')

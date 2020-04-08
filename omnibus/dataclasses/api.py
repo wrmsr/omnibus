@@ -2,7 +2,6 @@
 ** FEATURE LOCK **
 
 TODO:
- - basically takeover dataclasses..
  - attrs
   - fld: order, kwonly
   - cls: weakref_slot, auto_attribs, kwonly
@@ -32,10 +31,10 @@ import functools
 import typing as ta
 
 from .. import lang
-from .context import BuildContext
+from .build import BuildContext
+from .build import ClassProcessor
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
-from .process import ClassProcessor
 from .types import Checker
 from .types import Deriver
 from .types import ExtraFieldParams

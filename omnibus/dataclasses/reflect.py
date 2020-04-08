@@ -1,8 +1,3 @@
-"""
-TODO:
- - *spec is authoritative*
- - delegate to backends
-"""
 import dataclasses as dc
 import sys
 import types

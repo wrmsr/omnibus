@@ -1,8 +1,4 @@
 """
-DECREE:
- - reorder ONLY available on meta - no cls swapping
- - Params = DataclassParams, ExtraParams, MetaParams
-
 TODO:
  - policies? config policy requires custom getters
 """
@@ -10,20 +6,20 @@ import dataclasses as dc
 import inspect
 import typing as ta
 
-from .. import check
-from .. import properties
+from ... import check
+from ... import properties
+from ..fields import build_cls_fields
+from ..fields import Fields
+from ..internals import cmp_fn
+from ..internals import frozen_get_del_attr
+from ..internals import hash_action
+from ..internals import PARAMS
+from ..internals import repr_fn
+from ..internals import tuple_str
+from ..types import ExtraParams
+from ..types import METADATA_ATTR
 from .context import BuildContext
-from .fields import build_cls_fields
-from .fields import Fields
 from .init import InitBuilder
-from .internals import cmp_fn
-from .internals import frozen_get_del_attr
-from .internals import hash_action
-from .internals import PARAMS
-from .internals import repr_fn
-from .internals import tuple_str
-from .types import ExtraParams
-from .types import METADATA_ATTR
 
 
 T = ta.TypeVar('T')
@@ -96,7 +92,16 @@ class ClassProcessor(ta.Generic[TypeT]):
         flds = [f for f in self.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
-        self.set_new_attribute('__eq__', cmp_fn('__eq__', '==', self_tuple, other_tuple, globals=self.ctx.spec.globals))
+        self.set_new_attribute(
+            '__eq__',
+            cmp_fn(
+                '__eq__',
+                '==',
+                self_tuple,
+                other_tuple,
+                globals=self.ctx.spec.globals,
+            )
+        )
 
     def install_order(self) -> None:
         flds = [f for f in self.fields.instance if f.compare]
@@ -108,7 +113,16 @@ class ClassProcessor(ta.Generic[TypeT]):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.set_new_attribute(name, cmp_fn(name, op, self_tuple, other_tuple, globals=self.ctx.spec.globals)):
+            if self.set_new_attribute(
+                    name,
+                    cmp_fn(
+                        name,
+                        op,
+                        self_tuple,
+                        other_tuple,
+                        globals=self.ctx.spec.globals,
+                    )
+            ):
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
@@ -138,7 +152,8 @@ class ClassProcessor(ta.Generic[TypeT]):
 
     def maybe_install_doc(self) -> None:
         if not getattr(self.ctx.cls, '__doc__'):
-            self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
+            self.ctx.cls.__doc__ = \
+                self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
 
     def __call__(self) -> None:
         self.install_params()
