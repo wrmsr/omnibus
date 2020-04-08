@@ -345,3 +345,17 @@ def test_property():
     assert c.z == 3
     with pytest.raises(Exception):
         c.z = 4
+
+
+def test_exc():
+    @dc.dataclass()
+    class E1(Exception):
+        x: int
+        y: int
+
+    e = E1(1, 2)
+    assert e.args == (e.x, e.y) == (1, 2)
+
+    # FIXME
+    # e = E1(y=3, x=4)
+    # assert e.args == (e.x, e.y) == (4, 3)
