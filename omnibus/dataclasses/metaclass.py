@@ -6,6 +6,7 @@ from .. import check
 from .. import lang
 from .api import dataclass
 from .pickling import SimplePickle
+from .types import MetaParams
 
 
 T = ta.TypeVar('T')
@@ -62,6 +63,61 @@ T = ta.TypeVar('T')
 #     pass
 
 
+def _meta_build(
+        mcls,
+        name,
+        bases,
+        namespace,
+        meta_params,
+        **kwargs
+):
+    namespace = dict(namespace)
+
+    bases = tuple(b for b in bases if b is not Data)
+    if meta_params.final and lang.Final not in bases:
+        bases += (lang.Final,)
+    if meta_params.sealed and lang.Sealed not in bases:
+        bases += (lang.Sealed,)
+
+    # FIXME: full control now, build exactly once
+    cls = dataclass(lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace), **kwargs)
+    flds = dc.fields(cls)
+
+    rebuild = False
+
+    check.isinstance(meta_params.slots, bool)
+    if meta_params.slots and '__slots__' not in namespace:
+        namespace['__slots__'] = tuple(f.name for f in flds)
+        rebuild = True
+    if '__slots__' not in namespace:
+        for fld in dc.fields(cls):
+            if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
+                namespace[fld.name] = dc.MISSING
+                rebuild = True
+
+    def _build_init():
+        def __init__(self):
+            raise NotImplementedError
+
+        return __init__
+
+    if meta_params.abstract and '__init__' not in cls.__abstractmethods__:
+        kwargs['init'] = False
+        namespace['__init__'] = abc.abstractmethod(_build_init())
+        rebuild = True
+    elif not meta_params.abstract and '__init__' in cls.__abstractmethods__:
+        bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_init()}, init=False),) + bases
+        rebuild = True
+
+    if meta_params.pickle and cls.__reduce__ is object.__reduce__:
+        namespace['__reduce__'] = SimplePickle.__reduce__
+        rebuild = True
+
+    if rebuild:
+        cls = dataclass(lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace), **kwargs)
+    return cls
+
+
 class _Meta(abc.ABCMeta):
 
     def __new__(
@@ -79,49 +135,17 @@ class _Meta(abc.ABCMeta):
             **kwargs
     ):
         check.arg(not (abstract and final))
-        namespace = dict(namespace)
 
-        bases = tuple(b for b in bases if b is not Data)
-        if final and lang.Final not in bases:
-            bases += (lang.Final,)
-        if sealed and lang.Sealed not in bases:
-            bases += (lang.Sealed,)
+        meta_params = MetaParams(
+            slots=slots,
+            abstract=abstract,
+            final=final,
+            sealed=sealed,
+            pickle=pickle,
+            reorder=reorder,
+        )
 
-        cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
-        flds = dc.fields(cls)
-
-        rebuild = False
-
-        check.isinstance(slots, bool)
-        if slots and '__slots__' not in namespace:
-            namespace['__slots__'] = tuple(f.name for f in flds)
-            rebuild = True
-        if '__slots__' not in namespace:
-            for fld in dc.fields(cls):
-                if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
-                    namespace[fld.name] = dc.MISSING
-                    rebuild = True
-
-        def _build_init():
-            def __init__(self):
-                raise NotImplementedError
-            return __init__
-
-        if abstract and '__init__' not in cls.__abstractmethods__:
-            kwargs['init'] = False
-            namespace['__init__'] = abc.abstractmethod(_build_init())
-            rebuild = True
-        elif not abstract and '__init__' in cls.__abstractmethods__:
-            bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_init()}, init=False),) + bases
-            rebuild = True
-
-        if pickle and cls.__reduce__ is object.__reduce__:
-            namespace['__reduce__'] = SimplePickle.__reduce__
-            rebuild = True
-
-        if rebuild:
-            cls = dataclass(lang.super_meta(super(), mcls, name, bases, namespace), **kwargs)
-        return cls
+        return _meta_build(mcls, name, bases, namespace, meta_params, **kwargs)
 
 
 class Data(metaclass=_Meta):
