@@ -1,4 +1,5 @@
 import dataclasses as dc
+import types
 import typing as ta
 
 from .. import properties
@@ -13,22 +14,22 @@ class Fields(ta.Sequence[dc.Field]):
     def __init__(self, fields: ta.Iterable[dc.Field]) -> None:
         super().__init__()
 
-        self._list = list(fields)
+        self._seq = tuple(fields)
 
         by_name = {}
-        for fld in self._list:
+        for fld in self._seq:
             if fld.name in by_name:
                 raise NameError(fld.name)
             by_name[fld.name] = fld
-        self._by_name = by_name
+        self._by_name = types.MappingProxyType(by_name)
 
     @property
     def all(self) -> ta.Sequence[dc.Field]:
-        return self._list
+        return self._seq
 
     def __getitem__(self, item: ta.Union[int, slice, str]) -> dc.Field:
         if isinstance(item, (int, slice)):
-            return self._list[item]
+            return self._seq[item]
         elif isinstance(item, str):
             return self._by_name[item]
         else:
@@ -36,17 +37,17 @@ class Fields(ta.Sequence[dc.Field]):
 
     def __contains__(self, item: ta.Union[dc.Field, str]) -> bool:
         if isinstance(item, dc.Field):
-            return item in self._list
+            return item in self._seq
         elif isinstance(item, str):
             return item in self._by_name
         else:
             raise TypeError(item)
 
     def __len__(self) -> int:
-        return len(self._list)
+        return len(self._seq)
 
     def __iter__(self) -> ta.Iterable[dc.Field]:
-        return iter(self._list)
+        return iter(self._seq)
 
     @properties.cached
     def by_name(self) -> ta.Mapping[str, dc.Field]:
@@ -57,11 +58,11 @@ class Fields(ta.Sequence[dc.Field]):
         ret = {}
         for f in self:
             ret.setdefault(get_field_type(f), []).append(f)
-        return ret
+        return types.MappingProxyType({k: list(v) for k, v in ret.items()})
 
     @properties.cached
     def instance(self) -> ta.Sequence[dc.Field]:
-        return self.by_field_type.get(FieldType.INSTANCE, [])
+        return self.by_field_type.get(FieldType.INSTANCE, ())
 
 
 def build_cls_fields(cls: type, *, install: bool = False) -> Fields:

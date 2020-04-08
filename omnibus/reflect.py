@@ -485,9 +485,11 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
     def __init__(self, cls: GenericAlias) -> None:
         super().__init__(cls)
 
-        check.arg(len(self.parameters_cls) > 0)
         check.unique(self.parameters_cls)
-        check.arg(len(self.args_cls) == len(self.parameters_cls))
+
+    def _check_arg_param_lens(self) -> None:
+        check.state(len(self.parameters_cls) > 0)
+        check.state(len(self.args_cls) == len(self.parameters_cls))
 
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
@@ -511,6 +513,7 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
 
     @properties.cached
     def vars(self) -> ta.Mapping[Var, Spec]:
+        self._check_arg_param_lens()
         return dict(zip(self.parameters_cls, self.args))
 
 
@@ -520,6 +523,7 @@ class ExplicitParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fi
         super().__init__(cls)
 
         check.arg(not is_special_generic(cls))
+        self._check_arg_param_lens()
 
     @properties.cached
     def parameters_cls(self) -> ta.Sequence[Var]:

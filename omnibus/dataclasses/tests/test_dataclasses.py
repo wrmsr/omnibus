@@ -11,7 +11,7 @@ from .. import api as api_
 from .. import defdecls as defdecls_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
-from .. import specs as specs_
+from .. import reflect as reflect_
 from .. import types as types_
 from .. import validation as validation_
 from .. import virtual as virtual_
@@ -255,6 +255,8 @@ def test_default_validation():
 
 
 def test_spec():
+    defdecls_.ValidatorDefdecl.target
+
     @api_.dataclass()
     class A:
         x: int
@@ -268,7 +270,7 @@ def test_spec():
 
         defdecls_.check_(lambda x, z: x > z)
 
-    spec = specs_.get_spec(B)  # noqa
+    spec = reflect_.get_cls_spec(B)  # noqa
 
     A(2, 1)
     B(2, 1, 0)

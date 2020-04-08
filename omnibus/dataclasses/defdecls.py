@@ -1,8 +1,11 @@
+import collections.abc
 import typing as ta
 
 from .. import collections as ocol
 from .. import defs
 from .. import lang
+from .. import properties
+from .. import reflect
 from .types import Checker
 from .types import Deriver
 from .types import METADATA_ATTR
@@ -34,6 +37,13 @@ class CallableDefdecl(Defdecl, ta.Generic[T], lang.Abstract):
     @property
     def fn(self) -> ta.Callable:
         return self._fn
+
+    @properties.cached_class
+    def target(cls) -> ta.Any:
+        [b] = [b for b in reflect.get_spec(cls).bases if b.erased_cls is CallableDefdecl]
+        [a] = b.args
+        a.erased_cls is collections.abc.Callable
+        breakpoint()
 
     @lang.cls_dct_fn()
     @classmethod
