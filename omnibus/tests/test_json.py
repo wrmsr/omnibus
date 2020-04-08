@@ -2,6 +2,7 @@ import datetime
 import typing as ta
 
 from .. import json
+from .. import lang
 
 
 def test_codec():
@@ -30,6 +31,19 @@ def test_set_serde():
     print(sst)
     assert isinstance(sst, list)
     assert isinstance(sst[0], str)
+    dst = des(sst)
+    print(dst)
+    assert dst == st
+
+
+def test_redact_serde():
+    ser = json.build_serializer(lang.Redacted[datetime.datetime])
+    des = json.build_deserializer(lang.Redacted[datetime.datetime])
+
+    st = lang.redact(datetime.datetime.now())
+    sst = ser(st)
+    print(sst)
+    assert isinstance(sst, str)
     dst = des(sst)
     print(dst)
     assert dst == st

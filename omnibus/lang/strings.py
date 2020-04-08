@@ -227,6 +227,10 @@ class Redacted(ta.Generic[T]):
     def __init_subclass__(cls, **kwargs):
         raise TypeError
 
+    @property
+    def value(self) -> T:
+        return self._value
+
     def __repr__(self) -> str:
         return f'{type(self).__name__}@{hex(id(self))[2:]}'
 
@@ -253,10 +257,6 @@ class Redacted(ta.Generic[T]):
 
     def __ge__(self, o: object) -> bool:
         return self._value >= (o._value if isinstance(o, Redacted) else o)
-
-    @property
-    def value(self) -> T:
-        return self._value
 
 
 def redact(value: T) -> Redacted[T]:

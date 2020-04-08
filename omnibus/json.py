@@ -1,5 +1,6 @@
 """
 TODO:
+ - union, per dataclasses validation
  - *both* orjson (default) and ujson
  - dumb coercers
   - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
@@ -194,9 +195,7 @@ class MappingSerde(Serde[ta.Mapping[K, V], ta.Mapping]):
             return lambda value: value
 
         elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
-            k, v = self.manifest.spec.args
-            kj = build_serializer(k)
-            vj = build_serializer(v)
+            kj, vj = map(build_serializer, self.manifest.spec.args)
             return lambda value: {kj(k): vj(v) for k, v in value.items()}
 
         else:
@@ -207,9 +206,7 @@ class MappingSerde(Serde[ta.Mapping[K, V], ta.Mapping]):
             return lambda value: value
 
         elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
-            k, v = self.manifest.spec.args
-            kj = build_deserializer(k)
-            vj = build_deserializer(v)
+            kj, vj = map(build_deserializer, self.manifest.spec.args)
             return lambda value: {kj(k): vj(v) for k, v in value.items()}
 
         else:
@@ -224,8 +221,7 @@ class SetSerde(Serde[ta.AbstractSet[V], ta.Sequence]):
             return lambda value: value
 
         elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
-            [v] = self.manifest.spec.args
-            vj = build_serializer(v)
+            [vj] = map(build_serializer, self.manifest.spec.args)
             return lambda value: [vj(v) for v in value]
 
         else:
@@ -236,9 +232,34 @@ class SetSerde(Serde[ta.AbstractSet[V], ta.Sequence]):
             return lambda value: value
 
         elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
-            [v] = self.manifest.spec.args
-            vj = build_deserializer(v)
+            [vj] = map(build_deserializer, self.manifest.spec.args)
             return lambda value: {vj(v) for v in value}
+
+        else:
+            raise TypeError(self.manifest.spec)
+
+
+@registering_serde(lang.Redacted)
+class RedactedSerde(Serde[lang.Redacted[V], V]):
+
+    def serialization(self) -> Serializer[lang.Redacted[V], V]:
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            [vj] = map(build_serializer, self.manifest.spec.args)
+            return lambda value: vj(value.value)
+
+        else:
+            raise TypeError(self.manifest.spec)
+
+    def deserialization(self) -> Deserializer[V, lang.Redacted[V]]:
+        if isinstance(self.manifest.spec, reflect.NonGenericTypeSpec):
+            return lambda value: value
+
+        elif isinstance(self.manifest.spec, reflect.ParameterizedGenericTypeSpec):
+            [vj] = map(build_deserializer, self.manifest.spec.args)
+            return lambda value: lang.redact(vj(value))
 
         else:
             raise TypeError(self.manifest.spec)

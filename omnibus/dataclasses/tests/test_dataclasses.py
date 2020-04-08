@@ -15,6 +15,7 @@ from .. import types as types_
 from .. import validation as validation_
 from .. import virtual as virtual_
 from ... import check
+from ... import lang
 from ... import properties
 
 
@@ -358,3 +359,18 @@ def test_exc():
     # FIXME
     # e = E1(y=3, x=4)
     # assert e.args == (e.x, e.y) == (4, 3)
+
+
+def test_redaction():
+    @api_.dataclass(frozen=True)
+    class Db:
+        username: str
+        password: lang.Redacted[str]
+
+    db = Db('u', lang.redact('p'))
+    print(db)
+
+    # FIXME:
+    # db = Db('u', 'p')
+    # assert isinstance(db.password, lang.Redacted)
+    # print(db)
