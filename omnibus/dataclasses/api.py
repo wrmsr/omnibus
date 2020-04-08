@@ -163,6 +163,7 @@ def dataclass(
         frozen=False,
 
         validate=False,
+        field_attrs=False,
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,
@@ -175,6 +176,7 @@ def dataclass(
 
     extra_params = ExtraParams(
         validate=validate,
+        field_attrs=field_attrs,
     )
 
     check.isinstance(validate, bool)

@@ -78,6 +78,10 @@ class ClassProcessor(ta.Generic[TypeT]):
     def install_fields(self) -> None:
         check.not_none(self.fields)
 
+    def install_field_attrs(self) -> None:
+        for f in self.fields:
+            setattr(self.ctx.cls, f.name, f)
+
     def install_init(self) -> None:
         fn = InitBuilder(self.ctx, self.fields)()
         self.set_new_attribute('__init__', fn)
@@ -138,6 +142,9 @@ class ClassProcessor(ta.Generic[TypeT]):
         self.install_params()
 
         self.install_fields()
+
+        if self.ctx.extra_params.field_attrs:
+            self.install_field_attrs()
 
         if self.ctx.params.init:
             self.install_init()

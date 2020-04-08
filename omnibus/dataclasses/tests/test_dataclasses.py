@@ -297,3 +297,31 @@ def test_defdecls():
         defdecls_.CheckerDefdcel.install(lambda x: x > 1)
 
     cdd = defdecls_.get_cls_defdecls(Point)  # noqa
+
+
+def test_field_attrs():
+    @api_.dataclass()
+    class A:
+        y: int
+        x: int = 0
+
+    @api_.dataclass(field_attrs=True)
+    class B:
+        y: int
+        x: int = 0
+
+    assert not hasattr(A, 'y')
+    assert A.x == 0
+    assert A(0).y == 0
+    assert A(0).x == 0
+    assert A(0, 1).y == 0
+    assert A(0, 1).x == 1
+
+    assert isinstance(B.y, dc.Field)
+    assert B.y.name == 'y'
+    assert isinstance(B.x, dc.Field)
+    assert B.x.name == 'x'
+    assert B(0).y == 0
+    assert B(0).x == 0
+    assert B(0, 1).y == 0
+    assert B(0, 1).x == 1

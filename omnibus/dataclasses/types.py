@@ -51,6 +51,7 @@ class CheckException(Exception):
 @dc.dataclass(frozen=True)
 class ExtraParams:
     validate: bool = False
+    field_attrs: bool = False
 
 
 @dc.dataclass(frozen=True)
