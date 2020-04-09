@@ -1,21 +1,23 @@
 import pytest
 
-from .. import properties
-from .. import registries
+from .. import caching as caching_
+from .. import registries as registries_
+from .. import simple as simple_
+from ... import registries
 
 
-def test_cached_property():
+def test_caching_property():
     count = 0
 
     class C:
 
-        @properties.cached
+        @caching_.cached
         def cached(self) -> str:
             nonlocal count
             count += 1
             return 'cached'
 
-        @properties.locked_cached
+        @caching_.locked_cached
         def locked_cached(self) -> str:
             nonlocal count
             count += 1
@@ -32,18 +34,18 @@ def test_cached_property():
     assert count == 2
 
 
-def test_cached_class_property():
+def test_caching_class_property():
     count = 0
 
     class C:
 
-        @properties.cached_class
+        @caching_.cached_class
         def cached(cls) -> str:
             nonlocal count
             count += 1
             return 'cached'
 
-        @properties.locked_cached_class
+        @caching_.locked_cached_class
         def locked_cached(cls) -> str:
             nonlocal count
             count += 1
@@ -60,7 +62,7 @@ def test_cached_class_property():
 
 def test_set_once_property():
     class A:
-        value = properties.set_once()
+        value = simple_.set_once()
 
     a = A()
     try:
@@ -73,9 +75,9 @@ def test_set_once_property():
     assert a.value == 1
 
 
-def test_registry_property():
+def test_registries_property():
     class C:
-        vals = properties.registry()
+        vals = registries_.registry()
 
         vals.registering('a')('C.a')
         vals.registering('b')('C.b')
@@ -101,9 +103,9 @@ def test_registry_property():
     assert E().vals['a'] == 'E.a'
 
 
-def test_binding_registry_property():
+def test_binding_registries_property():
     class C:
-        fns = properties.registry(bind=True)
+        fns = registries_.registry(bind=True)
 
         @fns.registering('a')
         def _a(self):
@@ -138,9 +140,9 @@ def test_binding_registry_property():
     assert E().fns['a']() == 4
 
 
-def test_multi_registry_property():
+def test_multi_registries_property():
     class C:
-        vals = properties.multi_registry()
+        vals = registries_.multi_registry()
 
         vals.registering('a')(0)
         vals.registering('a')(1)
