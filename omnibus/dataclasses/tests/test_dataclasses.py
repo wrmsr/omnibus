@@ -374,3 +374,28 @@ def test_redaction():
     # db = Db('u', 'p')
     # assert isinstance(db.password, lang.Redacted)
     # print(db)
+
+
+def test_dfac():
+    @api_.dataclass(frozen=True)
+    class C:
+        dct: dict = dc.field(default_factory=dict)
+
+    assert isinstance(C().dct, dict)
+
+
+def test_iv():
+    @api_.dataclass(frozen=True)
+    class C:
+        x: int
+        iv: dc.InitVar[int]
+
+        def __post_init__(self, iv):
+            l.append(iv)
+
+    l = []
+    c = C(1, 2)
+    assert c.x == 1
+    assert l == [2]
+    with pytest.raises(Exception):
+        c.y

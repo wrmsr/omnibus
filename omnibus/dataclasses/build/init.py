@@ -5,15 +5,11 @@ import typing as ta
 
 from ... import check
 from ... import codegen
-from ... import collections as ocol
 from ... import properties
 from ..fields import Fields
 from ..internals import create_fn
-from ..internals import field_init
 from ..internals import FieldType
 from ..internals import get_field_type
-from ..internals import HAS_DEFAULT_FACTORY
-from ..internals import init_param
 from ..internals import POST_INIT_NAME
 from ..types import Checker
 from ..types import CheckException
@@ -53,7 +49,7 @@ class InitBuilder:
 
     @properties.cached
     def self_name(self) -> str:
-        return '__dataclass_self__' if 'self' in self.fields else 'self'
+        return self._nsb.put('self')
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
@@ -71,6 +67,34 @@ class InitBuilder:
                     seen_default = True
                 elif seen_default:
                     raise TypeError(f'non-default argument {f.name!r} follows default argument')
+
+    @properties.cached
+    def type_names_by_field_name(self) -> ta.Mapping[str, str]:
+        return {
+            f.name: self._nsb.put(f'{f.name}_type', f.type)
+            for f in self.init_fields
+            if f.type is not dc.MISSING
+        }
+
+    @properties.cached
+    def default_names_by_field_name(self) -> ta.Mapping[str, str]:
+        return {
+            f.name: self._nsb.put(f'{f.name}_default', f.default)
+            for f in self.init_fields
+            if f.default is not dc.MISSING
+        }
+
+    @properties.cached
+    def default_factory_names_by_field_name(self) -> ta.Mapping[str, str]:
+        return {
+            f.name: self._nsb.put(f'{f.name}_default_factory', f.default_factory)
+            for f in self.init_fields
+            if f.default_factory is not dc.MISSING
+        }
+
+    @properties.cached
+    def has_default_factory_name(self) -> str:
+        return self._nsb.put('has_default_factory')
 
     @staticmethod
     def get_flat_fn_args(fn) -> ta.List[str]:
@@ -134,13 +158,29 @@ class InitBuilder:
 
         return ret
 
-    def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
+    def build_field_assign(self, name, value) -> str:
+        # FIXME: move to storage
+        if self.ctx.params.frozen:
+            return f'BUILTINS.object.__setattr__({self.self_name}, {name!r}, {value})'
+
+        return f'{self.self_name}.{name} = {value}'
+
+    def build_field_init_lines(self) -> ta.List[str]:
         ret = []
         for f in self.init_fields:
-            line = field_init(f, self.ctx.params.frozen, locals, self.self_name)
-            # line is None means that this field doesn't require initialization (it's a pseudo-field).  Just skip it.
-            if line:
-                ret.append(line)
+            if get_field_type(f) is FieldType.INIT:
+                continue
+            elif f.default_factory is not dc.MISSING:
+                default_factory_name = self.default_factory_names_by_field_name[f.name]
+                if f.init:
+                    value = f'{default_factory_name}() if {f.name} is {self.has_default_factory_name} else {f.name}'
+                else:
+                    value = f'{default_factory_name}()'
+            elif f.init:
+                value = f.name
+            else:
+                continue
+            ret.append(self.build_field_assign(f.name, value))
         return ret
 
     def build_post_init_lines(self) -> ta.List[str]:
@@ -156,31 +196,34 @@ class InitBuilder:
             ret.append(f'{self.nsb.put(pi.fn)}({self.self_name})')
         return ret
 
-    def __call__(self) -> None:
-        locals = {f'_type_{f.name}': f.type for f in self.init_fields}
-        locals.update({
-            'MISSING': dc.MISSING,
-            '_HAS_DEFAULT_FACTORY': HAS_DEFAULT_FACTORY,
-        })
+    def build_init_param(self, fld: dc.Field) -> str:
+        if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+            default = ''
+        elif fld.default is not dc.MISSING:
+            default = ' = ' + self.default_names_by_field_name[fld.name]
+        elif fld.default_factory is not dc.MISSING:
+            default = ' = ' + self.has_default_factory_name
+        else:
+            raise TypeError
+        return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
+    def __call__(self) -> None:
         lines = []
         lines.extend(self.build_validate_lines())
         lines.extend(self.build_validator_lines())
         lines.extend(self.build_check_lines())
-        lines.extend(self.build_field_init_lines(locals))
+        lines.extend(self.build_field_init_lines())
         lines.extend(self.build_post_init_lines())
         lines.extend(self.build_extra_post_init_lines())
-
-        ocol.guarded_map_update(locals, self.nsb)
 
         if not lines:
             lines = ['pass']
 
         return create_fn(
             '__init__',
-            [self.self_name] + [init_param(f) for f in self.init_fields if f.init],
+            [self.self_name] + [self.build_init_param(f) for f in self.init_fields if f.init],
             lines,
-            locals=locals,
+            locals=dict(self.nsb),
             globals=self.ctx.spec.globals,
             return_type=None,
         )
