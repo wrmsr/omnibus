@@ -49,7 +49,7 @@ class InitBuilder:
 
     @properties.cached
     def self_name(self) -> str:
-        return self._nsb.put('self')
+        return self._nsb.put('self', None)
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
@@ -71,7 +71,7 @@ class InitBuilder:
     @properties.cached
     def type_names_by_field_name(self) -> ta.Mapping[str, str]:
         return {
-            f.name: self._nsb.put(f'{f.name}_type', f.type)
+            f.name: self._nsb.put(f'_{f.name}_type', f.type)
             for f in self.init_fields
             if f.type is not dc.MISSING
         }
@@ -79,7 +79,7 @@ class InitBuilder:
     @properties.cached
     def default_names_by_field_name(self) -> ta.Mapping[str, str]:
         return {
-            f.name: self._nsb.put(f'{f.name}_default', f.default)
+            f.name: self._nsb.put(f'_{f.name}_default', f.default)
             for f in self.init_fields
             if f.default is not dc.MISSING
         }
@@ -87,14 +87,14 @@ class InitBuilder:
     @properties.cached
     def default_factory_names_by_field_name(self) -> ta.Mapping[str, str]:
         return {
-            f.name: self._nsb.put(f'{f.name}_default_factory', f.default_factory)
+            f.name: self._nsb.put(f'_{f.name}_default_factory', f.default_factory)
             for f in self.init_fields
             if f.default_factory is not dc.MISSING
         }
 
     @properties.cached
     def has_default_factory_name(self) -> str:
-        return self._nsb.put('has_default_factory')
+        return self._nsb.put('_has_default_factory')
 
     @staticmethod
     def get_flat_fn_args(fn) -> ta.List[str]:
