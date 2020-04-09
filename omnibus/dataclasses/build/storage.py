@@ -6,6 +6,7 @@ TODO:
 import typing as ta
 
 from ... import check
+from ..internals import frozen_get_del_attr
 from .context import BuildContext
 
 
@@ -20,9 +21,20 @@ class Storage:
     def ctx(self) -> BuildContext:
         return self._ctx
 
+    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
+        if name in self.ctx.cls.__dict__:
+            return True
+        setattr(self.ctx.cls, name, value)
+        return False
+
     def install_field_attrs(self) -> None:
         for f in self.ctx.spec.fields:
             setattr(self.ctx.cls, f.name, f)
+
+    def install_frozen(self) -> None:
+        for fn in frozen_get_del_attr(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals):
+            if self.set_new_attribute(fn.__name__, fn):
+                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
 
     def build_field_assign(self, self_name, name, value) -> str:
         # FIXME: hidden impl detail - ALL ASSIGNS HAPPEN AT ONCE - gives storage impl option to setup/reorder

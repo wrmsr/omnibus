@@ -13,7 +13,6 @@ from ... import properties
 from ..fields import build_cls_fields
 from ..fields import Fields
 from ..internals import cmp_fn
-from ..internals import frozen_get_del_attr
 from ..internals import hash_action
 from ..internals import PARAMS
 from ..internals import repr_fn
@@ -131,9 +130,8 @@ class ClassProcessor(ta.Generic[TypeT]):
                     f'Consider using functools.total_ordering')
 
     def install_frozen(self) -> None:
-        for fn in frozen_get_del_attr(self.ctx.cls, self.fields.instance, self.ctx.spec.globals):
-            if self.set_new_attribute(fn.__name__, fn):
-                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
+        storage = Storage(self.ctx)
+        storage.install_frozen()
 
     def maybe_install_hash(self) -> bool:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
