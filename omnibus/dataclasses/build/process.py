@@ -22,6 +22,7 @@ from ..types import ExtraParams
 from ..types import METADATA_ATTR
 from .context import BuildContext
 from .init import InitBuilder
+from .storage import Storage
 
 
 T = ta.TypeVar('T')
@@ -79,8 +80,8 @@ class ClassProcessor(ta.Generic[TypeT]):
         check.not_none(self.fields)
 
     def install_field_attrs(self) -> None:
-        for f in self.fields:
-            setattr(self.ctx.cls, f.name, f)
+        storage = Storage(self.ctx)
+        storage.install_field_attrs()
 
     def install_init(self) -> None:
         fn = InitBuilder(self.ctx, self.fields)()

@@ -17,6 +17,7 @@ from ..types import ExtraFieldParams
 from ..types import PostInit
 from ..types import Validator
 from .context import BuildContext
+from .storage import Storage
 
 
 T = ta.TypeVar('T')
@@ -158,15 +159,8 @@ class InitBuilder:
 
         return ret
 
-    def build_field_assign(self, name, value) -> str:
-        # FIXME: move to storage
-        if self.ctx.params.frozen:
-            return f'BUILTINS.object.__setattr__({self.self_name}, {name!r}, {value})'
-
-        return f'{self.self_name}.{name} = {value}'
-
     def build_field_init_lines(self) -> ta.List[str]:
-        ret = []
+        dct = {}
         for f in self.init_fields:
             if get_field_type(f) is FieldType.INIT:
                 continue
@@ -180,8 +174,9 @@ class InitBuilder:
                 value = f.name
             else:
                 continue
-            ret.append(self.build_field_assign(f.name, value))
-        return ret
+            dct[f.name] = value
+        storage = Storage(self.ctx)
+        return storage.build_field_init_lines(dct, self.self_name)
 
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []

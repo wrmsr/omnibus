@@ -399,3 +399,24 @@ def test_iv():
     assert l == [2]
     with pytest.raises(Exception):
         c.y
+
+
+def test_descriptor():
+    # TODO: *must* have descrpitorless get/set if possible
+
+    class Desc:
+
+        def __init__(self, field: dc.Field, *, attr_field: bool = False) -> None:
+            super().__init__()
+
+            self._field = field
+            self._attr_field = attr_field
+
+        def __get__(self, instance, owner):
+            pass
+
+        def __set__(self, instance, value):
+            pass
+
+        def __delete__(self, instance):
+            pass
