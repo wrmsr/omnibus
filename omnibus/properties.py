@@ -1,7 +1,3 @@
-"""
-TODO:
- - allow_debugger as a lock CM?
-"""
 import functools
 import typing as ta
 import weakref
@@ -62,6 +58,7 @@ class CachedProperty(Property[T]):
 
 cached = property
 locked_cached = property
+pure_cached = property
 
 
 @_global_property
@@ -72,6 +69,11 @@ def _cached(fn: ta.Callable[..., T]) -> T:
 @_global_property
 def _locked_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, lock=True)
+
+
+@_global_property
+def _pure_cached(fn: ta.Callable[..., T]) -> T:
+    return CachedProperty(fn, allow_debugger=True)
 
 
 class ValueNotSetException(ValueError):

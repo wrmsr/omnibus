@@ -406,6 +406,21 @@ def test_dfac():
 
 
 def test_iv():
+    @dc.dataclass(frozen=True)
+    class C:
+        x: int
+        iv: dc.InitVar[int]
+
+        def __post_init__(self, iv):
+            l.append(iv)
+
+    l = []
+    c = C(1, 2)
+    assert c.x == 1
+    assert l == [2]
+    with pytest.raises(Exception):
+        c.y
+
     @api_.dataclass(frozen=True)
     class C:
         x: int
