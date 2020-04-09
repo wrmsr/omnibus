@@ -11,7 +11,6 @@ import typing as ta
 from ... import check
 from ... import properties
 from ..fields import build_cls_fields
-from ..fields import Fields
 from ..internals import cmp_fn
 from ..internals import hash_action
 from ..internals import PARAMS
@@ -75,12 +74,8 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         md[ExtraParams] = self.ctx.extra_params
 
-    @properties.cached
-    def fields(self) -> Fields:
-        return build_cls_fields(self.ctx.cls, install=True)
-
     def install_fields(self) -> None:
-        check.not_none(self.fields)
+        build_cls_fields(self.ctx.cls, install=True)
 
     def install_init(self) -> None:
         fctx = FunctionBuildContext(self.ctx)
@@ -93,11 +88,11 @@ class ClassProcessor(ta.Generic[TypeT]):
         self.ctx.set_new_attribute('__init__', fn)
 
     def install_repr(self) -> None:
-        flds = [f for f in self.fields.instance if f.repr]
+        flds = [f for f in self.ctx.spec.fields.instance if f.repr]
         self.ctx.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
 
     def install_eq(self) -> None:
-        flds = [f for f in self.fields.instance if f.compare]
+        flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
         self.ctx.set_new_attribute(
@@ -112,7 +107,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         )
 
     def install_order(self) -> None:
-        flds = [f for f in self.fields.instance if f.compare]
+        flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
         for name, op in [
@@ -148,7 +143,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             has_explicit_hash,
         )]
         if ha:
-            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.fields.instance, self.ctx.spec.globals)
+            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals)
             return True
         else:
             return False
