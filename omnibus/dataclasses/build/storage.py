@@ -1,7 +1,7 @@
 """
 TODO:
  - class-level descriptor proto not optional / overridable, but instance level fully so
- - validators
+ - need to re-run checks/validators on all mutations
 """
 import typing as ta
 

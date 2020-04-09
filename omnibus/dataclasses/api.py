@@ -1,6 +1,10 @@
 """
 ** FEATURE LOCK **
 
+DECREE:
+ - validate returns None and raises, check returns bool
+ - self_check and self_validate variants take a constructed object
+
 TODO:
  - attrs
   - fld: order, kwonly
@@ -43,6 +47,8 @@ from .types import ExtraParams
 from .types import Extras
 from .types import METADATA_ATTR
 from .types import PostInit
+from .types import SelfChecker
+from .types import SelfValidator
 from .types import Validator
 
 
@@ -210,6 +216,8 @@ def install(cls_dct, cls, *args, **kwargs) -> None:
 
 
 check_ = functools.partial(install, Checker)
+check_self = functools.partial(install, SelfValidator)
 derive = functools.partial(install, Deriver)
 post_init = functools.partial(install, PostInit)
 validate = functools.partial(install, Validator)
+validate_self = functools.partial(install, SelfChecker)
