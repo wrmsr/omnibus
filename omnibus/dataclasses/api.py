@@ -22,6 +22,7 @@ TODO:
  - fix: validate/coerce on setattr
  - per-field finality
  - intern?
+ - frozen_subtypes, frozen_deep - enum?
 """
 import collections
 import collections.abc
