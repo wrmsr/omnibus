@@ -1,4 +1,21 @@
+from ... import check
+from .context import BuildContext
+
+
 class Storage:
+
+    def __init__(self, ctx: BuildContext) -> None:
+        super().__init__()
+
+        self._ctx = check.isinstance(ctx, BuildContext)
+
+    @property
+    def ctx(self) -> BuildContext:
+        return self._ctx
+
+    @properties.cached
+    def init_fields(self) -> ta.List[dc.Field]:
+        return [f for f in self.fields if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
 
     def install_field_attrs(self) -> None:
         for f in self.fields:
