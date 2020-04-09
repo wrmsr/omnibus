@@ -216,8 +216,8 @@ def install(cls_dct, cls, *args, **kwargs) -> None:
 
 
 check_ = functools.partial(install, Checker)
-check_self = functools.partial(install, SelfValidator)
+check_self = functools.partial(install, SelfChecker)
 derive = functools.partial(install, Deriver)
 post_init = functools.partial(install, PostInit)
 validate = functools.partial(install, Validator)
-validate_self = functools.partial(install, SelfChecker)
+validate_self = functools.partial(install, SelfValidator)

@@ -2,6 +2,7 @@ from .. import lang
 from .api import asdict  # noqa
 from .api import astuple  # noqa
 from .api import check_ as check  # noqa
+from .api import check_self  # noqa
 from .api import dataclass  # noqa
 from .api import derive  # noqa
 from .api import field  # noqa
@@ -16,6 +17,7 @@ from .api import MISSING  # noqa
 from .api import post_init  # noqa
 from .api import replace  # noqa
 from .api import validate  # noqa
+from .api import validate_self  # noqa
 from .metaclass import Data  # noqa
 from .pickling import SimplePickle  # noqa
 from .reflect import DataSpec  # noqa

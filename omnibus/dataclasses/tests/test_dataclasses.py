@@ -275,6 +275,16 @@ def test_spec():
     with pytest.raises(types_.CheckException):
         B(2, 1, 3)
 
+    @api_.dataclass()
+    class C:
+        x: int
+
+        api_.check_self(lambda self: self.x > 0)
+
+    C(1)
+    with pytest.raises(types_.CheckException):
+        C(0)
+
 
 def test_post_init():
     class Point(metaclass_.Data):
