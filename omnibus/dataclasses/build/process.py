@@ -1,5 +1,7 @@
 """
 TODO:
+ - storage:
+  - can override field getters
  - policies? config policy requires custom getters
 """
 import dataclasses as dc
