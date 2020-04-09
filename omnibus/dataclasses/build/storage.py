@@ -1,5 +1,10 @@
+"""
+TODO:
+ - class-level descriptor proto not optional / overridable, but instance level fully so
+"""
 from ... import check
 from .context import BuildContext
+from ..internals import get_field_type
 
 
 class Storage:
@@ -15,10 +20,10 @@ class Storage:
 
     @properties.cached
     def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.fields if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
+        return [f for f in self.ctx.spec.fields if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
 
     def install_field_attrs(self) -> None:
-        for f in self.fields:
+        for f in self.ctx.spec.fields:
             setattr(self.ctx.cls, f.name, f)
 
     def build_field_init_lines(self, locals: ta.Dict[str, ta.Any]) -> ta.List[str]:
