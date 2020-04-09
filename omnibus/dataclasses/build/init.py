@@ -87,7 +87,7 @@ class InitBuilder:
 
     def build_validate_lines(self) -> ta.List[str]:
         def _type_validator(fld: dc.Field):
-            from .validation import build_default_field_validation
+            from ..validation import build_default_field_validation
             return build_default_field_validation(fld)
 
         ret = []
