@@ -1,6 +1,7 @@
 import typing as ta
 
 from ... import check
+from ... import codegen
 from ... import properties
 from ..internals import DataclassParams
 from ..reflect import DataSpec
@@ -40,3 +41,31 @@ class BuildContext(ta.Generic[TypeT]):
     @properties.cached
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
+
+    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
+        if name in self.cls.__dict__:
+            return True
+        setattr(self.cls, name, value)
+        return False
+
+
+class FunctionBuildContext:
+
+    def __init__(self, ctx: BuildContext) -> None:
+        super().__init__()
+
+        self._ctx = check.isinstance(ctx, BuildContext)
+
+        self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=ctx.spec.fields.by_name))
+
+    @property
+    def ctx(self) -> BuildContext:
+        return self._ctx
+
+    @property
+    def nsb(self) -> codegen.NamespaceBuilder:
+        return self._nsb
+
+    @properties.cached
+    def self_name(self) -> str:
+        return self._nsb.put('self', None)

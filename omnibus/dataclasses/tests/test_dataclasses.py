@@ -371,6 +371,17 @@ def test_exc():
     # assert e.args == (e.x, e.y) == (4, 3)
 
 
+def test_frozen():
+    @api_.dataclass(frozen=True)
+    class C:
+        x: int
+
+    c = C(1)
+    assert c.x == 1
+    with pytest.raises(Exception):
+        c.x = 2
+
+
 def test_redaction():
     @api_.dataclass(frozen=True)
     class Db:

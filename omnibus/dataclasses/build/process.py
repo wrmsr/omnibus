@@ -20,8 +20,10 @@ from ..internals import tuple_str
 from ..types import ExtraParams
 from ..types import METADATA_ATTR
 from .context import BuildContext
+from .context import FunctionBuildContext
 from .init import InitBuilder
 from .storage import Storage
+from .validation import Validation
 
 
 T = ta.TypeVar('T')
@@ -41,6 +43,14 @@ class ClassProcessor(ta.Generic[TypeT]):
     def ctx(self) -> BuildContext:
         return self._ctx
 
+    @properties.cached
+    def storage(self) -> Storage:
+        return Storage(self.ctx)
+
+    @properties.cached
+    def validation(self) -> Validation:
+        return Validation(self.ctx)
+
     def check_invariants(self) -> None:
         if self.ctx.params.order and not self.ctx.params.eq:
             raise ValueError('eq must be true if order is true')
@@ -52,21 +62,15 @@ class ClassProcessor(ta.Generic[TypeT]):
             if not any_frozen_base and self.ctx.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
-    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
-        if name in self.ctx.cls.__dict__:
-            return True
-        setattr(self.ctx.cls, name, value)
-        return False
-
     def install_params(self) -> None:
-        self.set_new_attribute(PARAMS, self.ctx.params)
+        self.ctx.set_new_attribute(PARAMS, self.ctx.params)
         check.state(self.ctx.spec.params is self.ctx.params)
 
         if METADATA_ATTR in self.ctx.cls.__dict__:
             md = getattr(self.ctx.cls, METADATA_ATTR)
         else:
             md = {}
-            self.set_new_attribute(METADATA_ATTR, md)
+            self.ctx.set_new_attribute(METADATA_ATTR, md)
         check.state(self.ctx.spec._metadata is md)
 
         md[ExtraParams] = self.ctx.extra_params
@@ -78,23 +82,25 @@ class ClassProcessor(ta.Generic[TypeT]):
     def install_fields(self) -> None:
         check.not_none(self.fields)
 
-    def install_field_attrs(self) -> None:
-        storage = Storage(self.ctx)
-        storage.install_field_attrs()
-
     def install_init(self) -> None:
-        fn = InitBuilder(self.ctx, self.fields)()
-        self.set_new_attribute('__init__', fn)
+        fctx = FunctionBuildContext(self.ctx)
+        ib = InitBuilder(
+            fctx,
+            self.storage.create_init_builder(fctx),
+            self.validation.create_init_builder(fctx),
+        )
+        fn = ib()
+        self.ctx.set_new_attribute('__init__', fn)
 
     def install_repr(self) -> None:
         flds = [f for f in self.fields.instance if f.repr]
-        self.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
+        self.ctx.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
 
     def install_eq(self) -> None:
         flds = [f for f in self.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
-        self.set_new_attribute(
+        self.ctx.set_new_attribute(
             '__eq__',
             cmp_fn(
                 '__eq__',
@@ -115,7 +121,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.set_new_attribute(
+            if self.ctx.set_new_attribute(
                     name,
                     cmp_fn(
                         name,
@@ -128,10 +134,6 @@ class ClassProcessor(ta.Generic[TypeT]):
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
-
-    def install_frozen(self) -> None:
-        storage = Storage(self.ctx)
-        storage.install_frozen()
 
     def maybe_install_hash(self) -> bool:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
@@ -162,7 +164,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         self.install_fields()
 
         if self.ctx.extra_params.field_attrs:
-            self.install_field_attrs()
+            self.storage.install_field_attrs()
 
         if self.ctx.params.init:
             self.install_init()
@@ -177,7 +179,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             self.install_order()
 
         if self.ctx.params.frozen:
-            self.install_frozen()
+            self.storage.install_frozen()
 
         self.maybe_install_hash()
 

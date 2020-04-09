@@ -30,7 +30,8 @@ class NameGeneratorImpl:
     ) -> None:
         super().__init__()
 
-        self._names = set(unavailable_names or [])
+        check.arg(not isinstance(unavailable_names, str))
+        self._names = {check.isinstance(n, str) for n in (unavailable_names or [])}
         self._global_prefix = global_prefix if global_prefix is not None else self.DEFAULT_PREFIX
         self._use_global_prefix_if_present = bool(use_global_prefix_if_present)
         self._add_global_prefix_before_number = bool(add_global_prefix_before_number)
