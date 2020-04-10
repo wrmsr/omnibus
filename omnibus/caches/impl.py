@@ -120,6 +120,7 @@ class CacheImpl(Cache[K, V]):
             lock: lang.DefaultLockable = None,
             raise_overweight: bool = False,
             eviction: Cache.Eviction = LRU,
+            track_frequency: bool = None,
     ) -> None:
         super().__init__()
 
@@ -142,6 +143,7 @@ class CacheImpl(Cache[K, V]):
         self._lock = lang.default_lock(lock, True)
         self._raise_overweight = raise_overweight
         self._eviction = eviction
+        self._track_frequency = track_frequency if track_frequency is not None else (eviction is CacheImpl.LFU)
 
         if weak_keys and not identity_keys:
             self._cache = weakref.WeakKeyDictionary()
@@ -152,7 +154,8 @@ class CacheImpl(Cache[K, V]):
         self._root.seq = 0
         self._root.ins_next = self._root.ins_prev = self._root
         self._root.lru_next = self._root.lru_prev = self._root
-        self._root.lfu_next = self._root.lfu_prev = self._root
+        if self._track_frequency:
+            self._root.lfu_next = self._root.lfu_prev = self._root
 
         if weak_keys or weak_values:
             self._weak_dead = collections.deque()
@@ -182,9 +185,10 @@ class CacheImpl(Cache[K, V]):
         link.lru_next.lru_prev = link.lru_prev
         link.lru_next = link.lru_prev = link
 
-        link.lfu_prev.lfu_next = link.lfu_next
-        link.lfu_next.lfu_prev = link.lfu_prev
-        link.lfu_next = link.lfu_prev = link
+        if self._track_frequency:
+            link.lfu_prev.lfu_next = link.lfu_next
+            link.lfu_next.lfu_prev = link.lfu_prev
+            link.lfu_next = link.lfu_prev = link
 
         if self._removal_listener is not None:
             try:
@@ -300,18 +304,19 @@ class CacheImpl(Cache[K, V]):
                 link.lru_prev = lru_last
                 link.lru_next = self._root
 
-            lfu_pos = link.lfu_prev
-            while lfu_pos is not self._root and lfu_pos.hits <= link.hits:
-                lfu_pos = lfu_pos.lfu_prev
+            if self._track_frequency:
+                lfu_pos = link.lfu_prev
+                while lfu_pos is not self._root and lfu_pos.hits <= link.hits:
+                    lfu_pos = lfu_pos.lfu_prev
 
-            if link.lfu_prev is not lfu_pos:
-                link.lfu_prev.lfu_next = link.lfu_next
-                link.lfu_next.lfu_prev = link.lfu_prev
+                if link.lfu_prev is not lfu_pos:
+                    link.lfu_prev.lfu_next = link.lfu_next
+                    link.lfu_next.lfu_prev = link.lfu_prev
 
-                lfu_last = lfu_pos.lfu_prev
-                lfu_last.lfu_next = lfu_pos.lfu_prev = link
-                link.lfu_prev = lfu_last
-                link.lfu_next = lfu_pos
+                    lfu_last = lfu_pos.lfu_prev
+                    lfu_last.lfu_next = lfu_pos.lfu_prev = link
+                    link.lfu_prev = lfu_last
+                    link.lfu_next = lfu_pos
 
             link.accessed = self._clock()
             link.hits += 1
@@ -385,10 +390,11 @@ class CacheImpl(Cache[K, V]):
             link.lru_prev = lru_last
             link.lru_next = self._root
 
-            lfu_last = self._root.lfu_prev
-            lfu_last.lfu_next = self._root.lfu_prev = link
-            link.lfu_prev = lfu_last
-            link.lfu_next = self._root
+            if self._track_frequency:
+                lfu_last = self._root.lfu_prev
+                lfu_last.lfu_next = self._root.lfu_prev = link
+                link.lfu_prev = lfu_last
+                link.lfu_next = self._root
 
             self._weight += weight
             self._size += 1
