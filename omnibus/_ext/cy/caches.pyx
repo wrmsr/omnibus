@@ -12,6 +12,7 @@ cdef class CacheLink:
     cdef public float weight
     cdef public float written
     cdef public float accessed
+    cdef public int hits
     cdef public bool unlinked
 
     def __repr__(self):
@@ -26,5 +27,6 @@ cdef class CacheLink:
             f'weight={self.weight}, '
             f'written={self.written}, '
             f'accessed={self.accessed}, '
+            f'hits={self.hits}, '
             f'unlinked={self.unlinked})'
         )

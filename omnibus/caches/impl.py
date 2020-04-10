@@ -49,6 +49,7 @@ class CacheImpl(Cache[K, V]):
                 'weight',
                 'written',
                 'accessed',
+                'hits',
                 'unlinked',
             ]
 
@@ -62,6 +63,7 @@ class CacheImpl(Cache[K, V]):
             weight: float
             written: float
             accessed: float
+            hits: int
             unlinked: bool
 
             def __repr__(self) -> str:
@@ -76,6 +78,7 @@ class CacheImpl(Cache[K, V]):
                     f'weight={self.weight}, '
                     f'written={self.written}, '
                     f'accessed={self.accessed}, '
+                    f'hits={self.hits}, '
                     f'unlinked={self.unlinked})'
                 )
 
@@ -274,6 +277,7 @@ class CacheImpl(Cache[K, V]):
             link.lru_next = self._root
 
             link.accessed = self._clock()
+            link.hits += 1
             self._hits += 1
             return value
 
@@ -331,6 +335,7 @@ class CacheImpl(Cache[K, V]):
             link.value = weakref.ref(value, functools.partial(CacheImpl._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
             link.weight = weight
             link.written = link.accessed = self._clock()
+            link.hits = 0
             link.unlinked = False
 
             ins_last = self._root.ins_prev
