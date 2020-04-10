@@ -1,19 +1,16 @@
 import abc
-import collections
 import functools
 import heapq
 import io
 import itertools
 import os
 import random
-import sys
 import time
 import typing as ta
 
 from .. import callables
 from .. import check
 from .. import lang
-from .. import properties
 from .. import toolz
 
 
@@ -23,9 +20,6 @@ T = ta.TypeVar('T')
 map_ = map
 filter_ = filter
 zip_ = zip
-
-
-_BUILDER_FNS = []
 
 
 class IterableTransform(lang.Abstract):
@@ -66,15 +60,9 @@ def alias(*bases):
     return callables.alias(*(bases + (IterableTransform,)))
 
 
-def constructor(*bases, **kwargs):
-    builder = kwargs.pop('builder', False)
-    if kwargs:
-        raise TypeError(kwargs)
-
+def constructor(*bases):
     def inner(fn):
         fn = callables.constructor(*(bases + (IterableTransform,)))(fn)
-        if builder:
-            _BUILDER_FNS.append(fn)
         return fn
     return inner
 
@@ -84,7 +72,7 @@ def flatten(items):
     return itertools.chain.from_iterable(items)
 
 
-@constructor(builder=True)
+@constructor()
 def compose(*children):
     all(check.callable(child) for child in children)
     children = list(flatten(child.args if isinstance(child, compose) else [child]
@@ -120,7 +108,7 @@ def discard(items):
     yield
 
 
-@constructor(builder=True)
+@constructor()
 def apply(function):
     check.callable(function)
 
@@ -132,17 +120,17 @@ def apply(function):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def map(function):
     return functools.partial(map_, check.callable(function))
 
 
-@constructor(builder=True)
+@constructor()
 def filter(predicate):
     return functools.partial(filter_, check.callable(predicate))
 
 
-@constructor(builder=True)
+@constructor()
 def filter_false(predicate):
     return functools.partial(itertools.filterfalse, check.callable(predicate))
 
@@ -171,7 +159,7 @@ def type_remove(type):
     return filter(lambda obj: not isinstance(obj, type))
 
 
-@constructor(builder=True)
+@constructor()
 def flat_map(function):
     return compose(map(function), flatten)
 
@@ -226,7 +214,7 @@ def broadcast(*children):
     return compose(interleave(*children), flatten)
 
 
-@constructor(builder=True)
+@constructor()
 def guard(predicate, exception_type=ValueError):
     def run(items):
         for item in items:
@@ -262,7 +250,7 @@ def chunk(capacity, weigh=callables.const(1)):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def route(router):
     check.callable(router)
 
@@ -276,7 +264,7 @@ def route(router):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def sorted_route(router, target_order=()):
     check.callable(router)
 
@@ -307,7 +295,7 @@ def _unpack_pairs(items):
     return items[::2], items[1::2]
 
 
-@constructor(builder=True)
+@constructor()
 def match(*predicates_and_targets, **kwargs):
     if not kwargs.pop('strict', False):
         predicates_and_targets += (callables.const(True), None)
@@ -330,7 +318,7 @@ def match(*predicates_and_targets, **kwargs):
     return route_(router, **kwargs)
 
 
-@constructor(builder=True)
+@constructor()
 def type_match(*types_and_targets, **kwargs):
     target_types, targets = _unpack_pairs(types_and_targets)
     check.arg(all(isinstance(o, type) or (isinstance(o, tuple) and all(isinstance(oi, type) for oi in o))
@@ -343,17 +331,17 @@ def type_match(*types_and_targets, **kwargs):
     return match(*list(flatten(zip_(predicates, targets))), **kwargs)
 
 
-@constructor(builder=True)
+@constructor()
 def flat_match(*args, **kwargs):
     return compose(match(*args, **kwargs), flatten)
 
 
-@constructor(builder=True)
+@constructor()
 def flat_type_match(*args, **kwargs):
     return compose(type_match(*args, **kwargs), flatten)
 
 
-@constructor(builder=True)
+@constructor()
 def map_type(type, fn):
     def run(items):
         for item in items:
@@ -364,7 +352,7 @@ def map_type(type, fn):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def flat_map_type(type, fn):
     def run(items):
         for item in items:
@@ -376,7 +364,7 @@ def flat_map_type(type, fn):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def apply_type(type, fn):
     def run(items):
         for item in items:
@@ -386,19 +374,19 @@ def apply_type(type, fn):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def map_types(*types_and_fns):
     types, fns = _unpack_pairs(types_and_fns)
     return compose(*[map_type(type, fn) for type, fn in zip_(types, fns)])
 
 
-@constructor(builder=True)
+@constructor()
 def flat_map_types(*types_and_fns):
     types, fns = _unpack_pairs(types_and_fns)
     return compose(*[flat_map_type(type, fn) for type, fn in zip_(types, fns)])
 
 
-@constructor(builder=True)
+@constructor()
 def apply_types(*types_and_fns):
     types, fns = _unpack_pairs(types_and_fns)
     return compose(*[apply_type(type, fn) for type, fn in zip_(types, fns)])
@@ -412,12 +400,12 @@ def context_managed(wrapped, fn):
     return run
 
 
-@constructor(builder=True)
+@constructor()
 def chunked_flat_map(function, capacity, **kwargs):
     return compose(chunk(capacity, **kwargs), map(function), flatten)
 
 
-@constructor(builder=True)
+@constructor()
 def map_randomly(function, chance):
     def run(item):
         if random.random() < chance:
@@ -426,7 +414,7 @@ def map_randomly(function, chance):
     return map(run)
 
 
-@constructor(builder=True)
+@constructor()
 def map_periodically(function, interval):
     last_run_time = None
 
@@ -445,7 +433,7 @@ def map_periodically(function, interval):
     return map(run)
 
 
-@constructor(builder=True)
+@constructor()
 def map_every_nth(function, n):
     remaining = n
 
@@ -460,7 +448,7 @@ def map_every_nth(function, n):
     return map(run)
 
 
-@constructor(builder=True)
+@constructor()
 def apply_randomly(function, chance):
     def inner(item):
         function(item)
@@ -468,7 +456,7 @@ def apply_randomly(function, chance):
     return map_randomly(inner, chance)
 
 
-@constructor(builder=True)
+@constructor()
 def apply_periodically(function, interval):
     def inner(item):
         function(item)
@@ -476,7 +464,7 @@ def apply_periodically(function, interval):
     return map_periodically(inner, interval)
 
 
-@constructor(builder=True)
+@constructor()
 def apply_every_nth(function, n):
     def inner(item):
         function(item)
@@ -569,16 +557,21 @@ def merge_on(function):
     check.callable(function)
 
     def inner(its):
-        indexed_its = [((function(item), it_idx, item)
-                        for it_idx, item in zip_(itertools.repeat(it_idx), it))
-                       for it_idx, it in enumerate(its)]
+        indexed_its = [
+            (
+                (function(item), it_idx, item)
+                for it_idx, item in zip_(itertools.repeat(it_idx), it)
+            )
+            for it_idx, it in enumerate(its)
+        ]
 
         grouped_indexed_its = itertools.groupby(
             heapq.merge(*indexed_its),
             key=lambda item_tuple: item_tuple[0])
 
-        return ((fn_item, [(it_idx, item) for _, it_idx, item in grp])
-                for fn_item, grp in grouped_indexed_its)
+        return (
+            (fn_item, [(it_idx, item) for _, it_idx, item in grp])
+            for fn_item, grp in grouped_indexed_its)
 
     return inner
 
@@ -634,65 +627,6 @@ def multi_combinations(*its: ta.Iterable[T]) -> ta.Iterable[ta.Sequence[T]]:
     for item in it:
         for suffix in multi_combinations(*rest):
             yield [item] + suffix  # noqa
-
-
-_BuilderMethod = collections.namedtuple('_BuilderAtt', 'fn args kwargs')
-_BUILDER_METHOD_ATTR = '__iterable_transform_builder_method__'
-
-
-# FIXME: delete?
-def builder():
-    def inner(cls):
-        if '_filter' in cls.__dict__:
-            raise AttributeError('_filter')
-
-        methods = []
-        seen = set()
-        for scls in cls.__mro__:
-            try:
-                scls_methods = getattr(scls, _BUILDER_METHOD_ATTR)
-            except AttributeError:
-                continue
-            for name, method in scls_methods:
-                if name not in seen:
-                    seen.add(name)
-                    methods.append((name, method))
-        if not methods:
-            raise TypeError('Must have at least one builder method')
-
-        @properties.cached
-        def _filter(self):
-            lst = []
-            for name, method in methods:
-                lst.append(method.fn(*(method.args + (getattr(self, name),)), **method.kwargs))
-            return compose(*lst)
-        cls._filter = _filter
-
-        def __call__(self, *args, **kwargs):
-            return self._filter(*args, **kwargs)
-        # FIXME: allow overriding
-        cls.__call__ = __call__
-
-        return cls
-
-    return inner
-
-
-def _bind_builder(fn):
-    def outer(*args, **kwargs):
-        def inner(meth):
-            cls_dct = sys._getframe(1).f_locals
-            methods = cls_dct.setdefault(_BUILDER_METHOD_ATTR, [])
-            if meth.__name__ in methods:
-                raise AttributeError(meth.__name__)
-            methods.append((meth.__name__, _BuilderMethod(fn, args, kwargs)))
-            return meth
-        return inner
-    setattr(builder, fn.__name__, outer)
-
-
-for _fn in _BUILDER_FNS:
-    _bind_builder(_fn)
 
 
 @constructor()

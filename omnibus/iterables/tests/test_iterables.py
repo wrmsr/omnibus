@@ -337,34 +337,6 @@ def test_deduplicate():
         )
 
 
-def test_builder():
-
-    @transforms_.builder()
-    class Thing:
-
-        def __init__(self):
-            self.strs_0 = []
-            self.strs_1 = []
-
-        @transforms_.builder.apply_type(str)
-        def on_str_0(self, s):
-            self.strs_0.append(s)
-
-        @transforms_.builder.map_type(int)
-        def on_int(self, i):
-            return 'int: ' + str(i)
-
-        @transforms_.builder.apply_type(str)
-        def on_str_1(self, s):
-            self.strs_1.append(s)
-
-    thing = Thing()
-    ret = list(thing([1, 'a', 2, 'b']))
-    assert ret == ['int: 1', 'a', 'int: 2', 'b']
-    assert thing.strs_0 == ['a', 'b']
-    assert thing.strs_1 == ret
-
-
 def test_operators():
     assert (+(transforms_.nop * (lambda x: x + 1)))(range(3)) == [1, 2, 3]
     assert (+(transforms_.nop * (lambda x: x + 1) @ (lambda x: x % 2 == 0)))(range(6)) == [2, 4, 6]
