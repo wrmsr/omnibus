@@ -1,5 +1,5 @@
-from .. import callables
-from .. import iterables as it
+from .. import transforms as transforms_
+from ... import callables
 
 
 class SomeType:
@@ -7,7 +7,7 @@ class SomeType:
 
 
 def test_dict():
-    class Thing(it.IterableTransform):
+    class Thing(transforms_.IterableTransform):
         def __call__(self):
             pass
     Thing().__dict__
@@ -21,19 +21,19 @@ def test_compose():
     @callables.alias()
     def dbl(x):
         return x * 2
-    f = it.compose(inc, dbl)
-    assert isinstance(f, it.IterableTransform)
+    f = transforms_.compose(inc, dbl)
+    assert isinstance(f, transforms_.IterableTransform)
     assert 'compose(children=(inc, dbl))' == repr(f)
     assert 10 == f(4)
 
 
 def test_map():
-    f = it.compose(it.map(lambda x: x + 1), it.eager)
+    f = transforms_.compose(transforms_.map(lambda x: x + 1), transforms_.eager)
     assert list(range(1, 5)) == f(range(4))
 
 
 def test_base():
-    @it.alias(SomeType)
+    @transforms_.alias(SomeType)
     def dbl(xs):
         for x in xs:
             yield x * 2
@@ -69,7 +69,7 @@ def test_route():
         ] == list(
             map(
                 list,
-                it.route(route)(range(10))
+                transforms_.route(route)(range(10))
             )
         )
 
@@ -92,7 +92,7 @@ def test_chunk():
                 7,
             ],
         ] == list(
-            it.chunk(3)(range(8))
+            transforms_.chunk(3)(range(8))
         )
 
 
@@ -123,7 +123,7 @@ def test_match():
         ] == list(
             map(
                 list,
-                it.match(
+                transforms_.match(
                     lambda x: x > 10, lambda xs: list(map(lambda x: x + 100, xs)),
                     lambda x: x > 5, lambda xs: list(map(lambda x: x + 10, xs))
                 )(range(15))
@@ -146,7 +146,7 @@ def test_match():
         ] == list(
             map(
                 list,
-                it.match(
+                transforms_.match(
                     lambda x: x in [2, 3], lambda xs: ['10' + str(x) for x in xs],
                     lambda x: True, lambda xs: [x + 10 for x in xs],
                 )(range(5))
@@ -173,7 +173,7 @@ def test_type_match():
         ] == list(
             map(
                 list,
-                it.type_match(
+                transforms_.type_match(
                     (int, float), lambda xs: list(map(lambda x: x * 2, xs)),
                     str, lambda xs: list(map(lambda x: '2*' + x, xs))
                 )([
@@ -202,7 +202,7 @@ def test_type_match_sorted():
         ] == list(
             map(
                 list,
-                it.type_match(
+                transforms_.type_match(
                     (int, float), lambda xs: list(map(lambda x: x * 2, xs)),
                     str, lambda xs: list(map(lambda x: '2*' + x, xs)),
                     sorted=True
@@ -230,7 +230,7 @@ def test_type_match_sorted():
         ] == list(
             map(
                 list,
-                it.type_match(
+                transforms_.type_match(
                     (int, float), lambda xs: list(map(lambda x: x * 2, xs)),
                     str, lambda xs: list(map(lambda x: '2*' + x, xs)),
                     sorted=True
@@ -254,7 +254,7 @@ def test_deduplicate():
             4,
             5,
         ] == list(
-            it.deduplicate()([
+            transforms_.deduplicate()([
                 1,
                 2,
                 1,
@@ -276,7 +276,7 @@ def test_deduplicate():
             'afg',
             'bhi',
         ] == list(
-            it.deduplicate(keys=tuple)([
+            transforms_.deduplicate(keys=tuple)([
                 'abc',
                 'abc',
                 'ade',
@@ -289,7 +289,7 @@ def test_deduplicate():
 
     assert \
         [
-            it.Deduplicated(*t) for t in [
+            transforms_.Deduplicated(*t) for t in [
                 (
                     1,
                     0,
@@ -327,7 +327,7 @@ def test_deduplicate():
                 ),
             ]
         ] == list(
-            it.deduplicate(verbose=True)([
+            transforms_.deduplicate(verbose=True)([
                 1,
                 2,
                 1,
@@ -339,22 +339,22 @@ def test_deduplicate():
 
 def test_builder():
 
-    @it.builder()
+    @transforms_.builder()
     class Thing:
 
         def __init__(self):
             self.strs_0 = []
             self.strs_1 = []
 
-        @it.builder.apply_type(str)
+        @transforms_.builder.apply_type(str)
         def on_str_0(self, s):
             self.strs_0.append(s)
 
-        @it.builder.map_type(int)
+        @transforms_.builder.map_type(int)
         def on_int(self, i):
             return 'int: ' + str(i)
 
-        @it.builder.apply_type(str)
+        @transforms_.builder.apply_type(str)
         def on_str_1(self, s):
             self.strs_1.append(s)
 
@@ -366,12 +366,12 @@ def test_builder():
 
 
 def test_operators():
-    assert (+(it.nop * (lambda x: x + 1)))(range(3)) == [1, 2, 3]
-    assert (+(it.nop * (lambda x: x + 1) @ (lambda x: x % 2 == 0)))(range(6)) == [2, 4, 6]
+    assert (+(transforms_.nop * (lambda x: x + 1)))(range(3)) == [1, 2, 3]
+    assert (+(transforms_.nop * (lambda x: x + 1) @ (lambda x: x % 2 == 0)))(range(6)) == [2, 4, 6]
 
 
 def test_multi_combinations():
-    assert list(it.multi_combinations('abc', 'def', 'ghi')) == [
+    assert list(transforms_.multi_combinations('abc', 'def', 'ghi')) == [
         ['a', 'd', 'g'],
         ['a', 'd', 'h'],
         ['a', 'd', 'i'],
