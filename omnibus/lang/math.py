@@ -3,6 +3,10 @@ import typing as ta
 from .classes import Final
 
 
+def isclose(a: float, b: float, *, rel_tol: float = 1e-09, abs_tol: float = 0.0) -> float:
+    return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
 def get_bit(bit: int, value: int) -> int:
     return (value >> bit) & 1
 

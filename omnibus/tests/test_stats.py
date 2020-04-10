@@ -1,8 +1,21 @@
-from ..stats import SamplingHistogram
+from .. import stats as stats_
+
+
+def test_stats_basic():
+    st = stats_.Stats(range(20))
+    assert st.mean == 9.5
+    assert round(st.std_dev, 2) == 5.77
+    assert st.variance == 33.25
+    assert st.skewness == 0
+    assert round(st.kurtosis, 1) == 1.9
+    assert st.median == 9.5
+    print(st.get_zscore(3.))
+    print(st.get_histogram_counts())
+    print(st.get_histogram_counts([3, 7, 13]))
 
 
 def test_sampling_histogram():
-    sh = SamplingHistogram(size=10)
+    sh = stats_.SamplingHistogram(size=10)
 
     st = sh.get()
     assert st.count == 0

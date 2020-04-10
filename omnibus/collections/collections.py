@@ -15,6 +15,7 @@ TODO:
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
+ - IndexableSet
 """
 import functools
 import typing as ta
