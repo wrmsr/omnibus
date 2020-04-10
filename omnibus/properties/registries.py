@@ -82,7 +82,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         return registries.CompositeRegistry(regs, policy=self._policy)
 
     def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
-        with self._lock:
+        with self._lock():
             try:
                 return self._registries_by_cls[cls]
 
@@ -144,7 +144,7 @@ class RegistryProperty(Property[registries.Registry[K, V]]):
         return accessor
 
     def _register(self, cls_dct, value, keys):
-        with self._lock:
+        with self._lock():
             registrations: RegistryProperty.Registrations
             try:
                 registrations = cls_dct[self._registrations_attr_name]

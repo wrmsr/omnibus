@@ -6,19 +6,17 @@ TODO:
  - __sizeof__ interop
 """
 import collections
-import contextlib
-import enum
 import functools
 import logging
 import time
 import typing as ta
 import weakref
 
-from . import lang
+from .. import lang
+from .types import Cache
+from .types import OverweightException
 
 
-C = ta.TypeVar('C', bound=ta.Callable)
-CC = ta.Callable[[C], C]
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
@@ -26,15 +24,11 @@ V = ta.TypeVar('V')
 log = logging.getLogger(__name__)
 
 
-class _SKIP(lang.Marker):
+class SKIP(lang.Marker):
     pass
 
 
-class OverweightException(Exception):
-    pass
-
-
-class Cache(ta.MutableMapping[K, V]):
+class CacheImpl(Cache[K, V]):
     """
     https://google.github.io/guava/releases/16.0/api/docs/com/google/common/cache/CacheBuilder.html
     """
@@ -85,16 +79,6 @@ class Cache(ta.MutableMapping[K, V]):
                     f'unlinked={self.unlinked})'
                 )
 
-    Eviction = ta.Callable[['Cache'], None]
-
-    @lang.staticfunction
-    def LRU(cache: 'Cache') -> None:
-        cache._kill(cache._root.lru_next)
-
-    @lang.staticfunction
-    def LRI(cache: 'Cache') -> None:
-        cache._kill(cache._root.ins_next)
-
     _cache: ta.MutableMapping[ta.Union[K, int], Link]
 
     DEFAULT_MAX_SIZE = 256
@@ -114,7 +98,7 @@ class Cache(ta.MutableMapping[K, V]):
             weigher: ta.Callable[[V], float] = lambda _: 1.,
             lock: lang.DefaultLockable = None,
             raise_overweight: bool = False,
-            eviction: Eviction = LRU,
+            eviction: Cache.Eviction = Cache.LRU,
     ) -> None:
         super().__init__()
 
@@ -143,7 +127,7 @@ class Cache(ta.MutableMapping[K, V]):
         else:
             self._cache = {}
 
-        self._root = Cache.Link()
+        self._root = CacheImpl.Link()
         self._root.seq = 0
         self._root.ins_next = self._root.ins_prev = self._root
         self._root.lru_next = self._root.lru_prev = self._root
@@ -161,16 +145,6 @@ class Cache(ta.MutableMapping[K, V]):
         self._misses = 0
         self._max_size_ever = 0
         self._max_weight_ever = 0.
-
-    @contextlib.contextmanager
-    def _locked(self):
-        """Too slow for the hot methods, do not use."""
-
-        if self._lock is not None:
-            with self._lock:
-                yield
-        else:
-            yield
 
     def _unlink(self, link: Link) -> None:
         if link is self._root:
@@ -205,9 +179,9 @@ class Cache(ta.MutableMapping[K, V]):
         if self._weak_keys:
             key = key()
             if key is None:
-                key = _SKIP
+                key = SKIP
 
-        if key is not _SKIP:
+        if key is not SKIP:
             cache_key = id(key) if self._identity_keys else key
             cache_link = self._cache.get(cache_key)
             if cache_link is link:
@@ -248,7 +222,7 @@ class Cache(ta.MutableMapping[K, V]):
                 self._kill(link)
 
     def reap(self) -> None:
-        with self._locked():
+        with self._lock():
             self._reap()
 
     def _get_link(self, key: K) -> ta.Tuple[Link, V]:
@@ -282,10 +256,7 @@ class Cache(ta.MutableMapping[K, V]):
         return link, value
 
     def __getitem__(self, key: K) -> V:
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._reap()
 
             try:
@@ -306,10 +277,6 @@ class Cache(ta.MutableMapping[K, V]):
             self._hits += 1
             return value
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     @staticmethod
     def _weak_die(dead_ref: weakref.ref, link: Link, key_ref: weakref.ref) -> None:
         dead = dead_ref()
@@ -325,10 +292,7 @@ class Cache(ta.MutableMapping[K, V]):
         return False
 
     def clear(self) -> None:
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._cache.clear()
             while True:
                 link = self._root.ins_prev
@@ -338,17 +302,10 @@ class Cache(ta.MutableMapping[K, V]):
                     raise TypeError
                 self._unlink(link)
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     def __setitem__(self, key: K, value: V) -> None:
         weight = self._weigher(value)
 
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._reap()
 
             if self._max_weight is not None and weight > self._max_weight:
@@ -367,11 +324,11 @@ class Cache(ta.MutableMapping[K, V]):
             while self._full:
                 self._eviction(self)
 
-            link = Cache.Link()
+            link = CacheImpl.Link()
             self._seq += 1
             link.seq = self._seq
-            link.key = weakref.ref(key, functools.partial(Cache._weak_die, self._weak_dead_ref, link)) if self._weak_keys else key  # noqa
-            link.value = weakref.ref(value, functools.partial(Cache._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
+            link.key = weakref.ref(key, functools.partial(CacheImpl._weak_die, self._weak_dead_ref, link)) if self._weak_keys else key  # noqa
+            link.value = weakref.ref(value, functools.partial(CacheImpl._weak_die, self._weak_dead_ref, link)) if self._weak_values else value  # noqa
             link.weight = weight
             link.written = link.accessed = self._clock()
             link.unlinked = False
@@ -394,15 +351,8 @@ class Cache(ta.MutableMapping[K, V]):
             cache_key = id(key) if self._identity_keys else key
             self._cache[cache_key] = link
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     def __delitem__(self, key: K) -> None:
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._reap()
 
             link, value = self._get_link(key)
@@ -412,28 +362,14 @@ class Cache(ta.MutableMapping[K, V]):
 
             self._unlink(link)
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     def __len__(self) -> int:
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._reap()
 
             return self._size
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     def __contains__(self, key: K) -> bool:
-        try:
-            if self._lock is not None:
-                self._lock.acquire()
-
+        with self._lock():
             self._reap()
 
             try:
@@ -443,12 +379,8 @@ class Cache(ta.MutableMapping[K, V]):
             else:
                 return True
 
-        finally:
-            if self._lock is not None:
-                self._lock.release()
-
     def __iter__(self) -> ta.Iterator[K]:
-        with self._locked():
+        with self._lock():
             self._reap()
 
             link = self._root.ins_prev
@@ -459,18 +391,9 @@ class Cache(ta.MutableMapping[K, V]):
                     raise ValueError
                 link = next
 
-    class Stats(ta.NamedTuple):
-        seq: int
-        size: int
-        weight: float
-        hits: int
-        misses: int
-        max_size_ever: int
-        max_weight_ever: float
-
     @property
-    def stats(self) -> Stats:
-        with self._locked():
+    def stats(self) -> Cache.Stats:
+        with self._lock():
             return Cache.Stats(
                 self._seq,
                 self._size,
@@ -482,171 +405,4 @@ class Cache(ta.MutableMapping[K, V]):
             )
 
 
-class Scope(enum.Enum):
-    INSTANCE = 'INSTANCE'
-    CLASS = 'CLASS'
-    STATIC = 'STATIC'
-
-
-class _HashedSeq(list):
-    __slots__ = ['hash_value']
-
-    def __init__(
-            self,
-            tup: ta.Tuple,
-            hasher: ta.Callable[[ta.Any], int] = hash
-    ) -> None:
-        super().__init__()
-
-        self[:] = tup
-        self.hash_value = hasher(tup)
-
-    def __hash__(self):
-        return self.hash_value
-
-
-def _make_key(
-        args: ta.Tuple,
-        kwargs: ta.Dict[str, ta.Any],
-        typed: bool,
-        kwd_mark=(object(),),
-        fasttypes={int, str, frozenset, type(None)},
-        tuple=tuple,
-        type=type,
-        len=len
-) -> ta.Any:
-    key = args
-    if kwargs:
-        key += kwd_mark
-        for item in kwargs.items():
-            key += item
-    if typed:
-        key += tuple(type(v) for v in args)
-        if kwargs:
-            key += tuple(type(v) for v in kwargs.values())
-    elif len(key) == 1 and type(key[0]) in fasttypes:
-        return key[0]
-    return _HashedSeq(key)
-
-
-class Ignore:
-
-    def __init__(self, value: ta.Any) -> None:
-        super().__init__()
-
-        self._value = value
-
-
-def ignore(value: ta.Any) -> ta.Any:
-    return Ignore(value)
-
-
-class _CacheDescriptor:
-
-    def __init__(
-            self,
-            fn: ta.Callable,
-            scope: Scope,
-            typed: bool,
-            **kwargs
-    ) -> None:
-        super().__init__()
-
-        self._fn = fn
-        functools.update_wrapper(self, fn)
-        self._scope = scope
-        self._typed = typed
-        self._kwargs = kwargs
-        self.__static: Cache = None
-        self._by_class: ta.MutableMapping[ta.Type, Cache] = weakref.WeakKeyDictionary() if scope == Scope.CLASS else None  # noqa
-        self._name = None
-        self._unary = kwargs.get('identity_keys', False) or kwargs.get('weak_keys', False)
-
-    def __set_name__(self, owner, name):
-        if self._name is None:
-            self._name = name
-
-    @property
-    def _static(self) -> Cache:
-        if self.__static is None:
-            self.__static = Cache(**self._kwargs)
-        return self.__static
-
-    def _build(self, fn: ta.Callable, cache: Cache):
-        def miss(key, result):
-            if isinstance(result, Ignore):
-                return result._value
-            else:
-                cache[key] = result
-                return result
-
-        if self._unary:
-            @functools.wraps(fn)
-            def inner(key):
-                try:
-                    return cache[key]
-                except KeyError:
-                    pass
-                return miss(key, fn(key))
-
-        else:
-            @functools.wraps(fn)
-            def inner(*args, **kwargs):
-                key = _make_key(args, kwargs, self._typed)
-                try:
-                    return cache[key]
-                except KeyError:
-                    pass
-                return miss(key, fn(*args, **kwargs))
-
-        return inner
-
-    def __get__(self, instance, owner):
-        if self._scope == Scope.STATIC:
-            cache = self._static
-
-        elif self._scope == Scope.CLASS:
-            if owner is None:
-                raise TypeError
-            try:
-                cache = self._by_class[owner]
-            except KeyError:
-                cache = self._by_class[owner] = Cache(**self._kwargs)
-
-        elif self._scope == Scope.INSTANCE:
-            if instance is not None:
-                cache = Cache()
-            else:
-                @functools.wraps(self._fn)
-                def trampoline(this, *args, **kwargs):
-                    return self.__get__(this, owner)(*args, **kwargs)
-                return trampoline
-
-        else:
-            raise TypeError
-
-        fn = self._build(self._fn.__get__(instance, owner), cache)
-
-        if self._scope == Scope.CLASS:
-            setattr(owner, self._name, fn)
-        elif self._scope == Scope.INSTANCE:
-            setattr(instance, self._name, fn)
-
-        return fn
-
-    def __call__(self, *args, **kwargs):
-        self.__call__ = self._build(self._fn, self._static)
-        return self.__call__(*args, **kwargs)
-
-
-def cache(
-        scope: ta.Union[Scope, str] = Scope.INSTANCE,
-        typed: bool = False,
-        **kwargs
-) -> CC:
-    if not isinstance(scope, Scope):
-        scope = getattr(Scope, scope.upper())
-
-    def inner(fn):
-        return _CacheDescriptor(fn, scope, typed, **kwargs)
-    return ta.cast(CC, inner)
+new_cache = CacheImpl

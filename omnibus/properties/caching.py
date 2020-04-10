@@ -35,7 +35,7 @@ class CachedProperty(Property[T]):
         if not self._pure:
             pydevd.forbid_debugger_call()
 
-        with self._lock:
+        with self._lock():
             try:
                 value = obj.__dict__[self._func.__name__]
             except KeyError:
@@ -97,7 +97,7 @@ class CachedClassProperty(Property[T]):
         if not self._pure:
             pydevd.forbid_debugger_call()
 
-        with self._lock:
+        with self._lock():
             try:
                 return self._values[cls]
             except KeyError:

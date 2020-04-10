@@ -17,7 +17,6 @@ from .lang import Self
 T = ta.TypeVar('T')
 IteratorTOrT = ta.Union[ta.Iterator[T], T]
 CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
-ContextManageableT = ta.TypeVar('ContextManageableT', bound='ContextManageable')
 
 
 class ContextManaged:
@@ -32,6 +31,13 @@ class ContextManaged:
             exc_tb: ta.Optional[types.TracebackType]
     ) -> ta.Optional[bool]:
         return
+
+
+NOP_CONTEXT_MANAGER = ContextManaged()
+
+
+def nop_context_manager():
+    return NOP_CONTEXT_MANAGER
 
 
 class ContextManageable(Protocol, ta.Generic[T]):
@@ -199,23 +205,22 @@ def manage_maybe_iterator(
         return result
 
 
-DefaultLockable = ta.Union[None, bool, ContextManageable, ta.Type[ContextManageableT]]
+Lockable = ta.Callable[[], ContextManageable]
+DefaultLockable = ta.Union[None, bool, Lockable, ContextManageable]
 
 
-def default_lock(value: DefaultLockable, default: DefaultLockable) -> ContextManageable:
+def default_lock(value: DefaultLockable, default: DefaultLockable) -> Lockable:
     if value is None:
         value = default
     if value is True:
-        return threading.RLock()
+        lock = threading.RLock()
+        return lambda: lock
     elif value is False or value is None:
-        return ContextManaged()
-    elif isinstance(value, ContextManageable):
-        return value
+        return nop_context_manager
     elif callable(value):
-        value = value()
-        if not isinstance(value, ContextManageable):
-            raise TypeError(value)
         return value
+    elif isinstance(value, ContextManageable):
+        return lambda: value
     else:
         raise TypeError(value)
 

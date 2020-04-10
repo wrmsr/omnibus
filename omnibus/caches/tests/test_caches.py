@@ -2,11 +2,12 @@ import gc
 
 import pytest
 
-from .. import caches
+from .. import descriptor as desc_
+from .. import impl as impl_
 
 
 def test_cache():
-    c = caches.Cache(max_size=2)
+    c = impl_.new_cache(max_size=2)
     c[0] = 'foo0'
     assert c[0] == 'foo0'
     c[1] = 'foo1'
@@ -17,7 +18,7 @@ def test_cache():
         c.__getitem__(0)
     assert c[2] == 'foo2'
 
-    c = caches.Cache(max_size=2)
+    c = impl_.new_cache(max_size=2)
     c[0] = 'foo0'
     assert c[0] == 'foo0'
     c[1] = 'foo1'
@@ -40,7 +41,7 @@ def test_cache():
 def test_descriptor_static():
     hits = []
 
-    @caches.cache()
+    @desc_.cache()
     def f(x):
         hits.append(x)
         return x + 1
@@ -58,7 +59,7 @@ def test_descriptor_instance():
         def __init__(self):
             self.hits = []
 
-        @caches.cache()
+        @desc_.cache()
         def f(self, x):
             self.hits.append(x)
             return x + 1
@@ -79,7 +80,7 @@ def test_weak_keys():
     class K:
         pass
     k = K()
-    c = caches.Cache(weak_keys=True)
+    c = impl_.new_cache(weak_keys=True)
     c[k] = 1
     assert c[k] == 1
     assert len(c) == 1
@@ -90,7 +91,7 @@ def test_weak_keys():
 
 def test_expirey():
     clock = 0
-    c = caches.Cache(expire_after_write=2, clock=lambda: clock)
+    c = impl_.new_cache(expire_after_write=2, clock=lambda: clock)
     c[0] = 'a'
     c[1] = 'b'
     clock = 1

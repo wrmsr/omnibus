@@ -36,7 +36,6 @@ from .contextmanagers import breakpoint_on_exception  # noqa
 from .contextmanagers import context_var_setting  # noqa
 from .contextmanagers import context_wrapped  # noqa
 from .contextmanagers import ContextManageable  # noqa
-from .contextmanagers import ContextManageableT  # noqa
 from .contextmanagers import ContextManaged  # noqa
 from .contextmanagers import ContextWrappable  # noqa
 from .contextmanagers import ContextWrapped  # noqa
@@ -45,8 +44,10 @@ from .contextmanagers import DefaultLockable  # noqa
 from .contextmanagers import defer  # noqa
 from .contextmanagers import disposing  # noqa
 from .contextmanagers import ExitStacked  # noqa
+from .contextmanagers import Lockable  # noqa
 from .contextmanagers import manage_maybe_iterator  # noqa
 from .contextmanagers import maybe_managing  # noqa
+from .contextmanagers import nop_context_manager  # noqa
 from .datetimes import months_ago  # noqa
 from .datetimes import parse_date  # noqa
 from .datetimes import parse_timedelta  # noqa

@@ -337,7 +337,7 @@ class NotPicklable:
         raise TypeError
 
 
-class staticfunction(staticmethod):
+class _staticfunction(staticmethod):
     """
     Allows calling @staticmethods within a classbody. Vanilla @staticmethods are not callable:
 
@@ -353,6 +353,10 @@ class staticfunction(staticmethod):
 
     def __call__(self, *args, **kwargs):
         return self.__func__(*args, **kwargs)
+
+
+staticfunction = staticmethod
+globals()['staticfunction'] = _staticfunction
 
 
 _MIXIN_IGNORED_ATTRS = {

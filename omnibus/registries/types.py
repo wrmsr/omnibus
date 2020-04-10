@@ -145,7 +145,7 @@ class BaseRegistry(Registry[K, V]):
             check.not_none(obj)
             check.callable(listener)
 
-        with self._lock:
+        with self._lock():
             for obj in listeners_by_obj.keys():
                 if obj in self._listeners_by_obj:
                     raise KeyError(obj)
@@ -159,7 +159,7 @@ class BaseRegistry(Registry[K, V]):
         for obj in objs:
             check.not_none(obj)
 
-        with self._lock:
+        with self._lock():
             for obj in objs:
                 if obj not in objs:
                     raise KeyError(obj)

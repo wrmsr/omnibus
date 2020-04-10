@@ -81,7 +81,7 @@ class LifecycleManager(AbstractLifecycle):
             lifecycle: Lifecycle,
             dependencies: ta.Iterable[Lifecycle] = (),
     ) -> Entry:
-        with self._lock:
+        with self._lock():
             return self._add_internal(lifecycle, dependencies)
 
     def construct(self) -> None:

@@ -54,7 +54,7 @@ class LifecycleController(Lifecycle, ta.Generic[LifecycleT]):
         check.arg(all(new_intermediate.phase > o.phase for o in old))
         check.arg(new_failed.phase > new_intermediate.phase)
         check.arg(new_succeeded.phase > new_failed.phase)
-        with self._lock:
+        with self._lock():
             if pre_listener_fn is not None:
                 for listener in self._listeners:
                     pre_listener_fn(listener)(self._lifecycle)

@@ -97,7 +97,7 @@ class QueryCompilationCache(ta.Generic[K, V]):
         self._constructor = check.callable(constructor)
         self._metrics = check.isinstance(metrics, instruments.MetricsCollection)
 
-        self._cache: ta.MutableMapping[K, QueryCompilationCache.Entry] = caches.Cache()
+        self._cache: ta.MutableMapping[K, QueryCompilationCache.Entry] = caches.new_cache()
 
     def build(self, key: K, conn: sa.engine.Connection) -> Entry:
         parameterized = self._parameterizer.parameterize(key)

@@ -44,7 +44,7 @@ class DictRegistry(BaseRegistry[K, V]):
             self._notify_listeners()
 
     def freeze(self) -> bool:
-        with self._lock:
+        with self._lock():
             if not self._frozen:
                 self._frozen = True
                 return True
@@ -101,7 +101,7 @@ class DictRegistry(BaseRegistry[K, V]):
         if not dct:
             return self
 
-        with self._lock:
+        with self._lock():
             dct = dict(dct)
 
             if self._coercer is not None:

@@ -49,9 +49,9 @@ class CompositeRegistry(BaseRegistry[K, V]):
         self._children = list(children)
         self._policy = check.callable(policy)
 
-        with self._lock:
+        with self._lock():
             def listener(_):
-                with self._lock:
+                with self._lock():
                     self._maybe_build()
                     self._notify_listeners()
 
@@ -66,7 +66,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
         return self._children
 
     def _maybe_build(self) -> ta.Tuple[ta.Any, ta.Mapping[K, V]]:
-        with self._lock:
+        with self._lock():
             version = tuple(c.version for c in self._children)
             if version != self._version:
                 composed = self._policy(self._children)

@@ -41,7 +41,7 @@ class AbcCacheGuard(CacheGuard):
     def maybe_clear(self) -> bool:
         if self._cache_token is not None:
             if self._cache_token != abc.get_cache_token():
-                with self._lock:
+                with self._lock():
                     current_token = abc.get_cache_token()
                     if self._cache_token != current_token:
                         self._clear()
@@ -81,7 +81,7 @@ class CachingDispatcher(Dispatcher[Impl]):
         return self._guard
 
     def clear(self) -> None:
-        with self._lock:
+        with self._lock():
             self._cache.clear()
 
     def __setitem__(self, key: TypeOrSpec, value: Impl):
@@ -94,7 +94,7 @@ class CachingDispatcher(Dispatcher[Impl]):
         try:
             impl, manifest = self._cache[key]
         except KeyError:
-            with self._lock:
+            with self._lock():
                 impl, manifest = self._child[key]
                 self._cache[key] = (impl, manifest)
         return impl, manifest
