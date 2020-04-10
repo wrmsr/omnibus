@@ -1,4 +1,4 @@
-FROM mysql:5.7
+FROM mysql:5.7.29
 COPY .dockertimestamp /
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5072E1F5
