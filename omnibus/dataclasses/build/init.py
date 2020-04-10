@@ -2,6 +2,7 @@ import dataclasses as dc
 import typing as ta
 
 from ... import check
+from ... import collections as ocol
 from ... import properties
 from ..internals import create_fn
 from ..internals import FieldType
@@ -134,7 +135,14 @@ class InitBuilder:
             raise TypeError
         return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
+    class DeriverNode(ta.NamedTuple):
+        fn: ta.Callable
+        ias: ta.FrozenSet[str]
+        oas: ta.FrozenSet[str]
+
     def do_derivers(self) -> None:
+        nodes: ta.List[InitBuilder.DeriverNode] = []
+
         field_derivers_by_field = {
             f: efp.derive
             for f in self.fctx.ctx.spec.fields
@@ -142,17 +150,17 @@ class InitBuilder:
             for efp in [f.metadata[ExtraFieldParams]]
             if efp.derive is not None
         }
-        for fd in field_derivers_by_field.values():
+        for f, fd in field_derivers_by_field.items():
             ias = get_flat_fn_args(fd)
             for ia in ias:
                 check.in_(ia, self.fctx.ctx.spec.fields)
+            nodes.append(self.DeriverNode(fd, frozenset(ias), frozenset([f.name])))
 
         extra_derivers = self.fctx.ctx.spec.rmro_extras_by_cls[Deriver]
         for ed in extra_derivers:
             ias = get_flat_fn_args(ed.fn)
             for ia in ias:
                 check.in_(ia, self.fctx.ctx.spec.fields)
-
             if isinstance(ed.attrs, str):
                 oas = [ed.attrs]
             elif isinstance(ed.attrs, ta.Iterable):
@@ -162,6 +170,10 @@ class InitBuilder:
             for oa in oas:
                 check.isinstance(oa, str)
                 check.in_(oa, self.fctx.ctx.spec.fields)
+            nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
+
+        if nodes:
+            print(node)
 
     def __call__(self) -> None:
         self.do_derivers()
