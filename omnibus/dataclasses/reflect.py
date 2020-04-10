@@ -64,7 +64,7 @@ class DataSpec(ta.Generic[TypeT]):
     @properties.cached
     def fields(self) -> Fields:
         check.state(hasattr(self._cls, FIELDS))
-        return Fields(dc.fields(self._cls))
+        return Fields(getattr(self._cls, FIELDS).values())
 
     @properties.cached
     def rmro(self) -> ta.Sequence[type]:

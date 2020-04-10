@@ -405,7 +405,6 @@ def test_dfac():
     assert isinstance(C().dct, dict)
 
 
-@pytest.mark.xfail()
 def test_iv():
     @dc.dataclass(frozen=True)
     class C:
