@@ -83,14 +83,6 @@ class ChdBuilder:
 
         self._dct = dct
 
-        num_entries: uint64 = len(dct)
-        num_buckets = num_entries // 2
-        if num_buckets == 0:
-            num_buckets = 1
-
-        self._num_entries: uint64 = num_entries
-        self._num_buckets: uint64 = num_buckets
-
         if rand_u64 is None:
             def rand_u64():
                 return rand.randint(0, MAX_UINT64)
@@ -98,6 +90,14 @@ class ChdBuilder:
 
         self._rand_u64 = rand_u64
         self._max_iters = max_iters
+
+        num_entries: uint64 = len(dct)
+        num_buckets = num_entries // 2
+        if num_buckets == 0:
+            num_buckets = 1
+
+        self._num_entries: uint64 = num_entries
+        self._num_buckets: uint64 = num_buckets
 
         self._r: ta.List[uint64] = []
         self._add(rand_u64())
