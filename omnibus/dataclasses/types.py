@@ -24,6 +24,7 @@ class Checker(lang.Final):
 
 @dc.dataclass(frozen=True)
 class Deriver(lang.Final):
+    attrs: ta.Union[str, ta.Iterable[str]]
     fn: ta.Callable[..., T]
 
 

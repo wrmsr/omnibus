@@ -2,6 +2,7 @@
 TODO:
  - dogpile
  - midpoint/arc
+ - heapq/etc powered lfu
  - thread scoped?
  - __sizeof__ interop
 """

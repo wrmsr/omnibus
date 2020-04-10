@@ -456,3 +456,13 @@ def test_descriptor():
 
         def __delete__(self, instance):
             pass
+
+
+def test_derive():
+    @api_.dataclass()
+    class C:
+        s: str
+        sp: str = api_.field(derive=lambda s: s + '!')
+
+    assert C('a', 'b').sp == 'b'
+    assert C('c').sp == 'c!'
