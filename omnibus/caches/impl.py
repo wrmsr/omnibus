@@ -44,6 +44,8 @@ class CacheImpl(Cache[K, V]):
                 'ins_next',
                 'lru_prev',
                 'lru_next',
+                'lfu_prev',
+                'lfu_next',
                 'key',
                 'value',
                 'weight',
@@ -58,6 +60,8 @@ class CacheImpl(Cache[K, V]):
             ins_next: 'Cache.Link'
             lru_prev: 'Cache.Link'
             lru_next: 'Cache.Link'
+            lfu_prev: 'Cache.Link'
+            lfu_next: 'Cache.Link'
             key: ta.Union[K, weakref.ref]
             value: ta.Union[V, weakref.ref]
             weight: float
@@ -73,6 +77,8 @@ class CacheImpl(Cache[K, V]):
                     f'ins_next={("@" + str(self.ins_next.seq)) if self.ins_next is not None else None}, '
                     f'lru_prev={("@" + str(self.lru_prev.seq)) if self.lru_prev is not None else None}, '
                     f'lru_next={("@" + str(self.lru_next.seq)) if self.lru_next is not None else None}, '
+                    f'lfu_prev={("@" + str(self.lfu_prev.seq)) if self.lfu_prev is not None else None}, '
+                    f'lfu_next={("@" + str(self.lfu_next.seq)) if self.lfu_next is not None else None}, '
                     f'key={self.key!r}, '
                     f'value={self.value!r}, '
                     f'weight={self.weight}, '
@@ -83,6 +89,18 @@ class CacheImpl(Cache[K, V]):
                 )
 
     _cache: ta.MutableMapping[ta.Union[K, int], Link]
+
+    @lang.staticfunction
+    def LRU(cache: 'Cache') -> None:
+        cache._kill(cache._root.lru_next)
+
+    @lang.staticfunction
+    def LRI(cache: 'Cache') -> None:
+        cache._kill(cache._root.ins_next)
+
+    @lang.staticfunction
+    def LFU(cache: 'Cache') -> None:
+        cache._kill(cache._root.lfu_next)
 
     DEFAULT_MAX_SIZE = 256
 
@@ -101,7 +119,7 @@ class CacheImpl(Cache[K, V]):
             weigher: ta.Callable[[V], float] = lambda _: 1.,
             lock: lang.DefaultLockable = None,
             raise_overweight: bool = False,
-            eviction: Cache.Eviction = Cache.LRU,
+            eviction: Cache.Eviction = LRU,
     ) -> None:
         super().__init__()
 
@@ -134,6 +152,7 @@ class CacheImpl(Cache[K, V]):
         self._root.seq = 0
         self._root.ins_next = self._root.ins_prev = self._root
         self._root.lru_next = self._root.lru_prev = self._root
+        self._root.lfu_next = self._root.lfu_prev = self._root
 
         if weak_keys or weak_values:
             self._weak_dead = collections.deque()
@@ -162,6 +181,10 @@ class CacheImpl(Cache[K, V]):
         link.lru_prev.lru_next = link.lru_next
         link.lru_next.lru_prev = link.lru_prev
         link.lru_next = link.lru_prev = link
+
+        link.lfu_prev.lfu_next = link.lfu_next
+        link.lfu_next.lfu_prev = link.lfu_prev
+        link.lfu_next = link.lfu_prev = link
 
         if self._removal_listener is not None:
             try:
@@ -268,13 +291,27 @@ class CacheImpl(Cache[K, V]):
                 self._misses += 1
                 raise KeyError(key)
 
-            link.lru_prev.lru_next = link.lru_next
-            link.lru_next.lru_prev = link.lru_prev
+            if link.lru_next is not self._root:
+                link.lru_prev.lru_next = link.lru_next
+                link.lru_next.lru_prev = link.lru_prev
 
-            lru_last = self._root.lru_prev
-            lru_last.lru_next = self._root.lru_prev = link
-            link.lru_prev = lru_last
-            link.lru_next = self._root
+                lru_last = self._root.lru_prev
+                lru_last.lru_next = self._root.lru_prev = link
+                link.lru_prev = lru_last
+                link.lru_next = self._root
+
+            lfu_pos = link.lfu_prev
+            while lfu_pos is not self._root and lfu_pos.hits <= link.hits:
+                lfu_pos = lfu_pos.lfu_prev
+
+            if link.lfu_prev is not lfu_pos:
+                link.lfu_prev.lfu_next = link.lfu_next
+                link.lfu_next.lfu_prev = link.lfu_prev
+
+                lfu_last = lfu_pos.lfu_prev
+                lfu_last.lfu_next = lfu_pos.lfu_prev = link
+                link.lfu_prev = lfu_last
+                link.lfu_next = lfu_pos
 
             link.accessed = self._clock()
             link.hits += 1
@@ -347,6 +384,11 @@ class CacheImpl(Cache[K, V]):
             lru_last.lru_next = self._root.lru_prev = link
             link.lru_prev = lru_last
             link.lru_next = self._root
+
+            lfu_last = self._root.lfu_prev
+            lfu_last.lfu_next = self._root.lfu_prev = link
+            link.lfu_prev = lfu_last
+            link.lfu_next = self._root
 
             self._weight += weight
             self._size += 1

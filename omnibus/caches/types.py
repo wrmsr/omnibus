@@ -1,8 +1,6 @@
 import abc
 import typing as ta
 
-from .. import lang
-
 
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
@@ -18,14 +16,6 @@ class Cache(ta.MutableMapping[K, V]):
     """
 
     Eviction = ta.Callable[['Cache'], None]
-
-    @lang.staticfunction
-    def LRU(cache: 'Cache') -> None:
-        cache._kill(cache._root.lru_next)
-
-    @lang.staticfunction
-    def LRI(cache: 'Cache') -> None:
-        cache._kill(cache._root.ins_next)
 
     @abc.abstractmethod
     def reap(self) -> None:

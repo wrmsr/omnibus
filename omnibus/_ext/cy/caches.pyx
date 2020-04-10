@@ -7,6 +7,8 @@ cdef class CacheLink:
     cdef public object ins_next
     cdef public object lru_prev
     cdef public object lru_next
+    cdef public object lfu_prev
+    cdef public object lfu_next
     cdef public object key
     cdef public object value
     cdef public float weight
@@ -22,6 +24,8 @@ cdef class CacheLink:
             f'ins_next={("@" + str(self.ins_next.seq)) if self.ins_next is not None else None}, '
             f'lru_prev={("@" + str(self.lru_prev.seq)) if self.lru_prev is not None else None}, '
             f'lru_next={("@" + str(self.lru_next.seq)) if self.lru_next is not None else None}, '
+            f'lfu_prev={("@" + str(self.lfu_prev.seq)) if self.lfu_prev is not None else None}, '
+            f'lfu_next={("@" + str(self.lfu_next.seq)) if self.lfu_next is not None else None}, '
             f'key={self.key!r}, '
             f'value={self.value!r}, '
             f'weight={self.weight}, '

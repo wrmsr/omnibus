@@ -99,3 +99,11 @@ def test_expirey():
     clock = 3
     with pytest.raises(KeyError):
         c.__getitem__(0)
+
+
+def test_lfu():
+    c = impl_.new_cache()
+    for i in range(10):
+        c[i] = i
+        for j in range(i):
+            c[i]

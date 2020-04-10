@@ -273,7 +273,6 @@ except ImportError:
             super().__init__()
 
             self._obj = obj
-            self.__call__ = lambda: obj
 
         def __call__(self) -> T:
             return self._obj
