@@ -3,6 +3,7 @@ import inspect
 import typing as ta
 
 from ... import check
+from ... import properties
 from ..types import Checker
 from ..types import CheckException
 from ..types import ExtraFieldParams
@@ -29,6 +30,38 @@ class Validation:
     def ctx(self) -> BuildContext:
         return self._ctx
 
+    @staticmethod
+    def get_flat_fn_args(fn) -> ta.List[str]:
+        argspec = inspect.getfullargspec(fn)
+        if (
+                argspec.varargs or
+                argspec.varkw or
+                argspec.defaults or
+                argspec.kwonlyargs or
+                argspec.kwonlydefaults
+        ):
+            raise TypeError(fn)
+        return list(argspec.args)
+
+    FN_ARG_EXTRA_TYPES = {
+        Checker,
+        Validator,
+    }
+
+    @properties.cached
+    def fn_extra_lists_by_arg_name_by_cls(self) -> ta.Mapping[str, ta.Mapping[type, ta.Sequence[ta.Any]]]:
+        ret = {}
+        for excls in self.FN_ARG_EXTRA_TYPES:
+            for ex in self.ctx.spec.rmro_extras_by_cls[excls]:
+                for arg in Validation.get_flat_fn_args(ex.fn):
+                    ret.setdefault(arg, {}).setdefault(excls, []).append(ex)
+        return ret
+
+    def build_chk_exc(self, chk, chk_args, *args):
+        if len(chk_args) != len(args):
+            raise TypeError(chk_args, args)
+        raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
+
     def create_init_builder(self, fctx: FunctionBuildContext) -> 'Validation.InitBuilder':
         return self.InitBuilder(self, fctx)
 
@@ -48,19 +81,6 @@ class Validation:
         def fctx(self) -> FunctionBuildContext:
             return self._fctx
 
-        @staticmethod
-        def get_flat_fn_args(fn) -> ta.List[str]:
-            argspec = inspect.getfullargspec(fn)
-            if (
-                    argspec.varargs or
-                    argspec.varkw or
-                    argspec.defaults or
-                    argspec.kwonlyargs or
-                    argspec.kwonlydefaults
-            ):
-                raise TypeError(fn)
-            return list(argspec.args)
-
         def build_validate_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -78,7 +98,7 @@ class Validation:
         def build_validator_lines(self) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
-                vld_args = self.get_flat_fn_args(vld.fn)
+                vld_args = Validation.get_flat_fn_args(vld.fn)
                 for arg in vld_args:
                     check.in_(arg, self.fctx.ctx.spec.fields)
                 ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
@@ -90,20 +110,14 @@ class Validation:
                 ret.append(f'{self.fctx.nsb.put(self_vld.fn)}({self.fctx.self_name})')
             return ret
 
-        @staticmethod
-        def build_chk_exc(chk, chk_args, *args):
-            if len(chk_args) != len(args):
-                raise TypeError(chk_args, args)
-            raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
-
         def build_checker_lines(self) -> ta.List[str]:
             ret = []
 
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
-                chk_args = self.get_flat_fn_args(chk.fn)
+                chk_args = Validation.get_flat_fn_args(chk.fn)
                 for arg in chk_args:
                     check.in_(arg, self.fctx.ctx.spec.fields)
-                bound_build_chk_exc = functools.partial(self.build_chk_exc, chk, chk_args)
+                bound_build_chk_exc = functools.partial(self.owner.build_chk_exc, chk, chk_args)
                 ret.append(
                     f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(chk_args)}): '
                     f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
@@ -115,11 +129,24 @@ class Validation:
             ret = []
 
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
-                self_chk_arg = [check.single(self.get_flat_fn_args(self_chk.fn))]
-                bound_build_chk_exc = functools.partial(self.build_chk_exc, self_chk, self_chk_arg)
+                self_chk_arg = [check.single(Validation.get_flat_fn_args(self_chk.fn))]
+                bound_build_chk_exc = functools.partial(self.owner.build_chk_exc, self_chk, self_chk_arg)
                 ret.append(
                     f'if not {self.fctx.nsb.put(self_chk.fn)}({self.fctx.self_name}): '
                     f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({self.fctx.self_name})'
                 )
 
             return ret
+
+        def build_pre_attr_lines(self) -> ta.List[str]:
+            lines = []
+            lines.extend(self.build_validate_lines())
+            lines.extend(self.build_validator_lines())
+            lines.extend(self.build_checker_lines())
+            return lines
+
+        def build_post_attr_lines(self) -> ta.List[str]:
+            lines = []
+            lines.extend(self.build_self_validator_lines())
+            lines.extend(self.build_self_checker_lines())
+            return lines

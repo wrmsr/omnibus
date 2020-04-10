@@ -133,12 +133,9 @@ class InitBuilder:
 
     def __call__(self) -> None:
         lines = []
-        lines.extend(self.validation_builder.build_validate_lines())
-        lines.extend(self.validation_builder.build_validator_lines())
-        lines.extend(self.validation_builder.build_checker_lines())
+        lines.extend(self.validation_builder.build_pre_attr_lines())
         lines.extend(self.build_field_init_lines())
-        lines.extend(self.validation_builder.build_self_validator_lines())
-        lines.extend(self.validation_builder.build_self_checker_lines())
+        lines.extend(self.validation_builder.build_post_attr_lines())
         lines.extend(self.build_post_init_lines())
         lines.extend(self.build_extra_post_init_lines())
 
