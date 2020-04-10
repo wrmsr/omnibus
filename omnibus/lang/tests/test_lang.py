@@ -1,6 +1,7 @@
 import collections.abc
 import concurrent.futures
 import contextlib
+import pickle
 import time
 import typing as ta
 
@@ -574,3 +575,9 @@ def test_redact():
     assert barf == 'barf'
     assert barf != 'barfx'
     assert barf < 'barfx'
+
+
+def test_const():
+    c = lang_.constant(4)
+    assert c() == 4
+    assert pickle.loads(pickle.dumps(c))() == 4

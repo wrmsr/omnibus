@@ -263,5 +263,17 @@ def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
     raise exc
 
 
-def constant(obj: T) -> ta.Callable[[], T]:
-    return lambda: obj
+try:
+    from .._ext.cy.lang import constant
+
+except ImportError:
+    class constant(ta.Generic[T]):
+
+        def __init__(self, obj: T) -> None:
+            super().__init__()
+
+            self._obj = obj
+            self.__call__ = lambda: obj
+
+        def __call__(self) -> T:
+            return self._obj

@@ -1,4 +1,4 @@
-cdef class Constant:
+cdef class constant:
     cdef public object obj
 
     def __init__(self, obj):
