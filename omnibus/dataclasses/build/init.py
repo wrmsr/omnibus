@@ -173,7 +173,7 @@ class InitBuilder:
             nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
 
         if nodes:
-            print(node)
+            print(nodes)
 
     def __call__(self) -> None:
         self.do_derivers()
