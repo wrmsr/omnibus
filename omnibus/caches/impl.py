@@ -1,7 +1,7 @@
 """
 TODO:
  - dogpile
- - midpoint/arc/lfu
+ - midpoint/arc
  - thread scoped?
  - __sizeof__ interop
 """
