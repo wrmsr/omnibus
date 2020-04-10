@@ -23,6 +23,7 @@ mysql-connector-python==8.0.19
 orjson==2.6.2
 pg8000==1.14.1
 psycopg2==2.8.4
+pyhash==0.9.3
 pymysql==0.9.3
 pyrsistent==0.16.0
 PyYAML==5.3.1
