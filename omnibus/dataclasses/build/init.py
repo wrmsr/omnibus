@@ -140,7 +140,8 @@ class InitBuilder:
         ias: ta.FrozenSet[str]
         oas: ta.FrozenSet[str]
 
-    def do_derivers(self) -> None:
+    @properties.cached
+    def deriver_nodes(self) -> ta.Sequence[DeriverNode]:
         nodes: ta.List[InitBuilder.DeriverNode] = []
 
         field_derivers_by_field = {
@@ -172,12 +173,12 @@ class InitBuilder:
                 check.in_(oa, self.fctx.ctx.spec.fields)
             nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
 
-        # TODO: ** hijack default factory machinery **
-        if nodes:
-            print(nodes)
+        return tuple(nodes)
 
     def __call__(self) -> None:
-        self.do_derivers()
+        # TODO: ** hijack default factory machinery **
+        if self.deriver_nodes:
+            print(self.deriver_nodes)
 
         lines = []
         lines.extend(self.validation_builder.build_pre_attr_lines())
