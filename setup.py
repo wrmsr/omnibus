@@ -68,6 +68,7 @@ EXT_MODULES = [
         setuptools.Extension(
             'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
             sources=[fpath],
+            extra_compile_args=['-std=c++14'],
             optional=True,
         )
         for fpath in glob.glob('omnibus/_ext/cc/*.cc')

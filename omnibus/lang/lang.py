@@ -261,3 +261,7 @@ def void(*args, **kwargs) -> ta.NoReturn:
 
 def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
     raise exc
+
+
+def constant(obj: T) -> ta.Callable[[], T]:
+    return lambda: obj
