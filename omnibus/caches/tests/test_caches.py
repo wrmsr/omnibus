@@ -107,3 +107,13 @@ def test_lfu():
         c[i] = i
         for j in range(i):
             c[i]
+
+    c = impl_.new_cache(max_size=5, eviction=impl_.CacheImpl.LFU)
+    for i in range(5):
+        c[i] = i
+    for _ in range(2):
+        for i in range(5):
+            if i != 2:
+                c[i]
+    c[2]
+    c[6] = 6

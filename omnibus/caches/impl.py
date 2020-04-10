@@ -100,7 +100,7 @@ class CacheImpl(Cache[K, V]):
 
     @lang.staticfunction
     def LFU(cache: 'Cache') -> None:
-        cache._kill(cache._root.lfu_next)
+        cache._kill(cache._root.lfu_prev)
 
     DEFAULT_MAX_SIZE = 256
 
