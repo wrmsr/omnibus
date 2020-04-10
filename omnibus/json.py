@@ -7,6 +7,7 @@ TODO:
  - combo Serde - codecify?
   - dedupe symmetric generic Serde sides?
  - json/__init__.py, base.py(?), serdes.py..
+ - ** move to serde package, heavy on json compat by default, still toplevel json for uj/orj switch **
 
 https://github.com/ijl/orjson
 

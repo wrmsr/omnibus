@@ -27,6 +27,7 @@ TODO:
  - per-field finality
  - intern?
  - frozen_subtypes, frozen_deep - enum?
+ - freeze a non-frozen dc
 """
 import collections
 import collections.abc
