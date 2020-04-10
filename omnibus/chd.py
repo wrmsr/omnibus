@@ -10,13 +10,12 @@ from omnibus import properties
 
 uint16 = int
 uint64 = int
+
 MAX_UINT16 = 0xffff
 MAX_UINT64 = 0xffffffffffffffff
 
-
 _FNV_OFFSET = 0xcbf29ce484222325
 _FNV_PRIME = 0x100000001b3
-
 
 try:
     import pyhash
@@ -53,11 +52,9 @@ class Chd:
         h = fnv1a_64(key) ^ r0
         i = h % len(self.indices)
         ri = self.indices[i]
-
-        # This can occur if there were unassigned slots in the hash table.
         if ri >= len(self.r) & MAX_UINT16:
+            # This can occur if there were unassigned slots in the hash table.
             return None
-
         r = self.r[ri]
         ti = (h ^ r) % len(self.keys)
         k = self.keys[ti]
@@ -179,7 +176,6 @@ class ChdBuilder:
 
             # Keep trying new functions until we get one that does not collide. The number of retries here is very high
             # to allow a very high probability of not getting collisions.
-            cont = False
             for _ in range(self._max_iters):
                 ri, r = self._generate()
                 if self._try_hash(bucket, ri, r):

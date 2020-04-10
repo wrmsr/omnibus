@@ -120,12 +120,10 @@ def test_chd():
         'seven': '7',
     }
 
-    b = chd_.ChdBuilder({
-        k.encode('utf8'): v.encode('utf8')
-        for k, v in sample_data.items()
-    }, rand_u64=iter(GO_ZERO_SEED_RAND_U64S).__next__)
-
-    c = b.chd
+    c = chd_.ChdBuilder(
+        {k.encode('utf8'): v.encode('utf8') for k, v in sample_data.items()},
+        rand_u64=iter(GO_ZERO_SEED_RAND_U64S).__next__,
+    ).chd
 
     assert c == chd_.Chd(
         r=[
