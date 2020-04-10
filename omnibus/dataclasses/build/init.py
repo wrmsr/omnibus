@@ -175,10 +175,23 @@ class InitBuilder:
 
         return tuple(nodes)
 
-    def __call__(self) -> None:
+    def do_derivers(self) -> None:
+        if not self.deriver_nodes:
+            return
+
+        nodes_by_oa = {}
+        for n in self.deriver_nodes:
+            for oa in n.oas:
+                if oa in nodes_by_oa:
+                    raise AttributeError('Duplicate deriver output', n, nodes_by_oa[oa])
+                nodes_by_oa[oa] = n
+
         # TODO: ** hijack default factory machinery **
-        if self.deriver_nodes:
-            print(self.deriver_nodes)
+        supersteps = list(ocol.toposort({oa: set(n.ias) for oa, n in nodes_by_oa.items()}))
+        print(supersteps)
+
+    def __call__(self) -> None:
+        self.do_derivers()
 
         lines = []
         lines.extend(self.validation_builder.build_pre_attr_lines())
