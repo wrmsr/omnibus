@@ -2,6 +2,29 @@
 TODO:
  - class-level descriptor proto not optional / overridable, but instance level fully so
  - need to re-run checks/validators on all mutations
+ - nesting
+ - rebuilding from existing
+  - stubbing (query comp cache)
+ - dc.replace
+ - have to override __new__ for tups, pyr
+
+NOTES:
+ - can change ctor
+  - config takes only a source
+ - dc.replace has to work
+  - is only way to modify tuple/pyrsistent / any frozen
+   - backend.is_frozen
+
+Backends:
+ - default
+  - slots
+ - tuple
+ - pyrsistent
+ - struct
+ - arrays
+  - numpy
+  - mmap
+ - configs
 """
 import typing as ta
 
