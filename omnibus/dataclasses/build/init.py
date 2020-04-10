@@ -172,6 +172,7 @@ class InitBuilder:
                 check.in_(oa, self.fctx.ctx.spec.fields)
             nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
 
+        # TODO: ** hijack default factory machinery **
         if nodes:
             print(nodes)
 
