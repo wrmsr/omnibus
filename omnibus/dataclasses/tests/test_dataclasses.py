@@ -463,8 +463,10 @@ def test_derive2():
     class C:
         s: str
         sp: str = api_.field(derive=lambda s: s + '!')
-        spp: str = api_.field(derive=lambda sp: s + '!!')
+        spp: str
+
+        api_.derive('spp', lambda sp: sp + '!!')
 
     assert C('a', 'b', 'c').spp == 'c'
     # FIXME:
-    # assert C('c').spp == 'c!!'
+    assert C('c').spp == 'c!!'

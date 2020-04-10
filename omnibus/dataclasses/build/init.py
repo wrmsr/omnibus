@@ -7,9 +7,12 @@ from ..internals import create_fn
 from ..internals import FieldType
 from ..internals import get_field_type
 from ..internals import POST_INIT_NAME
+from ..types import Deriver
+from ..types import ExtraFieldParams
 from ..types import PostInit
 from .context import FunctionBuildContext
 from .storage import Storage
+from .utils import get_flat_fn_args
 from .validation import Validation
 
 T = ta.TypeVar('T')
@@ -131,7 +134,38 @@ class InitBuilder:
             raise TypeError
         return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
+    def do_derivers(self) -> None:
+        field_derivers_by_field = {
+            f: efp.derive
+            for f in self.fctx.ctx.spec.fields
+            if ExtraFieldParams in f.metadata
+            for efp in [f.metadata[ExtraFieldParams]]
+            if efp.derive is not None
+        }
+        for fd in field_derivers_by_field.values():
+            ias = get_flat_fn_args(fd)
+            for ia in ias:
+                check.in_(ia, self.fctx.ctx.spec.fields)
+
+        extra_derivers = self.fctx.ctx.spec.rmro_extras_by_cls[Deriver]
+        for ed in extra_derivers:
+            ias = get_flat_fn_args(ed.fn)
+            for ia in ias:
+                check.in_(ia, self.fctx.ctx.spec.fields)
+
+            if isinstance(ed.attrs, str):
+                oas = [ed.attrs]
+            elif isinstance(ed.attrs, ta.Iterable):
+                oas = ed.attrs
+            else:
+                raise TypeError(ed)
+            for oa in oas:
+                check.isinstance(oa, str)
+                check.in_(oa, self.fctx.ctx.spec.fields)
+
     def __call__(self) -> None:
+        self.do_derivers()
+
         lines = []
         lines.extend(self.validation_builder.build_pre_attr_lines())
         lines.extend(self.build_field_init_lines())
