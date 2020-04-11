@@ -95,7 +95,6 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
         return self._dct.items()
 
     def put(self, name: str, value: ta.Any) -> str:
-        raise RuntimeError('fix callsites to use add lol')
         check.isinstance(name, str)
         try:
             existing = self._dct[name]
@@ -106,7 +105,7 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
                 raise NameError(name)
         return name
 
-    def add(self, value: ta.Any, prefix: str = None) -> str:
+    def add(self, value: ta.Any, prefix: str = '') -> str:
         return self.put(self._name_generator(prefix), value)
 
 
@@ -145,7 +144,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
     def ann(n):
         if not arg_spec.annotations or n not in arg_spec.annotations:
             return ''
-        anns[n] = ns_builder.put(arg_spec.annotations[n])
+        anns[n] = ns_builder.add(arg_spec.annotations[n])
         return ': ' + anns[n]
 
     args: ta.List[str] = []
@@ -154,7 +153,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
         nd = len(arg_spec.args) - len(arg_spec.defaults or [])
         args.extend(f"{a}{ann(a)}" for a in arg_spec.args[:nd])
         for a in arg_spec.args[nd:]:
-            args.append(f"{a}{ann(a)}{' = ' if a in arg_spec.annotations else '='}{ns_builder.put(a)}")
+            args.append(f"{a}{ann(a)}{' = ' if a in arg_spec.annotations else '='}{ns_builder.add(a)}")
 
     if arg_spec.varargs:
         args.append(f'*{arg_spec.varargs}' + ann(arg_spec.varargs))
@@ -162,7 +161,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
         args.append('*')
 
     for kw, d in zip(arg_spec.kwonlyargs, arg_spec.kwonlydefaults):
-        args.append(f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}{ns_builder.put(d)}")
+        args.append(f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}{ns_builder.add(d)}")
 
     if arg_spec.varkw:
         args.append(f'**{arg_spec.varkw}' + ann(arg_spec.varkw))

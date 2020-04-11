@@ -127,7 +127,7 @@ class InitBuilder:
     def build_extra_post_init_lines(self) -> ta.List[str]:
         ret = []
         for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
-            ret.append(f'{self.fctx.nsb.put(pi.fn)}({self.fctx.self_name})')
+            ret.append(f'{self.fctx.nsb.add(pi.fn)}({self.fctx.self_name})')
         return ret
 
     def build_init_param(self, fld: dc.Field) -> str:

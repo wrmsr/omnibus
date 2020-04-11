@@ -106,9 +106,9 @@ define do-venv
 			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
 		fi ; \
 		\
-		$(1)/bin/pip install --upgrade pip setuptools ; \
+		$(1)/bin/pip install --upgrade pip setuptools wheel ; \
 		$(1)/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
-		\
+ 		\
 		if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
 			if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
 				$(1)/bin/python "/Applications/PyCharm.app/Contents/helpers/pydev/setup_cython.py" build_ext --inplace ; \

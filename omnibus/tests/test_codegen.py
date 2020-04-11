@@ -28,8 +28,8 @@ def test_namegen():
 
     nsb = cg.NamespaceBuilder()
     now = datetime.datetime.now()
-    assert nsb.put(0) == '_0'
-    assert nsb.put(now) == '_1'
+    assert nsb.add(0) == '_0'
+    assert nsb.add(now) == '_1'
     assert dict(nsb) == {'_0': 0, '_1': now}
 
     g = cg.Codegen()
