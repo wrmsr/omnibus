@@ -19,6 +19,8 @@ TODO:
  - custom scopes: async/cvar/dyn?
  - assisted injection + config (dc) interop - adapter for externals w/ some-kwargs-injected some-kwargs-config'd
  - *dimensions* - cartesians, etc - likely child injectors
+ - hybridize w actors/otp/akka props
+  - ** PROPS ARE HERE, SUPER TREE IS IN LIFECYCLES **
 """
 import collections
 import threading
