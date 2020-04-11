@@ -94,17 +94,20 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
     def items(self) -> ta.Iterable[ta.Tuple[str, ta.Any]]:
         return self._dct.items()
 
-    def put(self, *args) -> str:
-        if len(args) == 1:
-            k, v = self._name_generator(), *args
-        elif len(args) == 2:
-            k, v = args
+    def put(self, name: str, value: ta.Any) -> str:
+        raise RuntimeError('fix callsites to use add lol')
+        check.isinstance(name, str)
+        try:
+            existing = self._dct[name]
+        except KeyError:
+            self._dct[name] = value
         else:
-            raise ValueError(args)
-        check.isinstance(k, str)
-        check.not_in(k, self._dct)
-        self._dct[k] = v
-        return k
+            if existing is not value:
+                raise NameError(name)
+        return name
+
+    def add(self, value: ta.Any, prefix: str = None) -> str:
+        return self.put(self._name_generator(prefix), value)
 
 
 @dc.dataclass(frozen=True)

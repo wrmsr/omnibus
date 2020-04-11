@@ -35,6 +35,10 @@ class Validation:
         Validator,
     }
 
+    def process(self) -> None:
+        # FIXME:
+        pass
+
     @properties.cached
     def fn_extra_lists_by_arg_name_by_cls(self) -> ta.Mapping[str, ta.Mapping[type, ta.Sequence[ta.Any]]]:
         ret = {}

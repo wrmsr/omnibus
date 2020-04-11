@@ -58,6 +58,10 @@ class Storage:
             if self.ctx.set_new_attribute(fn.__name__, fn):
                 raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.fctx.ctx.cls.__name__}')
 
+    def process(self) -> None:
+        # FIXME:
+        pass
+
     def create_init_builder(self, fctx: FunctionBuildContext) -> 'Storage.InitBuilder':
         return self.InitBuilder(self, fctx)
 

@@ -3,6 +3,7 @@ import typing as ta
 
 from ... import check
 from ... import collections as ocol
+from ... import lang
 from ... import properties
 from ..internals import create_fn
 from ..internals import FieldType
@@ -16,8 +17,13 @@ from .storage import Storage
 from .utils import get_flat_fn_args
 from .validation import Validation
 
+
 T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
+
+
+class HasFactory(lang.Marker):
+    pass
 
 
 class InitBuilder:
@@ -90,8 +96,8 @@ class InitBuilder:
         }
 
     @properties.cached
-    def has_default_factory_name(self) -> str:
-        return self.fctx.nsb.put('_has_default_factory')
+    def has_factory_name(self) -> str:
+        return self.fctx.nsb.put('_has_factory', HasFactory)
 
     def build_field_init_lines(self) -> ta.List[str]:
         dct = {}
@@ -101,7 +107,7 @@ class InitBuilder:
             elif f.default_factory is not dc.MISSING:
                 default_factory_name = self.default_factory_names_by_field_name[f.name]
                 if f.init:
-                    value = f'{default_factory_name}() if {f.name} is {self.has_default_factory_name} else {f.name}'
+                    value = f'{default_factory_name}() if {f.name} is {self.has_factory_name} else {f.name}'
                 else:
                     value = f'{default_factory_name}()'
             elif f.init:
@@ -130,7 +136,7 @@ class InitBuilder:
         elif fld.default is not dc.MISSING:
             default = ' = ' + self.default_names_by_field_name[fld.name]
         elif fld.default_factory is not dc.MISSING:
-            default = ' = ' + self.has_default_factory_name
+            default = ' = ' + self.has_factory_name
         else:
             raise TypeError
         return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'

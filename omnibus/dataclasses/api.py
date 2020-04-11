@@ -28,6 +28,7 @@ TODO:
  - intern?
  - frozen_subtypes, frozen_deep - enum?
  - freeze a non-frozen dc
+ - lazy derivers
 """
 import collections
 import collections.abc
