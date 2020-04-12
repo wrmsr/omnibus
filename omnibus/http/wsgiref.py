@@ -18,7 +18,10 @@ log = logging.getLogger(__name__)
 Self = ta.TypeVar('Self')
 
 
-class WSGIRefProtocol(lang.Protocol):
+WsgiRequestHandler = wsgiref.simple_server.WSGIRequestHandler
+
+
+class WsgiRefProtocol(lang.Protocol):
 
     @property
     def server_name(self) -> str:
@@ -39,7 +42,7 @@ class WSGIRefProtocol(lang.Protocol):
         raise NotImplementedError
 
 
-@WSGIRefProtocol
+@WsgiRefProtocol
 class WsgiRefWsgiServer(WsgiServer):
 
     Handler = ta.Callable[[sock.socket, ClientAddress, 'WsgiRefWsgiServer'], None]
@@ -49,7 +52,7 @@ class WsgiRefWsgiServer(WsgiServer):
             binder: Binder,
             app: App,
             *,
-            handler: Handler = wsgiref.simple_server.WSGIRequestHandler,
+            handler: Handler = WsgiRequestHandler,
             **kwargs
     ) -> None:
         super().__init__(binder, app, **kwargs)
