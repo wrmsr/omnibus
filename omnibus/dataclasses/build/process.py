@@ -158,9 +158,6 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         self.install_fields()
 
-        if self.ctx.extra_params.field_attrs:
-            self.storage.install_field_attrs()
-
         if self.ctx.params.init:
             self.install_init()
 
@@ -173,8 +170,9 @@ class ClassProcessor(ta.Generic[TypeT]):
         if self.ctx.params.order:
             self.install_order()
 
-        if self.ctx.params.frozen:
-            self.storage.install_frozen()
+        self.storage.process()
+
+        self.validation.process()
 
         self.maybe_install_hash()
 
