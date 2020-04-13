@@ -20,13 +20,17 @@ class Context(ta.Generic[TypeT]):
             self,
             cls: TypeT,
             params: DataclassParams,
-            extra_params: ExtraParams = ExtraParams(),
+            extra_params: ExtraParams,
+            aspects: ta.Iterable['Aspect'],
     ) -> None:
         super().__init__()
 
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, DataclassParams)
         self._extra_params = check.isinstance(extra_params, ExtraParams)
+        self._aspects = tuple(aspects)
+        for a in self._aspects:
+            check.isinstance(a, Aspect)
 
     @property
     def cls(self) -> TypeT:
@@ -40,9 +44,19 @@ class Context(ta.Generic[TypeT]):
     def extra_params(self) -> ExtraParams:
         return self._extra_params
 
+    @property
+    def aspects(self) -> ta.Sequence['Aspect']:
+        return self._aspects
+
     @properties.cached
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
+
+    def get_aspects(self, cls: ta.Type[TypeT] = None) -> ta.Sequence[TypeT]:
+        return [a for a in self._aspects if isinstance(a, cls)]
+
+    def get_aspect(self, cls: ta.Type[AspectT]) -> AspectT:
+        return check.single(self.get_aspects(cls))
 
     def set_new_attribute(self, name: str, value: ta.Any) -> bool:
         if name in self.cls.__dict__:

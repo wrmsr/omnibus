@@ -1,25 +1,13 @@
 import dataclasses as dc
 import inspect
-import typing as ta
 
-from ... import check
-from ... import lang
-from ... import properties
 from ..internals import cmp_fn
 from ..internals import frozen_get_del_attr
 from ..internals import hash_action
 from ..internals import PARAMS
 from ..internals import repr_fn
 from ..internals import tuple_str
-from ..types import ExtraParams
-from ..types import METADATA_ATTR
-from .context import BuildContext
-from .context import FunctionBuildContext
-from .defaulting import Defaulting
-from .fields import build_cls_fields
-from .init import InitBuilder
-from .storage import Storage
-from .validation import Validation
+from .types import Aspect
 
 
 class Repr(Aspect):
