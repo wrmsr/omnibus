@@ -1,4 +1,7 @@
 """
+FIXME:
+ - fix req-dev.txt? keep depless? already non-mako tmpl in main for nginx..
+
 TODO:
  - tpch
  - mypy

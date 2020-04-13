@@ -6,6 +6,11 @@ TODO:
   - move InitBuilder to Processor?
  - post-init? .. why not.
  - ** rebuild / subclass config ala compcache w/ config storage** - ctors will check.isinstance
+
+Q:
+ - existing conventional ctor vs unary 'source' ctor
+  - q of lazy vs eager
+  - **DECREE** going with unary 'source' ctor PREEMPTIVELY despite initially being overkill
 """
 
 # from .. import dataclasses as dc
