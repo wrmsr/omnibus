@@ -72,7 +72,6 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, **kwargs):
     if namespace is None:
         namespace = {}
     else:
-        # Copy namespace since we're going to mutate it.
         namespace = namespace.copy()
 
     seen = set()
@@ -190,8 +189,7 @@ def field(
     )
 
     if metadata is not None:
-        if not isinstance(metadata, ta.Mapping):
-            raise TypeError(metadata)
+        types.MappingProxyType(metadata)
     else:
         metadata = {}
 
