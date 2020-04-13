@@ -10,6 +10,7 @@ from ..reflect import get_cls_spec
 from ..types import ExtraParams
 
 
+T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 AspectT = ta.TypeVar('AspectT', bound='Aspect', covariant=True)
 
@@ -48,15 +49,15 @@ class Context(ta.Generic[TypeT]):
     def aspects(self) -> ta.Sequence['Aspect']:
         return self._aspects
 
+    def get_aspects(self, cls: ta.Type[T] = None) -> ta.Sequence[T]:
+        return [a for a in self._aspects if isinstance(a, cls)]
+
+    def get_aspect(self, cls: ta.Type[T]) -> T:
+        return check.single(self.get_aspects(cls))
+
     @properties.cached
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
-
-    def get_aspects(self, cls: ta.Type[TypeT] = None) -> ta.Sequence[TypeT]:
-        return [a for a in self._aspects if isinstance(a, cls)]
-
-    def get_aspect(self, cls: ta.Type[AspectT]) -> AspectT:
-        return check.single(self.get_aspects(cls))
 
     def set_new_attribute(self, name: str, value: ta.Any) -> bool:
         if name in self.cls.__dict__:
@@ -66,24 +67,39 @@ class Context(ta.Generic[TypeT]):
 
     class Function:
 
-        def __init__(self, ctx: 'Context') -> None:
+        def __init__(
+                self,
+                ctx: 'Context',
+                aspects: ta.Iterable['Aspect.Function'],
+        ) -> None:
             super().__init__()
 
             self._ctx = check.isinstance(ctx, Context)
-
-            self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=ctx.spec.fields.by_name))
+            self._aspects = tuple(aspects)
+            for a in self._aspects:
+                check.isinstance(a, Aspect.Function)
 
         @property
         def ctx(self) -> 'Context':
             return self._ctx
 
         @property
+        def aspects(self) -> ta.Sequence['Aspect.Function']:
+            return self._aspects
+
+        def get_aspects(self, cls: T = None) -> ta.Sequence[T]:
+            return [a for a in self._aspects if isinstance(a, cls)]
+
+        def get_aspect(self, cls: T) -> T:
+            return check.single(self.get_aspects(cls))
+
+        @properties.cached
         def nsb(self) -> codegen.NamespaceBuilder:
-            return self._nsb
+            return codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=self.ctx.spec.fields.by_name))
 
         @properties.cached
         def self_name(self) -> str:
-            return self._nsb.put('self', None)
+            return self.nsb.put('self', None)
 
 
 class Aspect(lang.Abstract):
