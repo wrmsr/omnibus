@@ -12,7 +12,7 @@ from .types import Aspect
 
 class Repr(Aspect):
 
-    def install(self) -> None:
+    def process(self) -> None:
         if not self.ctx.params.repr:
             return
 
@@ -22,7 +22,7 @@ class Repr(Aspect):
 
 class Eq(Aspect):
 
-    def install(self) -> None:
+    def process(self) -> None:
         if not self.ctx.params.eq:
             return
 
@@ -47,7 +47,7 @@ class Order(Aspect):
         if self.ctx.params.order and not self.ctx.params.eq:
             raise ValueError('eq must be true if order is true')
 
-    def install(self) -> None:
+    def process(self) -> None:
         if not self.ctx.params.order:
             return
 
@@ -77,7 +77,7 @@ class Order(Aspect):
 
 class Hash(Aspect):
 
-    def install(self) -> None:
+    def process(self) -> None:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
         # was not auto-generated, but it close enough.
@@ -95,7 +95,7 @@ class Hash(Aspect):
 
 class Doc(Aspect):
 
-    def install(self) -> None:
+    def process(self) -> None:
         if not getattr(self.ctx.cls, '__doc__'):
             self.ctx.cls.__doc__ = \
                 self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
@@ -111,7 +111,7 @@ class Frozen(Aspect):
             if not any_frozen_base and self.ctx.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
-    def install(self) -> None:
+    def process(self) -> None:
         for fn in frozen_get_del_attr(
                 self.ctx.cls,
                 self.ctx.spec.fields.instance,
@@ -119,3 +119,13 @@ class Frozen(Aspect):
         ):
             if self.ctx.set_new_attribute(fn.__name__, fn):
                 raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
+
+
+class FieldAttrs(Aspect):
+
+    def process(self) -> None:
+        if not self.ctx.extra_params.field_attrs:
+            return
+
+        for f in self.ctx.spec.fields:
+            setattr(self.ctx.cls, f.name, f)

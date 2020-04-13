@@ -64,27 +64,26 @@ class Context(ta.Generic[TypeT]):
         setattr(self.cls, name, value)
         return False
 
+    class Function:
 
-class FunctionContext:
+        def __init__(self, ctx: 'Context') -> None:
+            super().__init__()
 
-    def __init__(self, ctx: Context) -> None:
-        super().__init__()
+            self._ctx = check.isinstance(ctx, Context)
 
-        self._ctx = check.isinstance(ctx, Context)
+            self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=ctx.spec.fields.by_name))
 
-        self._nsb = codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=ctx.spec.fields.by_name))
+        @property
+        def ctx(self) -> 'Context':
+            return self._ctx
 
-    @property
-    def ctx(self) -> Context:
-        return self._ctx
+        @property
+        def nsb(self) -> codegen.NamespaceBuilder:
+            return self._nsb
 
-    @property
-    def nsb(self) -> codegen.NamespaceBuilder:
-        return self._nsb
-
-    @properties.cached
-    def self_name(self) -> str:
-        return self._nsb.put('self', None)
+        @properties.cached
+        def self_name(self) -> str:
+            return self._nsb.put('self', None)
 
 
 class Aspect(lang.Abstract):
@@ -103,21 +102,21 @@ class Aspect(lang.Abstract):
     def check(self) -> None:
         pass
 
-    def install(self) -> None:
+    def process(self) -> None:
         pass
 
-    class Init(ta.Generic[AspectT]):
+    class Function(ta.Generic[AspectT]):
 
-        def __init__(self, owner: AspectT, fctx: FunctionContext) -> None:
+        def __init__(self, aspect: AspectT, fctx: Context.Function) -> None:
             super().__init__()
 
-            self._owner = owner
-            self._fctx = check.isinstance(fctx, FunctionContext)
+            self._aspect = aspect
+            self._fctx = check.isinstance(fctx, Context.Function)
 
         @property
-        def owner(self) -> AspectT:
-            return self._owner
+        def aspect(self) -> AspectT:
+            return self._aspect
 
         @property
-        def fctx(self) -> FunctionContext:
+        def fctx(self) -> Context.Function:
             return self._fctx

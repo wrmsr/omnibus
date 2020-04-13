@@ -46,25 +46,8 @@ class Storage:
     def ctx(self) -> BuildContext:
         return self._ctx
 
-    def _install_field_attrs(self) -> None:
-        for f in self.ctx.spec.fields:
-            setattr(self.ctx.cls, f.name, f)
-
-    def _install_frozen(self) -> None:
-        for fn in frozen_get_del_attr(
-                self.ctx.cls,
-                self.ctx.spec.fields.instance,
-                self.ctx.spec.globals
-        ):
-            if self.ctx.set_new_attribute(fn.__name__, fn):
-                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
-
     def process(self) -> None:
-        if self.ctx.extra_params.field_attrs:
-            self._install_field_attrs()
-
-        if self.ctx.params.frozen:
-            self._install_frozen()
+        pass
 
     def create_init_builder(self, fctx: FunctionBuildContext) -> 'Storage.InitBuilder':
         return self.InitBuilder(self, fctx)

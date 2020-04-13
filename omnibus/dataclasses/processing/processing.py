@@ -36,8 +36,6 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         self._ctx = check.isinstance(ctx, BuildContext)
 
-        self.check_invariants()
-
     @property
     def ctx(self) -> BuildContext:
         return self._ctx
@@ -53,17 +51,6 @@ class ClassProcessor(ta.Generic[TypeT]):
     @properties.cached
     def validation(self) -> Validation:
         return Validation(self.ctx)
-
-    def check_invariants(self) -> None:
-        if self.ctx.params.order and not self.ctx.params.eq:
-            raise ValueError('eq must be true if order is true')
-
-        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.spec.rmro if dc.is_dataclass(b))
-        if any_frozen_base:
-            if any_frozen_base and not self.ctx.params.frozen:
-                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            if not any_frozen_base and self.ctx.params.frozen:
-                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     def _install_params(self) -> None:
         self.ctx.set_new_attribute(PARAMS, self.ctx.params)
