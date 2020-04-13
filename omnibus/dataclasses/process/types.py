@@ -22,7 +22,7 @@ ATTACHMENTS = weakref.WeakKeyDictionary()
 def attach(key):
     # FIXME: steal a better word from aop than 'attach'
     def inner(obj):
-        ATTACHMENTS[obj] = key
+        ATTACHMENTS.setdefault(obj, []).append(key)
         return obj
     return inner
 
@@ -32,10 +32,11 @@ def get_keys_by_attachment(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
     for items in [list(c.__dict__.items()) for c in reversed(type(obj).__mro__)] + [list(obj.__dict__.items())]:
         for n, v in items:
             try:
-                k = ATTACHMENTS[v]
+                ks = ATTACHMENTS[v]
             except (KeyError, TypeError):
                 continue
-            keys_by_name[n] = k
+            for k in ks:
+                keys_by_name[n] = k
     return {getattr(obj, n): k for n, k in keys_by_name.items()}
 
 
