@@ -29,6 +29,8 @@ TODO:
  - frozen_subtypes, frozen_deep - enum?
  - freeze a non-frozen dc
  - lazy derivers
+ - gen protobuf / thrift / jsonschema / avro *from* dc
+  - incl enums
 """
 import collections
 import collections.abc
