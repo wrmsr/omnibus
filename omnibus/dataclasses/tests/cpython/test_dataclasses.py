@@ -1785,6 +1785,7 @@ class TestCase(unittest.TestCase):
                                     'does not support item assignment'):
             fields(C)[0].metadata['test'] = 3
 
+    @unittest.skip('omnibus')
     def test_field_metadata_mapping(self):
         # Make sure only a mapping can be passed as metadata
         #  zero length.
@@ -1828,6 +1829,7 @@ class TestCase(unittest.TestCase):
                                     'does not support item assignment'):
             fields(C)[0].metadata['test'] = 3
 
+    @unittest.skip('omnibus')
     def test_field_metadata_custom_mapping(self):
         # Try a custom mapping.
         class SimpleNameSpace:

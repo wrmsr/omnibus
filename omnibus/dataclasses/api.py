@@ -189,7 +189,8 @@ def field(
     )
 
     if metadata is not None:
-        types.MappingProxyType(metadata)
+        if not isinstance(metadata, ta.Mapping):
+            raise TypeError(metadata)
     else:
         metadata = {}
 
