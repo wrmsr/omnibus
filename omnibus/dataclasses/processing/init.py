@@ -38,6 +38,7 @@ class Init(Aspect):
         # )
         # fn = ib()
         # self.ctx.set_new_attribute('__init__', fn)
+        print(self.attachments)
         raise NotImplementedError
 
     @attach('init')

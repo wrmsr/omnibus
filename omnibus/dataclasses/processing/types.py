@@ -29,8 +29,8 @@ def attach(key):
 
 def get_attachments(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
     keys_by_name = {}
-    for bcls in list(reversed(type(obj).__mro__)) + [obj.__dict__]:
-        for n, v in bcls.__dict__.items():
+    for items in [list(c.__dict__.items()) for c in reversed(type(obj).__mro__)] + [list(obj.__dict__.items())]:
+        for n, v in items:
             try:
                 k = ATTACHMENTS[v]
             except (KeyError, TypeError):
