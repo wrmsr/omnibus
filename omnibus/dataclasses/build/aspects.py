@@ -6,6 +6,7 @@ from ... import check
 from ... import lang
 from ... import properties
 from ..internals import cmp_fn
+from ..internals import frozen_get_del_attr
 from ..internals import hash_action
 from ..internals import PARAMS
 from ..internals import repr_fn
@@ -19,36 +20,6 @@ from .fields import build_cls_fields
 from .init import InitBuilder
 from .storage import Storage
 from .validation import Validation
-
-
-TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
-AspectT = ta.TypeVar('AspectT', bound='Aspect', covariant=True)
-
-
-class Aspect(lang.Abstract):
-
-    def __init__(self, ctx: BuildContext[TypeT]) -> None:
-        super().__init__()
-
-        self._ctx = check.isinstance(ctx, BuildContext)
-
-    @property
-    def ctx(self) -> BuildContext:
-        return self._ctx
-
-    def install(self) -> None:
-        pass
-
-    class Init(ta.Generic[AspectT]):
-
-        def __init__(self, owner: AspectT) -> None:
-            super().__init__()
-
-            self._owner = owner
-
-        @property
-        def owner(self) -> AspectT:
-            return self._owner
 
 
 class Repr(Aspect):
@@ -83,6 +54,10 @@ class Eq(Aspect):
 
 
 class Order(Aspect):
+
+    def check(self) -> None:
+        if self.ctx.params.order and not self.ctx.params.eq:
+            raise ValueError('eq must be true if order is true')
 
     def install(self) -> None:
         if not self.ctx.params.order:
@@ -136,3 +111,23 @@ class Doc(Aspect):
         if not getattr(self.ctx.cls, '__doc__'):
             self.ctx.cls.__doc__ = \
                 self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
+
+
+class Frozen(Aspect):
+
+    def check(self) -> None:
+        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.spec.rmro if dc.is_dataclass(b))
+        if any_frozen_base:
+            if any_frozen_base and not self.ctx.params.frozen:
+                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+            if not any_frozen_base and self.ctx.params.frozen:
+                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
+
+    def install(self) -> None:
+        for fn in frozen_get_del_attr(
+                self.ctx.cls,
+                self.ctx.spec.fields.instance,
+                self.ctx.spec.globals
+        ):
+            if self.ctx.set_new_attribute(fn.__name__, fn):
+                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
