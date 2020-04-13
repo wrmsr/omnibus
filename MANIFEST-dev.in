@@ -1,0 +1,17 @@
+include README.md
+include LICENSE
+include LICENSE-*
+
+global-exclude *.py[cod]
+global-exclude *.so
+global-exclude .DS_Store
+global-exclude .gitignore
+global-exclude __pycache__
+
+global-exclude **/tests/**
+exclude omnibus/conftest.py
+
+exclude omnibus
+include omnibus/__init__.py
+include omnibus/__about__.py
+graft omnibus/dev

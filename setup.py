@@ -3,6 +3,7 @@ import glob
 import os
 import sys
 
+import setuptools
 import setuptools.command.build_ext
 
 
@@ -55,8 +56,6 @@ INSTALL_REQUIRES = [
 
 EXTRAS_REQUIRE = {
     'cytoolz': ['cytoolz>=0.9.0'],
-    'docker': ['docker>=3.7.0'],
-    'sortedcontainers': ['sortedcontainers>=2.1.0'],
 }
 
 
@@ -129,17 +128,8 @@ if __name__ == '__main__':
         author=ABOUT['__author__'],
         url=ABOUT['__url__'],
 
-        python_requires='>=3.7',
-
-        classifiers=[
-            'Intended Audience :: Developers',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: ' + '.'.join(map(str, sys.version_info[:2])),
-            'Programming Language :: Python :: Implementation :: CPython',
-            'Programming Language :: Python',
-        ],
-
-        # zip_safe=True,
+        python_requires=ABOUT['__python_requires__'],
+        classifiers=ABOUT['__classifiers__'],
 
         setup_requires=['setuptools'],
 

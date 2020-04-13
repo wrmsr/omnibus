@@ -176,16 +176,22 @@ define do-dist
 
 	cp -rv \
 		LICENSE \
-		MANIFEST.in \
 		omnibus \
 		README.md \
-		setup.py \
 	\
 		build/
 	cp -rv \
 		LICENSE-* \
 	\
 		build/ || :
+
+	if [ $(2) == "1" ] ; then \
+		cp setup-dev.py build/setup.py ; \
+		cp MANIFEST-dev.in build/MANIFEST.in ; \
+	else \
+		cp setup.py build/setup.py ; \
+		cp MANIFEST.in build/MANIFEST.in ; \
+	fi
 
 	find build -name '*.so' -delete
 	cd build && "$(DIST_BUILD_PYTHON)" setup.py clean
@@ -198,7 +204,9 @@ define do-dist
 		cd build && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
 	fi
 
-	cd build && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel
+	if [ $(2) != "1" ] ; then \
+		cd build && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel ; \
+	fi
 
 	if [ ! -d ./dist ] ; then \
 		mkdir dist ; \
@@ -224,11 +232,21 @@ test-install: dist
 
 .PHONY: dist
 dist: venv
-	$(call do-dist,.venv)
+	$(call do-dist,.venv,0)
 
 .PHONY: dist-37
 dist-37: venv-37
-	$(call do-dist,.venv-37)
+	$(call do-dist,.venv-37,0)
+
+
+### Dev
+
+.PHONY: dist-dev
+dist-dev: venv
+	$(call do-dist,.venv,1)
+
+
+### Publish
 
 .PHONY:
 publish: clean dist test-install
@@ -349,8 +367,8 @@ docker-dist-37: docker-venv-37
 
 .PHONY: _docker-dist
 _docker-dist:
-	$(call do-dist,.venv-docker)
+	$(call do-dist,.venv-docker,0)
 
 .PHONY: _docker-dist-37
 _docker-dist-37:
-	$(call do-dist,.venv-docker-37)
+	$(call do-dist,.venv-docker-37,0)
