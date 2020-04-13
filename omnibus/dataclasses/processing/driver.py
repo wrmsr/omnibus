@@ -18,6 +18,7 @@ from .aspects import Params
 from .aspects import PostInitAspect
 from .aspects import Repr
 from .defaulting import Defaulting
+from .init import Init
 from .storage import Storage
 from .types import Context
 from .validation import Validation
@@ -27,6 +28,7 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 
 DEFAULT_ASPECTS = {
+
     Defaulting,
     Doc,
     Eq,
@@ -34,12 +36,14 @@ DEFAULT_ASPECTS = {
     Fields,
     Frozen,
     Hash,
+    Init,
     Order,
     Params,
     PostInitAspect,
     Repr,
     Storage,
     Validation,
+
 }
 
 
@@ -55,4 +59,8 @@ class Driver(ta.Generic[TypeT]):
         return self._ctx
 
     def __call__(self) -> None:
-        pass
+        for phase, aspects in sorted(self.ctx.aspect_lists_by_phase.items(), key=lambda t: t[0].value):
+            for aspect in aspects:
+                aspect.check()
+            for aspect in aspects:
+                aspect.process()

@@ -80,6 +80,13 @@ class Context(ta.Generic[TypeT]):
         return check.single(self.get_aspects(cls))
 
     @properties.cached
+    def aspect_lists_by_phase(self) -> ta.Mapping['Phase', ta.Sequence['Aspect']]:
+        ret = {}
+        for a in self.aspects:
+            ret.setdefault(a.phase, []).append(a)
+        return ret
+
+    @properties.cached
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
 
@@ -137,8 +144,6 @@ class Aspect(lang.Abstract):
         super().__init__()
 
         self._ctx = check.isinstance(ctx, Context)
-
-        self.check()
 
     @property
     def phase(self) -> Phase:
