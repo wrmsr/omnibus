@@ -114,6 +114,11 @@ class Context(ta.Generic[TypeT]):
             return self.nsb.put('self', None)
 
 
+class Phase(lang.AutoEnum):
+    BOOTSTRAP = ...
+    PROCESS = ...
+
+
 class Aspect(lang.Abstract):
 
     def __init__(self, ctx: Context[TypeT]) -> None:
@@ -122,6 +127,10 @@ class Aspect(lang.Abstract):
         self._ctx = check.isinstance(ctx, Context)
 
         self.check()
+
+    @property
+    def phase(self) -> Phase:
+        return Phase.PROCESS
 
     @property
     def ctx(self) -> Context:

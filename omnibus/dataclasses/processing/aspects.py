@@ -2,6 +2,7 @@ import dataclasses as dc
 import inspect
 import typing as ta
 
+from ... import check
 from ..internals import cmp_fn
 from ..internals import FieldType
 from ..internals import frozen_get_del_attr
@@ -10,10 +11,33 @@ from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
+from ..types import ExtraParams
+from ..types import METADATA_ATTR
 from ..types import PostInit
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
+from .types import Phase
+
+
+class Params(Aspect):
+
+    @property
+    def phase(self) -> Phase:
+        return Phase.BOOTSTRAP
+
+    def process(self) -> None:
+        self.ctx.set_new_attribute(PARAMS, self.ctx.params)
+        check.state(self.ctx.spec.params is self.ctx.params)
+
+        if METADATA_ATTR in self.ctx.cls.__dict__:
+            md = getattr(self.ctx.cls, METADATA_ATTR)
+        else:
+            md = {}
+            self.ctx.set_new_attribute(METADATA_ATTR, md)
+        check.state(self.ctx.spec._metadata is md)
+
+        md[ExtraParams] = self.ctx.extra_params
 
 
 class Repr(Aspect):

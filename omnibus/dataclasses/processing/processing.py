@@ -20,6 +20,8 @@ from ..types import METADATA_ATTR
 from .defaulting import Defaulting
 from .fields import build_cls_fields
 from .storage import Storage
+from .types import Aspect
+from .types import Context
 from .validation import Validation
 
 
@@ -28,39 +30,14 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 class ClassProcessor(ta.Generic[TypeT]):
 
-    def __init__(self, ctx: BuildContext[TypeT]) -> None:
+    def __init__(self, ctx: Context[TypeT]) -> None:
         super().__init__()
 
-        self._ctx = check.isinstance(ctx, BuildContext)
+        self._ctx = check.isinstance(ctx, Context)
 
     @property
-    def ctx(self) -> BuildContext:
+    def ctx(self) -> Context[TypeT]:
         return self._ctx
-
-    @properties.cached
-    def defaulting(self) -> Defaulting:
-        return Defaulting(self.ctx)
-
-    @properties.cached
-    def storage(self) -> Storage:
-        return Storage(self.ctx)
-
-    @properties.cached
-    def validation(self) -> Validation:
-        return Validation(self.ctx)
-
-    def _install_params(self) -> None:
-        self.ctx.set_new_attribute(PARAMS, self.ctx.params)
-        check.state(self.ctx.spec.params is self.ctx.params)
-
-        if METADATA_ATTR in self.ctx.cls.__dict__:
-            md = getattr(self.ctx.cls, METADATA_ATTR)
-        else:
-            md = {}
-            self.ctx.set_new_attribute(METADATA_ATTR, md)
-        check.state(self.ctx.spec._metadata is md)
-
-        md[ExtraParams] = self.ctx.extra_params
 
     def _install_fields(self) -> None:
         build_cls_fields(self.ctx.cls, install=True)
