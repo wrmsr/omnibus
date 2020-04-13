@@ -37,6 +37,8 @@ import collections.abc
 import copy
 import dataclasses as dc
 import functools
+import keyword
+import types
 import typing as ta
 
 from . import process
@@ -66,9 +68,40 @@ MISSING = dc.MISSING
 replace = dc.replace
 
 
-def make_dataclass(*args, **kwargs):
-    # FIXME
-    raise NotImplementedError
+def make_dataclass(cls_name, fields, *, bases=(), namespace=None, **kwargs):
+    if namespace is None:
+        namespace = {}
+    else:
+        # Copy namespace since we're going to mutate it.
+        namespace = namespace.copy()
+
+    seen = set()
+    anns = {}
+    for item in fields:
+        if isinstance(item, str):
+            name = item
+            tp = 'typing.Any'
+        elif len(item) == 2:
+            name, tp, = item
+        elif len(item) == 3:
+            name, tp, spec = item
+            namespace[name] = spec
+        else:
+            raise TypeError(f'Invalid field: {item!r}')
+
+        if not isinstance(name, str) or not name.isidentifier():
+            raise TypeError(f'Field names must be valid identifiers: {name!r}')
+        if keyword.iskeyword(name):
+            raise TypeError(f'Field names must not be keywords: {name!r}')
+        if name in seen:
+            raise TypeError(f'Field name duplicated: {name!r}')
+
+        seen.add(name)
+        anns[name] = tp
+
+    namespace['__annotations__'] = anns
+    cls = types.new_class(cls_name, bases, {}, lambda ns: ns.update(namespace))
+    return dataclass(cls, **kwargs)
 
 
 def fields(class_or_instance: ta.Union[type, object]) -> ta.Iterable[Field]:

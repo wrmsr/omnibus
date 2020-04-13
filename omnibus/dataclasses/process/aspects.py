@@ -136,10 +136,14 @@ class Hash(Aspect):
 
 class Doc(Aspect):
 
+    @property
+    def phase(self) -> Phase:
+        return Phase.FINALIZE
+
     def process(self) -> None:
         if not getattr(self.ctx.cls, '__doc__'):
-            self.ctx.cls.__doc__ = \
-                self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
+            sig = inspect.signature(self.ctx.cls)
+            self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(sig).replace(' -> None', '')
 
 
 class Frozen(Aspect):
