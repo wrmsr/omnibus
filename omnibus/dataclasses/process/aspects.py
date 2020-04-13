@@ -145,11 +145,13 @@ class Doc(Aspect):
 class Frozen(Aspect):
 
     def check(self) -> None:
-        any_frozen_base = any(getattr(b, PARAMS).frozen for b in self.ctx.spec.rmro if dc.is_dataclass(b))
-        if any_frozen_base:
-            if any_frozen_base and not self.ctx.params.frozen:
-                raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            if not any_frozen_base and self.ctx.params.frozen:
+        dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]
+        if dc_rmro:
+            any_frozen_base = any(getattr(b, PARAMS).frozen for b in dc_rmro)
+            if any_frozen_base:
+                if not self.ctx.params.frozen:
+                    raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+            elif self.ctx.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     def process(self) -> None:
