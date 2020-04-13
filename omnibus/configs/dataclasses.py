@@ -4,7 +4,8 @@ TODO:
  - deep interop w defaults
  - kinda has to take over init..
   - move InitBuilder to Processor?
- - post-init? ..
+ - post-init? .. why not.
+ - ** rebuild / subclass config ala compcache w/ config storage** - ctors will check.isinstance
 """
 
 # from .. import dataclasses as dc

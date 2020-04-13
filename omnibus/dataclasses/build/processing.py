@@ -85,6 +85,7 @@ class ClassProcessor(ta.Generic[TypeT]):
         fctx = FunctionBuildContext(self.ctx)
         ib = InitBuilder(
             fctx,
+            self.defaulting.create_init_builder(fctx),
             self.storage.create_init_builder(fctx),
             self.validation.create_init_builder(fctx),
         )

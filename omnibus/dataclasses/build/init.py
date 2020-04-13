@@ -63,9 +63,9 @@ class InitBuilder:
     def type_names_by_field_name(self) -> ta.Mapping[str, str]:
         return {
             f.name: self.fctx.nsb.put(f'_{f.name}_type', f.type)
-          for f in self.fctx.ctx.spec.fields.init
+            for f in self.fctx.ctx.spec.fields.init
             if f.type is not dc.MISSING
-       }
+        }
 
     def build_field_init_lines(self) -> ta.List[str]:
         dct = {}
@@ -73,9 +73,9 @@ class InitBuilder:
             if get_field_type(f) is FieldType.INIT:
                 continue
             elif f.default_factory is not dc.MISSING:
-                default_factory_name = self.default_factory_names_by_field_name[f.name]
+                default_factory_name = self.defaulting_builder.default_factory_names_by_field_name[f.name]
                 if f.init:
-                    value = f'{default_factory_name}() if {f.name} is {self.has_factory_name} else {f.name}'
+                    value = f'{default_factory_name}() if {f.name} is {self.defaulting_builder.has_factory_name} else {f.name}'  # noqa
                 else:
                     value = f'{default_factory_name}()'
             elif f.init:
@@ -102,9 +102,9 @@ class InitBuilder:
         if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
             default = ''
         elif fld.default is not dc.MISSING:
-            default = ' = ' + self.default_names_by_field_name[fld.name]
+            default = ' = ' + self.defaulting_builder.default_names_by_field_name[fld.name]
         elif fld.default_factory is not dc.MISSING:
-            default = ' = ' + self.has_factory_name
+            default = ' = ' + self.defaulting_builder.has_factory_name
         else:
             raise TypeError
         return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'

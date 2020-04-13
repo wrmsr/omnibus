@@ -1,10 +1,6 @@
 """
 TODO:
  - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
- - *YES* - dataclass interop - bidirectional for injection
-  - akin to inj not being required
-  - honor frozen
-  - full on merge with dataclasses? configs just a special storage backend?
  - polled sources: file (+url), sql, redis
   - atomicity - class UsernameAndPassword etc
  - pushed sources: zk
@@ -18,6 +14,7 @@ TODO:
  - pyo3 adapter (serde?)
  - newable-style object graphs, refs
  - cmdline overrides (env-var? dict?)
+ - callbacks are dc-level - both field-lvl and inst-lvl
 """
 import abc
 import types
