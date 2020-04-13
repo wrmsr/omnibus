@@ -8,6 +8,8 @@ Responsibilities:
  - post-inits
 """
 import dataclasses as dc
+import functools
+import types
 import typing as ta
 
 from ... import properties
@@ -29,17 +31,15 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 class Init(Aspect):
 
     def process(self) -> None:
-        # fctx = Context.Function(self.ctx)
-        # ib = InitBuilder(
-        #     fctx,
-        #     self.defaulting.create_init_builder(fctx),
-        #     self.storage.create_init_builder(fctx),
-        #     self.validation.create_init_builder(fctx),
-        # )
-        # fn = ib()
-        # self.ctx.set_new_attribute('__init__', fn)
-        print(self.attachments)
-        raise NotImplementedError
+        attachments = [
+            functools.partial(attachment, aspect)
+            for aspect in self.ctx.aspects
+            for attachment in aspect.attachment_lists_by_key.get('init', [])
+        ]
+        fctx = Context.Function(self.ctx, attachments)
+        init = fctx.get_aspect(Init.Init)
+        fn = init.build()
+        self.ctx.set_new_attribute('__init__', fn)
 
     @attach('init')
     class Init(Aspect.Function['Init']):
@@ -90,7 +90,7 @@ class Init(Aspect):
                 raise TypeError
             return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
-        def build(self) -> None:
+        def build(self) -> types.FunctionType:
             lines = []
             lines.extend(self._build_field_init_lines())
 
