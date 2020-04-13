@@ -61,7 +61,7 @@ class Context(ta.Generic[TypeT]):
     def aspects(self) -> ta.Sequence['Aspect']:
         return self._aspects
 
-    def get_aspects(self, cls: ta.Type[T] = None) -> ta.Sequence[T]:
+    def get_aspects(self, cls: ta.Type[T]) -> ta.Sequence[T]:
         return [a for a in self._aspects if isinstance(a, cls)]
 
     def get_aspect(self, cls: ta.Type[T]) -> T:
@@ -99,10 +99,10 @@ class Context(ta.Generic[TypeT]):
         def aspects(self) -> ta.Sequence['Aspect.Function']:
             return self._aspects
 
-        def get_aspects(self, cls: T = None) -> ta.Sequence[T]:
+        def get_aspects(self, cls: ta.Type[T]) -> ta.Sequence[T]:
             return [a for a in self._aspects if isinstance(a, cls)]
 
-        def get_aspect(self, cls: T) -> T:
+        def get_aspect(self, cls: ta.Type[T]) -> T:
             return check.single(self.get_aspects(cls))
 
         @properties.cached
@@ -148,3 +148,10 @@ class Aspect(lang.Abstract):
         @property
         def fctx(self) -> Context.Function:
             return self._fctx
+
+
+class InitPhase(lang.AutoEnum):
+    PRE_SET_ATTRS = ...
+    SET_ATTRS = ...
+    POST_SET_ATTRS = ...
+    POST_INIT = ...

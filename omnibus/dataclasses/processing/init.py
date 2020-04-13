@@ -10,17 +10,13 @@ Responsibilities:
 import dataclasses as dc
 import typing as ta
 
-from ... import check
 from ... import properties
 from ..internals import create_fn
 from ..internals import FieldType
 from ..internals import get_field_type
-from ..internals import POST_INIT_NAME
-from ..types import PostInit
+from .types import Aspect
 from .defaulting import Defaulting
 from .storage import Storage
-from .validation import Validation
-from .types import Aspect
 
 
 T = ta.TypeVar('T')
@@ -30,6 +26,14 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 class Init(Aspect):
 
     class Init(Aspect.Function['Init']):
+
+        @properties.cached
+        def defaulting(self) -> Defaulting.Init:
+            return self.fctx.get_aspect(Defaulting.Init)
+
+        @properties.cached
+        def storage(self) -> Storage.Init:
+            return self.fctx.get_aspect(Storage.Init)
 
         @properties.cached
         def type_names_by_field_name(self) -> ta.Mapping[str, str]:
@@ -45,7 +49,7 @@ class Init(Aspect):
                 if get_field_type(f) is FieldType.INIT:
                     continue
                 elif f.default_factory is not dc.MISSING:
-                    default_factory_name = self.defaulting_builder.default_factory_names_by_field_name[f.name]
+                    default_factory_name = self.defaulting.default_factory_names_by_field_name[f.name]
                     if f.init:
                         value = f'{default_factory_name}() if {f.name} is {self.defaulting_builder.has_factory_name} else {f.name}'  # noqa
                     else:
@@ -61,9 +65,9 @@ class Init(Aspect):
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
                 default = ''
             elif fld.default is not dc.MISSING:
-                default = ' = ' + self.defaulting_builder.default_names_by_field_name[fld.name]
+                default = ' = ' + self.defaulting.default_names_by_field_name[fld.name]
             elif fld.default_factory is not dc.MISSING:
-                default = ' = ' + self.defaulting_builder.has_factory_name
+                default = ' = ' + self.defaulting.has_factory_name
             else:
                 raise TypeError
             return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'

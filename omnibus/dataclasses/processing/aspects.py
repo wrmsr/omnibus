@@ -13,6 +13,7 @@ from ..internals import tuple_str
 from ..types import PostInit
 from .types import Aspect
 from .types import attach
+from .types import InitPhase
 
 
 class Repr(Aspect):
@@ -141,7 +142,7 @@ class PostInitAspect(Aspect):
     @attach('init')
     class Init(Aspect.Function['PostInitAspect']):
 
-        @attach(1)
+        @attach(InitPhase.POST_INIT)
         def build_post_init_lines(self) -> ta.List[str]:
             ret = []
             if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
@@ -149,7 +150,7 @@ class PostInitAspect(Aspect):
                 ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
             return ret
 
-        @attach(1)
+        @attach(InitPhase.POST_INIT)
         def build_extra_post_init_lines(self) -> ta.List[str]:
             ret = []
             for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:

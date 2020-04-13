@@ -86,6 +86,7 @@ class Defaulting(Aspect):
         # TODO: ** hijack default factory machinery **
         return list(ocol.toposort({oa: set(n.ias) for oa, n in nodes_by_oa.items()}))
 
+    @attach('init')
     class Init(Aspect.Function['Defaulting']):
 
         @properties.cached

@@ -10,8 +10,10 @@ from ..types import SelfChecker
 from ..types import SelfValidator
 from ..types import Validator
 from ..validation import build_default_field_validation
-from .utils import get_flat_fn_args
 from .types import Aspect
+from .types import attach
+from .types import InitPhase
+from .utils import get_flat_fn_args
 
 
 class Validation(Aspect):
@@ -36,9 +38,11 @@ class Validation(Aspect):
             raise TypeError(chk_args, args)
         raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
 
+    @attach('init')
     class Init(Aspect.Function['Validation']):
 
-        def _build_validate_lines(self) -> ta.List[str]:
+        @attach(InitPhase.PRE_SET_ATTRS)
+        def build_validate_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
                 vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
@@ -52,7 +56,8 @@ class Validation(Aspect):
                     raise TypeError(vld_md)
             return ret
 
-        def _build_validator_lines(self) -> ta.List[str]:
+        @attach(InitPhase.PRE_SET_ATTRS)
+        def build_validator_lines(self) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
                 vld_args = get_flat_fn_args(vld.fn)
@@ -61,13 +66,15 @@ class Validation(Aspect):
                 ret.append(f'{self.fctx.nsb.add(vld.fn)}({", ".join(vld_args)})')
             return ret
 
-        def _build_self_validator_lines(self) -> ta.List[str]:
+        @attach(InitPhase.POST_SET_ATTRS)
+        def build_self_validator_lines(self) -> ta.List[str]:
             ret = []
             for self_vld in self.fctx.ctx.spec.rmro_extras_by_cls[SelfValidator]:
                 ret.append(f'{self.fctx.nsb.add(self_vld.fn)}({self.fctx.self_name})')
             return ret
 
-        def _build_checker_lines(self) -> ta.List[str]:
+        @attach(InitPhase.POST_SET_ATTRS)
+        def build_checker_lines(self) -> ta.List[str]:
             ret = []
 
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
@@ -82,7 +89,8 @@ class Validation(Aspect):
 
             return ret
 
-        def _build_self_checker_lines(self) -> ta.List[str]:
+        @attach(InitPhase.POST_SET_ATTRS)
+        def build_self_checker_lines(self) -> ta.List[str]:
             ret = []
 
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
@@ -94,16 +102,3 @@ class Validation(Aspect):
                 )
 
             return ret
-
-        def build_pre_attr_lines(self) -> ta.List[str]:
-            lines = []
-            lines.extend(self._build_validate_lines())
-            lines.extend(self._build_validator_lines())
-            lines.extend(self._build_checker_lines())
-            return lines
-
-        def build_post_attr_lines(self) -> ta.List[str]:
-            lines = []
-            lines.extend(self._build_self_validator_lines())
-            lines.extend(self._build_self_checker_lines())
-            return lines

@@ -30,13 +30,13 @@ Backends:
 import typing as ta
 
 from .types import Aspect
+from .types import attach
+from .types import InitPhase
 
 
 class Storage:
 
-    def process(self) -> None:
-        pass
-
+    @attach('init')
     class Init(Aspect.Function['Storage']):
 
         def _build_field_assign(self, self_name, name, value) -> str:
@@ -45,7 +45,8 @@ class Storage:
 
             return f'{self_name}.{name} = {value}'
 
-        def build_field_init_lines(self, values_by_field: ta.Mapping[str, str], self_name: str) -> ta.List[str]:
+        @attach(InitPhase.SET_ATTRS)
+        def build_set_attr_lines(self, values_by_field: ta.Mapping[str, str], self_name: str) -> ta.List[str]:
             ret = []
             for field, value in values_by_field.items():
                 ret.append(self._build_field_assign(self_name, field, value))
