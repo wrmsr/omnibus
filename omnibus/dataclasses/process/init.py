@@ -31,6 +31,9 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 class Init(Aspect):
 
     def process(self) -> None:
+        if not self.ctx.spec.params.init:
+            return
+
         attachments = [
             functools.partial(attachment, aspect)
             for aspect in self.ctx.aspects

@@ -12,8 +12,13 @@ from .types import attach
 from .utils import get_flat_fn_args
 
 
-class HasFactory(lang.Marker):
-    pass
+class _HasFactory(lang.Final):
+
+    def __repr__(self) -> str:
+        return '<factory>'
+
+
+HasFactory = _HasFactory()
 
 
 class Defaulting(Aspect):

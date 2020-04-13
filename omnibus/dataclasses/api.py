@@ -156,7 +156,12 @@ def field(
         validate=validate,
     )
 
-    metadata = dict(metadata or {})
+    if metadata is not None:
+        if not isinstance(metadata, ta.Mapping):
+            raise TypeError(metadata)
+    else:
+        metadata = {}
+
     if ExtraFieldParams in metadata:
         raise KeyError(metadata, ExtraFieldParams)
     metadata[ExtraFieldParams] = extra_field_params

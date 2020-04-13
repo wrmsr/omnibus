@@ -4,6 +4,7 @@
 # missing ones.
 
 from ...api import *
+del dc
 
 import pickle
 import inspect
@@ -53,6 +54,7 @@ class TestCase(unittest.TestCase):
             class C:
                 x: int = field(default=1, default_factory=int)
 
+    @unittest.skip('omnibus')
     def test_field_repr(self):
         int_field = field(default=1, init=True, repr=False)
         int_field.name = "id"
