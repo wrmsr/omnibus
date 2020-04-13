@@ -39,6 +39,7 @@ class Init(Aspect):
             for aspect in self.ctx.aspects
             for attachment in aspect.attachment_lists_by_key.get('init', [])
         ]
+
         fctx = Context.Function(self.ctx, attachments)
         init = fctx.get_aspect(Init.Init)
         fn = init.build()
