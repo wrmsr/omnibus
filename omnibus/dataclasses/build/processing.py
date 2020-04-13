@@ -26,7 +26,6 @@ from .storage import Storage
 from .validation import Validation
 
 
-T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 

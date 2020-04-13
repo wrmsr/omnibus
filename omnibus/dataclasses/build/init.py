@@ -110,8 +110,6 @@ class InitBuilder:
         return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
     def __call__(self) -> None:
-        self.do_derivers()
-
         lines = []
         lines.extend(self.validation_builder.build_pre_attr_lines())
         lines.extend(self.build_field_init_lines())

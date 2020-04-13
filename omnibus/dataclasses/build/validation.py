@@ -15,10 +15,6 @@ from .context import FunctionBuildContext
 from .utils import get_flat_fn_args
 
 
-T = ta.TypeVar('T')
-TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
-
-
 class Validation:
 
     def __init__(self, ctx: BuildContext) -> None:
