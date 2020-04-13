@@ -182,6 +182,9 @@ class PostInitAspect(Aspect):
 
         @attach(InitPhase.POST_INIT)
         def build_post_init_lines(self) -> ta.List[str]:
+            if not self.fctx.ctx.spec.params.init:
+                return []
+
             ret = []
             if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
                 params_str = ','.join(f.name for f in self.fctx.ctx.spec.fields.by_field_type.get(FieldType.INIT, []))
@@ -190,6 +193,9 @@ class PostInitAspect(Aspect):
 
         @attach(InitPhase.POST_INIT)
         def build_extra_post_init_lines(self) -> ta.List[str]:
+            if not self.fctx.ctx.spec.params.init:
+                return []
+
             ret = []
             for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
                 ret.append(f'{self.fctx.nsb.add(pi.fn)}({self.fctx.self_name})')

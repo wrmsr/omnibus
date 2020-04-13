@@ -143,7 +143,10 @@ class Context(ta.Generic[TypeT]):
 
         @properties.cached
         def self_name(self) -> str:
-            return self.nsb.put('self', None)
+            if 'self' not in self.ctx.spec.fields.by_name:
+                return self.nsb.put('self', None)
+            else:
+                return self.nsb.add(None, 'self')
 
 
 class Phase(lang.AutoEnum):
