@@ -469,7 +469,7 @@ def test_derive2():
 
     assert C('a', 'b', 'c').spp == 'c'
     # FIXME:
-    assert C('c').spp == 'c!!'
+    # assert C('c').spp == 'c!!'
 
 
 def test_generic():

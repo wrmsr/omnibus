@@ -81,7 +81,7 @@ class Validation(Aspect):
                 chk_args = get_flat_fn_args(chk.fn)
                 for arg in chk_args:
                     check.in_(arg, self.fctx.ctx.spec.fields)
-                bound_build_chk_exc = functools.partial(self.owner.raise_check_exception, chk, chk_args)
+                bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
                     f'if not {self.fctx.nsb.add(chk.fn)}({", ".join(chk_args)}): '
                     f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({", ".join(chk_args)})'
@@ -95,7 +95,7 @@ class Validation(Aspect):
 
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
                 self_chk_arg = [check.single(get_flat_fn_args(self_chk.fn))]
-                bound_build_chk_exc = functools.partial(self.owner.raise_check_exception, self_chk, self_chk_arg)
+                bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, self_chk, self_chk_arg)
                 ret.append(
                     f'if not {self.fctx.nsb.add(self_chk.fn)}({self.fctx.self_name}): '
                     f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({self.fctx.self_name})'

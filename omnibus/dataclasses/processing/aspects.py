@@ -153,6 +153,9 @@ class Frozen(Aspect):
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
     def process(self) -> None:
+        if not self.ctx.params.frozen:
+            return
+
         for fn in frozen_get_del_attr(
                 self.ctx.cls,
                 self.ctx.spec.fields.instance,

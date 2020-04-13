@@ -69,7 +69,7 @@ class Init(Aspect):
                 elif f.default_factory is not dc.MISSING:
                     default_factory_name = self.defaulting.default_factory_names_by_field_name[f.name]
                     if f.init:
-                        value = f'{default_factory_name}() if {f.name} is {self.defaulting_builder.has_factory_name} else {f.name}'  # noqa
+                        value = f'{default_factory_name}() if {f.name} is {self.defaulting.has_factory_name} else {f.name}'  # noqa
                     else:
                         value = f'{default_factory_name}()'
                 elif f.init:
