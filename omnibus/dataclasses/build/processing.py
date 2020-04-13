@@ -10,7 +10,6 @@ import typing as ta
 
 from ... import check
 from ... import properties
-from ..fields import build_cls_fields
 from ..internals import cmp_fn
 from ..internals import hash_action
 from ..internals import PARAMS
@@ -21,6 +20,7 @@ from ..types import METADATA_ATTR
 from .context import BuildContext
 from .context import FunctionBuildContext
 from .defaulting import Defaulting
+from .fields import build_cls_fields
 from .init import InitBuilder
 from .storage import Storage
 from .validation import Validation
