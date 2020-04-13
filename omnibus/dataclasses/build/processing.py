@@ -65,7 +65,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             if not any_frozen_base and self.ctx.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
-    def install_params(self) -> None:
+    def _install_params(self) -> None:
         self.ctx.set_new_attribute(PARAMS, self.ctx.params)
         check.state(self.ctx.spec.params is self.ctx.params)
 
@@ -78,10 +78,10 @@ class ClassProcessor(ta.Generic[TypeT]):
 
         md[ExtraParams] = self.ctx.extra_params
 
-    def install_fields(self) -> None:
+    def _install_fields(self) -> None:
         build_cls_fields(self.ctx.cls, install=True)
 
-    def install_init(self) -> None:
+    def _install_init(self) -> None:
         fctx = FunctionBuildContext(self.ctx)
         ib = InitBuilder(
             fctx,
@@ -92,11 +92,11 @@ class ClassProcessor(ta.Generic[TypeT]):
         fn = ib()
         self.ctx.set_new_attribute('__init__', fn)
 
-    def install_repr(self) -> None:
+    def _install_repr(self) -> None:
         flds = [f for f in self.ctx.spec.fields.instance if f.repr]
         self.ctx.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
 
-    def install_eq(self) -> None:
+    def _install_eq(self) -> None:
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
@@ -111,7 +111,7 @@ class ClassProcessor(ta.Generic[TypeT]):
             )
         )
 
-    def install_order(self) -> None:
+    def _install_order(self) -> None:
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
@@ -135,7 +135,7 @@ class ClassProcessor(ta.Generic[TypeT]):
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
 
-    def maybe_install_hash(self) -> bool:
+    def _maybe_install_hash(self) -> bool:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
         # was not auto-generated, but it close enough.
@@ -153,32 +153,32 @@ class ClassProcessor(ta.Generic[TypeT]):
         else:
             return False
 
-    def maybe_install_doc(self) -> None:
+    def _maybe_install_doc(self) -> None:
         if not getattr(self.ctx.cls, '__doc__'):
             self.ctx.cls.__doc__ = \
                 self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
 
     def __call__(self) -> None:
-        self.install_params()
+        self._install_params()
 
-        self.install_fields()
+        self._install_fields()
 
         if self.ctx.params.init:
-            self.install_init()
+            self._install_init()
 
         if self.ctx.params.repr:
-            self.install_repr()
+            self._install_repr()
 
         if self.ctx.params.eq:
-            self.install_eq()
+            self._install_eq()
 
         if self.ctx.params.order:
-            self.install_order()
+            self._install_order()
 
         self.storage.process()
 
         self.validation.process()
 
-        self.maybe_install_hash()
+        self._maybe_install_hash()
 
-        self.maybe_install_doc()
+        self._maybe_install_doc()

@@ -69,7 +69,7 @@ class Validation:
         def fctx(self) -> FunctionBuildContext:
             return self._fctx
 
-        def build_validate_lines(self) -> ta.List[str]:
+        def _build_validate_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
                 vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
@@ -83,7 +83,7 @@ class Validation:
                     raise TypeError(vld_md)
             return ret
 
-        def build_validator_lines(self) -> ta.List[str]:
+        def _build_validator_lines(self) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
                 vld_args = get_flat_fn_args(vld.fn)
@@ -92,13 +92,13 @@ class Validation:
                 ret.append(f'{self.fctx.nsb.add(vld.fn)}({", ".join(vld_args)})')
             return ret
 
-        def build_self_validator_lines(self) -> ta.List[str]:
+        def _build_self_validator_lines(self) -> ta.List[str]:
             ret = []
             for self_vld in self.fctx.ctx.spec.rmro_extras_by_cls[SelfValidator]:
                 ret.append(f'{self.fctx.nsb.add(self_vld.fn)}({self.fctx.self_name})')
             return ret
 
-        def build_checker_lines(self) -> ta.List[str]:
+        def _build_checker_lines(self) -> ta.List[str]:
             ret = []
 
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
@@ -113,7 +113,7 @@ class Validation:
 
             return ret
 
-        def build_self_checker_lines(self) -> ta.List[str]:
+        def _build_self_checker_lines(self) -> ta.List[str]:
             ret = []
 
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
@@ -128,13 +128,13 @@ class Validation:
 
         def build_pre_attr_lines(self) -> ta.List[str]:
             lines = []
-            lines.extend(self.build_validate_lines())
-            lines.extend(self.build_validator_lines())
-            lines.extend(self.build_checker_lines())
+            lines.extend(self._build_validate_lines())
+            lines.extend(self._build_validator_lines())
+            lines.extend(self._build_checker_lines())
             return lines
 
         def build_post_attr_lines(self) -> ta.List[str]:
             lines = []
-            lines.extend(self.build_self_validator_lines())
-            lines.extend(self.build_self_checker_lines())
+            lines.extend(self._build_self_validator_lines())
+            lines.extend(self._build_self_checker_lines())
             return lines

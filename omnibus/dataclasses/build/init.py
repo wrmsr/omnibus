@@ -67,7 +67,7 @@ class InitBuilder:
             if f.type is not dc.MISSING
         }
 
-    def build_field_init_lines(self) -> ta.List[str]:
+    def _build_field_init_lines(self) -> ta.List[str]:
         dct = {}
         for f in self.fctx.ctx.spec.fields.init:
             if get_field_type(f) is FieldType.INIT:
@@ -85,20 +85,20 @@ class InitBuilder:
             dct[f.name] = value
         return self.storage_builder.build_field_init_lines(dct, self.fctx.self_name)
 
-    def build_post_init_lines(self) -> ta.List[str]:
+    def _build_post_init_lines(self) -> ta.List[str]:
         ret = []
         if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
             params_str = ','.join(f.name for f in self.fctx.ctx.spec.fields.by_field_type.get(FieldType.INIT, []))
             ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
-    def build_extra_post_init_lines(self) -> ta.List[str]:
+    def _build_extra_post_init_lines(self) -> ta.List[str]:
         ret = []
         for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
             ret.append(f'{self.fctx.nsb.add(pi.fn)}({self.fctx.self_name})')
         return ret
 
-    def build_init_param(self, fld: dc.Field) -> str:
+    def _build_init_param(self, fld: dc.Field) -> str:
         if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
             default = ''
         elif fld.default is not dc.MISSING:
@@ -112,17 +112,17 @@ class InitBuilder:
     def __call__(self) -> None:
         lines = []
         lines.extend(self.validation_builder.build_pre_attr_lines())
-        lines.extend(self.build_field_init_lines())
+        lines.extend(self._build_field_init_lines())
         lines.extend(self.validation_builder.build_post_attr_lines())
-        lines.extend(self.build_post_init_lines())
-        lines.extend(self.build_extra_post_init_lines())
+        lines.extend(self._build_post_init_lines())
+        lines.extend(self._build_extra_post_init_lines())
 
         if not lines:
             lines = ['pass']
 
         return create_fn(
             '__init__',
-            [self.fctx.self_name] + [self.build_init_param(f) for f in self.fctx.ctx.spec.fields.init if f.init],
+            [self.fctx.self_name] + [self._build_init_param(f) for f in self.fctx.ctx.spec.fields.init if f.init],
             lines,
             locals=dict(self.fctx.nsb),
             globals=self.fctx.ctx.spec.globals,
