@@ -11,19 +11,15 @@ import dataclasses as dc
 import typing as ta
 
 from ... import check
-from ... import collections as ocol
-from ... import lang
 from ... import properties
 from ..internals import create_fn
 from ..internals import FieldType
 from ..internals import get_field_type
 from ..internals import POST_INIT_NAME
-from ..types import Deriver
-from ..types import ExtraFieldParams
 from ..types import PostInit
 from .context import FunctionBuildContext
+from .defaulting import Defaulting
 from .storage import Storage
-from .utils import get_flat_fn_args
 from .validation import Validation
 
 
@@ -31,29 +27,29 @@ T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 
-class HasFactory(lang.Marker):
-    pass
-
-
 class InitBuilder:
 
     def __init__(
             self,
             fctx: FunctionBuildContext,
+            defaulting_builder: Defaulting.InitBuilder,
             storage_builder: Storage.InitBuilder,
             validation_builder: Validation.InitBuilder,
     ) -> None:
         super().__init__()
 
         self._fctx = check.isinstance(fctx, FunctionBuildContext)
+        self._defaulting_builder = check.isinstance(defaulting_builder, Defaulting.InitBuilder)
         self._storage_builder = check.isinstance(storage_builder, Storage.InitBuilder)
         self._validation_builder = check.isinstance(validation_builder, Validation.InitBuilder)
-
-        self.check_invariants()
 
     @property
     def fctx(self) -> FunctionBuildContext:
         return self._fctx
+
+    @property
+    def defaulting_builder(self) -> Defaulting.InitBuilder:
+        return self._defaulting_builder
 
     @property
     def storage_builder(self) -> Storage.InitBuilder:
@@ -64,20 +60,16 @@ class InitBuilder:
         return self._validation_builder
 
     @properties.cached
-    def init_fields(self) -> ta.List[dc.Field]:
-        return [f for f in self.fctx.ctx.spec.fields if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
-
-    @properties.cached
     def type_names_by_field_name(self) -> ta.Mapping[str, str]:
         return {
             f.name: self.fctx.nsb.put(f'_{f.name}_type', f.type)
-            for f in self.init_fields
+          for f in self.fctx.ctx.spec.fields.init
             if f.type is not dc.MISSING
-        }
+       }
 
     def build_field_init_lines(self) -> ta.List[str]:
         dct = {}
-        for f in self.init_fields:
+        for f in self.fctx.ctx.spec.fields.init:
             if get_field_type(f) is FieldType.INIT:
                 continue
             elif f.default_factory is not dc.MISSING:
@@ -96,7 +88,7 @@ class InitBuilder:
     def build_post_init_lines(self) -> ta.List[str]:
         ret = []
         if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
-            params_str = ','.join(f.name for f in self.init_fields if get_field_type(f) is FieldType.INIT)
+            params_str = ','.join(f.name for f in self.fctx.ctx.spec.fields.by_field_type.get(FieldType.INIT, []))
             ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
         return ret
 
@@ -132,7 +124,7 @@ class InitBuilder:
 
         return create_fn(
             '__init__',
-            [self.fctx.self_name] + [self.build_init_param(f) for f in self.init_fields if f.init],
+            [self.fctx.self_name] + [self.build_init_param(f) for f in self.fctx.ctx.spec.fields.init if f.init],
             lines,
             locals=dict(self.fctx.nsb),
             globals=self.fctx.ctx.spec.globals,

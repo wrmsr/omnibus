@@ -20,6 +20,7 @@ from ..types import ExtraParams
 from ..types import METADATA_ATTR
 from .context import BuildContext
 from .context import FunctionBuildContext
+from .defaulting import Defaulting
 from .init import InitBuilder
 from .storage import Storage
 from .validation import Validation
@@ -41,6 +42,10 @@ class ClassProcessor(ta.Generic[TypeT]):
     @property
     def ctx(self) -> BuildContext:
         return self._ctx
+
+    @properties.cached
+    def defaulting(self) -> Defaulting:
+        return Defaulting(self.ctx)
 
     @properties.cached
     def storage(self) -> Storage:

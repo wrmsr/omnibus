@@ -1,12 +1,12 @@
-import functools
+import dataclasses as dc
 import typing as ta
 
 from ... import check
+from ... import collections as ocol
+from ... import lang
 from ... import properties
-from ..types import Checker
-from ..types import CheckException
+from ..types import Deriver
 from ..types import ExtraFieldParams
-from ..types import SelfChecker
 from .context import BuildContext
 from .context import FunctionBuildContext
 from .utils import get_flat_fn_args
@@ -14,6 +14,10 @@ from .utils import get_flat_fn_args
 
 T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
+
+
+class HasFactory(lang.Marker):
+    pass
 
 
 class Defaulting:
@@ -34,7 +38,7 @@ class Defaulting:
         # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
         # us in case we build up the function using ast.
         seen_default = False
-        for f in self.init_fields:
+        for f in self.ctx.spec.fields.init:
             # Only consider fields in the __init__ call.
             if f.init:
                 if not (f.default is dc.MISSING and f.default_factory is dc.MISSING):
@@ -53,7 +57,7 @@ class Defaulting:
 
         field_derivers_by_field = {
             f: efp.derive
-            for f in self.fctx.ctx.spec.fields
+            for f in self.ctx.spec.fields
             if ExtraFieldParams in f.metadata
             for efp in [f.metadata[ExtraFieldParams]]
             if efp.derive is not None
@@ -61,14 +65,14 @@ class Defaulting:
         for f, fd in field_derivers_by_field.items():
             ias = get_flat_fn_args(fd)
             for ia in ias:
-                check.in_(ia, self.fctx.ctx.spec.fields)
+                check.in_(ia, self.ctx.spec.fields)
             nodes.append(self.DeriverNode(fd, frozenset(ias), frozenset([f.name])))
 
-        extra_derivers = self.fctx.ctx.spec.rmro_extras_by_cls[Deriver]
+        extra_derivers = self.ctx.spec.rmro_extras_by_cls[Deriver]
         for ed in extra_derivers:
             ias = get_flat_fn_args(ed.fn)
             for ia in ias:
-                check.in_(ia, self.fctx.ctx.spec.fields)
+                check.in_(ia, self.ctx.spec.fields)
             if isinstance(ed.attrs, str):
                 oas = [ed.attrs]
             elif isinstance(ed.attrs, ta.Iterable):
@@ -77,7 +81,7 @@ class Defaulting:
                 raise TypeError(ed)
             for oa in oas:
                 check.isinstance(oa, str)
-                check.in_(oa, self.fctx.ctx.spec.fields)
+                check.in_(oa, self.ctx.spec.fields)
             nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
 
         return tuple(nodes)
@@ -120,7 +124,7 @@ class Defaulting:
         def default_names_by_field_name(self) -> ta.Mapping[str, str]:
             return {
                 f.name: self.fctx.nsb.put(f'_{f.name}_default', f.default)
-                for f in self.init_fields
+                for f in self.fctx.ctx.spec.fields.init
                 if f.default is not dc.MISSING
             }
 
@@ -128,11 +132,10 @@ class Defaulting:
         def default_factory_names_by_field_name(self) -> ta.Mapping[str, str]:
             return {
                 f.name: self.fctx.nsb.put(f'_{f.name}_default_factory', f.default_factory)
-                for f in self.init_fields
+                for f in self.fctx.ctx.spec.fields.init
                 if f.default_factory is not dc.MISSING
             }
 
         @properties.cached
         def has_factory_name(self) -> str:
             return self.fctx.nsb.put('_has_factory', HasFactory)
-

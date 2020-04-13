@@ -64,6 +64,10 @@ class Fields(ta.Sequence[dc.Field]):
     def instance(self) -> ta.Sequence[dc.Field]:
         return self.by_field_type.get(FieldType.INSTANCE, ())
 
+    @properties.cached
+    def init(self) -> ta.List[dc.Field]:
+        return [f for f in self if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
+
 
 def build_cls_fields(cls: type, *, install: bool = False) -> Fields:
     fields = {}

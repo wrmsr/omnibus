@@ -1,2 +1,2 @@
 from .context import BuildContext  # noqa
-from .process import ClassProcessor  # noqa
+from .processing import ClassProcessor  # noqa
