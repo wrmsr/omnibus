@@ -65,11 +65,11 @@ class Context(ta.Generic[TypeT]):
         setattr(self.cls, name, value)
         return False
 
-    class Function:
+    class Function(ta.Generic[TypeT]):
 
         def __init__(
                 self,
-                ctx: 'Context',
+                ctx: 'Context[TypeT]',
                 aspects: ta.Iterable['Aspect.Function'],
         ) -> None:
             super().__init__()
@@ -80,7 +80,7 @@ class Context(ta.Generic[TypeT]):
                 check.isinstance(a, Aspect.Function)
 
         @property
-        def ctx(self) -> 'Context':
+        def ctx(self) -> 'Context[TypeT]':
             return self._ctx
 
         @property
