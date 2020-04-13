@@ -49,7 +49,7 @@ class Defaulting:
 
     @properties.cached
     def deriver_nodes(self) -> ta.Sequence[DeriverNode]:
-        nodes: ta.List[InitBuilder.DeriverNode] = []
+        nodes: ta.List[Defaulting.DeriverNode] = []
 
         field_derivers_by_field = {
             f: efp.derive
