@@ -57,19 +57,6 @@ class Init(Aspect):
                 dct[f.name] = value
             return self.storage_builder.build_field_init_lines(dct, self.fctx.self_name)
 
-        def _build_post_init_lines(self) -> ta.List[str]:
-            ret = []
-            if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
-                params_str = ','.join(f.name for f in self.fctx.ctx.spec.fields.by_field_type.get(FieldType.INIT, []))
-                ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
-            return ret
-
-        def _build_extra_post_init_lines(self) -> ta.List[str]:
-            ret = []
-            for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
-                ret.append(f'{self.fctx.nsb.add(pi.fn)}({self.fctx.self_name})')
-            return ret
-
         def _build_init_param(self, fld: dc.Field) -> str:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
                 default = ''
@@ -86,8 +73,6 @@ class Init(Aspect):
             lines.extend(self.validation_builder.build_pre_attr_lines())
             lines.extend(self._build_field_init_lines())
             lines.extend(self.validation_builder.build_post_attr_lines())
-            lines.extend(self._build_post_init_lines())
-            lines.extend(self._build_extra_post_init_lines())
 
             if not lines:
                 lines = ['pass']

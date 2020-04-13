@@ -7,8 +7,9 @@ from ... import lang
 from ... import properties
 from ..types import Deriver
 from ..types import ExtraFieldParams
-from .utils import get_flat_fn_args
 from .types import Aspect
+from .types import attach
+from .utils import get_flat_fn_args
 
 
 class HasFactory(lang.Marker):

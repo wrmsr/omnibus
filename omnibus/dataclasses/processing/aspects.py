@@ -1,13 +1,18 @@
 import dataclasses as dc
 import inspect
+import typing as ta
 
 from ..internals import cmp_fn
+from ..internals import FieldType
 from ..internals import frozen_get_del_attr
 from ..internals import hash_action
 from ..internals import PARAMS
+from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
+from ..types import PostInit
 from .types import Aspect
+from .types import attach
 
 
 class Repr(Aspect):
@@ -129,3 +134,24 @@ class FieldAttrs(Aspect):
 
         for f in self.ctx.spec.fields:
             setattr(self.ctx.cls, f.name, f)
+
+
+class PostInitAspect(Aspect):
+
+    @attach('init')
+    class Init(Aspect.Function['PostInitAspect']):
+
+        @attach(1)
+        def build_post_init_lines(self) -> ta.List[str]:
+            ret = []
+            if hasattr(self.fctx.ctx.cls, POST_INIT_NAME):
+                params_str = ','.join(f.name for f in self.fctx.ctx.spec.fields.by_field_type.get(FieldType.INIT, []))
+                ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
+            return ret
+
+        @attach(1)
+        def build_extra_post_init_lines(self) -> ta.List[str]:
+            ret = []
+            for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
+                ret.append(f'{self.fctx.nsb.add(pi.fn)}({self.fctx.self_name})')
+            return ret

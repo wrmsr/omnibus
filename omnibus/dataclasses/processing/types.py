@@ -1,4 +1,5 @@
 import typing as ta
+import weakref
 
 from ... import check
 from ... import codegen
@@ -13,6 +14,17 @@ from ..types import ExtraParams
 T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 AspectT = ta.TypeVar('AspectT', bound='Aspect', covariant=True)
+
+
+ATTACHMENTS = weakref.WeakKeyDictionary()
+
+
+def attach(key):
+    # FIXME: steal a better word from aop than 'attach'
+    def inner(obj):
+        ATTACHMENTS[obj] = key
+        return obj
+    return inner
 
 
 class Context(ta.Generic[TypeT]):
