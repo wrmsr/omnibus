@@ -21,6 +21,7 @@ Backends:
  - tuple
  - pyrsistent
  - struct
+  - w/ bitfield packing
  - arrays
   - numpy
   - mmap

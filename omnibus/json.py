@@ -18,6 +18,10 @@ https://github.com/FasterXML/jackson-databind/wiki/Deserialization-Features
 https://github.com/FasterXML/jackson-databind/wiki/Serialization-features
 https://github.com/FasterXML/jackson-databind/wiki/Databind-annotations
 https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
+
+subtype reg:
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@type")
+@JsonSubTypes({@JsonSubTypes.Type(value = OutputNode.class, name = "output"), ...
 """
 import collections.abc
 import datetime

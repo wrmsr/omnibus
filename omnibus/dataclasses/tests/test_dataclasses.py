@@ -470,3 +470,21 @@ def test_derive2():
     assert C('a', 'b', 'c').spp == 'c'
     # FIXME:
     assert C('c').spp == 'c!!'
+
+
+def test_generic():
+    class Box(metaclass_.Data, ta.Generic[T]):
+        value: T
+
+    assert isinstance(Box(1), Box)
+    # assert issubclass(Box[int], Box)
+
+    class SubBox(Box):
+        pass
+
+    assert SubBox(1).value == 1
+
+    class SubIntBox(Box[int]):
+        pass
+
+    assert SubIntBox(1).value == 1
