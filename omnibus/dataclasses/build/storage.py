@@ -86,7 +86,6 @@ class Storage:
             return self._fctx
 
         def _build_field_assign(self, self_name, name, value) -> str:
-            # FIXME: hidden impl detail - ALL ASSIGNS HAPPEN AT ONCE - gives storage impl option to setup/reorder
             if self.fctx.ctx.params.frozen:
                 return f'BUILTINS.object.__setattr__({self_name}, {name!r}, {value})'
 
