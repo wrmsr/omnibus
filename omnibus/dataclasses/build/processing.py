@@ -92,72 +92,6 @@ class ClassProcessor(ta.Generic[TypeT]):
         fn = ib()
         self.ctx.set_new_attribute('__init__', fn)
 
-    def _install_repr(self) -> None:
-        flds = [f for f in self.ctx.spec.fields.instance if f.repr]
-        self.ctx.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
-
-    def _install_eq(self) -> None:
-        flds = [f for f in self.ctx.spec.fields.instance if f.compare]
-        self_tuple = tuple_str('self', flds)
-        other_tuple = tuple_str('other', flds)
-        self.ctx.set_new_attribute(
-            '__eq__',
-            cmp_fn(
-                '__eq__',
-                '==',
-                self_tuple,
-                other_tuple,
-                globals=self.ctx.spec.globals,
-            )
-        )
-
-    def _install_order(self) -> None:
-        flds = [f for f in self.ctx.spec.fields.instance if f.compare]
-        self_tuple = tuple_str('self', flds)
-        other_tuple = tuple_str('other', flds)
-        for name, op in [
-            ('__lt__', '<'),
-            ('__le__', '<='),
-            ('__gt__', '>'),
-            ('__ge__', '>='),
-        ]:
-            if self.ctx.set_new_attribute(
-                    name,
-                    cmp_fn(
-                        name,
-                        op,
-                        self_tuple,
-                        other_tuple,
-                        globals=self.ctx.spec.globals,
-                    )
-            ):
-                raise TypeError(
-                    f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
-                    f'Consider using functools.total_ordering')
-
-    def _maybe_install_hash(self) -> bool:
-        # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
-        # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
-        # was not auto-generated, but it close enough.
-        class_hash = self.ctx.cls.__dict__.get('__hash__', dc.MISSING)
-        has_explicit_hash = not (class_hash is dc.MISSING or (class_hash is None and '__eq__' in self.ctx.cls.__dict__))
-        ha = hash_action[(
-            bool(self.ctx.params.unsafe_hash),
-            bool(self.ctx.params.eq),
-            bool(self.ctx.params.frozen),
-            has_explicit_hash,
-        )]
-        if ha:
-            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals)
-            return True
-        else:
-            return False
-
-    def _maybe_install_doc(self) -> None:
-        if not getattr(self.ctx.cls, '__doc__'):
-            self.ctx.cls.__doc__ = \
-                self.ctx.cls.__name__ + str(inspect.signature(self.ctx.cls)).replace(' -> None', '')
-
     def __call__(self) -> None:
         self._install_params()
 
@@ -166,19 +100,6 @@ class ClassProcessor(ta.Generic[TypeT]):
         if self.ctx.params.init:
             self._install_init()
 
-        if self.ctx.params.repr:
-            self._install_repr()
-
-        if self.ctx.params.eq:
-            self._install_eq()
-
-        if self.ctx.params.order:
-            self._install_order()
-
         self.storage.process()
 
         self.validation.process()
-
-        self._maybe_install_hash()
-
-        self._maybe_install_doc()
