@@ -61,7 +61,7 @@ class Init(Aspect):
             }
 
         @attach(InitPhase.SET_ATTRS)
-        def build_field_init_lines(self) -> ta.List[str]:
+        def build_set_attr_lines(self) -> ta.List[str]:
             dct = {}
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
@@ -77,7 +77,7 @@ class Init(Aspect):
                 else:
                     continue
                 dct[f.name] = value
-            return self.storage.build_field_init_lines(dct, self.fctx.self_name)
+            return self.storage.build_set_attr_lines(dct, self.fctx.self_name)
 
         def _build_init_param(self, fld: dc.Field) -> str:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
