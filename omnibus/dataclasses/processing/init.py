@@ -92,7 +92,11 @@ class Init(Aspect):
 
         def build(self) -> types.FunctionType:
             lines = []
-            lines.extend(self._build_field_init_lines())
+
+            for phase in InitPhase.__members__.values():
+                for aspect in self.fctx.aspects:
+                    for attachment in aspect.attachment_lists_by_key.get(phase, []):
+                        lines.extend(attachment())
 
             if not lines:
                 lines = ['pass']
