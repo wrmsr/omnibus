@@ -39,7 +39,7 @@ import dataclasses as dc
 import functools
 import typing as ta
 
-from . import processing
+from . import process
 from .. import lang
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
@@ -200,8 +200,8 @@ def dataclass(
     )
 
     def build(cls):
-        ctx = processing.Context(cls, params, extra_params, processing.DEFAULT_ASPECTS)
-        drv = processing.Driver(ctx)
+        ctx = process.Context(cls, params, extra_params, process.DEFAULT_ASPECTS)
+        drv = process.Driver(ctx)
         drv()
         return cls
 
