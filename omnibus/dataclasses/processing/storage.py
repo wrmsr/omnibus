@@ -31,7 +31,6 @@ import typing as ta
 
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 
 
 class Storage:
@@ -45,7 +44,6 @@ class Storage:
 
             return f'{self_name}.{name} = {value}'
 
-        @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self, values_by_field: ta.Mapping[str, str], self_name: str) -> ta.List[str]:
             ret = []
             for field, value in values_by_field.items():

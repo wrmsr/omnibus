@@ -14,6 +14,7 @@ from ..internals import tuple_str
 from ..types import ExtraParams
 from ..types import METADATA_ATTR
 from ..types import PostInit
+from .fields import build_cls_fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -38,6 +39,16 @@ class Params(Aspect):
         check.state(self.ctx.spec._metadata is md)
 
         md[ExtraParams] = self.ctx.extra_params
+
+
+class Fields(Aspect):
+
+    @property
+    def phase(self) -> Phase:
+        return Phase.BOOTSTRAP
+
+    def process(self) -> None:
+        build_cls_fields(self.ctx.cls, install=True)
 
 
 class Repr(Aspect):

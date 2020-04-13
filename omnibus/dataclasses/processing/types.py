@@ -34,14 +34,14 @@ class Context(ta.Generic[TypeT]):
             cls: TypeT,
             params: DataclassParams,
             extra_params: ExtraParams,
-            aspects: ta.Iterable['Aspect'],
+            aspects: ta.Iterable[ta.Union['Aspect', ta.Type['AspectT']]],
     ) -> None:
         super().__init__()
 
         self._cls = check.isinstance(cls, type)
         self._params = check.isinstance(params, DataclassParams)
         self._extra_params = check.isinstance(extra_params, ExtraParams)
-        self._aspects = tuple(aspects)
+        self._aspects = [a(self) if isinstance(a, type) else a for a in aspects]
         for a in self._aspects:
             check.isinstance(a, Aspect)
 

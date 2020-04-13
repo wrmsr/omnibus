@@ -39,9 +39,8 @@ import dataclasses as dc
 import functools
 import typing as ta
 
+from . import processing
 from .. import lang
-from .build import BuildContext
-from .build import ClassProcessor
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
 from .types import Checker
@@ -201,8 +200,9 @@ def dataclass(
     )
 
     def build(cls):
-        ctx = BuildContext(cls, params, extra_params)
-        ClassProcessor(ctx)()
+        ctx = processing.Context(cls, params, extra_params, processing.DEFAULT_ASPECTS)
+        drv = processing.Driver(ctx)
+        drv()
         return cls
 
     if _cls is None:

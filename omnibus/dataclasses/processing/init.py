@@ -14,9 +14,12 @@ from ... import properties
 from ..internals import create_fn
 from ..internals import FieldType
 from ..internals import get_field_type
-from .types import Aspect
 from .defaulting import Defaulting
 from .storage import Storage
+from .types import Aspect
+from .types import attach
+from .types import InitPhase
+from .types import Context
 
 
 T = ta.TypeVar('T')
@@ -25,6 +28,18 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 class Init(Aspect):
 
+    def process(self) -> None:
+        fctx = Context.Function(self.ctx)
+        ib = InitBuilder(
+            fctx,
+            self.defaulting.create_init_builder(fctx),
+            self.storage.create_init_builder(fctx),
+            self.validation.create_init_builder(fctx),
+        )
+        fn = ib()
+        self.ctx.set_new_attribute('__init__', fn)
+
+    @attach('init')
     class Init(Aspect.Function['Init']):
 
         @properties.cached
@@ -43,7 +58,8 @@ class Init(Aspect):
                 if f.type is not dc.MISSING
             }
 
-        def _build_field_init_lines(self) -> ta.List[str]:
+        @attach(InitPhase.SET_ATTRS)
+        def build_field_init_lines(self) -> ta.List[str]:
             dct = {}
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
@@ -59,7 +75,7 @@ class Init(Aspect):
                 else:
                     continue
                 dct[f.name] = value
-            return self.storage_builder.build_field_init_lines(dct, self.fctx.self_name)
+            return self.storage.build_field_init_lines(dct, self.fctx.self_name)
 
         def _build_init_param(self, fld: dc.Field) -> str:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
@@ -72,11 +88,9 @@ class Init(Aspect):
                 raise TypeError
             return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
 
-        def __call__(self) -> None:
+        def build(self) -> None:
             lines = []
-            lines.extend(self.validation_builder.build_pre_attr_lines())
             lines.extend(self._build_field_init_lines())
-            lines.extend(self.validation_builder.build_post_attr_lines())
 
             if not lines:
                 lines = ['pass']
