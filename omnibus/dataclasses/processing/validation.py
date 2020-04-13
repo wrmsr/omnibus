@@ -10,30 +10,16 @@ from ..types import SelfChecker
 from ..types import SelfValidator
 from ..types import Validator
 from ..validation import build_default_field_validation
-from .context import BuildContext
-from .context import FunctionBuildContext
 from .utils import get_flat_fn_args
+from .types import Aspect
 
 
-class Validation:
-
-    def __init__(self, ctx: BuildContext) -> None:
-        super().__init__()
-
-        self._ctx = check.isinstance(ctx, BuildContext)
-
-    @property
-    def ctx(self) -> BuildContext:
-        return self._ctx
+class Validation(Aspect):
 
     FN_ARG_EXTRA_TYPES = {
         Checker,
         Validator,
     }
-
-    def process(self) -> None:
-        # FIXME:
-        pass
 
     @properties.cached
     def fn_extra_lists_by_arg_name_by_cls(self) -> ta.Mapping[str, ta.Mapping[type, ta.Sequence[ta.Any]]]:
@@ -50,24 +36,7 @@ class Validation:
             raise TypeError(chk_args, args)
         raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
 
-    def create_init_builder(self, fctx: FunctionBuildContext) -> 'Validation.InitBuilder':
-        return self.InitBuilder(self, fctx)
-
-    class InitBuilder:
-
-        def __init__(self, owner: 'Validation', fctx: FunctionBuildContext) -> None:
-            super().__init__()
-
-            self._owner = check.isinstance(owner, Validation)
-            self._fctx = check.isinstance(fctx, FunctionBuildContext)
-
-        @property
-        def owner(self) -> 'Validation':
-            return self._owner
-
-        @property
-        def fctx(self) -> FunctionBuildContext:
-            return self._fctx
+    class Init(Aspect.Function['Validation']):
 
         def _build_validate_lines(self) -> ta.List[str]:
             ret = []

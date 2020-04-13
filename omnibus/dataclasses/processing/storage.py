@@ -29,44 +29,15 @@ Backends:
 """
 import typing as ta
 
-from ... import check
-from ..internals import frozen_get_del_attr
-from .context import BuildContext
-from .context import FunctionBuildContext
+from .types import Aspect
 
 
 class Storage:
 
-    def __init__(self, ctx: BuildContext) -> None:
-        super().__init__()
-
-        self._ctx = check.isinstance(ctx, BuildContext)
-
-    @property
-    def ctx(self) -> BuildContext:
-        return self._ctx
-
     def process(self) -> None:
         pass
 
-    def create_init_builder(self, fctx: FunctionBuildContext) -> 'Storage.InitBuilder':
-        return self.InitBuilder(self, fctx)
-
-    class InitBuilder:
-
-        def __init__(self, owner: 'Storage', fctx: FunctionBuildContext) -> None:
-            super().__init__()
-
-            self._owner = check.isinstance(owner, Storage)
-            self._fctx = check.isinstance(fctx, FunctionBuildContext)
-
-        @property
-        def owner(self) -> 'Storage':
-            return self._owner
-
-        @property
-        def fctx(self) -> FunctionBuildContext:
-            return self._fctx
+    class Init(Aspect.Function['Storage']):
 
         def _build_field_assign(self, self_name, name, value) -> str:
             if self.fctx.ctx.params.frozen:

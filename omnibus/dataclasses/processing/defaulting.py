@@ -7,29 +7,17 @@ from ... import lang
 from ... import properties
 from ..types import Deriver
 from ..types import ExtraFieldParams
-from .context import BuildContext
-from .context import FunctionBuildContext
 from .utils import get_flat_fn_args
+from .types import Aspect
 
 
 class HasFactory(lang.Marker):
     pass
 
 
-class Defaulting:
+class Defaulting(Aspect):
 
-    def __init__(self, ctx: BuildContext) -> None:
-        super().__init__()
-
-        self._ctx = check.isinstance(ctx, BuildContext)
-
-        self.check_invariants()
-
-    @property
-    def ctx(self) -> BuildContext:
-        return self._ctx
-
-    def check_invariants(self) -> None:
+    def check(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught
         # when exec-ing the function source code, but catching it here gives a better error message, and future-proofs
         # us in case we build up the function using ast.
@@ -82,7 +70,8 @@ class Defaulting:
 
         return tuple(nodes)
 
-    def do_derivers(self) -> None:
+    @properties.cached
+    def deriver_supersteps(self):
         if not self.deriver_nodes:
             return
 
@@ -94,27 +83,9 @@ class Defaulting:
                 nodes_by_oa[oa] = n
 
         # TODO: ** hijack default factory machinery **
-        supersteps = list(ocol.toposort({oa: set(n.ias) for oa, n in nodes_by_oa.items()}))
-        print(supersteps)
+        return list(ocol.toposort({oa: set(n.ias) for oa, n in nodes_by_oa.items()}))
 
-    def create_init_builder(self, fctx: FunctionBuildContext) -> 'Defaulting.InitBuilder':
-        return self.InitBuilder(self, fctx)
-
-    class InitBuilder:
-
-        def __init__(self, owner: 'Defaulting', fctx: FunctionBuildContext) -> None:
-            super().__init__()
-
-            self._owner = check.isinstance(owner, Defaulting)
-            self._fctx = check.isinstance(fctx, FunctionBuildContext)
-
-        @property
-        def owner(self) -> 'Defaulting':
-            return self._owner
-
-        @property
-        def fctx(self) -> FunctionBuildContext:
-            return self._fctx
+    class Init(Aspect.Function['Defaulting']):
 
         @properties.cached
         def default_names_by_field_name(self) -> ta.Mapping[str, str]:
