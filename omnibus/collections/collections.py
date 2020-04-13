@@ -16,6 +16,7 @@ TODO:
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
  - IndexableSet
+ - https://github.com/MagicStack/immutables
 """
 import functools
 import typing as ta
