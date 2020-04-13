@@ -33,7 +33,7 @@ from .types import Aspect
 from .types import attach
 
 
-class Storage:
+class Storage(Aspect):
 
     @attach('init')
     class Init(Aspect.Function['Storage']):

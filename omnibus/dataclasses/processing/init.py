@@ -29,15 +29,16 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 class Init(Aspect):
 
     def process(self) -> None:
-        fctx = Context.Function(self.ctx)
-        ib = InitBuilder(
-            fctx,
-            self.defaulting.create_init_builder(fctx),
-            self.storage.create_init_builder(fctx),
-            self.validation.create_init_builder(fctx),
-        )
-        fn = ib()
-        self.ctx.set_new_attribute('__init__', fn)
+        # fctx = Context.Function(self.ctx)
+        # ib = InitBuilder(
+        #     fctx,
+        #     self.defaulting.create_init_builder(fctx),
+        #     self.storage.create_init_builder(fctx),
+        #     self.validation.create_init_builder(fctx),
+        # )
+        # fn = ib()
+        # self.ctx.set_new_attribute('__init__', fn)
+        raise NotImplementedError
 
     @attach('init')
     class Init(Aspect.Function['Init']):

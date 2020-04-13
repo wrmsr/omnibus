@@ -27,6 +27,18 @@ def attach(key):
     return inner
 
 
+def get_attachments(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
+    keys_by_name = {}
+    for bcls in list(reversed(type(obj).__mro__)) + [obj.__dict__]:
+        for n, v in bcls.__dict__.items():
+            try:
+                k = ATTACHMENTS[v]
+            except (KeyError, TypeError):
+                continue
+            keys_by_name[n] = k
+    return {getattr(obj, n): k for n, k in keys_by_name.items()}
+
+
 class Context(ta.Generic[TypeT]):
 
     def __init__(
@@ -136,6 +148,10 @@ class Aspect(lang.Abstract):
     def ctx(self) -> Context:
         return self._ctx
 
+    @properties.cached
+    def attachments(self) -> ta.Mapping[ta.Any, ta.Any]:
+        return get_attachments(self)
+
     def check(self) -> None:
         pass
 
@@ -157,6 +173,10 @@ class Aspect(lang.Abstract):
         @property
         def fctx(self) -> Context.Function:
             return self._fctx
+
+        @properties.cached
+        def attachments(self) -> ta.Mapping[ta.Any, ta.Any]:
+            return get_attachments(self)
 
 
 class InitPhase(lang.AutoEnum):
