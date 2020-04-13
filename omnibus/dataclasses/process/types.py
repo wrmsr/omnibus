@@ -140,14 +140,11 @@ class Context(ta.Generic[TypeT]):
 
         @properties.cached
         def nsb(self) -> codegen.NamespaceBuilder:
-            return codegen.NamespaceBuilder(codegen.name_generator(unavailable_names=self.ctx.spec.fields.by_name))
+            return codegen.NamespaceBuilder(unavailable_names=self.ctx.spec.fields.by_name)
 
         @properties.cached
         def self_name(self) -> str:
-            if 'self' not in self.ctx.spec.fields.by_name:
-                return self.nsb.put('self', None)
-            else:
-                return self.nsb.add(None, 'self')
+            return self.nsb.put('self', None, add=True)
 
 
 class Phase(lang.AutoEnum):

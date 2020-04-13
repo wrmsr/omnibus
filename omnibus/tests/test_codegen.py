@@ -25,6 +25,7 @@ def test_namegen():
     ng = cg.name_generator()
     assert ng() == '_0'
     assert ng() == '_1'
+    assert ng('self') == '_self0'
 
     nsb = cg.NamespaceBuilder()
     now = datetime.datetime.now()

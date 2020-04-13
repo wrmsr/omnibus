@@ -112,4 +112,4 @@ class Defaulting(Aspect):
 
         @properties.cached
         def has_factory_name(self) -> str:
-            return self.fctx.nsb.put('_has_factory', HasFactory)
+            return self.fctx.nsb.put('has_factory', HasFactory, add=True)

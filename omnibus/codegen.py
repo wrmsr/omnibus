@@ -75,12 +75,27 @@ name_generator = NameGeneratorImpl
 
 class NamespaceBuilder(ta.Mapping[str, ta.Any]):
 
-    def __init__(self, name_generator: NameGenerator = None) -> None:
+    def __init__(
+            self,
+            *,
+            unavailable_names: ta.Iterable[str] = None,
+            name_generator: NameGenerator = None,
+    ) -> None:
         super().__init__()
 
-        self._name_generator = check.callable(name_generator) if name_generator is not None else NameGeneratorImpl()
+        self._unavailable_names = {check.isinstance(n, str) for n in (unavailable_names or [])}
+        self._name_generator = check.callable(name_generator) if name_generator is not None else \
+            NameGeneratorImpl(unavailable_names=self._unavailable_names)
 
         self._dct = {}
+
+    @property
+    def unavailable_names(self) -> ta.AbstractSet[str]:
+        return self._unavailable_names
+
+    @property
+    def name_generator(self) -> NameGenerator:
+        return self._name_generator
 
     def __getitem__(self, k: str) -> ta.Any:
         return self._dct[k]
@@ -94,18 +109,24 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
     def items(self) -> ta.Iterable[ta.Tuple[str, ta.Any]]:
         return self._dct.items()
 
-    def put(self, name: str, value: ta.Any) -> str:
+    def put(self, name: str, value: ta.Any, *, add: bool = False) -> str:
         check.isinstance(name, str)
-        try:
-            existing = self._dct[name]
-        except KeyError:
-            self._dct[name] = value
+        if name not in self._unavailable_names:
+            try:
+                existing = self._dct[name]
+            except KeyError:
+                self._dct[name] = value
+                return name
+            else:
+                if existing is value:
+                    return name
+        if add:
+            return self.add(value, name)
         else:
-            if existing is not value:
-                raise NameError(name)
-        return name
+            raise NameError(name)
 
     def add(self, value: ta.Any, prefix: str = '') -> str:
+        check.isinstance(prefix, str)
         return self.put(self._name_generator(prefix), value)
 
 
