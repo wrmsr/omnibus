@@ -6,7 +6,6 @@ from ... import codegen
 from ... import lang
 from ... import properties
 from ..internals import DataclassParams
-from ..internals import UNAVAILABLE_LOCALS
 from ..reflect import DataSpec
 from ..reflect import get_cls_spec
 from ..types import ExtraParams
@@ -109,7 +108,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
         @properties.cached
         def nsb(self) -> codegen.NamespaceBuilder:
-            return codegen.NamespaceBuilder(unavailable_names=set(self.ctx.spec.fields.by_name) | UNAVAILABLE_LOCALS)
+            return codegen.NamespaceBuilder(unavailable_names=self.ctx.spec.fields.by_name)
 
         @properties.cached
         def self_name(self) -> str:

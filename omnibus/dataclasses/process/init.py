@@ -5,8 +5,8 @@ import typing as ta
 
 from ... import codegen as cg
 from ... import properties
-from ..internals import create_fn
 from .defaulting import Defaulting
+from .defaulting import HasFactory
 from .types import Aspect
 from .types import attach
 from .types import Context
@@ -41,25 +41,6 @@ class Init(Aspect):
         def defaulting(self) -> Defaulting.Init:
             return self.fctx.get_aspect(Defaulting.Init)
 
-        @properties.cached
-        def type_names_by_field_name(self) -> ta.Mapping[str, str]:
-            return {
-                f.name: self.fctx.nsb.put(f'_{f.name}_type', f.type)
-                for f in self.fctx.ctx.spec.fields.init
-                if f.type is not dc.MISSING
-            }
-
-        def _build_init_param(self, fld: dc.Field) -> str:
-            if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
-                default = ''
-            elif fld.default is not dc.MISSING:
-                default = ' = ' + self.defaulting.default_names_by_field_name[fld.name]
-            elif fld.default_factory is not dc.MISSING:
-                default = ' = ' + self.defaulting.has_factory_name
-            else:
-                raise TypeError
-            return f'{fld.name}: {self.type_names_by_field_name[fld.name]}{default}'
-
         def build(self) -> types.FunctionType:
             lines = []
 
@@ -71,11 +52,30 @@ class Init(Aspect):
             if not lines:
                 lines = ['pass']
 
-            return create_fn(
+            argspec = cg.ArgSpec(
+                [self.fctx.self_name],
+                annotations={'return': None},
+            )
+            for fld in self.fctx.ctx.spec.fields.init:
+                if not fld.init:
+                    continue
+                if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+                    argspec.args.append(fld.name)
+                elif fld.default is not dc.MISSING:
+                    argspec.args.append(fld.name)
+                    argspec.defaults.append(fld.default)
+                elif fld.default_factory is not dc.MISSING:
+                    argspec.args.append(fld.name)
+                    argspec.defaults.append(HasFactory)
+                else:
+                    raise TypeError
+                if fld.type is not dc.MISSING:
+                    argspec.annotations[fld.name] = fld.type
+
+            return cg.create_fn(
                 '__init__',
-                [self.fctx.self_name] + [self._build_init_param(f) for f in self.fctx.ctx.spec.fields.init if f.init],
-                lines,
+                argspec,
+                '\n'.join(lines),
                 locals=dict(self.fctx.nsb),
                 globals=self.fctx.ctx.spec.globals,
-                return_type=None,
             )

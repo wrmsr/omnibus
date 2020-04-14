@@ -30,6 +30,7 @@ Backends:
 import dataclasses as dc
 import typing as ta
 
+from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
 from .types import Aspect
@@ -42,9 +43,13 @@ class Storage(Aspect):
     @attach('init')
     class Init(Aspect.Function['Storage']):
 
+        @properties.cached
+        def setattr_name(self) -> str:
+            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
+
         def _build_field_assign(self, self_name, name, value) -> str:
             if self.fctx.ctx.params.frozen:
-                return f'BUILTINS.object.__setattr__({self_name}, {name!r}, {value})'
+                return f'{self.setattr_name}({self_name}, {name!r}, {value})'
 
             return f'{self_name}.{name} = {value}'
 
