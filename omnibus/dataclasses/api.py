@@ -10,7 +10,6 @@ TODO:
   - fld: order, kwonly
   - cls: weakref_slot, kwonly
   - cache_hash: hash='cache', transient
-  - linecache
  - ..transient
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*

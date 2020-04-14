@@ -41,6 +41,33 @@ class Init(Aspect):
         def defaulting(self) -> Defaulting.Init:
             return self.fctx.get_aspect(Defaulting.Init)
 
+        @properties.cached
+        def argspec(self) -> cg.ArgSpec:
+            argspec = cg.ArgSpec(
+                [self.fctx.self_name],
+                annotations={'return': None},
+            )
+
+            for fld in self.fctx.ctx.spec.fields.init:
+                if not fld.init:
+                    continue
+
+                if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+                    argspec.args.append(fld.name)
+                elif fld.default is not dc.MISSING:
+                    argspec.args.append(fld.name)
+                    argspec.defaults.append(fld.default)
+                elif fld.default_factory is not dc.MISSING:
+                    argspec.args.append(fld.name)
+                    argspec.defaults.append(HasFactory)
+                else:
+                    raise TypeError
+
+                if fld.type is not dc.MISSING:
+                    argspec.annotations[fld.name] = fld.type
+
+            return argspec
+
         def build(self) -> types.FunctionType:
             lines = []
 
@@ -52,29 +79,9 @@ class Init(Aspect):
             if not lines:
                 lines = ['pass']
 
-            argspec = cg.ArgSpec(
-                [self.fctx.self_name],
-                annotations={'return': None},
-            )
-            for fld in self.fctx.ctx.spec.fields.init:
-                if not fld.init:
-                    continue
-                if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
-                    argspec.args.append(fld.name)
-                elif fld.default is not dc.MISSING:
-                    argspec.args.append(fld.name)
-                    argspec.defaults.append(fld.default)
-                elif fld.default_factory is not dc.MISSING:
-                    argspec.args.append(fld.name)
-                    argspec.defaults.append(HasFactory)
-                else:
-                    raise TypeError
-                if fld.type is not dc.MISSING:
-                    argspec.annotations[fld.name] = fld.type
-
             return cg.create_fn(
                 '__init__',
-                argspec,
+                self.argspec,
                 '\n'.join(lines),
                 locals=dict(self.fctx.nsb),
                 globals=self.fctx.ctx.spec.globals,

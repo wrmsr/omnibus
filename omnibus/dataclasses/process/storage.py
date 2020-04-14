@@ -47,12 +47,6 @@ class Storage(Aspect):
         def setattr_name(self) -> str:
             return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
 
-        def _build_field_assign(self, self_name, name, value) -> str:
-            if self.fctx.ctx.params.frozen:
-                return f'{self.setattr_name}({self_name}, {name!r}, {value})'
-
-            return f'{self_name}.{name} = {value}'
-
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
             ret = []
@@ -61,5 +55,8 @@ class Storage(Aspect):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                ret.append(self._build_field_assign(self.fctx.self_name, f.name, f.name))
+                if self.fctx.ctx.params.frozen:
+                    ret.append(f'{self.setattr_name}({self.fctx.self_name}, {f.name!r}, {f.name})')
+                else:
+                    ret.append(f'{self.fctx.self_name}.{f.name} = {f.name}')
             return ret
