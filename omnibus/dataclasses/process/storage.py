@@ -16,9 +16,6 @@ NOTES:
    - backend.is_frozen
 
 Backends:
- - default
-  - slots
- - dict (example)
  - tuple
   - meta only?
  - pyrsistent

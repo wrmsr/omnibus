@@ -543,3 +543,14 @@ def test_dicts_aspects():
     c = C({'x': 1, 'y': 2})
     assert c.x == 1
     assert c.y == 2
+
+
+def test_tuples():
+    @api_.dataclass(frozen=True)
+    class C(tuple):
+        x: int
+        y: int
+
+    c = C(1, 2)
+    assert c.x == 1
+    assert c.y == 2

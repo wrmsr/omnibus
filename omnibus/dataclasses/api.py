@@ -29,6 +29,7 @@ TODO:
  - lazy derivers
  - gen protobuf / thrift / jsonschema / avro *from* dc
   - incl enums
+ - slots? + weakref_slot - https://docs.python.org/3/reference/datamodel.html#slots
 """
 import collections
 import collections.abc
