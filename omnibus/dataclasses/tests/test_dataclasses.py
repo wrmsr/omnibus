@@ -519,3 +519,27 @@ def test_cache_hash():
     b = B(I(420))
     assert hash(b) == hash(b)
     assert l == [b.i]
+
+
+def test_dicts_aspects():
+    from .. import process as process_
+    from ..process import dicts as dicts_
+    from ..process import init as init_
+    from ..process import storage as storage_
+
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, init_.Init):
+            a = dicts_.DictInit
+        elif issubclass(a, storage_.Storage):
+            a = dicts_.DictStorage
+        da.append(a)
+
+    @api_.dataclass(aspects=da)
+    class C:
+        x: int
+        y: int
+
+    c = C({'x': 1, 'y': 2})
+    assert c.x == 1
+    assert c.y == 2

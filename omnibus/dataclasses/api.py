@@ -227,6 +227,7 @@ def dataclass(
         validate=None,
         field_attrs=False,
         cache_hash=False,
+        aspects=None,
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,
@@ -237,14 +238,19 @@ def dataclass(
         frozen=frozen,
     )
 
+    if aspects is not None:
+        aspects = list(aspects)
+
     extra_params = ExtraParams(
         validate=validate,
         field_attrs=field_attrs,
         cache_hash=cache_hash,
+        aspects=aspects,
     )
 
     def build(cls):
-        ctx = process.Context(cls, params, extra_params, process.DEFAULT_ASPECTS)
+        aspects = extra_params.aspects if extra_params.aspects is not None else process.DEFAULT_ASPECTS
+        ctx = process.Context(cls, params, extra_params, aspects)
         drv = process.Driver(ctx)
         drv()
         return cls

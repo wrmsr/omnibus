@@ -68,6 +68,7 @@ class ExtraParams:
     validate: bool = None
     field_attrs: bool = False
     cache_hash: bool = False
+    aspects: ta.Sequence[ta.Any] = None
 
 
 @dc.dataclass(frozen=True)
