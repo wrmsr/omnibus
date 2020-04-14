@@ -20,6 +20,7 @@ from ... import lang
 from ... import properties
 from ..process import dicts as dicts_
 from ..process import init as init_
+from ..process import pyrsistent as pyrsistent_
 from ..process import storage as storage_
 from ..process import tuples as tuples_
 
@@ -203,6 +204,21 @@ def test_pyrsistent():
     e[-1] = 'f'
     v = e.persistent()
     assert list(v) == ['d', 1, 'b', 'a', 'c', 'f']
+
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, storage_.Storage):
+            a = pyrsistent_.PyrsistentStorage
+        da.append(a)
+
+    @api_.dataclass(frozen=True, aspects=da)
+    class C:
+        x: int
+        y: int
+
+    c = C(1, 2)
+    assert c.x == 1
+    assert c.y == 2
 
 
 def test_default_validation():
@@ -564,6 +580,25 @@ def test_dicts1():
     assert c.y == 2
     c.y = 3
     assert c.y == 3
+
+
+def test_dicts2():
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, storage_.Storage):
+            a = dicts_.DictStorage
+        da.append(a)
+
+    @api_.dataclass(aspects=da, frozen=True)
+    class C:
+        x: int
+        y: int
+
+    c = C(1, 2)
+    assert c.x == 1
+    assert c.y == 2
+    with pytest.raises(dc.FrozenInstanceError):
+        c.y = 3
 
 
 def test_tuples():

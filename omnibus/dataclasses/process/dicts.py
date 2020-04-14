@@ -71,11 +71,15 @@ class DictStorage(Storage):
             self.ctx.set_new_attribute(fld.name, dsc)
 
     @attach('init')
-    class Init(Aspect.Function['DictStorage']):
+    class Init(Storage.Function['DictStorage']):
+
+        @properties.cached
+        def setattr_name(self) -> str:
+            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
-            ret = [f'{self.fctx.self_name}.{self.aspect.dict_attr} = {{}}']
+            ret = [self.build_setattr(self.aspect.dict_attr, '{}')]
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
                     continue

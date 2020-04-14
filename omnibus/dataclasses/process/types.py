@@ -127,6 +127,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             for aspect in self.aspects
             for key in attachment_keys
             for attachment in aspect.attachment_lists_by_key.get(key, [])
+            if attachment is not None
         ]
         return Context.Function(self, attachments)
 
@@ -142,9 +143,13 @@ def attach(key):
     return inner
 
 
-def get_keys_by_attachment(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
+def get_keys_by_attachment_name(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
+    if isinstance(obj, type):
+        rmro = reversed(obj.__mro__[1:])
+    else:
+        rmro = reversed(type(obj).__mro__)
     keys_by_name = {}
-    for items in [list(c.__dict__.items()) for c in reversed(type(obj).__mro__)] + [list(obj.__dict__.items())]:
+    for items in [list(c.__dict__.items()) for c in rmro] + [list(obj.__dict__.items())]:
         for n, v in items:
             try:
                 ks = ATTACHMENTS[v]
@@ -152,13 +157,13 @@ def get_keys_by_attachment(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
                 continue
             for k in ks:
                 keys_by_name[n] = k
-    return {getattr(obj, n): k for n, k in keys_by_name.items()}
+    return keys_by_name
 
 
 def get_attachment_lists_by_key(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Sequence[ta.Any]]:
     ret = {}
-    for attachment, key in get_keys_by_attachment(obj).items():
-        ret.setdefault(key, []).append(attachment)
+    for attachment_name, key in get_keys_by_attachment_name(obj).items():
+        ret.setdefault(key, []).append(getattr(obj, attachment_name))
     return ret
 
 
@@ -234,6 +239,11 @@ class Aspect(AttachmentCollection, lang.Abstract):
                 locals=dict(self.fctx.nsb),
                 globals=self.fctx.ctx.spec.globals,
             )
+
+    @classmethod
+    def nop_aspect(cls: ta.Type[AspectT]) -> ta.Type[AspectT]:
+        ans = get_keys_by_attachment_name(cls)
+        return type('nop$' + cls.__name__, (cls,), {n: None for n in ans})
 
 
 class InitPhase(lang.AutoEnum):

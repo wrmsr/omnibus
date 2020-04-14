@@ -57,7 +57,7 @@ class TupleStorage(Storage):
             self.ctx.set_new_attribute(fld.name, dsc)
 
     @attach('init')
-    class Init(Aspect.Function['TupleStorage']):
+    class Init(Storage.Function['TupleStorage']):
 
         @properties.cached
         def cls_name(self) -> str:

@@ -31,6 +31,8 @@ TODO:
   - incl enums
  - slots? + weakref_slot - https://docs.python.org/3/reference/datamodel.html#slots
  - partial validation - subclass?
+ - parameterized tests - storage, params, etc
+ - standard named aspect packs: tuple, dict, pyrsistent
 """
 import collections
 import collections.abc

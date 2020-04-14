@@ -1,22 +1,11 @@
 """
 TODO:
- - class-level descriptor proto not optional / overridable, but instance level fully so
  - need to re-run checks/validators on all mutations
  - nesting
  - rebuilding from existing
   - stubbing (query comp cache)
- - dc.replace
- - have to override __new__ for tups, pyr
-
-NOTES:
- - can change ctor
-  - config takes only a source
- - dc.replace has to work
-  - is only way to modify tuple/pyrsistent / any frozen
-   - backend.is_frozen
 
 Backends:
- - pyrsistent
  - struct
   - w/ bitfield packing
  - arrays
@@ -36,18 +25,28 @@ from .types import attach
 from .types import InitPhase
 
 
+StorageT = ta.TypeVar('StorageT', bound='Storage', covariant=True)
+
+
 class Storage(Aspect, lang.Abstract):
-    pass
+
+    class Function(Aspect.Function[StorageT]):
+
+        @properties.cached
+        def setattr_name(self) -> str:
+            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
+
+        def build_setattr(self, name: str, value: str) -> str:
+            if self.fctx.ctx.params.frozen:
+                return f'{self.setattr_name}({self.fctx.self_name}, {name!r}, {value})'
+            else:
+                return f'{self.fctx.self_name}.{name} = {value}'
 
 
 class StandardStorage(Storage):
 
     @attach('init')
-    class Init(Aspect.Function['StandardStorage']):
-
-        @properties.cached
-        def setattr_name(self) -> str:
-            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
+    class Init(Storage.Function['StandardStorage']):
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
@@ -57,8 +56,5 @@ class StandardStorage(Storage):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                if self.fctx.ctx.params.frozen:
-                    ret.append(f'{self.setattr_name}({self.fctx.self_name}, {f.name!r}, {f.name})')
-                else:
-                    ret.append(f'{self.fctx.self_name}.{f.name} = {f.name}')
+                ret.append(self.build_setattr(f.name, f.name))
             return ret
