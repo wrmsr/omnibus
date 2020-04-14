@@ -11,6 +11,7 @@ TODO:
   - yea, prob
  - uuid
  - cfgable strictness
+ - heavy overlap w dc validation - omnibus/validate?
 
 https://github.com/marshmallow-code/marshmallow/wiki/Ecosystem
 https://github.com/lidatong/dataclasses-json
