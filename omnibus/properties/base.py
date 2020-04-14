@@ -1,16 +1,18 @@
-import sys
 import typing as ta
 
 
 T = ta.TypeVar('T')
 
 
-def _global_property(fn):
-    if not fn.__name__.startswith('_'):
-        raise NameError(fn)
-    sys._getframe(1).f_globals[fn.__name__[1:]] = fn
-    return fn
-
-
 class Property(ta.Generic[T]):
-    pass
+
+    @classmethod
+    def _unwrap(cls, fn):
+        if isinstance(fn, property):
+            if fn.fset is not None or fn.fdel is not None:
+                raise TypeError(fn)
+            fn = fn.fget
+        if callable(fn):
+            return fn
+        else:
+            raise TypeError(fn)

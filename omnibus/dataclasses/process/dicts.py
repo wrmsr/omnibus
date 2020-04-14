@@ -1,31 +1,16 @@
 import dataclasses as dc
-import functools
-import types
 import typing as ta
 
 from ... import check
 from ... import codegen as cg
-from ... import lang
-from ... import lang
-from ... import properties
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
-from .defaulting import Defaulting
-from .defaulting import HasFactory
-from .types import Aspect
-from .types import Aspect
-from .types import attach
-from .types import attach
-from .types import Context
-from .types import InitPhase
-from .types import InitPhase
 from .init import Init
 from .storage import Storage
-
-
-T = ta.TypeVar('T')
-TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
+from .types import Aspect
+from .types import attach
+from .types import InitPhase
 
 
 class DictDescriptor:
@@ -36,14 +21,14 @@ class DictDescriptor:
             dict_attr: str,
             *,
             frozen: bool = False,
-            attr_fields: bool = False,
+            field_attrs: bool = False,
     ) -> None:
         super().__init__()
 
         self._field = field
         self._dict_attr = dict_attr
         self._frozen = frozen
-        self._attr_fields = attr_fields
+        self._field_attrs = field_attrs
 
     def __get__(self, instance, owner):
         if instance is not None:
@@ -52,7 +37,7 @@ class DictDescriptor:
                 return dct[self._field.name]
             except KeyError:
                 raise AttributeError(self._field.name)
-        elif self._attr_fields is not None:
+        elif self._field_attrs is not None:
             return self._field
         else:
             return self
@@ -80,7 +65,7 @@ class DictStorage(Storage):
                 fld,
                 self.dict_attr,
                 frozen=self.ctx.spec.params.frozen,
-                attr_fields=self.ctx.spec.params.attr_fields,
+                field_attrs=self.ctx.spec.extra_params.field_attrs,
             )
             self.ctx.set_new_attribute(fld.name, dsc)
 
@@ -105,15 +90,9 @@ class DictInit(Init):
         if not self.ctx.spec.params.init:
             return
 
-        attachments = [
-            functools.partial(attachment, aspect)
-            for aspect in self.ctx.aspects
-            for attachment in aspect.attachment_lists_by_key.get('init', [])
-        ]
-
-        fctx = Context.Function(self.ctx, attachments)
+        fctx = self.ctx.function(['init'])
         init = fctx.get_aspect(DictInit.Init)
-        fn = init.build()
+        fn = init.build('__init__')
         self.ctx.set_new_attribute('__init__', fn)
 
     @attach('init')
@@ -128,23 +107,4 @@ class DictInit(Init):
             return cg.ArgSpec(
                 [self.fctx.self_name, 'dct'],
                 annotations={'return': None, 'dct': ta.Mapping[str, ta.Any]},
-            )
-
-        def build(self) -> types.FunctionType:
-            lines = []
-
-            for phase in InitPhase.__members__.values():
-                for aspect in self.fctx.aspects:
-                    for attachment in aspect.attachment_lists_by_key.get(phase, []):
-                        lines.extend(attachment())
-
-            if not lines:
-                lines = ['pass']
-
-            return cg.create_fn(
-                '__init__',
-                self.argspec,
-                '\n'.join(lines),
-                locals=dict(self.fctx.nsb),
-                globals=self.fctx.ctx.spec.globals,
             )

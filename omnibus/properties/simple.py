@@ -1,8 +1,6 @@
 import functools
 import typing as ta
 
-from .. import check
-from .base import _global_property
 from .base import Property
 
 
@@ -44,11 +42,7 @@ class SetOnceProperty(Property[T]):
         raise TypeError('Operation not supported')
 
 
-set_once = property
-
-
-@_global_property
-def _set_once(attr_name: str = None):
+def set_once(attr_name: str = None):
     return SetOnceProperty(attr_name)
 
 
@@ -61,15 +55,11 @@ class ClassProperty(Property[T]):
         super().__init__()
 
         functools.update_wrapper(self, func)
-        self._func = check.callable(func)
+        self._func = self._unwrap(func)
 
     def __get__(self, obj, cls=None) -> T:
         return self._func(cls)
 
 
-class_ = property
-
-
-@_global_property
-def _class_(fn: ta.Callable[..., T]) -> T:
+def class_(fn: ta.Callable[..., T]) -> T:
     return ClassProperty(fn)

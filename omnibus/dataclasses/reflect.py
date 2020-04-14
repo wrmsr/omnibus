@@ -40,33 +40,39 @@ class DataSpec(ta.Generic[TypeT]):
     def cls(self) -> TypeT:
         return self._cls
 
+    @properties.cached
     @property
     def params(self) -> DataclassParams:
         check.state(hasattr(self._cls, PARAMS))
         return check.isinstance(getattr(self._cls, PARAMS), DataclassParams)
 
     @properties.cached
+    @property
     def _metadata(self) -> ta.Mapping[type, ta.Any]:
         return self.cls.__dict__.get(METADATA_ATTR, {})
 
     @properties.cached
+    @property
     def metadata(self) -> ta.Mapping[type, ta.Any]:
         return types.MappingProxyType(self._metadata)
 
     @properties.cached
+    @property
     def extra_params(self) -> ExtraParams:
         return self.metadata.get(ExtraParams, ExtraParams())
 
     @properties.cached
+    @property
     def meta_params(self) -> MetaParams:
         return self.metadata.get(MetaParams, MetaParams())
 
     @properties.cached
+    @property
     def fields(self) -> Fields:
         check.state(hasattr(self._cls, FIELDS))
         return Fields(getattr(self._cls, FIELDS).values())
 
-    @properties.cached
+    @property
     def rmro(self) -> ta.Sequence[type]:
         return tuple(reversed(self.cls.__mro__))
 

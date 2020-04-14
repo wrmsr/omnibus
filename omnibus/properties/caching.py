@@ -2,10 +2,8 @@ import functools
 import typing as ta
 import weakref
 
-from .. import check
 from .. import lang
 from .. import pydevd
-from .base import _global_property
 from .base import Property
 
 
@@ -24,7 +22,7 @@ class CachedProperty(Property[T]):
         super().__init__()
 
         functools.update_wrapper(self, func)
-        self._func = check.callable(func)
+        self._func = self._unwrap(func)
         self._lock = lang.default_lock(lock, False)
         self._pure = bool(pure)
 
@@ -44,23 +42,15 @@ class CachedProperty(Property[T]):
         return value
 
 
-cached = property
-locked_cached = property
-pure_cached = property
-
-
-@_global_property
-def _cached(fn: ta.Callable[..., T]) -> T:
+def cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn)
 
 
-@_global_property
-def _locked_cached(fn: ta.Callable[..., T]) -> T:
+def locked_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, lock=True)
 
 
-@_global_property
-def _pure_cached(fn: ta.Callable[..., T]) -> T:
+def pure_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, pure=True)
 
 
@@ -76,7 +66,7 @@ class CachedClassProperty(Property[T]):
         super().__init__()
 
         functools.update_wrapper(self, func)
-        self._func = check.callable(func)
+        self._func = self._unwrap(func)
         self._lock = lang.default_lock(lock, False)
         self._pure = bool(pure)
 
@@ -106,21 +96,13 @@ class CachedClassProperty(Property[T]):
         return value
 
 
-cached_class = property
-locked_cached_class = property
-pure_cached_class = property
-
-
-@_global_property
-def _cached_class(fn: ta.Callable[..., T]) -> T:
+def cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn)
 
 
-@_global_property
-def _locked_cached_class(fn: ta.Callable[..., T]) -> T:
+def locked_cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn, lock=True)
 
 
-@_global_property
-def _pure_cached_class(fn: ta.Callable[..., T]) -> T:
+def pure_cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn, pure=True)

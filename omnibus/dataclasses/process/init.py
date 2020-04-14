@@ -1,6 +1,4 @@
 import dataclasses as dc
-import functools
-import types
 import typing as ta
 
 from ... import codegen as cg
@@ -10,8 +8,6 @@ from .defaulting import Defaulting
 from .defaulting import HasFactory
 from .types import Aspect
 from .types import attach
-from .types import Context
-from .types import InitPhase
 
 
 T = ta.TypeVar('T')
@@ -28,15 +24,9 @@ class StandardInit(Init):
         if not self.ctx.spec.params.init:
             return
 
-        attachments = [
-            functools.partial(attachment, aspect)
-            for aspect in self.ctx.aspects
-            for attachment in aspect.attachment_lists_by_key.get('init', [])
-        ]
-
-        fctx = Context.Function(self.ctx, attachments)
+        fctx = self.ctx.function(['init'])
         init = fctx.get_aspect(StandardInit.Init)
-        fn = init.build()
+        fn = init.build('__init__')
         self.ctx.set_new_attribute('__init__', fn)
 
     @attach('init')
@@ -72,22 +62,3 @@ class StandardInit(Init):
                     argspec.annotations[fld.name] = fld.type
 
             return argspec
-
-        def build(self) -> types.FunctionType:
-            lines = []
-
-            for phase in InitPhase.__members__.values():
-                for aspect in self.fctx.aspects:
-                    for attachment in aspect.attachment_lists_by_key.get(phase, []):
-                        lines.extend(attachment())
-
-            if not lines:
-                lines = ['pass']
-
-            return cg.create_fn(
-                '__init__',
-                self.argspec,
-                '\n'.join(lines),
-                locals=dict(self.fctx.nsb),
-                globals=self.fctx.ctx.spec.globals,
-            )

@@ -1,3 +1,5 @@
+import functools
+import types
 import typing as ta
 import weakref
 
@@ -75,6 +77,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         return self._extra_params
 
     @properties.cached
+    @property
     def aspect_lists_by_phase(self) -> ta.Mapping['Phase', ta.Sequence['Aspect']]:
         ret = {}
         for a in self.aspects:
@@ -82,6 +85,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         return ret
 
     @properties.cached
+    @property
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
 
@@ -107,12 +111,24 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             return self._ctx
 
         @properties.cached
+        @property
         def nsb(self) -> codegen.NamespaceBuilder:
             return codegen.NamespaceBuilder(unavailable_names=self.ctx.spec.fields.by_name)
 
         @properties.cached
         def self_name(self) -> str:
             return self.nsb.put('self', None, add=True)
+
+    def function(self, attachment_keys: ta.Iterable[ta.Any] = ()) -> Function[TypeT]:
+        check.arg(not isinstance(attachment_keys, str))
+        attachment_keys = list(attachment_keys)
+        attachments = [
+            functools.partial(attachment, aspect)
+            for aspect in self.aspects
+            for key in attachment_keys
+            for attachment in aspect.attachment_lists_by_key.get(key, [])
+        ]
+        return Context.Function(self, attachments)
 
 
 ATTACHMENTS = weakref.WeakKeyDictionary()
@@ -195,6 +211,29 @@ class Aspect(AttachmentCollection, lang.Abstract):
         @property
         def fctx(self) -> Context.Function:
             return self._fctx
+
+        @property
+        def argspec(self) -> codegen.ArgSpec:
+            raise TypeError
+
+        def build(self, name: str) -> types.FunctionType:
+            lines = []
+
+            for phase in InitPhase.__members__.values():
+                for aspect in self.fctx.aspects:
+                    for attachment in aspect.attachment_lists_by_key.get(phase, []):
+                        lines.extend(attachment())
+
+            if not lines:
+                lines = ['pass']
+
+            return codegen.create_fn(
+                name,
+                self.argspec,
+                '\n'.join(lines),
+                locals=dict(self.fctx.nsb),
+                globals=self.fctx.ctx.spec.globals,
+            )
 
 
 class InitPhase(lang.AutoEnum):
