@@ -16,8 +16,6 @@ NOTES:
    - backend.is_frozen
 
 Backends:
- - tuple
-  - meta only?
  - pyrsistent
  - struct
   - w/ bitfield packing

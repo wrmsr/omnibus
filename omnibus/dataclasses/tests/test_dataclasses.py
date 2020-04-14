@@ -521,7 +521,28 @@ def test_cache_hash():
     assert l == [b.i]
 
 
-def test_dicts_aspects():
+def test_dicts0():
+    from .. import process as process_
+    from ..process import dicts as dicts_
+    from ..process import storage as storage_
+
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, storage_.Storage):
+            a = dicts_.DictStorage
+        da.append(a)
+
+    @api_.dataclass(aspects=da)
+    class C:
+        x: int
+        y: int
+
+    c = C(1, 2)
+    assert c.x == 1
+    assert c.y == 2
+
+
+def test_dicts1():
     from .. import process as process_
     from ..process import dicts as dicts_
     from ..process import init as init_
@@ -546,7 +567,20 @@ def test_dicts_aspects():
 
 
 def test_tuples():
-    @api_.dataclass(frozen=True)
+    from .. import process as process_
+    from ..process import init as init_
+    from ..process import storage as storage_
+    from ..process import tuples as tuples_
+
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, init_.Init):
+            a = tuples_.TupleInit
+        elif issubclass(a, storage_.Storage):
+            a = tuples_.TupleStorage
+        da.append(a)
+
+    @api_.dataclass(frozen=True, aspects=da)
     class C(tuple):
         x: int
         y: int
