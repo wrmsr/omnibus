@@ -1,3 +1,9 @@
+"""
+TODO:
+ - run in setters
+  - only gen setters with validations
+   - built-in usecase for listeners?
+"""
 import functools
 import typing as ta
 

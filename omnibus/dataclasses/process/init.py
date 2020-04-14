@@ -1,12 +1,3 @@
-"""
-Responsibilities:
- - signature, typeanns
- - defaults, defaut_factories, derivers
- - coercions
- - validations
- - field assignment
- - post-inits
-"""
 import dataclasses as dc
 import functools
 import types

@@ -1,9 +1,3 @@
-"""
-TODO:
- - storage:
-  - can override field getters
- - policies? config policy requires custom getters
-"""
 import typing as ta
 
 from ... import check
