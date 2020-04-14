@@ -3,6 +3,7 @@ import functools
 import types
 import typing as ta
 
+from ... import codegen as cg
 from ... import properties
 from ..internals import create_fn
 from .defaulting import Defaulting

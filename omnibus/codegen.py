@@ -6,11 +6,14 @@ import contextlib
 import dataclasses as dc
 import inspect
 import io
+import linecache
 import string
 import textwrap
+import types
 import typing as ta
+import uuid
 
-from omnibus import check
+from . import check
 
 
 NameGenerator = ta.Callable[..., str]
@@ -225,3 +228,47 @@ class Codegen:
 
     def __str__(self) -> str:
         return self._buf.getvalue()
+
+
+def reserve_filename(prefix: str) -> str:
+    unique_id = uuid.uuid4()
+    count = 0
+    while True:
+        unique_filename = f'<generated:{prefix}:{count}>'
+        cache_line = (1, None, (str(unique_id),), unique_filename)
+        if linecache.cache.setdefault(unique_filename, cache_line) == cache_line:
+            return unique_filename
+        count += 1
+
+
+def create_fn(
+        name: str,
+        arg_spec: ArgSpec,
+        body: str,
+        *,
+        globals: ta.Mapping[str, ta.Any] = None,
+        locals: ta.Mapping[str, ta.Any] = None,
+) -> types.FunctionType:
+    check.isinstance(body, str)
+    locals = dict(locals or {})
+
+    nsb = NamespaceBuilder(unavailable_names=set(locals) | set(globals or []))
+    sig = render_arg_spec(arg_spec, nsb)
+    for k, v in nsb.items():
+        check.not_in(k, locals)
+        locals[k] = v
+
+    body = textwrap.indent(textwrap.dedent(body.strip()), '  ')
+    txt = f'def {name}{sig}:\n{body}'
+    local_vars = ', '.join(locals.keys())
+    exectxt = f'def __create_fn__({local_vars}):\n{textwrap.indent(txt, "  ")}\n  return {name}'
+
+    ns = {}
+    filename = reserve_filename(name)
+    bytecode = compile(exectxt, filename, 'exec')
+    eval(bytecode, globals, ns)
+
+    fn = ns['__create_fn__'](**locals)
+    fn.__source__ = txt
+    linecache.cache[filename] = (len(exectxt), None, exectxt.splitlines(True), filename)
+    return fn
