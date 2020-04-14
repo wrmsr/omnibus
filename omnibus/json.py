@@ -11,7 +11,7 @@ TODO:
   - yea, prob
  - cfgable strictness
  - heavy overlap w dc validation - omnibus/validate?
- - camel/snake(/kebab/pascal)
+ - camel/snake(/kebab/pascal/dot)
  - enums
 
 builtins:
