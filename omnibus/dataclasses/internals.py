@@ -23,15 +23,9 @@ DataclassParams = dc._DataclassParams
 
 
 tuple_str = dc._tuple_str
-create_fn = dc._create_fn
 repr_fn = dc._repr_fn
 frozen_get_del_attr = dc._frozen_get_del_attr
 cmp_fn = dc._cmp_fn
 get_field = dc._get_field
 hash_action = dc._hash_action
 is_dataclass_instance = dc._is_dataclass_instance
-
-
-UNAVAILABLE_LOCALS = {
-    'BUILTINS',
-}
