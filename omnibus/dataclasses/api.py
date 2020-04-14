@@ -8,9 +8,9 @@ DECREE:
 TODO:
  - attrs
   - fld: order, kwonly
-  - cls: weakref_slot, auto_attribs, kwonly
+  - cls: weakref_slot, kwonly
   - cache_hash: hash='cache', transient
-  - exc handling: https://github.com/python-attrs/attrs/pull/500
+  - linecache
  - ..transient
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
@@ -31,6 +31,7 @@ TODO:
  - lazy derivers
  - gen protobuf / thrift / jsonschema / avro *from* dc
   - incl enums
+ - * kwreorder can be on deco if overwrite __annotations__ ..
 """
 import collections
 import collections.abc

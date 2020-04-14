@@ -22,6 +22,16 @@ class _HasFactory(lang.Final):
 HasFactory = _HasFactory()
 
 
+class Pure(ta.NamedTuple):
+    fn: ta.Callable
+
+
+class DeriverNode(ta.NamedTuple):
+    fn: ta.Callable
+    ias: ta.FrozenSet[str]
+    oas: ta.FrozenSet[str]
+
+
 class Defaulting(Aspect):
 
     def check(self) -> None:
@@ -36,11 +46,6 @@ class Defaulting(Aspect):
                     seen_default = True
                 elif seen_default:
                     raise TypeError(f'non-default argument {f.name!r} follows default argument')
-
-    class DeriverNode(ta.NamedTuple):
-        fn: ta.Callable
-        ias: ta.FrozenSet[str]
-        oas: ta.FrozenSet[str]
 
     @properties.cached
     def deriver_nodes(self) -> ta.Sequence[DeriverNode]:
@@ -57,7 +62,7 @@ class Defaulting(Aspect):
             ias = get_flat_fn_args(fd)
             for ia in ias:
                 check.in_(ia, self.ctx.spec.fields)
-            nodes.append(self.DeriverNode(fd, frozenset(ias), frozenset([f.name])))
+            nodes.append(DeriverNode(fd, frozenset(ias), frozenset([f.name])))
 
         extra_derivers = self.ctx.spec.rmro_extras_by_cls[Deriver]
         for ed in extra_derivers:
@@ -73,7 +78,7 @@ class Defaulting(Aspect):
             for oa in oas:
                 check.isinstance(oa, str)
                 check.in_(oa, self.ctx.spec.fields)
-            nodes.append(self.DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
+            nodes.append(DeriverNode(ed.fn, frozenset(ias), frozenset(oas)))
 
         return tuple(nodes)
 
