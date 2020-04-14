@@ -5,6 +5,7 @@
 
 from ...api import *
 del dc
+import sys
 
 import pickle
 import inspect
@@ -1120,6 +1121,7 @@ class TestCase(unittest.TestCase):
         c = C(init_param=10)
         self.assertEqual(c.x, 20)
 
+    @unittest.skipIf(sys.version_info < (3, 8), 'omnibus')
     def test_init_var_preserve_type(self):
         self.assertEqual(InitVar[int].type, int)
 
@@ -3141,8 +3143,9 @@ class TestReplace(unittest.TestCase):
 
         self.assertRaises(TypeError, replace)
         self.assertRaises(TypeError, replace, c, c)
-        with self.assertWarns(DeprecationWarning):
-            c1 = replace(obj=c, x=3)
+        if not (sys.version_info < (3, 8)):
+            with self.assertWarns(DeprecationWarning):
+                c1 = replace(obj=c, x=3)
         self.assertEqual(c1.x, 3)
         self.assertEqual(c1.y, 2)
 
