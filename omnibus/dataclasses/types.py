@@ -67,6 +67,7 @@ class ExtraFieldParams:
 class ExtraParams:
     validate: bool = None
     field_attrs: bool = False
+    cache_hash: bool = False
 
 
 @dc.dataclass(frozen=True)

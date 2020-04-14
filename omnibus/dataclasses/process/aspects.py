@@ -3,6 +3,7 @@ import inspect
 import typing as ta
 
 from ... import check
+from ... import properties
 from ..internals import cmp_fn
 from ..internals import FieldType
 from ..internals import frozen_get_del_attr
@@ -118,6 +119,10 @@ class Order(Aspect):
 
 class Hash(Aspect):
 
+    @properties.cached
+    def cache_attr(self) -> str:
+        return '__%s_%x_hash' % (self.ctx.cls.__name__, id(self.ctx.cls))
+
     def process(self) -> None:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
@@ -130,8 +135,23 @@ class Hash(Aspect):
             bool(self.ctx.params.frozen),
             has_explicit_hash,
         )]
-        if ha:
-            self.ctx.cls.__hash__ = ha(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals)
+        if not ha:
+            return
+        fn = ha(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals)
+
+        if self.ctx.spec.extra_params.cache_hash:
+            attr = self.cache_attr
+            self.ctx.set_new_attribute(attr, None)
+            ofn = fn
+
+            def fn(obj):
+                hsh = getattr(obj, attr)
+                if hsh is None:
+                    hsh = ofn(obj)
+                    object.__setattr__(obj, attr, hsh)
+                return hsh
+
+        self.ctx.cls.__hash__ = fn
 
 
 class Doc(Aspect):

@@ -6,11 +6,8 @@ DECREE:
  - validate returns None and raises, check returns bool
 
 TODO:
- - attrs
-  - fld: order, kwonly
-  - cls: weakref_slot, kwonly
-  - cache_hash: hash='cache', transient
- - ..transient
+ - kwonly
+ - transient (+cache_hash)
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
  - redaction - RedactedStr type?
@@ -220,6 +217,7 @@ def dataclass(
 
         validate=None,
         field_attrs=False,
+        cache_hash=False,
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,
@@ -233,6 +231,7 @@ def dataclass(
     extra_params = ExtraParams(
         validate=validate,
         field_attrs=field_attrs,
+        cache_hash=cache_hash,
     )
 
     def build(cls):

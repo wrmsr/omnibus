@@ -488,3 +488,34 @@ def test_generic():
         pass
 
     assert SubIntBox(1).value == 1
+
+
+def test_cache_hash():
+    l = []
+
+    class I:
+        def __init__(self, h):
+            self.h = h
+
+        def __hash__(self):
+            nonlocal l
+            l.append(self)
+            return self.h
+
+    @api_.dataclass(frozen=True)
+    class A:
+        i: I
+
+    a = A(I(420))
+    assert hash(a) == hash(a)
+    assert l == [a.i, a.i]
+
+    l.clear()
+
+    @api_.dataclass(frozen=True, cache_hash=True)
+    class B:
+        i: I
+
+    b = B(I(420))
+    assert hash(b) == hash(b)
+    assert l == [b.i]
