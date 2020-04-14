@@ -29,6 +29,7 @@ class AspectCollection(ta.Generic[T], lang.Abstract):
 
         self._aspect_cls = aspect_cls
         self._aspects = [a if isinstance(a, aspect_cls) else a(self) for a in aspects]
+        self._aspects.sort(key=lambda a: (type(a).__qualname__, id(a)))
         for a in self._aspects:
             check.isinstance(a, aspect_cls)
 
