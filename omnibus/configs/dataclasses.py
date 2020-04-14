@@ -1,4 +1,8 @@
 """
+DECREE:
+ - *can* inject raw dataclasses - just eager init lol
+  - still custom connfig subclass for later - dynamic shit
+
 TODO:
  - do not use HAS_FACTORY - use native MISSING marker
  - deep interop w defaults
