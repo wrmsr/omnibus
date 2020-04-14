@@ -6,6 +6,7 @@ from ... import codegen as cg
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
+from .defaulting import Defaulting
 from .init import Init
 from .storage import Storage
 from .types import Aspect
@@ -99,12 +100,32 @@ class DictInit(Init):
     class Init(Aspect.Function['DictInit']):
 
         @properties.cached
-        def storage(self) -> DictStorage:
-            return check.isinstance(self.fctx.get_aspect(Storage), DictStorage)
+        def defaulting(self) -> Defaulting:
+            return check.isinstance(self.fctx.get_aspect(Defaulting), Defaulting)
+
+        @properties.cached
+        def dict_name(self) -> str:
+            return self.fctx.nsb.put('_dict', None, add=True)
 
         @properties.cached
         def argspec(self) -> cg.ArgSpec:
             return cg.ArgSpec(
-                [self.fctx.self_name, 'dct'],
-                annotations={'return': None, 'dct': ta.Mapping[str, ta.Any]},
+                [self.fctx.self_name, self.dict_name],
+                annotations={'return': None, self.dict_name: ta.Mapping[str, ta.Any]},
             )
+
+        @attach(InitPhase.BOOTSTRAP)
+        def build_bootstrap_lines(self) -> ta.List[str]:
+            ret = []
+            for fld in self.fctx.ctx.spec.fields.init:
+                if not fld.init:
+                    continue
+                if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+                    ret.append(f'{fld.name} = {self.dict_name}[{fld.name!r}]')
+                elif fld.default is not dc.MISSING:
+                    ret.append(f'{fld.name} = {self.dict_name}get({fld.name!r}, {self.default_names_by_field_name[fld.name]}')  # noqa
+                elif fld.default_factory is not dc.MISSING:
+                    ret.append(f'{fld.name} = {self.dict_name}get({fld.name!r}, {self.defaulting.has_factory_name}')
+                else:
+                    raise TypeError
+            return ret
