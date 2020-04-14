@@ -10,6 +10,7 @@ import pytest
 from .. import api as api_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
+from .. import process as process_
 from .. import reflect as reflect_
 from .. import types as types_
 from .. import validation as validation_
@@ -17,6 +18,10 @@ from .. import virtual as virtual_
 from ... import check
 from ... import lang
 from ... import properties
+from ..process import dicts as dicts_
+from ..process import init as init_
+from ..process import storage as storage_
+from ..process import tuples as tuples_
 
 
 T = ta.TypeVar('T')
@@ -522,10 +527,6 @@ def test_cache_hash():
 
 
 def test_dicts0():
-    from .. import process as process_
-    from ..process import dicts as dicts_
-    from ..process import storage as storage_
-
     da = []
     for a in process_.DEFAULT_ASPECTS:
         if issubclass(a, storage_.Storage):
@@ -540,14 +541,11 @@ def test_dicts0():
     c = C(1, 2)
     assert c.x == 1
     assert c.y == 2
+    c.y = 3
+    assert c.y == 3
 
 
 def test_dicts1():
-    from .. import process as process_
-    from ..process import dicts as dicts_
-    from ..process import init as init_
-    from ..process import storage as storage_
-
     da = []
     for a in process_.DEFAULT_ASPECTS:
         if issubclass(a, init_.Init):
@@ -564,14 +562,11 @@ def test_dicts1():
     c = C({'x': 1, 'y': 2})
     assert c.x == 1
     assert c.y == 2
+    c.y = 3
+    assert c.y == 3
 
 
 def test_tuples():
-    from .. import process as process_
-    from ..process import init as init_
-    from ..process import storage as storage_
-    from ..process import tuples as tuples_
-
     da = []
     for a in process_.DEFAULT_ASPECTS:
         if issubclass(a, init_.Init):
