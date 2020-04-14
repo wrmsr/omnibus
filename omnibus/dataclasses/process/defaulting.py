@@ -10,6 +10,7 @@ from ..types import ExtraFieldParams
 from .types import Aspect
 from .types import attach
 from .utils import get_flat_fn_args
+from .types import InitPhase
 
 
 class _HasFactory(lang.Final):
@@ -113,3 +114,14 @@ class Defaulting(Aspect):
         @properties.cached
         def has_factory_name(self) -> str:
             return self.fctx.nsb.put('has_factory', HasFactory, add=True)
+
+        @attach(InitPhase.DEFAULT)
+        def build_set_attr_lines(self) -> ta.List[str]:
+            ret = []
+            for f in self.fctx.ctx.spec.fields.init:
+                if f.default_factory is dc.MISSING:
+                    continue
+                default_factory_name = self.default_factory_names_by_field_name[f.name]
+                line = f'if {f.name} is {self.has_factory_name}: {f.name} = {default_factory_name}()'
+                ret.append(line)
+            return ret

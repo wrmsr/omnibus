@@ -47,7 +47,7 @@ class Validation(Aspect):
     @attach('init')
     class Init(Aspect.Function['Validation']):
 
-        @attach(InitPhase.PRE_SET_ATTRS)
+        @attach(InitPhase.VALIDATE)
         def build_validate_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -62,7 +62,7 @@ class Validation(Aspect):
                     raise TypeError(vld_md)
             return ret
 
-        @attach(InitPhase.PRE_SET_ATTRS)
+        @attach(InitPhase.VALIDATE)
         def build_validator_lines(self) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:

@@ -5,8 +5,6 @@ import typing as ta
 
 from ... import properties
 from ..internals import create_fn
-from ..internals import FieldType
-from ..internals import get_field_type
 from .defaulting import Defaulting
 from .storage import Storage
 from .types import Aspect
@@ -54,25 +52,6 @@ class Init(Aspect):
                 for f in self.fctx.ctx.spec.fields.init
                 if f.type is not dc.MISSING
             }
-
-        @attach(InitPhase.SET_ATTRS)
-        def build_set_attr_lines(self) -> ta.List[str]:
-            dct = {}
-            for f in self.fctx.ctx.spec.fields.init:
-                if get_field_type(f) is FieldType.INIT:
-                    continue
-                elif f.default_factory is not dc.MISSING:
-                    default_factory_name = self.defaulting.default_factory_names_by_field_name[f.name]
-                    if f.init:
-                        value = f'{default_factory_name}() if {f.name} is {self.defaulting.has_factory_name} else {f.name}'  # noqa
-                    else:
-                        value = f'{default_factory_name}()'
-                elif f.init:
-                    value = f.name
-                else:
-                    continue
-                dct[f.name] = value
-            return self.storage.build_set_attr_lines(dct, self.fctx.self_name)
 
         def _build_init_param(self, fld: dc.Field) -> str:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:

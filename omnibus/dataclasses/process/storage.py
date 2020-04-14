@@ -31,6 +31,9 @@ import typing as ta
 
 from .types import Aspect
 from .types import attach
+from ..internals import FieldType
+from ..internals import get_field_type
+from .types import InitPhase
 
 
 class Storage(Aspect):
@@ -44,8 +47,11 @@ class Storage(Aspect):
 
             return f'{self_name}.{name} = {value}'
 
-        def build_set_attr_lines(self, values_by_field: ta.Mapping[str, str], self_name: str) -> ta.List[str]:
+        @attach(InitPhase.SET_ATTRS)
+        def build_set_attr_lines(self) -> ta.List[str]:
             ret = []
-            for field, value in values_by_field.items():
-                ret.append(self._build_field_assign(self_name, field, value))
+            for f in self.fctx.ctx.spec.fields.init:
+                if get_field_type(f) is FieldType.INIT:
+                    continue
+                ret.append(self._build_field_assign(self.fctx.self_name, f.name, f.name))
             return ret
