@@ -8,6 +8,7 @@ import functools
 import typing as ta
 
 from ... import check
+from ... import lang
 from ... import properties
 from ..types import Checker
 from ..types import CheckException
@@ -22,7 +23,11 @@ from .types import InitPhase
 from .utils import get_flat_fn_args
 
 
-class Validation(Aspect):
+class Validation(Aspect, lang.Abstract):
+    pass
+
+
+class StandardValidation(Aspect):
 
     FN_ARG_EXTRA_TYPES = {
         Checker,

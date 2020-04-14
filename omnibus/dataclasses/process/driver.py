@@ -12,10 +12,10 @@ from .aspects import Params
 from .aspects import PostInitAspect
 from .aspects import Repr
 from .defaulting import Defaulting
-from .init import Init
-from .storage import Storage
+from .init import StandardInit
+from .storage import StandardStorage
 from .types import Context
-from .validation import Validation
+from .validation import StandardValidation
 
 
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
@@ -30,13 +30,13 @@ DEFAULT_ASPECTS = {
     Fields,
     Frozen,
     Hash,
-    Init,
     Order,
     Params,
     PostInitAspect,
     Repr,
-    Storage,
-    Validation,
+    StandardInit,
+    StandardStorage,
+    StandardValidation,
 
 }
 

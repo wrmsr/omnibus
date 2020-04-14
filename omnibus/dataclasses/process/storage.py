@@ -18,7 +18,9 @@ NOTES:
 Backends:
  - default
   - slots
+ - dict (example)
  - tuple
+  - meta only?
  - pyrsistent
  - struct
   - w/ bitfield packing
@@ -30,6 +32,7 @@ Backends:
 import dataclasses as dc
 import typing as ta
 
+from ... import lang
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
@@ -38,10 +41,14 @@ from .types import attach
 from .types import InitPhase
 
 
-class Storage(Aspect):
+class Storage(Aspect, lang.Abstract):
+    pass
+
+
+class StandardStorage(Storage):
 
     @attach('init')
-    class Init(Aspect.Function['Storage']):
+    class Init(Aspect.Function['StandardStorage']):
 
         @properties.cached
         def setattr_name(self) -> str:

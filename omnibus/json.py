@@ -8,6 +8,10 @@ TODO:
   - dedupe symmetric generic Serde sides?
  - json/__init__.py, base.py(?), serdes.py..
  - ** move to serde package, heavy on json compat by default, still toplevel json for uj/orj switch **
+  - yea, prob
+ - uuid
+
+https://github.com/marshmallow-code/marshmallow/wiki/Ecosystem
 
 https://github.com/ijl/orjson
 

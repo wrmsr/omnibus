@@ -4,6 +4,7 @@ import types
 import typing as ta
 
 from ... import codegen as cg
+from ... import lang
 from ... import properties
 from .defaulting import Defaulting
 from .defaulting import HasFactory
@@ -17,7 +18,11 @@ T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 
-class Init(Aspect):
+class Init(Aspect, lang.Abstract):
+    pass
+
+
+class StandardInit(Init):
 
     def process(self) -> None:
         if not self.ctx.spec.params.init:
@@ -30,12 +35,12 @@ class Init(Aspect):
         ]
 
         fctx = Context.Function(self.ctx, attachments)
-        init = fctx.get_aspect(Init.Init)
+        init = fctx.get_aspect(StandardInit.Init)
         fn = init.build()
         self.ctx.set_new_attribute('__init__', fn)
 
     @attach('init')
-    class Init(Aspect.Function['Init']):
+    class Init(Aspect.Function['StandardInit']):
 
         @properties.cached
         def defaulting(self) -> Defaulting.Init:
