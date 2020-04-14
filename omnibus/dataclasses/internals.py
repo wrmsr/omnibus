@@ -30,3 +30,8 @@ cmp_fn = dc._cmp_fn
 get_field = dc._get_field
 hash_action = dc._hash_action
 is_dataclass_instance = dc._is_dataclass_instance
+
+
+UNAVAILABLE_LOCALS = {
+    'BUILTINS',
+}
