@@ -9,14 +9,35 @@ TODO:
  - json/__init__.py, base.py(?), serdes.py..
  - ** move to serde package, heavy on json compat by default, still toplevel json for uj/orj switch **
   - yea, prob
- - uuid
  - cfgable strictness
  - heavy overlap w dc validation - omnibus/validate?
+ - camel/snake(/kebab/pascal)
+ - enums
+
+builtins:
+    Decimal
+    dsn.DSN
+    email.Email
+    ipaddress.IPv4Address
+    ipaddress.IPv6Address
+    path.DirectoryPath
+    path.FilePath
+    path.PathType
+    pathlib.Path
+    re.Pattern
+    secret.SecretBytes
+    secret.SecretStr
+    timedelta
+    url.AbsoluteURL
+    url.HostName
+    url.NetworkAddress
+    url.RelativeURL
+    url.URL
+    uuid.UUID
 
 https://github.com/marshmallow-code/marshmallow/wiki/Ecosystem
 https://github.com/lidatong/dataclasses-json
 https://github.com/lyft/toasted-marshmallow/blob/master/toastedmarshmallow/jit.py
-
 
 https://github.com/ijl/orjson
 
