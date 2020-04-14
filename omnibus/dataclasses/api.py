@@ -2,8 +2,8 @@
 ** FEATURE LOCK **
 
 DECREE:
+ - reordering only done in metaclass - DECO STRICTLY ADDITIVE.
  - validate returns None and raises, check returns bool
- - self_check and self_validate variants take a constructed object
 
 TODO:
  - attrs
@@ -31,7 +31,6 @@ TODO:
  - lazy derivers
  - gen protobuf / thrift / jsonschema / avro *from* dc
   - incl enums
- - * kwreorder can be on deco if overwrite __annotations__ ..
 """
 import collections
 import collections.abc
