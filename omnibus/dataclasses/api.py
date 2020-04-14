@@ -66,7 +66,14 @@ MISSING = dc.MISSING
 replace = dc.replace
 
 
-def make_dataclass(cls_name, fields, *, bases=(), namespace=None, **kwargs):
+def make_dataclass(
+        cls_name: str,
+        fields: ta.Union[str, ta.Tuple],
+        *,
+        bases: ta.Iterable[type] = (),
+        namespace: ta.MutableMapping[str, ta.Any] = None,
+        **kwargs
+) -> type:
     if namespace is None:
         namespace = {}
     else:
@@ -97,7 +104,7 @@ def make_dataclass(cls_name, fields, *, bases=(), namespace=None, **kwargs):
         anns[name] = tp
 
     namespace['__annotations__'] = anns
-    cls = types.new_class(cls_name, bases, {}, lambda ns: ns.update(namespace))
+    cls = types.new_class(cls_name, tuple(bases), {}, lambda ns: ns.update(namespace))
     return dataclass(cls, **kwargs)
 
 
