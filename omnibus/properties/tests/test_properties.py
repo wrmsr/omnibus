@@ -174,3 +174,20 @@ def test_multi_registries_property():
 
     assert F().vals['a'] == {0, 1, 3, 5, 7}
     assert F().vals['b'] == {2, 4, 6, 8}
+
+
+def test_unwrapping():
+    class C:
+        @caching_.cached
+        @property
+        def s(self) -> str:
+            nonlocal i
+            i += 1
+            return 'barf'
+
+    i = 0
+    c = C()
+    assert c.s == 'barf'
+    assert i == 1
+    assert c.s == 'barf'
+    assert i == 1
