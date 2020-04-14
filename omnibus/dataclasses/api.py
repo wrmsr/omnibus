@@ -6,6 +6,8 @@ DECREE:
  - validate returns None and raises, check returns bool
 
 TODO:
+ - marshmellow
+  - errorstore (+serde)
  - kwonly
  - transient (+cache_hash)
  - *default_factory with lambda args* - toposort again

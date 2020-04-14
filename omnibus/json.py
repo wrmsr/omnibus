@@ -10,8 +10,12 @@ TODO:
  - ** move to serde package, heavy on json compat by default, still toplevel json for uj/orj switch **
   - yea, prob
  - uuid
+ - cfgable strictness
 
 https://github.com/marshmallow-code/marshmallow/wiki/Ecosystem
+https://github.com/lidatong/dataclasses-json
+https://github.com/lyft/toasted-marshmallow/blob/master/toastedmarshmallow/jit.py
+
 
 https://github.com/ijl/orjson
 
