@@ -82,7 +82,6 @@ class Validation(Aspect):
         @attach(InitPhase.POST_SET_ATTRS)
         def build_checker_lines(self) -> ta.List[str]:
             ret = []
-
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
                 chk_args = get_flat_fn_args(chk.fn)
                 for arg in chk_args:
@@ -92,13 +91,11 @@ class Validation(Aspect):
                     f'if not {self.fctx.nsb.add(chk.fn)}({", ".join(chk_args)}): '
                     f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({", ".join(chk_args)})'
                 )
-
             return ret
 
         @attach(InitPhase.POST_SET_ATTRS)
         def build_self_checker_lines(self) -> ta.List[str]:
             ret = []
-
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
                 self_chk_arg = [check.single(get_flat_fn_args(self_chk.fn))]
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, self_chk, self_chk_arg)
@@ -106,5 +103,4 @@ class Validation(Aspect):
                     f'if not {self.fctx.nsb.add(self_chk.fn)}({self.fctx.self_name}): '
                     f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({self.fctx.self_name})'
                 )
-
             return ret

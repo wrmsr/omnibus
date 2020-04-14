@@ -27,12 +27,13 @@ Backends:
   - mmap
  - configs
 """
+import dataclasses as dc
 import typing as ta
 
-from .types import Aspect
-from .types import attach
 from ..internals import FieldType
 from ..internals import get_field_type
+from .types import Aspect
+from .types import attach
 from .types import InitPhase
 
 
@@ -52,6 +53,8 @@ class Storage(Aspect):
             ret = []
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
+                    continue
+                if not f.init and f.default_factory is dc.MISSING:
                     continue
                 ret.append(self._build_field_assign(self.fctx.self_name, f.name, f.name))
             return ret

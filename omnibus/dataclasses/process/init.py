@@ -9,8 +9,8 @@ from .defaulting import Defaulting
 from .storage import Storage
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 from .types import Context
+from .types import InitPhase
 
 
 T = ta.TypeVar('T')

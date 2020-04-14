@@ -9,8 +9,8 @@ from ..types import Deriver
 from ..types import ExtraFieldParams
 from .types import Aspect
 from .types import attach
-from .utils import get_flat_fn_args
 from .types import InitPhase
+from .utils import get_flat_fn_args
 
 
 class _HasFactory(lang.Final):
@@ -116,12 +116,15 @@ class Defaulting(Aspect):
             return self.fctx.nsb.put('has_factory', HasFactory, add=True)
 
         @attach(InitPhase.DEFAULT)
-        def build_set_attr_lines(self) -> ta.List[str]:
+        def build_default_lines(self) -> ta.List[str]:
             ret = []
             for f in self.fctx.ctx.spec.fields.init:
-                if f.default_factory is dc.MISSING:
-                    continue
-                default_factory_name = self.default_factory_names_by_field_name[f.name]
-                line = f'if {f.name} is {self.has_factory_name}: {f.name} = {default_factory_name}()'
-                ret.append(line)
+                if not f.init:
+                    if f.default is not dc.MISSING:
+                        ret.append(f'{f.name} = {self.default_names_by_field_name[f.name]}')
+                    elif f.default_factory is not dc.MISSING:
+                        ret.append(f'{f.name} = {self.default_factory_names_by_field_name[f.name]}()')
+                elif f.default_factory is not dc.MISSING:
+                    default_factory_name = self.default_factory_names_by_field_name[f.name]
+                    ret.append(f'if {f.name} is {self.has_factory_name}: {f.name} = {default_factory_name}()')
             return ret
