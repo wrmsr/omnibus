@@ -6,7 +6,6 @@ import typing as ta
 from ... import properties
 from ..internals import create_fn
 from .defaulting import Defaulting
-from .storage import Storage
 from .types import Aspect
 from .types import attach
 from .types import Context
@@ -40,10 +39,6 @@ class Init(Aspect):
         @properties.cached
         def defaulting(self) -> Defaulting.Init:
             return self.fctx.get_aspect(Defaulting.Init)
-
-        @properties.cached
-        def storage(self) -> Storage.Init:
-            return self.fctx.get_aspect(Storage.Init)
 
         @properties.cached
         def type_names_by_field_name(self) -> ta.Mapping[str, str]:
