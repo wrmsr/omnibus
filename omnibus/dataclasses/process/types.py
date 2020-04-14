@@ -241,9 +241,17 @@ class Aspect(AttachmentCollection, lang.Abstract):
             )
 
     @classmethod
-    def nop_aspect(cls: ta.Type[AspectT]) -> ta.Type[AspectT]:
+    def nop(cls: ta.Type[AspectT]) -> ta.Type[AspectT]:
         ans = get_keys_by_attachment_name(cls)
-        return type('nop$' + cls.__name__, (cls,), {n: None for n in ans})
+        return type(
+            cls.__qualname__ + '$nop',
+            (cls,),
+            {
+                'check': lambda self: None,
+                'process': lambda self: None,
+                **{n: None for n in ans},
+            },
+        )
 
 
 class InitPhase(lang.AutoEnum):

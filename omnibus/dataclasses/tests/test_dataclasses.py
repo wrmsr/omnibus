@@ -18,6 +18,7 @@ from .. import virtual as virtual_
 from ... import check
 from ... import lang
 from ... import properties
+from ..process import aspects as aspects_
 from ..process import dicts as dicts_
 from ..process import init as init_
 from ..process import pyrsistent as pyrsistent_
@@ -599,6 +600,28 @@ def test_dicts2():
     assert c.y == 2
     with pytest.raises(dc.FrozenInstanceError):
         c.y = 3
+
+
+def test_dicts3():
+    da = []
+    for a in process_.DEFAULT_ASPECTS:
+        if issubclass(a, storage_.Storage):
+            a = dicts_.DictStorage
+        elif issubclass(a, aspects_.FieldAttrs):
+            a = a.nop()
+        da.append(a)
+
+    @api_.dataclass(aspects=da, frozen=True, field_attrs=True)
+    class C:
+        x: int
+        y: int
+
+    c = C(1, 2)
+    assert c.x == 1
+    assert c.y == 2
+    with pytest.raises(dc.FrozenInstanceError):
+        c.y = 3
+    assert isinstance(C.x, dc.Field)
 
 
 def test_tuples():
