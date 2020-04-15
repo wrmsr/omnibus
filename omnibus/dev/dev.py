@@ -26,4 +26,5 @@ TODO:
  - https://github.com/github/semantic
  - d3js webservy stuff using own webservers
  - notebook stuff
+ - mv packaging
 """
