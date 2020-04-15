@@ -33,6 +33,7 @@ TODO:
  - partial validation - subclass?
  - parameterized tests - storage, params, etc
  - standard named aspect packs: tuple, dict, pyrsistent
+  - 'profiles' - will also be in serde too (but keep eye on inj interop)
 """
 import collections
 import collections.abc

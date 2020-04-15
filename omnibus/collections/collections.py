@@ -17,6 +17,7 @@ TODO:
  - LinkedList (fexpr stack, dom topo)
  - IndexableSet
  - https://github.com/MagicStack/immutables
+ - null policy? reject like guava?
 """
 import functools
 import typing as ta

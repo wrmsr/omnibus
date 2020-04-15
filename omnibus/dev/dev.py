@@ -25,4 +25,5 @@ TODO:
   - DO NOT WANT compile-timme forced impl-all mandate but do want flake
  - https://github.com/github/semantic
  - d3js webservy stuff using own webservers
+ - notebook stuff
 """
