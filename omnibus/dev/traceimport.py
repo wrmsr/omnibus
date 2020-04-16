@@ -6,7 +6,9 @@ todo:
 http://www.logilab.org/856
 http://www.python.org/dev/peps/pep-0302/
 
-start / end / cumulative / exclusive time / vm_rss / vm_size
+start / end / cumulative / exclusive time / vm_rss / vm_vms
+
+jq '..?|.loaded_name?|select(.!=null)'
 """
 import dataclasses as dc
 import inspect
@@ -17,6 +19,7 @@ import threading
 import time
 import types
 import typing as ta
+import psutil
 
 
 log = logging.getLogger(__name__)
@@ -26,7 +29,7 @@ log = logging.getLogger(__name__)
 class Stats:
     time: float
     vm_rss: int = 0
-    vm_size: int = 0
+    vm_vms: int = 0
 
 
 class StatsFactory:
@@ -37,12 +40,15 @@ class StatsFactory:
         self._start_time = start_time if start_time is not None else time.time()
 
     def __call__(self) -> Stats:
+        mem = psutil.Process().memory_info()
         return Stats(
             time=time.time() - self._start_time,
+            vm_rss=mem.rss,
+            vm_vms=mem.vms,
         )
 
     PROC_MEM_KEYS_BY_FIELD = {
-        'vm_size': 'VmSize',
+        'vm_vms': 'VmSize',
         'vm_rss': 'VmRSS',
     }
 
@@ -155,7 +161,7 @@ class ImportTracer:
             except Exception:
                 log.exception(f'root_module: {root_module}')
         finally:
-             __builtins__.__import__ = old_import
+            __builtins__.__import__ = old_import
 
         if len(node_stack) != 1 or len(node_stack[0].children) != 1:
             raise RuntimeError(node_stack)
@@ -169,7 +175,7 @@ def fixup_node(node: Node, *, depth: int = 0, seq: int = 0) -> int:
     node.depth = depth
     node.seq = seq
 
-    # agg_keys = ['time', 'vm_rss', 'vm_size']
+    # agg_keys = ['time', 'vm_rss', 'vm_vms']
     # for key in agg_keys:
     #     node['cumulative_' + key] = node['end_' + key] - node['start_' + key]
     #     node['exclusive_' + key] = node['cumulative_' + key]
@@ -186,8 +192,8 @@ def fixup_node(node: Node, *, depth: int = 0, seq: int = 0) -> int:
 def main():
     _, mod = sys.argv
     node = ImportTracer().trace(mod)
-    import pprint
-    pprint.pprint(dc.asdict(node))
+    import json
+    print(json.dumps(dc.asdict(node)))
 
 
 if __name__ == '__main__':

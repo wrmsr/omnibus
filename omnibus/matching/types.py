@@ -13,7 +13,7 @@ R = ta.TypeVar('R')
 C = ta.TypeVar('C')
 
 
-_patterns = lang.lazy_import('.patterns', __package__)
+patterns = lang.lazy_import('.patterns', __package__)
 
 
 # region Captures
@@ -193,10 +193,10 @@ class Property(lang.Final, ta.Generic[F, T]):
         return self.matching(Pattern.any().captured(capture))
 
     def equaling(self, value: T) -> 'PropertyPatternPair[F, T]':
-        return self.matching(_patterns().EqualsPattern(value, None))
+        return self.matching(patterns().EqualsPattern(value, None))
 
     def filtering(self, predicate: ta.Callable[[T], bool]) -> 'PropertyPatternPair[F, T]':
-        return self.matching(_patterns().FilterPattern(predicate, None))
+        return self.matching(patterns().FilterPattern(predicate, None))
 
 
 class PropertyPatternPair(ta.Generic[F, R]):
@@ -242,7 +242,7 @@ class Pattern(lang.Abstract, ta.Generic[T]):
 
     @classmethod
     def typed(cls, cls_: ta.Type[T]) -> 'Pattern[T]':
-        return _patterns().TypePattern(cls_)
+        return patterns().TypePattern(cls_)
 
     @abc.abstractmethod
     def captured(self, capture: Capture[T]) -> 'Pattern[T]':

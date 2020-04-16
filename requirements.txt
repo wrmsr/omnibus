@@ -22,6 +22,7 @@ msgpack==1.0.0
 mysql-connector-python==8.0.19
 orjson==2.6.5
 pg8000==1.15.1
+psutil==5.7.0
 psycopg2==2.8.5
 pyhash==0.9.3; python_version < '3.8'
 pymysql==0.9.3

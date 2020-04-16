@@ -11,7 +11,8 @@ stdin/stdout redir (ttyname(0))
 graph
 COLUMNS ARE CLASSES. TRANSFORMS. CONFIGURABLE. PIPELINE. .....
 
-(for l in $(cat attic/scratch/linehisto.py | tr ' ' '\n' | egrep -v "^$") ; do echo $l ; sleep 0.01 ; done) | ./python attic/scratch/linehisto.py
+(for l in $(cat attic/scratch/linehisto.py | tr ' ' '\n' | egrep -v "^$") ; do echo $l ; sleep 0.01 ; done) | \
+  ./python attic/scratch/linehisto.py
 """
 import curses
 import datetime
@@ -165,7 +166,7 @@ class KeyedHistoRenderer:
             (duplicate_evictions, calc_percent(duplicate_evictions, self.histo.total_evicted))
 
         # tracked % + duplicate evicted %
-        status += ', %.2f %% correct' % (calc_percent(self.histo.total_tracked - duplicate_evictions, self.histo.total_seen))
+        status += ', %.2f %% correct' % (calc_percent(self.histo.total_tracked - duplicate_evictions, self.histo.total_seen))  # noqa
 
         return status
 
@@ -256,7 +257,6 @@ def main():
 
     histo = KeyedHisto(max_entries=10000)
     renderer = CursesKeyedHistoRenderer(screen, histo, redraw_interval=250)
-    max_lines = renderer.max_lines
 
     try:
         while True:
