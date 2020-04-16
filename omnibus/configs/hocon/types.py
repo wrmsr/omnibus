@@ -7,7 +7,7 @@ from ... import dataclasses as dc
 T = ta.TypeVar('T')
 
 
-class Value(dc.Data, ta.Generic[T], sealed=True, abstract=True):
+class Value(dc.Data, ta.Generic[T], frozen=True, sealed=True, abstract=True):
     @abc.abstractproperty
     def value(self) -> T:
         raise NotImplementedError

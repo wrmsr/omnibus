@@ -6,7 +6,7 @@ from .base import SimpleInterpVisitor
 from .expr import SimpleInterpExprVisitor
 
 
-class StmtResult(dc.Data, sealed=True, abstract=True):
+class StmtResult(dc.Data, frozen=True, sealed=True, abstract=True):
     pass
 
 

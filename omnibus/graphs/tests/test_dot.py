@@ -1,13 +1,17 @@
 import textwrap
 
+import pytest
+
 from .. import dot as dot_
 
 
+@pytest.mark.skip()
 def test_open_dot():
-    dot_.open_dot(textwrap.dedent("""
+    src = textwrap.dedent("""
     digraph G {
         a;
         b;
         a -> b;
     }
-    """))
+    """)
+    dot_.open_dot(src)

@@ -6,7 +6,7 @@ import typing as ta
 from .. import check
 
 
-"""
+r"""
 _ESCAPE_DECODER = codecs.getdecoder('unicode_escape')
 _POSIX_VARIABLE = re.compile('\$\{[^\}]*\}')
 
