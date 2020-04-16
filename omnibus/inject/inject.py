@@ -23,7 +23,6 @@ TODO:
   - ** PROPS ARE HERE, SUPER TREE IS IN LIFECYCLES **
 """
 import collections
-import threading
 import typing as ta
 
 from .. import check
@@ -84,6 +83,7 @@ class InjectorImpl(Injector):
         self._lock = lang.default_lock(
             config.lock, lock if lock is None else config.lock if config.lock is not None else True)
         self._current_state: InjectorImpl.State = None
+        self._locking = lambda *a, **k: self._lock()
 
         self._elements: ta.List[Element] = []
 
@@ -186,7 +186,7 @@ class InjectorImpl(Injector):
     def parent(self) -> 'ta.Optional[Injector]':
         return self._parent
 
-    @lang.context_wrapped('_lock')
+    @lang.context_wrapped('_locking')
     def create_child(self, *sources: Source) -> 'Injector':
         child = create_injector(
             *sources,
@@ -196,7 +196,7 @@ class InjectorImpl(Injector):
         self._children.append(child)
         return child
 
-    @lang.context_wrapped('_lock')
+    @lang.context_wrapped('_locking')
     def get_binding(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
@@ -236,7 +236,7 @@ class InjectorImpl(Injector):
 
         return binding
 
-    @lang.context_wrapped('_lock')
+    @lang.context_wrapped('_locking')
     def get_instance(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
@@ -262,7 +262,7 @@ class InjectorImpl(Injector):
             self._parent._blacklist(key)
         self._blacklisted_keys.add(key)
 
-    @lang.context_wrapped('_lock')
+    @lang.context_wrapped('_locking')
     def get_elements_by_type(
             self,
             cls: ta.Type[Element],
@@ -283,7 +283,7 @@ class InjectorImpl(Injector):
 
         return ret
 
-    @lang.context_wrapped('_lock')
+    @lang.context_wrapped('_locking')
     def get_bindings(
             self,
             key: Key,

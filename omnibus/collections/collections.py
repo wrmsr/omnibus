@@ -12,12 +12,24 @@ TODO:
  - **KeyValues**
   - old repo, support scalars/slices/tuples/ranges intermixed - spans now?
   - *implemented as a major extension to collections but as a toplevel subpackage, like configs is to dataclasses**
+  - interops:
+   - sql
+   - sqlite
+   - redis
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
  - IndexableSet
  - https://github.com/MagicStack/immutables
  - null policy? reject like guava?
+ - interops:
+  - MagicStack/immutables
+  - blist
+  - bitarray
+  - pyroaring
+  - pyhash
+  - preshed (mph)
+  - tdigest (move to math/, with stats.py)
 """
 import functools
 import typing as ta

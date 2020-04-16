@@ -1,3 +1,9 @@
+"""
+TODO:
+ - imports too much for such a common package
+  - move to registries?
+  - lazy import? no actual inheritance just typevars, so 'if typechecking' + str anns?
+"""
 import typing as ta
 import weakref
 

@@ -27,8 +27,14 @@ TODO:
  - frozen_subtypes, frozen_deep - enum?
  - freeze a non-frozen dc
  - lazy derivers
- - gen protobuf / thrift / jsonschema / avro *from* dc
+ - gen
+  - interops:
+   - protobuf
+   - thrift
+   - jsonschema
+   - avro
   - incl enums
+  - extend w functions? grpc/twirp/thrift?
  - slots? + weakref_slot - https://docs.python.org/3/reference/datamodel.html#slots
  - partial validation - subclass?
  - parameterized tests - storage, params, etc

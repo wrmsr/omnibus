@@ -1,9 +1,9 @@
 import abc
 import typing as ta
 
-from . import check
-from . import lang
-from . import properties
+from .. import check
+from .. import lang
+from .. import properties
 
 
 lang.warn_unstable()

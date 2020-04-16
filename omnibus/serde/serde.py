@@ -1,5 +1,6 @@
 """
 TODO:
+ - ** really might wanna get typelevel+injecty with this asap..**
  - union, per dataclasses validation
  - dumb coercers
   - verdict: presto-guice-jackson-style Encoders/Decoders + injectable registries w global dumb default
@@ -53,10 +54,10 @@ import collections.abc
 import datetime
 import typing as ta
 
-from . import check
-from . import dispatch
-from . import lang
-from . import reflect
+from .. import check
+from .. import dispatch
+from .. import lang
+from .. import reflect
 
 
 lang.warn_unstable()

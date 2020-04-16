@@ -1,8 +1,8 @@
 import datetime
 import typing as ta
 
-from .. import lang
 from .. import serde
+from ... import lang
 
 
 def test_mapping_serde():

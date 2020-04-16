@@ -1,6 +1,8 @@
 """
 TODO:
- - msgpack, bson
+ - msgpack
+ - bson
+ - cloudpickle
 """
 import io
 import pickle as pickle_

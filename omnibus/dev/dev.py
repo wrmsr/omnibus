@@ -30,4 +30,5 @@ TODO:
  - vendoring - import rewriting
  - https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
  - https://github.com/indygreg/python-build-standalone
+ - pycparser / pycpp
 """
