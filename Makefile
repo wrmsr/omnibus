@@ -138,6 +138,11 @@ antlr:
 	fi
 	for f in $$(find omnibus -name '*.g4') ; do \
 		echo "$$f" ; \
+		D=$$(dirname "$$f") ; \
+		echo "$$D" ; \
+		if [ -d "$$D/antlr" ] ; then \
+			rm -rf "$$D/antlr" ; \
+		fi ; \
 	done
 
 
