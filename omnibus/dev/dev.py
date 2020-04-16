@@ -27,4 +27,6 @@ TODO:
  - d3js webservy stuff using own webservers
  - notebook stuff
  - mv packaging
+ - vendoring - import rewriting
+ - https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
 """
