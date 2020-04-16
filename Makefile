@@ -15,6 +15,9 @@ PYENV_BREW_DEPS:= \
 	zlib \
 
 
+ANTLR_VERSION=4.8
+
+
 ### Aggregates
 
 all: build flake test test-37
@@ -124,6 +127,18 @@ venv:
 .PHONY: venv-37
 venv-37:
 	$(call do-venv,.venv-37,$(PYTHON_37_VERSION))
+
+
+### Antlr
+
+.PHONY: antlr
+antlr:
+	if [ ! -f "antlr-$(ANTLR_VERSION)-complete.jar" ] ; then \
+		curl --proto '=https' --tlsv1.2 "https://www.antlr.org/download/antlr-$(ANTLR_VERSION)-complete.jar" -o "antlr-$(ANTLR_VERSION)-complete.jar" ; \
+	fi
+	for f in $$(find omnibus -name '*.g4') ; do \
+		echo "$$f" ; \
+	done
 
 
 ### Build

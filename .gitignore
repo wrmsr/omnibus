@@ -22,3 +22,4 @@
 /omnibus.egg-info/
 /profiles/
 /target/
+antlr-*.jar
