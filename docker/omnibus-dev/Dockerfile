@@ -33,6 +33,7 @@ RUN ( \
         netcat \
         nginx \
         perl \
+        pkg-config \
         postgresql-client \
         python \
         silversearcher-ag \
