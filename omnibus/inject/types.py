@@ -145,6 +145,7 @@ Source = ta.Union['PrivateBinder', 'Binder', ta.Iterable[Element]]
 class InjectorConfig(lang.Final):
     enable_jit_bindings: bool = False
     fail_early: bool = False
+    lock: bool = None
 
 
 class Injector(lang.Abstract):

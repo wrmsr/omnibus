@@ -73,6 +73,7 @@ class InjectorImpl(Injector):
             *sources: Source,
             config: InjectorConfig = InjectorConfig(),
             parent: 'Injector' = None,
+            lock: lang.DefaultLockable = None,
     ) -> None:
         super().__init__()
 
@@ -80,7 +81,8 @@ class InjectorImpl(Injector):
         self._parent: ta.Optional[Injector] = parent
         self._children: ta.List[Injector] = []
 
-        self._lock = threading.RLock()
+        self._lock = lang.default_lock(
+            config.lock, lock if lock is None else config.lock if config.lock is not None else True)
         self._current_state: InjectorImpl.State = None
 
         self._elements: ta.List[Element] = []

@@ -34,6 +34,9 @@ TODO:
  - parameterized tests - storage, params, etc
  - standard named aspect packs: tuple, dict, pyrsistent
   - 'profiles' - will also be in serde too (but keep eye on inj interop)
+ - inherit=None/Iterable[str]/True
+  - bequeath=None/Iterable[str]/True
+  - handle multiple inheritance lols
 """
 import collections
 import collections.abc

@@ -1,3 +1,7 @@
+"""
+TODO:
+ - pkgutil.walk_packages?
+"""
 import functools
 import importlib
 import sys
