@@ -6,9 +6,8 @@ import platform
 import types
 import typing as ta
 
-from omnibus import check
-from omnibus import properties
-
+from .. import check
+from .. import properties
 from .frames import PyFrameObject
 from .ops import OPS_BY_NAME
 from .types import Instr

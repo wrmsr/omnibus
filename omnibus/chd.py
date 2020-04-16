@@ -5,7 +5,7 @@ import dataclasses as dc
 import random
 import typing as ta
 
-from omnibus import properties
+from . import properties
 
 
 uint16 = int

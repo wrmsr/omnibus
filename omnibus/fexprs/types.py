@@ -5,10 +5,10 @@ import opcode
 import sys
 import typing as ta
 
-from omnibus import check
-from omnibus import defs
-from omnibus import lang
-from omnibus import properties
+from .. import check
+from .. import defs
+from .. import lang
+from .. import properties
 
 
 T = ta.TypeVar('T')

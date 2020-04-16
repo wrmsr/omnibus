@@ -1,0 +1,52 @@
+import os.path
+
+from ..._vendor import antlr4
+
+from ..antlr.Protobuf3Lexer import Protobuf3Lexer
+from ..antlr.Protobuf3Listener import Protobuf3Listener
+from ..antlr.Protobuf3Parser import Protobuf3Parser
+
+
+class Protobuf3PrintListener(Protobuf3Listener):
+
+    def __init__(
+            self,
+            stream: antlr4.BufferedTokenStream.BufferedTokenStream,
+            parser: Protobuf3Parser
+    ) -> None:
+        super().__init__()
+        self._stream = stream
+        self._parser = parser
+
+    def enterMessage(self, ctx: Protobuf3Parser.MessageContext):
+        print(ctx)
+        print(ctx.start.tokenIndex)
+
+    def enterMessageBody(self, ctx: Protobuf3Parser.MessageBodyContext):
+        print(ctx)
+        print(ctx.start.tokenIndex)
+
+    def enterField(self, ctx: Protobuf3Parser.FieldContext):
+        print(ctx)
+        print(ctx.start.tokenIndex)
+        for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
+            print(t.text)
+
+    # def enterTypeNode(self, ctx: Protobuf3Parser.TypeNodeContext):
+    #     print(ctx)
+    #     print(ctx.start.tokenIndex)
+    #     for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
+    #         print(t.text)
+
+
+def test_proto():
+    with open(os.path.join(os.path.dirname(__file__), 'addressbook.proto'), 'r') as f:
+        buf = f.read()
+    lexer = Protobuf3Lexer(antlr4.InputStream(buf))
+    stream = antlr4.CommonTokenStream(lexer)
+    stream.fill()
+    parser = Protobuf3Parser(stream)
+    tree = parser.proto()
+    printer = Protobuf3PrintListener(stream, parser)
+    walker = antlr4.ParseTreeWalker()
+    walker.walk(printer, tree)
