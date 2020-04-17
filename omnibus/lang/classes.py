@@ -420,3 +420,27 @@ class AccessForbiddenDescriptor:
 
 def access_forbidden():
     return AccessForbiddenDescriptor()
+
+
+class _InnerMeta(abc.ABCMeta):
+
+    def __get__(self, instance, owner):
+        if instance is not None:
+            def bound(*args, **kwargs):
+                obj = self.__new__(self, *args, **kwargs)
+                obj.__outer__ = instance
+                obj.__init__(*args, **kwargs)
+                return obj
+            return bound
+        return self
+
+
+class Inner(ta.Generic[T], metaclass=_InnerMeta):
+
+    __outer__: T = None
+
+    @property
+    def _outer(self) -> T:
+        if self.__outer__ is None:
+            raise TypeError
+        return self.__outer__
