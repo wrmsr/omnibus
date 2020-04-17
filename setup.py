@@ -51,11 +51,9 @@ PACKAGE_DATA = [
 
 
 INSTALL_REQUIRES = [
-    'toolz>=0.9.0',
 ]
 
 EXTRAS_REQUIRE = {
-    'cytoolz': ['cytoolz>=0.9.0'],
 }
 
 
