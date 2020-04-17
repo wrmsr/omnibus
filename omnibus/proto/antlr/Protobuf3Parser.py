@@ -3708,8 +3708,3 @@ class Protobuf3Parser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

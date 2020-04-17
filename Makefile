@@ -136,13 +136,30 @@ antlr:
 	if [ ! -f "antlr-$(ANTLR_VERSION)-complete.jar" ] ; then \
 		curl --proto '=https' --tlsv1.2 "https://www.antlr.org/download/antlr-$(ANTLR_VERSION)-complete.jar" -o "antlr-$(ANTLR_VERSION)-complete.jar" ; \
 	fi
-	for f in $$(find omnibus -name '*.g4') ; do \
-		echo "$$f" ; \
-		D=$$(dirname "$$f") ; \
-		echo "$$D" ; \
+
+	set -e ; \
+	java -version ; \
+	\
+	for F in $$(find omnibus -name '*.g4') ; do \
+		echo "$$F" ; \
+		\
+		D=$$(dirname "$$F") ; \
 		if [ -d "$$D/antlr" ] ; then \
 			rm -rf "$$D/antlr" ; \
 		fi ; \
+		\
+		P=$$(pwd) ; \
+		(cd "$$D" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -o antlr $$(basename $$F)) ; \
+		\
+		for P in $$(find "$$D/antlr" -name '*.py') ; do \
+			echo "$$P" ; \
+			( \
+				BUF=$$(echo -e '# flake8: noqa' && cat "$$P") ; \
+				IMP=$$(echo "$$D" | tr -dc / | tr / .) ; \
+				BUF=$$(echo "$$BUF" | sed "s/^from antlr4 import \*/from $$IMP.._vendor.antlr4 import \*/") ; \
+				echo "$$BUF" > "$$P" \
+			) ; \
+		done ; \
 	done
 
 
