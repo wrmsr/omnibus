@@ -15,6 +15,7 @@ TODO:
  - uvloop. (uvloop good and pure, sanic bad and disgusting)
  - use consts not 200
  - client too? tok-style sync+async?
+ - simmple routinng?
 """
 import abc
 import contextlib
