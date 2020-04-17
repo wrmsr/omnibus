@@ -1,16 +1,30 @@
 import ctypes as ct
+import sys
 
 
 class PyObject(ct.Structure):
     pass
 
 
-PyObject._fields_ = [
-    # Py_refcnt_t ob_refcnt;
-    ('ob_refcnt', ct.c_ssize_t),
-    # struct _typeobject *ob_type;
-    ('ob_type', ct.c_void_p),
-]
+if hasattr(sys, 'getobjects'):
+    PyObject._fields_ = [
+        # struct _object *_ob_next;
+        ('_ob_next', ct.POINTER(PyObject)),
+        # struct _object *_ob_prev;
+        ('_ob_prev', ct.POINTER(PyObject)),
+        # Py_refcnt_t ob_refcnt;
+        ('ob_refcnt', ct.c_ssize_t),
+        # struct _typeobject *ob_type;
+        ('ob_type', ct.c_void_p),
+    ]
+
+else:
+    PyObject._fields_ = [
+        # Py_refcnt_t ob_refcnt;
+        ('ob_refcnt', ct.c_ssize_t),
+        # struct _typeobject *ob_type;
+        ('ob_type', ct.c_void_p),
+    ]
 
 
 class PyVarObject(ct.Structure):
