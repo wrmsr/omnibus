@@ -1,3 +1,7 @@
+"""
+TODO:
+ - toolz wrappers
+"""
 import abc
 import functools
 import heapq
@@ -11,7 +15,6 @@ import typing as ta
 from .. import callables
 from .. import check
 from .. import lang
-from .. import toolz
 
 
 T = ta.TypeVar('T')
@@ -627,10 +630,3 @@ def multi_combinations(*its: ta.Iterable[T]) -> ta.Iterable[ta.Sequence[T]]:
     for item in it:
         for suffix in multi_combinations(*rest):
             yield [item] + suffix  # noqa
-
-
-@constructor()
-def sliding_window(n: int):
-    def inner(it):
-        return toolz.sliding_window(n, it)
-    return inner

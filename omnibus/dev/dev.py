@@ -5,6 +5,7 @@ FIXME:
 TODO:
  - tpch
  - mypy
+ - twine
  - https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
  - https://sobolevn.me/2019/08/testing-mypy-types
  - project gens (cy/rs/cc)
@@ -31,4 +32,7 @@ TODO:
  - https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
  - https://github.com/indygreg/python-build-standalone
  - pycparser / pycpp
+ - https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
+ - https://python-devtools.helpmanual.io/
+ - https://github.com/MacPython/pandas-wheels
 """

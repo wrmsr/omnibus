@@ -4,10 +4,7 @@ TODO:
 """
 import collections
 import functools
-import operator
 import typing as ta
-
-from .. import toolz
 
 
 T = ta.TypeVar('T')
@@ -66,10 +63,10 @@ class PeekIterator(ta.Iterator[T]):
             next(self)
 
     def takeuntil(self, fn):
-        return self.takewhile(toolz.compose(operator.not_, fn))
+        return self.takewhile(lambda e: not fn(e))
 
     def skipuntil(self, fn):
-        self.skipwhile(toolz.compose(operator.not_, fn))
+        self.skipwhile(lambda e: not fn(e))
 
     def takethrough(self, pos):
         return self.takewhile(lambda _: self._pos < pos)

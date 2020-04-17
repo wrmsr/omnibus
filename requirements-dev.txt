@@ -11,6 +11,7 @@ wheel>=0.34.2
 
 pytest==5.4.1
 pytest-benchmark==3.2.3
+pytest-xdist==1.31.0
 
 
 # useful tools

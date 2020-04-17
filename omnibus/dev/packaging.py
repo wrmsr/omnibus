@@ -8,7 +8,7 @@ import zipfile
 
 import pkg_resources
 
-from . import lang
+from .. import lang
 
 
 lang.warn_unstable()

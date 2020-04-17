@@ -1,22 +1,6 @@
-"""
-TODO:
- - bindings:
-  - errors: rollbar
-  - metrics: datadog
-  - tracing: ddtrace
- - profiling: yappi, cprofile
-"""
-
 import abc
 
-from . import lang
-
-
-lang.warn_unstable()
-
-
-class ErrorReporting(lang.Abstract):
-    pass
+from .. import lang
 
 
 class MetricsCollection(lang.Abstract):
@@ -64,8 +48,4 @@ class PrefixedMetricsCollection(MetricsCollection):
 
 class CompositeMetricsCollection(MetricsCollection):
     # FIXME
-    pass
-
-
-class Tracing(lang.Abstract):
     pass
