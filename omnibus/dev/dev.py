@@ -6,8 +6,6 @@ TODO:
  - tpch
  - mypy
  - twine
- - https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
- - https://sobolevn.me/2019/08/testing-mypy-types
  - project gens (cy/rs/cc)
  - dev helping fuse stuff
  - venv helpers
@@ -24,15 +22,19 @@ TODO:
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
   - DO NOT WANT compile-timme forced impl-all mandate but do want flake
- - https://github.com/github/semantic
  - d3js webservy stuff using own webservers
  - notebook stuff
  - mv packaging
  - vendoring - import rewriting
- - https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
- - https://github.com/indygreg/python-build-standalone
  - pycparser / pycpp
- - https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
- - https://python-devtools.helpmanual.io/
- - https://github.com/MacPython/pandas-wheels
+
+https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
+https://sobolevn.me/2019/08/testing-mypy-types
+https://github.com/github/semantic
+https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
+https://github.com/indygreg/python-build-standalone
+https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
+https://github.com/pypa/packaging
+https://python-devtools.helpmanual.io/
+https://github.com/MacPython/pandas-wheels
 """
