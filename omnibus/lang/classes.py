@@ -439,6 +439,11 @@ class Inner(ta.Generic[T], metaclass=_InnerMeta):
 
     __outer__: T = None
 
+    def __init__(self, *args, **kwargs) -> None:
+        if self.__outer__ is None:
+            raise TypeError
+        super().__init__(*args, **kwargs)
+
     @property
     def _outer(self) -> T:
         if self.__outer__ is None:

@@ -27,6 +27,7 @@ TODO:
  - mv packaging
  - vendoring - import rewriting
  - pycparser / pycpp
+ - diffing - dc -> protofbuf gen
 
 https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
 https://sobolevn.me/2019/08/testing-mypy-types
