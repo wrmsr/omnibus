@@ -62,7 +62,8 @@ def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterat
             except ImportError:
                 return
             module = sys.modules[dir]
-        if module.__file__ is None:
+        # FIXME: pyox
+        if getattr(module, __file__, None) is None:
             return
 
         for file in _pkg_resources().resource_listdir(dir, '.'):

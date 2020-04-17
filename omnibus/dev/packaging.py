@@ -51,19 +51,21 @@ def purge_libs():
         for submodule in lib.split('.')[1:]:
             module = getattr(module, submodule)
 
-        path = os.path.dirname(module.__file__)
-        for item in items:
-            for target in glob.glob(os.path.join(path, item), recursive=True):
-                target = os.path.abspath(target)
-                if not target.startswith(abscwd):
-                    # FIXME: option to force
-                    raise ValueError(target)
-                if os.path.isdir(target):
-                    log.info(f'Removing tree {target}')
-                    shutil.rmtree(target)
-                else:
-                    log.info(f'Removing file {target}')
-                    os.unlink(target)
+        mpath = getattr(module, '__file__', None)
+        if mpath is not None:
+            path = os.path.dirname(mpath)
+            for item in items:
+                for target in glob.glob(os.path.join(path, item), recursive=True):
+                    target = os.path.abspath(target)
+                    if not target.startswith(abscwd):
+                        # FIXME: option to force
+                        raise ValueError(target)
+                    if os.path.isdir(target):
+                        log.info(f'Removing tree {target}')
+                        shutil.rmtree(target)
+                    else:
+                        log.info(f'Removing file {target}')
+                        os.unlink(target)
 
 
 class BotoJsonPackedFileLoader(abc.ABC):
