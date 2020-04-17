@@ -15,6 +15,8 @@ TODO:
  - newable-style object graphs, refs
  - cmdline overrides (env-var? dict?)
  - callbacks are dc-level - both field-lvl and inst-lvl
+
+https://blog.twitter.com/engineering/en_us/topics/infrastructure/2018/dynamic-configuration-at-twitter.html
 """
 import abc
 import types
