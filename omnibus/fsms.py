@@ -1,3 +1,7 @@
+"""
+TODO:
+ - behavior trees?
+"""
 from . import lang
 
 

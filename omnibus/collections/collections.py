@@ -7,6 +7,7 @@ TODO:
  - IdentityWeakKeyDict
  - WeakDict (key and value)
   - weak.py?
+ - OneForAllWeakSet
  - RingBuffer
  - Persistent (iface + pyrsistent, immutables (magicstack hamt))
  - **KeyValues**
