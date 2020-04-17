@@ -1,9 +1,9 @@
 """
 TODO:
  - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
- - polled sources: file (+url), sql, redis
+ - polled sources: file (+url, git), sql, redis
   - atomicity - class UsernameAndPassword etc
- - pushed sources: zk
+ - pushed sources: zk, etcd
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
