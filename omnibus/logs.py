@@ -1,3 +1,6 @@
+"""
+https://github.com/borntyping/python-colorlog/blob/master/colorlog
+"""
 import dataclasses as dc
 import datetime
 import functools

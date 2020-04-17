@@ -217,7 +217,7 @@ class Database:
                     yield head_item.substitute_bindings(tail_bindings)
 
     @staticmethod
-    def merge_bindings(left: Bindings, right: Bindings) -> Bindings:
+    def merge_bindings(left: Bindings, right: Bindings) -> ta.Optional[Bindings]:
         if left is None or right is None:
             return None
 

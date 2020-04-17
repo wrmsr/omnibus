@@ -1,6 +1,7 @@
 import re
 import typing as ta
 
+from .. import check
 from .interpret import Compound
 from .interpret import Conjunction
 from .interpret import Rule
@@ -47,7 +48,7 @@ class Parser:
 
     def parse_query(self) -> Compound:
         self._scope = {}
-        return self._parse_term()
+        return check.isinstance(self._parse_term(), Compound)
 
     @property
     def _current(self) -> str:
