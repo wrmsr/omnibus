@@ -2,12 +2,14 @@
 TODO:
  - Truth/Conjunctions are not Compounds
  - cut.
+ - smt
 
 https://www.metalevel.at/acomip/
 https://github.com/photonlines/Python-Prolog-Interpreter
 https://curiosity-driven.org/prolog-interpreter
 https://github.com/clojure/core.logic
 https://github.com/logpy/logpy
+https://lab.whitequark.org/notes/2020-04-06/minimizing-logic-expressions/
 """
 from collections import defaultdict
 import abc
