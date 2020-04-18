@@ -1,8 +1,8 @@
 import dataclasses as dc
 import typing as ta
 
-from .. import check
-from .. import lang
+from ... import check
+from ... import lang
 
 REPLIES: ta.Sequence['Reply'] = []
 REPLIES_BY_CODE: ta.Mapping[int, 'Reply'] = {}

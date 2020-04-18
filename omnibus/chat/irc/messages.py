@@ -1,8 +1,8 @@
 import dataclasses as dc
 import typing as ta
 
-from .. import check
-from .. import lang
+from ... import check
+from ... import lang
 
 MESSAGES: ta.Sequence['Message'] = []
 MESSAGES_BY_NAME: ta.Mapping[str, 'Message'] = {}
