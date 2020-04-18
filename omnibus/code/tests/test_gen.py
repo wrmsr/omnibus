@@ -35,9 +35,9 @@ def test_indent():
 
 
 def test_createfn():
-    fn = gen_.create_fn('fn', gen_.ArgSpec(['x', 'y']), 'return x + y')
+    fn = gen_.create_function('fn', gen_.ArgSpec(['x', 'y']), 'return x + y')
     assert fn(1, 2) == 3
 
-    fn = gen_.create_fn('fn', gen_.ArgSpec(['x', 'y']), 'raise ValueError')
+    fn = gen_.create_function('fn', gen_.ArgSpec(['x', 'y']), 'raise ValueError')
     with pytest.raises(ValueError):
         assert fn(1, 2) == 3

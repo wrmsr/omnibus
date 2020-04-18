@@ -49,6 +49,46 @@ class IndentWriter:
         return self._buf.getvalue()
 
 
+class CodeGen:
+
+    def __init__(
+            self,
+            *,
+            writer: IndentWriter = None,
+            namer: NamespaceBuilder = None,
+            names: ta.Iterable[str] = None,
+    ) -> None:
+        super().__init__()
+
+        self._writer = writer if writer is not None else IndentWriter()
+        if namer is not None:
+            check.none(names)
+            self._namer = namer
+        else:
+            self._namer = NamespaceBuilder(unavailable_names=names)
+
+    @property
+    def writer(self) -> IndentWriter:
+        return self._writer
+
+    @property
+    def namer(self) -> NamespaceBuilder:
+        return self._namer
+
+    @contextlib.contextmanager
+    def indent(self, num: int = 1) -> ta.Generator[None, None, None]:
+        return self._writer.indent(num)
+
+    def write(self, s: str) -> None:
+        self._writer.write(s)
+
+    def put(self, name: str, value: ta.Any, *, add: bool = False) -> str:
+        return self._namer.put(name, value, add=add)
+
+    def add(self, value: ta.Any, prefix: str = '') -> str:
+        return self._namer.add(value, prefix)
+
+
 def reserve_filename(prefix: str) -> str:
     unique_id = uuid.uuid4()
     count = 0
@@ -60,7 +100,7 @@ def reserve_filename(prefix: str) -> str:
         count += 1
 
 
-def create_fn(
+def create_function(
         name: str,
         arg_spec: ArgSpec,
         body: str,
@@ -91,3 +131,49 @@ def create_fn(
     fn.__source__ = txt
     linecache.cache[filename] = (len(exectxt), None, exectxt.splitlines(True), filename)
     return fn
+
+
+class FunctionGen(CodeGen):
+
+    def __init__(
+            self,
+            name: str,
+            argspec: ArgSpec,
+            *,
+            names: ta.Iterable[str] = None,
+            **kwargs
+    ):
+        check.isinstance(name, str)
+        check.not_empty(name)
+        check.isinstance(argspec, ArgSpec)
+
+        names = set(names if names else ())
+        names.add(name)
+        names.update(argspec.names)
+
+        super().__init__(names=names, **kwargs)
+
+        self._name = name
+        self._argspec = argspec
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def argspec(self) -> ArgSpec:
+        return self._argspec
+
+    def create(
+            self,
+            *,
+            globals: ta.Mapping[str, ta.Any] = None,
+            locals: ta.Mapping[str, ta.Any] = None,
+    ) -> types.FunctionType:
+        return create_function(
+            self.name,
+            self.argspec,
+            self.writer.getvalue(),
+            globals=globals,
+            locals=locals,
+        )

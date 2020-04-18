@@ -38,6 +38,15 @@ class ArgSpec:
     kwonlydefaults: ta.Mapping[str, ta.Any] = lang.empty_map()
     annotations: ta.Mapping[str, ta.Any] = lang.empty_map()
 
+    @property
+    def names(self) -> ta.Sequence[str]:
+        arg_names = tuple(self.args)
+        if self.varargs:
+            arg_names += (self.varargs,)
+        if self.varkw:
+            arg_names += (self.varkw,)
+        return arg_names
+
     @classmethod
     def from_inspect(cls, arg_spec: inspect.FullArgSpec) -> 'ArgSpec':
         check.isinstance(arg_spec, inspect.FullArgSpec)

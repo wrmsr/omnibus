@@ -232,7 +232,7 @@ class Aspect(AttachmentCollection, lang.Abstract):
             if not lines:
                 lines = ['pass']
 
-            return code.create_fn(
+            return code.create_function(
                 name,
                 self.argspec,
                 '\n'.join(lines),
