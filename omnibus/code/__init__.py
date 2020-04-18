@@ -17,8 +17,8 @@ from .callables import raise_  # noqa
 from .callables import tuple  # noqa
 from .calltypes import CALL_TYPES  # noqa
 from .calltypes import CallTypes  # noqa
-from .gen import Codegen  # noqa
 from .gen import create_fn  # noqa
+from .gen import IndentWriter  # noqa
 from .gen import reserve_filename  # noqa
 from .names import name_generator  # noqa
 from .names import NameGenerator  # noqa

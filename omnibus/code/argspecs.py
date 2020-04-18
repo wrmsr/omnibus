@@ -8,6 +8,7 @@ import typing as ta
 import weakref
 
 from .. import check
+from .. import lang
 from .names import NamespaceBuilder
 
 
@@ -29,13 +30,13 @@ def get_full_arg_spec(func: ta.Callable) -> inspect.FullArgSpec:
 
 @dc.dataclass(frozen=True)
 class ArgSpec:
-    args: ta.Sequence[str] = dc.field(default_factory=list)
+    args: ta.Sequence[str] = ()
     varargs: str = None
     varkw: str = None
-    defaults: ta.Sequence[ta.Any] = dc.field(default_factory=list)
-    kwonlyargs: ta.Sequence[str] = dc.field(default_factory=list)
-    kwonlydefaults: ta.Mapping[str, ta.Any] = dc.field(default_factory=dict)
-    annotations: ta.Mapping[str, ta.Any] = dc.field(default_factory=dict)
+    defaults: ta.Sequence[ta.Any] = ()
+    kwonlyargs: ta.Sequence[str] = ()
+    kwonlydefaults: ta.Mapping[str, ta.Any] = lang.empty_map()
+    annotations: ta.Mapping[str, ta.Any] = lang.empty_map()
 
     @classmethod
     def from_inspect(cls, arg_spec: inspect.FullArgSpec) -> 'ArgSpec':

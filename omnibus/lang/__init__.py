@@ -75,6 +75,8 @@ from .lang import ClassDctFn  # noqa
 from .lang import cls_dct_fn  # noqa
 from .lang import constant  # noqa
 from .lang import dir_dict  # noqa
+from .lang import empty_map  # noqa
+from .lang import EmptyMap  # noqa
 from .lang import exhaust  # noqa
 from .lang import is_descriptor  # noqa
 from .lang import is_lambda  # noqa

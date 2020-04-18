@@ -16,7 +16,7 @@ from .argspecs import render_arg_spec
 from .names import NamespaceBuilder
 
 
-class Codegen:
+class IndentWriter:
 
     DEFAULT_INDENT = ' ' * 4
 
@@ -40,12 +40,12 @@ class Codegen:
         finally:
             self._level -= num
 
-    def __call__(self, s: str) -> None:
+    def write(self, s: str) -> None:
         i = self._indent * self._level
         s = '\n'.join([(i + l) if l else '' for l in textwrap.dedent(s).split('\n')])
         self._buf.write(s)
 
-    def __str__(self) -> str:
+    def getvalue(self) -> str:
         return self._buf.getvalue()
 
 

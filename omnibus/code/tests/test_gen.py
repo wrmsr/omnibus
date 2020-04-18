@@ -25,10 +25,10 @@ def test_codegen():
 
 
 def test_indent():
-    g = gen_.Codegen()
-    g('hi\n')
+    g = gen_.IndentWriter()
+    g.write('hi\n')
     with g.indent():
-        g('there\n')
+        g.write('there\n')
 
     print()
     print(str(g))

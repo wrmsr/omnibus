@@ -100,8 +100,7 @@ class TupleInit(Init):
                 [self.storage.cls_name],
                 annotations={'return': self.fctx.nsb.add(self.fctx.ctx.cls)},
             )
-            append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
-            return argspec
+            return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
 
         @attach(InitPhase.RETURN)
         def build_return_lines(self) -> ta.List[str]:

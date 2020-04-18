@@ -286,3 +286,39 @@ def _get_cell_type() -> type:
 
 
 CellType = _get_cell_type()
+
+
+class EmptyMap(ta.Mapping[K, V]):
+
+    INSTANCE: 'EmptyMap[K, V]' = None
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+    def __new__(cls, *args, **kwargs):
+        if args or kwargs:
+            raise TypeError
+        return EmptyMap.INSTANCE
+
+    def __repr__(self) -> str:
+        return 'EmptyMap()'
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __getitem__(self, k: K) -> V:
+        raise KeyError
+
+    def __len__(self) -> int:
+        return 0
+
+    def __iter__(self) -> ta.Iterator[K]:
+        return
+        yield
+
+
+EmptyMap.INSTANCE = object.__new__(EmptyMap)
+
+
+def empty_map():
+    return EmptyMap.INSTANCE
