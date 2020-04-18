@@ -12,8 +12,8 @@ import random
 import time
 import typing as ta
 
-from .. import callables
 from .. import check
+from .. import code
 from .. import lang
 
 
@@ -60,12 +60,12 @@ class IterableTransform(lang.Abstract):
 
 
 def alias(*bases):
-    return callables.alias(*(bases + (IterableTransform,)))
+    return code.alias(*(bases + (IterableTransform,)))
 
 
 def constructor(*bases):
     def inner(fn):
-        fn = callables.constructor(*(bases + (IterableTransform,)))(fn)
+        fn = code.constructor(*(bases + (IterableTransform,)))(fn)
         return fn
     return inner
 
@@ -233,7 +233,7 @@ def type_guard(type, exception_type=TypeError):
 
 
 @constructor()
-def chunk(capacity, weigh=callables.const(1)):
+def chunk(capacity, weigh=code.const(1)):
     check.callable(weigh)
 
     def run(items):
@@ -301,7 +301,7 @@ def _unpack_pairs(items):
 @constructor()
 def match(*predicates_and_targets, **kwargs):
     if not kwargs.pop('strict', False):
-        predicates_and_targets += (callables.const(True), None)
+        predicates_and_targets += (code.const(True), None)
     predicates, targets = _unpack_pairs(predicates_and_targets)
     predicate_target_pairs = list(zip_(predicates, targets))
     check.arg(all(callable(predicate) for predicate in predicates))
@@ -484,7 +484,7 @@ class Deduplicated(ta.NamedTuple):
 
 
 @constructor()
-def deduplicate(keys=callables.tuple, verbose=False):
+def deduplicate(keys=code.tuple, verbose=False):
     """Deduplicates items where keys is a callable returning for a given item a tuple of values by
     which the item is to be deduplicated. Implemented such that the final item in the tuple will be
     placed in a set, not a dict, for memory efficiency - as such the highest cardinality key component

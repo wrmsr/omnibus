@@ -8,7 +8,7 @@ def test_recode_func():
         frame = sys._getframe(1)
         func = objs_.get_code_function(frame.f_code)
         code = func.__code__
-        newcodeargs = [getattr(code, f'co_{a}') for a in code_.CODE_ARGS]
+        newcodeargs = [getattr(code, f'co_{a}') for a in objs_.CODE_ARGS]
         newcodeargs[objs_.CODE_ARGS.index('consts')] = (None, 2)
         newcode = type(code)(*newcodeargs)
         func.__code__ = newcode

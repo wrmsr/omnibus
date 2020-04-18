@@ -110,7 +110,7 @@ def test_picklable():
     lmbda = cs.Lambda('x', 'x + 2')
     assert pickle.loads(pickle.dumps(lmbda))(420) == 422
 
-    fn = cs.Fn('x', 'return x + 3')
+    fn = cs.Function('x', 'return x + 3')
     assert pickle.loads(pickle.dumps(fn))(420) == 423
 
     assert pickle.loads(pickle.dumps(adder(4)))(3) == 7

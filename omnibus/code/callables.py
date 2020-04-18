@@ -41,14 +41,7 @@ def build_arg_dict(
     return dct
 
 
-class Base(lang.Sealed):
-    # __slots__ = (
-    #     '_args',
-    #     '_kwargs',
-    #     '_fn',
-    #     '__call__',
-    #     '_arg_accessor',
-    # )
+class Callable(lang.Sealed):
 
     final_type = None
 
@@ -93,16 +86,14 @@ class Base(lang.Sealed):
         raise NotImplementedError
 
 
-class Expr(Base, lang.Final):
-    # __slots__ = Base.__slots__
+class Expr(Callable, lang.Final):
 
     @classmethod
     def construct(cls, expr: str) -> ta.Callable:
         return eval(expr)
 
 
-class Lambda(Base, lang.Final):
-    # __slots__ = Base.__slots__
+class Lambda(Callable, lang.Final):
 
     @classmethod
     def construct(cls, *args) -> ta.Callable:
@@ -115,8 +106,7 @@ class Lambda(Base, lang.Final):
         return eval('lambda %s: %s' % (args, body))
 
 
-class Fn(Base, lang.Final):
-    # __slots__ = Base.__slots__
+class Function(Callable, lang.Final):
 
     fn_name = '__fn__'
 
@@ -169,8 +159,7 @@ class Fn(Base, lang.Final):
         return code_namespace[cls.fn_name]
 
 
-class Bindable(Base):
-    # __slots__ = Base.__slots__
+class Bindable(Callable):
 
     arg_names = ()
     argspec = None

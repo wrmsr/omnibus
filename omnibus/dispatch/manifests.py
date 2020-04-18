@@ -1,7 +1,7 @@
 import functools
 import typing as ta
 
-from .. import callables
+from .. import code
 from .types import Manifest
 
 
@@ -9,7 +9,7 @@ def get_manifest_injection_kwargs(impl: ta.Optional[ta.Callable]) -> ta.Optional
     if impl is None:
         return None
     try:
-        implargspec = callables.get_full_arg_spec(impl)
+        implargspec = code.get_full_arg_spec(impl)
     except TypeError:
         return None
     else:

@@ -1,7 +1,7 @@
 import dataclasses as dc
 import typing as ta
 
-from ... import codegen as cg
+from ... import code
 from ... import lang
 from ... import properties
 from .defaulting import Defaulting
@@ -14,7 +14,7 @@ T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 
-def append_argspec_args(argspec: cg.ArgSpec, fields: ta.Iterable[dc.Field]) -> None:
+def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) -> None:
     for fld in fields:
         if not fld.init:
             continue
@@ -57,8 +57,8 @@ class StandardInit(Init):
             return self.fctx.get_aspect(Defaulting.Init)
 
         @properties.cached
-        def argspec(self) -> cg.ArgSpec:
-            argspec = cg.ArgSpec(
+        def argspec(self) -> code.ArgSpec:
+            argspec = code.ArgSpec(
                 [self.fctx.self_name],
                 annotations={'return': None},
             )

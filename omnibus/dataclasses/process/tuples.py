@@ -2,7 +2,7 @@ import dataclasses as dc
 import typing as ta
 
 from ... import check
-from ... import codegen as cg
+from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
@@ -95,8 +95,8 @@ class TupleInit(Init):
             return self.fctx.get_aspect(TupleStorage.Init)
 
         @properties.cached
-        def argspec(self) -> cg.ArgSpec:
-            argspec = cg.ArgSpec(
+        def argspec(self) -> code.ArgSpec:
+            argspec = code.ArgSpec(
                 [self.storage.cls_name],
                 annotations={'return': self.fctx.nsb.add(self.fctx.ctx.cls)},
             )

@@ -9,7 +9,7 @@ def test_namegen():
     assert ng() == '_1'
     assert ng('self') == '_self0'
 
-    nsb = cg.NamespaceBuilder()
+    nsb = names_.NamespaceBuilder()
     now = datetime.datetime.now()
     assert nsb.add(0) == '_0'
     assert nsb.add(now) == '_1'

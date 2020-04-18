@@ -2,7 +2,7 @@ import dataclasses as dc
 import typing as ta
 
 from ... import check
-from ... import codegen as cg
+from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
@@ -112,8 +112,8 @@ class DictInit(Init):
             return self.fctx.nsb.put('_dict', None, add=True)
 
         @properties.cached
-        def argspec(self) -> cg.ArgSpec:
-            return cg.ArgSpec(
+        def argspec(self) -> code.ArgSpec:
+            return code.ArgSpec(
                 [self.fctx.self_name, self.dict_name],
                 annotations={'return': None, self.dict_name: ta.Mapping[str, ta.Any]},
             )

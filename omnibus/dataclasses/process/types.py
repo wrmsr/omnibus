@@ -4,7 +4,7 @@ import typing as ta
 import weakref
 
 from ... import check
-from ... import codegen
+from ... import code
 from ... import lang
 from ... import properties
 from ..internals import DataclassParams
@@ -112,8 +112,8 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
         @properties.cached
         @property
-        def nsb(self) -> codegen.NamespaceBuilder:
-            return codegen.NamespaceBuilder(unavailable_names=self.ctx.spec.fields.by_name)
+        def nsb(self) -> code.NamespaceBuilder:
+            return code.NamespaceBuilder(unavailable_names=self.ctx.spec.fields.by_name)
 
         @properties.cached
         def self_name(self) -> str:
@@ -218,7 +218,7 @@ class Aspect(AttachmentCollection, lang.Abstract):
             return self._fctx
 
         @property
-        def argspec(self) -> codegen.ArgSpec:
+        def argspec(self) -> code.ArgSpec:
             raise TypeError
 
         def build(self, name: str) -> types.FunctionType:
@@ -232,7 +232,7 @@ class Aspect(AttachmentCollection, lang.Abstract):
             if not lines:
                 lines = ['pass']
 
-            return codegen.create_fn(
+            return code.create_fn(
                 name,
                 self.argspec,
                 '\n'.join(lines),

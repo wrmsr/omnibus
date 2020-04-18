@@ -1,3 +1,7 @@
+"""
+TODO:
+ - class CO/FUNC (ValueEnum)
+"""
 import dis
 import gc
 import sys

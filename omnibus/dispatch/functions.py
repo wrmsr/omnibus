@@ -1,7 +1,7 @@
 import functools
 import typing as ta
 
-from .. import callables
+from .. import code
 from .. import lang
 from .. import reflect as rfl
 from .caching import CachingDispatcher
@@ -42,7 +42,7 @@ def function(
 
     def inner(func):
         functools.update_wrapper(wrapper, func)
-        argspec = callables.get_full_arg_spec(func)
+        argspec = code.get_full_arg_spec(func)
         try:
             wrapper.__annotations__ = {'return': argspec.annotations['return']}
         except KeyError:

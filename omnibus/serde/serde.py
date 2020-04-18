@@ -53,7 +53,8 @@ subtype reg:
 objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 objectMapper.disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-objectMapper.setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS));
+objectMapper.setDefaultPropertyInclusion(
+    JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS));
 objectMapper.disable(MapperFeature.AUTO_DETECT_CREATORS);
 objectMapper.disable(MapperFeature.AUTO_DETECT_FIELDS);
 objectMapper.disable(MapperFeature.AUTO_DETECT_SETTERS);

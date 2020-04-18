@@ -1,5 +1,5 @@
 from .. import transforms as transforms_
-from ... import callables
+from ... import code
 
 
 class SomeType:
@@ -14,11 +14,11 @@ def test_dict():
 
 
 def test_compose():
-    @callables.alias()
+    @code.alias()
     def inc(x):
         return x + 1
 
-    @callables.alias()
+    @code.alias()
     def dbl(x):
         return x * 2
     f = transforms_.compose(inc, dbl)
