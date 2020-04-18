@@ -43,6 +43,8 @@ TODO:
  - inherit=None/Iterable[str]/True
   - bequeath=None/Iterable[str]/True
   - handle multiple inheritance lols
+ - ** CYTHON **
+  - dogfood CacheLink
 """
 import collections
 import collections.abc
