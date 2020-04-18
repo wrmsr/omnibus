@@ -28,6 +28,7 @@ TODO:
  - vendoring - import rewriting
  - pycparser / pycpp
  - diffing - dc -> protofbuf gen
+ - awk(pawk)/jq(jp) entrypoints
 
 https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
 https://sobolevn.me/2019/08/testing-mypy-types
