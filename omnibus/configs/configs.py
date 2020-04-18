@@ -7,6 +7,8 @@ TODO:
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
+ - flat: .ini
+ - fat: xml
  - yaml forest
   - search_path (registry?), pkg:// prefix, origin tracking
   - yamls pointing at other yamls..
@@ -19,6 +21,14 @@ TODO:
   - kubernetes
   - envoy
  - yaml+json+other parsers that record positions and comments like hocon
+ - pluggable interpolation ala commons-cfg
+  - dns lookup (polled/dynamic?)
+  - JNDI equiv? (actor interop - Namespace abstr? jmx?)
+  - env, intra-cfg (hocon)
+  - exprs? safe_eval?
+  - inline include and extract? jmespath lol. hit url?
+ - LAZINESS.
+ - 'mounting' sys-level shit (procfs)
 
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
 https://blog.twitter.com/engineering/en_us/topics/infrastructure/2018/dynamic-configuration-at-twitter.html
