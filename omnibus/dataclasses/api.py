@@ -45,6 +45,7 @@ TODO:
   - handle multiple inheritance lols
  - ** CYTHON **
   - dogfood CacheLink
+ - make FunctionCtx use code.FunctionGen (need argspec earlier)
 """
 import collections
 import collections.abc
