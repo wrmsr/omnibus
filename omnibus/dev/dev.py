@@ -38,4 +38,6 @@ https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
 https://github.com/pypa/packaging
 https://python-devtools.helpmanual.io/
 https://github.com/MacPython/pandas-wheels
+https://github.com/jasontrigg0/pawk
+https://github.com/cookiecutter/cookiecutter/blob/1.7.0/cookiecutter/repository.py
 """
