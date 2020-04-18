@@ -7,6 +7,7 @@ TODO:
  - combo Serde - codecify?
   - dedupe symmetric generic Serde sides?
  - heavy overlap w dc validation - omnibus/validate?
+  - typelevel (ta.Range[ta.Literal[0], ta.Literal[10]]) vs non..
  - camel/snake(/kebab/pascal/dot)
  - enums
 
