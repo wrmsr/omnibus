@@ -4,6 +4,7 @@ TODO:
  - zigzag
  - memoryview
  - signedness
+ - protobuf
 
 http://www.amazontechon.com/locale/ro/pdfs/0_3_Integer%20encodings_new%20template.pdf
 https://github.com/stoklund/varint

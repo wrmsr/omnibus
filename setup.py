@@ -3,7 +3,6 @@ import glob
 import os
 import sys
 
-import setuptools
 import setuptools.command.build_ext
 
 
