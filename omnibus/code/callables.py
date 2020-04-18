@@ -1,3 +1,7 @@
+"""
+FIXME:
+ - modernize / use inspect.bind / use internal ArgSpec / untangle...
+"""
 import ast
 import functools
 import inspect
@@ -5,6 +9,18 @@ import typing as ta
 
 from .. import check
 from .. import lang
+
+
+tuple_ = tuple
+
+
+def get_arg_names(argspec: inspect.FullArgSpec) -> ta.Iterable[str]:
+    arg_names = tuple_(argspec.args)
+    if argspec.varargs:
+        arg_names += (argspec.varargs,)
+    if argspec.varkw:
+        arg_names += (argspec.varkw,)
+    return arg_names
 
 
 def build_arg_dict(
@@ -180,7 +196,6 @@ class Bindable(Base):
 def alias(*bases):
     def inner(fn):
         dct = dict((k, getattr(fn, k)) for k in functools.WRAPPER_ASSIGNMENTS)
-        # dct['__slots__'] = Bindable.__slots__
         dct['__module__'] = fn.__module__
         scls = lang.new_type(fn.__name__, (Bindable,) + bases, dct)
         scls.construct = staticmethod(lambda: fn)
@@ -194,7 +209,6 @@ def constructor(*bases):
         argspec: inspect.FullArgSpec = inspect.getfullargspec(fn)
         arg_names = get_arg_names(argspec)
         dct = dict((k, getattr(fn, k)) for k in functools.WRAPPER_ASSIGNMENTS)
-        # dct['__slots__'] = Bindable.__slots__
         dct['__module__'] = fn.__module__
         scls = lang.new_type(fn.__name__, (Bindable,) + bases, dct)
         scls.final_type = scls

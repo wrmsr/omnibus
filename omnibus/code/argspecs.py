@@ -27,15 +27,6 @@ def get_full_arg_spec(func: ta.Callable) -> inspect.FullArgSpec:
             return fas
 
 
-def get_arg_names(argspec: inspect.FullArgSpec) -> ta.Iterable[str]:
-    arg_names = tuple(argspec.args)
-    if argspec.varargs:
-        arg_names += (argspec.varargs,)
-    if argspec.varkw:
-        arg_names += (argspec.varkw,)
-    return arg_names
-
-
 @dc.dataclass(frozen=True)
 class ArgSpec:
     args: ta.Sequence[str] = dc.field(default_factory=list)
