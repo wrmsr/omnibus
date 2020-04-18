@@ -42,7 +42,7 @@ def function(
 
     def inner(func):
         functools.update_wrapper(wrapper, func)
-        argspec = callables.get_cached_full_arg_spec(func)
+        argspec = callables.get_full_arg_spec(func)
         try:
             wrapper.__annotations__ = {'return': argspec.annotations['return']}
         except KeyError:

@@ -1,15 +1,15 @@
 import sys
 
-from .. import code as code_
+from .. import objs as objs_
 
 
 def test_recode_func():
     def g():
         frame = sys._getframe(1)
-        func = code_.get_code_function(frame.f_code)
+        func = objs_.get_code_function(frame.f_code)
         code = func.__code__
         newcodeargs = [getattr(code, f'co_{a}') for a in code_.CODE_ARGS]
-        newcodeargs[code_.CODE_ARGS.index('consts')] = (None, 2)
+        newcodeargs[objs_.CODE_ARGS.index('consts')] = (None, 2)
         newcode = type(code)(*newcodeargs)
         func.__code__ = newcode
 
@@ -24,15 +24,10 @@ def test_recode_func():
 
 def test_get_code_function():
     def f():
-        return code_.get_code_function(sys._getframe(1).f_code)
+        return objs_.get_code_function(sys._getframe(1).f_code)
 
     def g():
         return f()
 
     v = g()
     assert v is g
-
-
-def test_posonly():
-    if sys.version_info[1] > 7:
-        assert callable(code_.CallTypes.posonly)

@@ -70,6 +70,7 @@ from .lang import attr_repr  # noqa
 from .lang import BUILTIN_SCALAR_ITERABLE_TYPES  # noqa
 from .lang import BytesLike  # noqa
 from .lang import cached_nullary  # noqa
+from .lang import CellType  # noqa
 from .lang import ClassDctFn  # noqa
 from .lang import cls_dct_fn  # noqa
 from .lang import constant  # noqa

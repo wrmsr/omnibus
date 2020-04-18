@@ -1,13 +1,9 @@
 import dis
 import gc
-import opcode
 import sys
-import textwrap
 import types
 import typing as ta
 import weakref
-
-from . import lang
 
 
 CODE_ARGS = [
@@ -61,65 +57,6 @@ FUNC_ANNOTATIONS = 4
 FUNC_CLOSURE = 8
 
 
-class CallTypes:
-
-    def __iter__(self):
-        for k, v in type(self).__dict__.items():
-            if callable(v) and not k.startswith('_'):
-                yield v
-
-    def _visit(self, *args, **kwargs):
-        pass
-
-    def nullary(self):
-        return self._visit()
-
-    def arg(self, arg):
-        return self._visit(arg)
-
-    def default(self, default=None):
-        return self._visit(default)
-
-    def varargs(self, *varargs):
-        return self._visit(*varargs)
-
-    def kwonly(self, *, kwonly=None):
-        return self._visit(kwonly=kwonly)
-
-    if sys.version_info[1] > 7:
-        exec(textwrap.dedent("""
-            def posonly(self, /, posonly):
-                return self._visit(posonly)
-        """), globals(), locals())
-
-    def kwargs(self, **kwargs):
-        return self._visit(**kwargs)
-
-    def all(self, arg, *varargs, default=None, **kwargs):
-        return self._visit(arg, *varargs, default=default, **kwargs)
-
-    def all2(self, arg0, arg1, *varargs, default0=None, default1=None, **kwargs):
-        return self._visit(arg0, arg1, *varargs, default0=default0, default1=default1, **kwargs)
-
-
-CALL_TYPES = CallTypes()
-
-
-class _Op(lang.Final):
-
-    def __getattr__(self, opname: str) -> int:
-        return opcode.opmap[opname]
-
-
-op = _Op()
-
-
-def make_cell(value):
-    def fn():
-        nonlocal value
-    return fn.__closure__[0]
-
-
 def get_code_flag_names(flags: int) -> ta.List[str]:
     return [k for k, v in CO_FLAG_VALUES.items() if flags & v]
 
@@ -132,10 +69,6 @@ def recode_func(func: types.FunctionType, code_bytes: ta.Union[bytes, bytearray]
     funcargs = [getattr(func, f'__{k}__') for k in FUNCTION_ARGS]
     funcargs[FUNCTION_ARGS.index('code')] = code
     return funcargs
-
-
-def instruction_bytes(instrs: ta.Iterable[dis.Instruction]) -> bytes:
-    return bytes(b if b is not None else 0 for instr in instrs for b in [instr.opcode, instr.arg])
 
 
 class AmbiguousCodeException(Exception):

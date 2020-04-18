@@ -276,3 +276,13 @@ except ImportError:
 
         def __call__(self) -> T:
             return self._obj
+
+
+def _get_cell_type() -> type:
+    def fn():
+        nonlocal value
+    value = None  # noqa
+    return type(fn.__closure__[0])
+
+
+CellType = _get_cell_type()

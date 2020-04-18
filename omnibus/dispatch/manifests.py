@@ -9,7 +9,7 @@ def get_manifest_injection_kwargs(impl: ta.Optional[ta.Callable]) -> ta.Optional
     if impl is None:
         return None
     try:
-        implargspec = callables.get_cached_full_arg_spec(impl)
+        implargspec = callables.get_full_arg_spec(impl)
     except TypeError:
         return None
     else:
