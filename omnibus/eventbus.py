@@ -1,4 +1,7 @@
 """
+TODO:
+ - just all-in on inj registrars and types?
+
 https://github.com/bennidi/mbassador
 --
 https://guava.dev/releases/19.0/api/docs/com/google/common/eventbus/EventBus.html
