@@ -21,10 +21,14 @@ class Protobuf3PrintListener(Protobuf3Listener):
     def enterMessage(self, ctx: Protobuf3Parser.MessageContext):
         print(ctx)
         print(ctx.start.tokenIndex)
+        for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
+            print(t.text)
 
     def enterMessageBody(self, ctx: Protobuf3Parser.MessageBodyContext):
         print(ctx)
         print(ctx.start.tokenIndex)
+        for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
+            print(t.text)
 
     def enterField(self, ctx: Protobuf3Parser.FieldContext):
         print(ctx)
@@ -32,11 +36,11 @@ class Protobuf3PrintListener(Protobuf3Listener):
         for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
             print(t.text)
 
-    # def enterTypeNode(self, ctx: Protobuf3Parser.TypeNodeContext):
-    #     print(ctx)
-    #     print(ctx.start.tokenIndex)
-    #     for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
-    #         print(t.text)
+    def enterTypeRule(self, ctx: Protobuf3Parser.TypeRuleContext):
+        print(ctx)
+        print(ctx.start.tokenIndex)
+        for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
+            print(t.text)
 
 
 def test_proto():

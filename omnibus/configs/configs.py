@@ -18,6 +18,7 @@ TODO:
  - look at:
   - kubernetes
   - envoy
+ - yaml+json+other parsers that record positions and comments like hocon
 
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
 https://blog.twitter.com/engineering/en_us/topics/infrastructure/2018/dynamic-configuration-at-twitter.html

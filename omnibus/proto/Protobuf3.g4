@@ -497,13 +497,13 @@ ASSIGN          : '=';
 
 // Whitespace and comments
 
-WS  :   [ \t\r\n\u000C]+ -> skip
+WS  :   [ \t\r\n\u000C]+ -> channel(2)
     ;
 
 COMMENT
-    :   '/*' .*? '*/' -> skip
+    :   '/*' .*? '*/' -> channel(2)
     ;
 
 LINE_COMMENT
-    :   '//' ~[\r\n]* -> skip
+    :   '//' ~[\r\n]* -> channel(2)
     ;
