@@ -72,7 +72,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
     def ann(n):
         if not arg_spec.annotations or n not in arg_spec.annotations:
             return ''
-        anns[n] = ns_builder.put('_' + n + '_type', arg_spec.annotations[n], add=True)
+        anns[n] = ns_builder.put(arg_spec.annotations[n], '_' + n + '_type')
         return ': ' + anns[n]
 
     args: ta.List[str] = []
@@ -83,7 +83,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
         for a, d in zip(arg_spec.args[nd:], arg_spec.defaults):
             args.append(
                 f"{a}{ann(a)}{' = ' if a in arg_spec.annotations else '='}"
-                f"{ns_builder.put('_' + a + '_default', d, add=True)}")
+                f"{ns_builder.put(d, '_' + a + '_default')}")
 
     if arg_spec.varargs:
         args.append(f'*{arg_spec.varargs}' + ann(arg_spec.varargs))
@@ -93,7 +93,7 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
     for kw, d in zip(arg_spec.kwonlyargs, arg_spec.kwonlydefaults):
         args.append(
             f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}"
-            f"{ns_builder.put('_' + kw + '_default', d, add=True)}")
+            f"{ns_builder.put(d, '_' + kw + '_default')}")
 
     if arg_spec.varkw:
         args.append(f'**{arg_spec.varkw}' + ann(arg_spec.varkw))

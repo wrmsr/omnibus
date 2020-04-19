@@ -11,7 +11,7 @@ from .. import consts as consts_
 from .. import nginx as nginx_
 from .. import wsgiref as wsgiref_
 from ... import json
-from ...tests import helpers
+from ...dev.testing import helpers
 
 
 def test_inline_http():

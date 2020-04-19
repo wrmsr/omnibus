@@ -1,15 +1,15 @@
 """
 TODO:
-hey cmd line options
-truncation
-mean/min/max/median/stddev
-DELTA mean/min/max/median/stddev
-HEAT - red rapidly changing blue stale
-paging
-find
-stdin/stdout redir (ttyname(0))
-graph
-COLUMNS ARE CLASSES. TRANSFORMS. CONFIGURABLE. PIPELINE. .....
+ - hey cmd line options
+ - truncation
+ - mean/min/max/median/stddev
+ - DELTA mean/min/max/median/stddev
+ - HEAT - red rapidly changing blue stale
+ - paging
+ - find
+ - stdin/stdout redir (ttyname(0))
+ - graph
+ - COLUMNS ARE CLASSES. TRANSFORMS. CONFIGURABLE. PIPELINE. .....
 
 (for l in $(cat attic/scratch/linehisto.py | tr ' ' '\n' | egrep -v "^$") ; do echo $l ; sleep 0.01 ; done) | \
   ./python attic/scratch/linehisto.py

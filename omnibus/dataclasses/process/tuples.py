@@ -61,7 +61,7 @@ class TupleStorage(Storage):
 
         @properties.cached
         def cls_name(self) -> str:
-            return self.fctx.nsb.put('_cls', None, add=True)
+            return self.fctx.nsb.put(None, '_cls')
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
@@ -72,7 +72,7 @@ class TupleStorage(Storage):
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
                 args.append(f.name)
-            tuple_new = self.fctx.nsb.put('_tuple_new', tuple.__new__, add=True)
+            tuple_new = self.fctx.nsb.put(tuple.__new__, '_tuple_new')
             return [f'{self.fctx.self_name} = {tuple_new}({self.cls_name}, ({", ".join(args)}),)']
 
 
@@ -98,7 +98,7 @@ class TupleInit(Init):
         def argspec(self) -> code.ArgSpec:
             argspec = code.ArgSpec(
                 [self.storage.cls_name],
-                annotations={'return': self.fctx.nsb.add(self.fctx.ctx.cls)},
+                annotations={'return': self.fctx.nsb.put(self.fctx.ctx.cls)},
             )
             return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
 

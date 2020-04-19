@@ -108,7 +108,7 @@ class Defaulting(Aspect):
         @properties.cached
         def default_names_by_field_name(self) -> ta.Mapping[str, str]:
             return {
-                f.name: self.fctx.nsb.put(f'_{f.name}_default', f.default)
+                f.name: self.fctx.nsb.put(f.default, f'_{f.name}_default')
                 for f in self.fctx.ctx.spec.fields.init
                 if f.default is not dc.MISSING
             }
@@ -116,14 +116,14 @@ class Defaulting(Aspect):
         @properties.cached
         def default_factory_names_by_field_name(self) -> ta.Mapping[str, str]:
             return {
-                f.name: self.fctx.nsb.put(f'_{f.name}_default_factory', f.default_factory)
+                f.name: self.fctx.nsb.put(f.default_factory, f'_{f.name}_default_factory')
                 for f in self.fctx.ctx.spec.fields.init
                 if f.default_factory is not dc.MISSING
             }
 
         @properties.cached
         def has_factory_name(self) -> str:
-            return self.fctx.nsb.put('has_factory', HasFactory, add=True)
+            return self.fctx.nsb.put(HasFactory, 'has_factory')
 
         @attach(InitPhase.DEFAULT)
         def build_default_lines(self) -> ta.List[str]:

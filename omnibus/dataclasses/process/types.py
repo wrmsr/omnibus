@@ -117,7 +117,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
         @properties.cached
         def self_name(self) -> str:
-            return self.nsb.put('self', None, add=True)
+            return self.nsb.put(None, 'self')
 
     def function(self, attachment_keys: ta.Iterable[ta.Any] = ()) -> Function[TypeT]:
         check.arg(not isinstance(attachment_keys, str))

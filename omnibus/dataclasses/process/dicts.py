@@ -75,7 +75,7 @@ class DictStorage(Storage):
 
         @properties.cached
         def setattr_name(self) -> str:
-            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
+            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
@@ -109,7 +109,7 @@ class DictInit(Init):
 
         @properties.cached
         def dict_name(self) -> str:
-            return self.fctx.nsb.put('_dict', None, add=True)
+            return self.fctx.nsb.put(None, '_dict')
 
         @properties.cached
         def argspec(self) -> code.ArgSpec:

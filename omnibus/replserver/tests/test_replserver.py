@@ -7,7 +7,7 @@ import time
 
 from .. import server as server_
 from ... import lang
-from ...tests import helpers
+from ...dev.testing import helpers
 
 
 def test_replserver():

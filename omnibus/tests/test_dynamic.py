@@ -1,7 +1,7 @@
 import contextlib
 
-from . import helpers
 from .. import dynamic as dyn
+from ..dev.testing import helpers
 
 
 def test_dyn():

@@ -1,6 +1,7 @@
 """
 DECREE:
  - *DEPLESS*.
+ - Dev vs 'Main' - dev = everything not shipped to prod
 
 FIXME:
  - fix req-dev.txt? keep depless? already non-mako tmpl in main for nginx..
@@ -21,20 +22,24 @@ TODO:
  - gh shit
  - protobuf shit
  - type hierarchy graphviz
- - tame freeze (pyinstaller? pyoxidizer?)
- - pex
+ - packaging
+  - tame freeze (pyinstaller? pyoxidizer?)
+  - pex
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
   - DO NOT WANT compile-timme forced impl-all mandate but do want flake
  - d3js webservy stuff using own webservers
  - notebook stuff
- - mv packaging
  - vendoring - import rewriting
  - pycparser / pycpp
  - diffing - dc -> protofbuf gen
  - awk(pawk)/jq(jp) entrypoints
  - build-time classpath scanning (yield_importable) + codegen
   - resolve.rb paths
+ - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcloud?)
+  - kubectl?
+ - packing here but llvm.so dynalinking in main
+
 
 https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
 https://sobolevn.me/2019/08/testing-mypy-types

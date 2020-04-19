@@ -4,7 +4,12 @@ import threading
 import time
 import typing as ta
 
-import pytest
+from ... import lang
+
+if ta.TYPE_CHECKING:
+    import pytest
+else:
+    pytest = lang.proxy_import('pytest')
 
 
 DEFAULT_TIMEOUT_S = 30

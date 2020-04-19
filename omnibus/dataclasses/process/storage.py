@@ -34,7 +34,7 @@ class Storage(Aspect, lang.Abstract):
 
         @properties.cached
         def setattr_name(self) -> str:
-            return self.fctx.nsb.put('__setattr__', object.__setattr__, add=True)
+            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
 
         def build_setattr(self, name: str, value: str) -> str:
             if self.fctx.ctx.params.frozen:

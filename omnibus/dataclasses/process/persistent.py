@@ -47,6 +47,10 @@ class PersistentDescriptor:
 
 class PersistentStorage(Storage):
 
+    @property
+    def seq_ctor(self) -> ta.Callable:
+        return ocol.PyrsistentSequence
+
     @properties.cached
     def seq_attr(self) -> str:
         return '__%s_%x_seq' % (self.ctx.cls.__name__, id(self.ctx.cls))
@@ -76,5 +80,5 @@ class PersistentStorage(Storage):
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
                 args.append(f.name)
-            seq_new = self.fctx.nsb.put('_seq_new', ocol.PyrsistentSequence, add=True)
+            seq_new = self.fctx.nsb.put(self.aspect.seq_ctor, '_seq_new')
             return [self.build_setattr(self.aspect.seq_attr, f'{seq_new}(({", ".join(args)}),)')]

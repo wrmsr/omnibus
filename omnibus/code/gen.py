@@ -82,11 +82,20 @@ class CodeGen:
     def write(self, s: str) -> None:
         self._writer.write(s)
 
-    def put(self, name: str, value: ta.Any, *, add: bool = False) -> str:
-        return self._namer.put(name, value, add=add)
-
-    def add(self, value: ta.Any, prefix: str = '') -> str:
-        return self._namer.add(value, prefix)
+    def put(
+            self,
+            value: ta.Any,
+            name: str = None,
+            *,
+            exact: bool = False,
+            dedupe: bool = False,
+    ) -> str:
+        return self._namer.put(
+            value,
+            name,
+            exact=exact,
+            dedupe=dedupe,
+        )
 
 
 def reserve_filename(prefix: str) -> str:

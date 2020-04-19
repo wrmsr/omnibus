@@ -6,6 +6,7 @@ import string
 import typing as ta
 
 from .. import check
+from ..collections.identity import IdentityKeyDict
 
 
 NameGenerator = ta.Callable[..., str]
@@ -80,9 +81,10 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
 
         self._unavailable_names = {check.isinstance(n, str) for n in (unavailable_names or [])}
         self._name_generator = check.callable(name_generator) if name_generator is not None else \
-            NameGeneratorImpl(unavailable_names=self._unavailable_names)
+            NameGeneratorImpl(unavailable_names=self._unavailable_names, use_global_prefix_if_present=True)
 
-        self._dct = {}
+        self._dct: ta.MutableMapping[str, ta.Any] = {}
+        self._dedupe_dct: ta.MutableMapping[ta.Any, str] = IdentityKeyDict()
 
     @property
     def unavailable_names(self) -> ta.AbstractSet[str]:
@@ -104,22 +106,42 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
     def items(self) -> ta.Iterable[ta.Tuple[str, ta.Any]]:
         return self._dct.items()
 
-    def put(self, name: str, value: ta.Any, *, add: bool = False) -> str:
-        check.isinstance(name, str)
-        if name not in self._unavailable_names:
-            try:
-                existing = self._dct[name]
-            except KeyError:
-                self._dct[name] = value
-                return name
-            else:
-                if existing is value:
-                    return name
-        if add:
-            return self.add(value, name)
-        else:
-            raise NameError(name)
+    def put(
+            self,
+            value: ta.Any,
+            name: str = None,
+            *,
+            exact: bool = False,
+            dedupe: bool = False,
+    ) -> str:
+        check.arg(not (name is None and exact))
+        if name is not None:
+            check.isinstance(name, str)
 
-    def add(self, value: ta.Any, prefix: str = '') -> str:
-        check.isinstance(prefix, str)
-        return self.put(self._name_generator(prefix), value)
+        if dedupe:
+            try:
+                return self._dedupe_dct[value]
+            except KeyError:
+                pass
+
+        if name is not None:
+            if name not in self._unavailable_names:
+                try:
+                    existing = self._dct[name]
+                except KeyError:
+                    self._dct[name] = value
+                    if dedupe:
+                        self._dedupe_dct[value] = name
+                    return name
+                else:
+                    if existing is value:
+                        return name
+            if exact:
+                raise KeyError(name)
+
+        gen_name = self._name_generator(name or '')
+        check.not_in(gen_name, self._dct)
+        self._dct[gen_name] = value
+        if dedupe:
+            self._dedupe_dct[value] = gen_name
+        return gen_name

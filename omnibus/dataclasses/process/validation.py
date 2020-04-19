@@ -58,9 +58,9 @@ class StandardValidation(Aspect):
             for fld in self.fctx.ctx.spec.fields:
                 vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
                 if callable(vld_md):
-                    ret.append(f'{self.fctx.nsb.add(vld_md)}({fld.name})')
+                    ret.append(f'{self.fctx.nsb.put(vld_md)}({fld.name})')
                 elif vld_md is True or (vld_md is None and self.fctx.ctx.extra_params.validate is True):
-                    ret.append(f'{self.fctx.nsb.add(build_default_field_validation(fld))}({fld.name})')
+                    ret.append(f'{self.fctx.nsb.put(build_default_field_validation(fld))}({fld.name})')
                 elif vld_md is False or vld_md is None:
                     pass
                 else:
@@ -74,14 +74,14 @@ class StandardValidation(Aspect):
                 vld_args = get_flat_fn_args(vld.fn)
                 for arg in vld_args:
                     check.in_(arg, self.fctx.ctx.spec.fields)
-                ret.append(f'{self.fctx.nsb.add(vld.fn)}({", ".join(vld_args)})')
+                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
             return ret
 
         @attach(InitPhase.POST_SET_ATTRS)
         def build_self_validator_lines(self) -> ta.List[str]:
             ret = []
             for self_vld in self.fctx.ctx.spec.rmro_extras_by_cls[SelfValidator]:
-                ret.append(f'{self.fctx.nsb.add(self_vld.fn)}({self.fctx.self_name})')
+                ret.append(f'{self.fctx.nsb.put(self_vld.fn)}({self.fctx.self_name})')
             return ret
 
         @attach(InitPhase.POST_SET_ATTRS)
@@ -93,8 +93,8 @@ class StandardValidation(Aspect):
                     check.in_(arg, self.fctx.ctx.spec.fields)
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
-                    f'if not {self.fctx.nsb.add(chk.fn)}({", ".join(chk_args)}): '
-                    f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({", ".join(chk_args)})'
+                    f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(chk_args)}): '
+                    f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
                 )
             return ret
 
@@ -105,7 +105,7 @@ class StandardValidation(Aspect):
                 self_chk_arg = [check.single(get_flat_fn_args(self_chk.fn))]
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, self_chk, self_chk_arg)
                 ret.append(
-                    f'if not {self.fctx.nsb.add(self_chk.fn)}({self.fctx.self_name}): '
-                    f'raise {self.fctx.nsb.add(bound_build_chk_exc)}({self.fctx.self_name})'
+                    f'if not {self.fctx.nsb.put(self_chk.fn)}({self.fctx.self_name}): '
+                    f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({self.fctx.self_name})'
                 )
             return ret

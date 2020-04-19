@@ -1,7 +1,7 @@
 import random
 
 from .. import sorted as sorted_
-from ...tests import helpers
+from ...dev.testing import helpers
 
 
 def test_skiplist():
