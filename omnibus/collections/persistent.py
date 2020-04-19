@@ -1,3 +1,7 @@
+"""
+TODO:
+ - seq.mset for dataclasses
+"""
 import abc
 import typing as ta
 

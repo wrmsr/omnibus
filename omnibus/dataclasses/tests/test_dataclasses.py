@@ -4,7 +4,6 @@ import dataclasses as dc
 import pickle  # noqa
 import typing as ta
 
-import pyrsistent
 import pytest
 
 from .. import api as api_
@@ -21,7 +20,7 @@ from ... import properties
 from ..process import aspects as aspects_
 from ..process import dicts as dicts_
 from ..process import init as init_
-from ..process import pyrsistent as pyrsistent_
+from ..process import persistent as persistent_
 from ..process import storage as storage_
 from ..process import tuples as tuples_
 
@@ -194,22 +193,11 @@ def test_derive():
         s: str = api_.field(derive=lambda x, y: str(x + y))
 
 
-def test_pyrsistent():
-    v = pyrsistent.pvector(range(6))
-    v = v.set(3, 'a')
-    assert list(v) == [0, 1, 2, 'a', 4, 5]
-    v = v.mset(2, 'b', 4, 'c')
-    assert list(v) == [0, 1, 'b', 'a', 'c', 5]
-    e = v.evolver()
-    e[0] = 'd'
-    e[-1] = 'f'
-    v = e.persistent()
-    assert list(v) == ['d', 1, 'b', 'a', 'c', 'f']
-
+def test_persistent():
     da = []
     for a in process_.DEFAULT_ASPECTS:
         if issubclass(a, storage_.Storage):
-            a = pyrsistent_.PyrsistentStorage
+            a = persistent_.PersistentStorage
         da.append(a)
 
     @api_.dataclass(frozen=True, aspects=da)
