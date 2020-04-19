@@ -1,11 +1,11 @@
-FROM ubuntu:bionic-20200311
+FROM ubuntu:eoan-20200313
 COPY .dockertimestamp /
 
 
 # Packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
-RUN apt-get update && apt-get install -y apt-utils
+RUN apt-get update && apt-get upgrade -y && apt-get install -y apt-utils
 
 RUN ( \
     apt-get install -y \
