@@ -25,6 +25,18 @@ def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
     return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))
 
 
+def proxy_import(name: str, package: str = None) -> types.ModuleType:
+    def __getattr__(att):
+        nonlocal omod
+        if omod is None:
+            omod = importlib.import_module(name, package=package)
+        return getattr(omod, att)
+    omod = None
+    lmod = types.ModuleType(name)
+    lmod.__getattr__ = __getattr__
+    return lmod
+
+
 _pkg_resources = lazy_import('pkg_resources')
 
 

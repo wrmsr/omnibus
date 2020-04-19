@@ -187,16 +187,124 @@ class SimplePersistentMapping(PersistentMapping[K, V]):
         return o in self._dct
 
 
-pyrsistent = lang.lazy_import('pyrsistent')
+if ta.TYPE_CHECKING:
+    import pyrsistent
+else:
+    pyrsistent = lang.proxy_import('pyrsistent')
 
 
 class PyrsistentSequence(PersistentSequence[T]):
-    pass
+
+    def __init__(self, items: ta.Iterable[T] = None) -> None:
+        super().__init__()
+        if isinstance(items, pyrsistent.PVector):
+            self._p = items
+        else:
+            self._p = pyrsistent.pvector(*((items,) if items else ()))
+
+    def __hash__(self) -> int:
+        return hash(self._p)
+
+    def append(self, item: T) -> 'PersistentSequence[T]':
+        return PyrsistentSequence(self._p.append(item))
+
+    def extend(self, items: ta.Iterable[T]) -> 'PersistentSequence[T]':
+        if isinstance(items, PyrsistentSequence):
+            items = items._p
+        return PyrsistentSequence(self._p.extend(items))
+
+    def set(self, idx: int, item: T) -> 'PeresistentSequence[T]':
+        return PyrsistentSequence(self._p.set(idx, item))
+
+    def delete(self, idx: int, stop: int = None) -> 'PersistentSequence[T]':
+        return PyrsistentSequence(self._p.delete(idx, stop))
+
+    def __getitem__(self, i: int) -> T:
+        return self._p[i]
+
+    def __len__(self) -> int:
+        return len(self._p)
+
+    def __contains__(self, x: object) -> bool:
+        return x in self._p
+
+    def __iter__(self) -> ta.Iterator[T]:
+        return iter(self._p)
+
+    def __reversed__(self) -> ta.Iterator[T]:
+        return reversed(self._p)
 
 
 class PyrsistentSet(PersistentSet[T]):
-    pass
+
+    def __init__(self, items: ta.Iterable[T] = None) -> None:
+        super().__init__()
+        if isinstance(items, pyrsistent.PSet):
+            self._p = items
+        else:
+            self._p = pyrsistent.pset(*((items,) if items else ()))
+
+    def __hash__(self) -> int:
+        return hash(self._p)
+
+    def add(self, item: T) -> 'PersistentSet[T]':
+        return PyrsistentSet(self._p.add(item))
+
+    def update(self, items: ta.Iterable[T]) -> 'PersistentSet[T]':
+        if isinstance(items, PyrsistentSet):
+            items = items._p
+        return PyrsistentSet(self._p.update(items))
+
+    def remove(self, item: T) -> 'PeresistentSet[T]':
+        return PyrsistentSet(self._p.remove(item))
+
+    def __contains__(self, x: object) -> bool:
+        return x in self._p
+
+    def __len__(self) -> int:
+        return len(self._p)
+
+    def __iter__(self) -> ta.Iterator[T]:
+        return iter(self._p)
 
 
 class PyrsistentMapping(PersistentMapping[K, V]):
-    pass
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__()
+        self._p = pyrsistent.pmap(*args, **kwargs)
+
+    def __hash__(self) -> int:
+        return hash(self._p)
+
+    def set(self, key: K, value: V) -> 'PersistentMapping[K, V]':
+        return PyrsistentMapping(self._p.set(key, value))
+
+    def update(self, other: ta.Mapping[K, V]) -> 'PersistentMapping[K, V]':
+        if isinstance(other, PyrsistentMapping):
+            other = other._p
+        return PyrsistentMapping(self._p.update(other))
+
+    def remove(self, key: K) -> 'PersistentMapping[K, V]':
+        return PyrsistentMapping(self._p.remove(key))
+
+    def __getitem__(self, k: K) -> V:
+        return self._p[k]
+
+    def __len__(self) -> int:
+        return len(self._p)
+
+    def __iter__(self) -> ta.Iterator[K]:
+        return iter(self._p)
+
+    def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:
+        return self._p.items()
+
+    def keys(self) -> ta.AbstractSet[K]:
+        return self._p.keys()
+
+    def values(self) -> ta.ValuesView[V]:
+        return self._p.values()
+
+    def __contains__(self, o: object) -> bool:
+        return o in self._p

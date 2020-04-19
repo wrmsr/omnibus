@@ -15,6 +15,16 @@ from .maps import multikey_dict  # noqa
 from .maps import yield_dict_init  # noqa
 from .ordered import OrderedFrozenSet  # noqa
 from .ordered import OrderedSet  # noqa
+from .persistent import Persistent  # noqa
+from .persistent import PersistentMapping  # noqa
+from .persistent import PersistentSequence  # noqa
+from .persistent import PersistentSet  # noqa
+from .persistent import PyrsistentMapping  # noqa
+from .persistent import PyrsistentSequence  # noqa
+from .persistent import PyrsistentSet  # noqa
+from .persistent import SimplePersistentMapping  # noqa
+from .persistent import SimplePersistentSequence  # noqa
+from .persistent import SimplePersistentSet  # noqa
 from .sorted import SkipList   # noqa
 from .sorted import SkipListDict   # noqa
 from .sorted import SortedCollection  # noqa

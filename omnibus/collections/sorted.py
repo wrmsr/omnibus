@@ -307,7 +307,10 @@ class SkipListDict(SortedListDict[K, V]):
         super().__init__(SkipList(comparator=SortedListDict._item_comparator), *args, **kwargs)
 
 
-sortedcontainers = lang.lazy_import('sortedcontainers')
+if ta.TYPE_CHECKING:
+    import sortedcontainers
+else:
+    sortedcontainers = lang.proxy_import('sortedcontainers')
 
 
 class SortedContainersDict(SortedMutableMapping[K, V]):
@@ -316,7 +319,7 @@ class SortedContainersDict(SortedMutableMapping[K, V]):
 
     @classmethod
     def new(cls, *args, **kwargs) -> 'SortedContainersDict':
-        return cls(sortedcontainers().SortedDict(), *args, **kwargs)
+        return cls(sortedcontainers.SortedDict(), *args, **kwargs)
 
     def __init__(self, tree: ta.Any, *args, **kwargs) -> None:
         self._tree = tree

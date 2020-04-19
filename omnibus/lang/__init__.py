@@ -59,6 +59,7 @@ from .imports import import_all  # noqa
 from .imports import import_module  # noqa
 from .imports import import_module_attr  # noqa
 from .imports import lazy_import  # noqa
+from .imports import proxy_import  # noqa
 from .imports import UnstableWarning  # noqa
 from .imports import warn_unstable  # noqa
 from .imports import yield_import_all  # noqa
