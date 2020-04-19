@@ -4,6 +4,7 @@ DECREE:
 
 FIXME:
  - fix req-dev.txt? keep depless? already non-mako tmpl in main for nginx..
+ - ** common test code goes in here and is not stripped, usable by consumers**
 
 TODO:
  - tpch
