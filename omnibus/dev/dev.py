@@ -40,6 +40,9 @@ TODO:
   - kubectl?
  - packing here but llvm.so dynalinking in main
 
+cmake:
+ - https://cliutils.gitlab.io/modern-cmake/
+ - https://github.com/awslabs/aws-lambda-cpp
 
 https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
 https://sobolevn.me/2019/08/testing-mypy-types
