@@ -29,7 +29,7 @@ def get_full_arg_spec(func: ta.Callable) -> inspect.FullArgSpec:
 
 
 @dc.dataclass(frozen=True)
-class ArgSpec:
+class ArgSpec(lang.Final):
     args: ta.Sequence[str] = ()
     varargs: str = None
     varkw: str = None
@@ -37,6 +37,12 @@ class ArgSpec:
     kwonlyargs: ta.Sequence[str] = ()
     kwonlydefaults: ta.Mapping[str, ta.Any] = lang.empty_map()
     annotations: ta.Mapping[str, ta.Any] = lang.empty_map()
+
+    def __post_init__(self) -> None:
+        if isinstance(self.args, str):
+            raise TypeError(self.args)
+        if isinstance(self.kwonlyargs, str):
+            raise TypeError(self.kwonlyargs)
 
     @property
     def names(self) -> ta.Sequence[str]:

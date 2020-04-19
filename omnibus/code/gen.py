@@ -184,5 +184,5 @@ class FunctionGen(CodeGen):
             self.argspec,
             self.writer.getvalue(),
             globals=globals,
-            locals=locals,
+            locals={**self._namer, **(locals or {})},
         )

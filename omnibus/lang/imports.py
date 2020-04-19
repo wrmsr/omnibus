@@ -1,6 +1,7 @@
 """
 TODO:
  - pkgutil.walk_packages?
+ - importutil._util._LazyModule
 """
 import functools
 import importlib
