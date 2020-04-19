@@ -19,7 +19,7 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class Frozen(lang.Abstract):
+class Frozen(ta.Hashable, lang.Abstract):
     pass
 
 
@@ -82,6 +82,7 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
         super().__init__()
 
         self._tup: tuple = tuple(it) if it is not None else ()
+        self._hash = None
 
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._tup)
@@ -104,6 +105,11 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
             return len(self) == len(o) and all(l == r for l, r in zip(self, o))
         else:
             return False
+
+    def __hash__(self) -> int:
+        if self._hash is None:
+            self._hash = hash(self._tup)
+        return self._hash
 
     def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':
         return FrozenList(self._tup[idx])
