@@ -39,6 +39,10 @@ TODO:
  - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcloud?)
   - kubectl?
  - packing here but llvm.so dynalinking in main
+ - pants
+
+ast.copy_location(new_node, node)
+ast.fix_missing_locations(new_node)
 
 cmake:
  - https://cliutils.gitlab.io/modern-cmake/

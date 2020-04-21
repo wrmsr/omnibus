@@ -46,6 +46,7 @@ TODO:
  - ** CYTHON **
   - dogfood CacheLink
  - make FunctionCtx use code.FunctionGen (need argspec earlier)
+ - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
 """
 import collections
 import collections.abc
