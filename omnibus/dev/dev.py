@@ -40,6 +40,7 @@ TODO:
   - kubectl?
  - packing here but llvm.so dynalinking in main
  - pants
+ - compose
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
