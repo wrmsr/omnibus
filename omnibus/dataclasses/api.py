@@ -6,8 +6,6 @@ DECREE:
  - validate returns None and raises, check returns bool
 
 TODO:
- - marshmellow
-  - errorstore (+serde)
  - kwonly
  - transient (+cache_hash)
  - *default_factory with lambda args* - toposort again
@@ -19,6 +17,7 @@ TODO:
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - pyo3 + cy struct type interop
+  - derive dataclasses from external
  - ExtraFieldParams?
  - observable? dc.observe? per-cls/per-field? config-lvl?
  - fix: validate/coerce on setattr
@@ -47,6 +46,8 @@ TODO:
   - dogfood CacheLink
  - make FunctionCtx use code.FunctionGen (need argspec earlier)
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
+ - these aspeects are kind of 'Deriving'..
+  - rm 'derive', -> dc.default()/dc.default_factory(), 'derive' used for aspects
 """
 import collections
 import collections.abc
