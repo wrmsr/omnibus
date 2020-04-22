@@ -1,6 +1,7 @@
 """
 TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
+ - ValueEnum - build _by_value if unique, optional kwarg to enforce
 """
 import enum
 import typing as ta

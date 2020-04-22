@@ -9,6 +9,8 @@ from .restrict import Final  # noqa
 from .restrict import FinalException  # noqa
 from .restrict import Interface  # noqa
 from .restrict import is_abstract  # noqa
+from .restrict import is_abstract_impl  # noqa
+from .restrict import make_abstract  # noqa
 from .restrict import Marker  # noqa
 from .restrict import Namespace  # noqa
 from .restrict import NotInstantiable  # noqa

@@ -13,6 +13,8 @@ def test_interface():
     with pytest.raises(TypeError):
         I0()
 
+    assert not isinstance(type(I0), restrict_._InterfaceMeta)
+
     class C0(I0):
         pass
 
@@ -59,6 +61,27 @@ def test_interface():
             pass
 
     C5().g()
+
+    class IP(restrict_.Interface):
+
+        @property
+        def p(self): ...
+
+    with pytest.raises(TypeError):
+        IP()
+
+    class CP0(IP):
+        pass
+
+    with pytest.raises(TypeError):
+        CP0()
+
+    class CP1(IP):
+        @property
+        def p(self):
+            return 1
+
+    assert CP1().p == 1
 
 
 def test_final():
@@ -198,3 +221,30 @@ def test_is_abstract():
 
     class E(D):
         pass
+
+
+def test_is_abstract_impl():
+    class A:
+        def a(self): pass
+        def b(self): return None
+        def c(self): ...
+        def d(self): raise NotImplementedError
+        def e(self): raise NotImplementedError()
+
+        @property
+        def f(self): ...
+
+        def g(self): return 1
+
+        def h(self):
+            print()
+
+        def i(self):
+            print()
+            return None
+
+    for o in [A.a, A.b, A.c, A.d, A.e, A.f]:
+        assert restrict_.is_abstract_impl(o)
+
+    for o in [A.g, A.h, A.i]:
+        assert not restrict_.is_abstract_impl(o)

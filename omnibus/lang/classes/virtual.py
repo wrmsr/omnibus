@@ -8,7 +8,7 @@ import abc
 import threading
 import typing as ta
 
-from .restrict import _make_abstract
+from .restrict import make_abstract
 from .restrict import NotInstantiable
 
 
@@ -29,7 +29,7 @@ class _ProtocolMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
         for k, v in list(namespace.items()):
-            absv = _make_abstract(v)
+            absv = make_abstract(v)
             if absv is not v:
                 namespace[k] = absv
 

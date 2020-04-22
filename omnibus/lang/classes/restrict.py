@@ -1,12 +1,17 @@
+"""
+TODO:
+ - resurrect Interface is_abstract - ellipsis, raise, return
+"""
 import abc
 import functools
+import types
 import typing as ta
 
 
 T = ta.TypeVar('T')
 
 
-def _make_abstract(obj: T) -> T:
+def make_abstract(obj: T) -> T:
     if callable(obj):
         return abc.abstractmethod(obj)
     elif isinstance(obj, property):
@@ -47,6 +52,50 @@ def is_abstract(obj: ta.Any) -> bool:
     )
 
 
+class _AbstractSkeleton:
+
+    def pass_(self):
+        pass
+
+    def ellipsis(self):
+        ...
+
+    def return_none(self):
+        return None
+
+    def raise_not_implemented_error_type(self):
+        raise NotImplementedError
+
+    def raise_not_implemented_error_instance(self):
+        raise NotImplementedError()
+
+    FUNCTIONS = {
+        pass_,
+        ellipsis,
+        return_none,
+        raise_not_implemented_error_type,
+        raise_not_implemented_error_instance,
+    }
+
+
+def is_abstract_impl(obj: ta.Any) -> bool:
+    if is_abstract(obj):
+        return True
+    elif isinstance(obj, property):
+        obj = obj.fget
+    elif isinstance(obj, (classmethod, staticmethod)):
+        obj = obj.__func__
+    elif not isinstance(obj, types.FunctionType):
+        return False
+    for skelfn in _AbstractSkeleton.FUNCTIONS:
+        if (
+                obj.__code__.co_code == skelfn.__code__.co_code and
+                obj.__code__.co_consts == skelfn.__code__.co_consts
+        ):
+            return True
+    return False
+
+
 class _InterfaceMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
@@ -55,7 +104,9 @@ class _InterfaceMeta(abc.ABCMeta):
         if Interface not in bases:
             raise TypeError
         for k, v in list(namespace.items()):
-            absv = _make_abstract(v)
+            if not isinstance(v, (types.FunctionType, property, classmethod, staticmethod)) or not is_abstract_impl(v):
+                continue
+            absv = make_abstract(v)
             if absv is not v:
                 namespace[k] = absv
         bases = tuple(b for b in bases if b is not Interface)
