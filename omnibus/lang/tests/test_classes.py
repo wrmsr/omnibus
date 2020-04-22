@@ -1,3 +1,4 @@
+import abc
 import typing as ta
 
 import pytest
@@ -333,3 +334,76 @@ def test_inner():
     assert b.y == 2
     assert b._outer is a
     assert b.xy == 3
+
+
+def test_intersection():
+    class Appendable(classes_.Abstract):
+
+        @abc.abstractmethod
+        def append(self, obj):
+            raise NotImplementedError
+
+    class Clearable(classes_.Abstract):
+
+        @abc.abstractmethod
+        def clear(self):
+            raise NotImplementedError
+
+    class AppendableClearable(Appendable, Clearable, classes_.Intersection):
+        pass
+
+    class Thing0(Appendable, Clearable):
+        def append(self, other): pass
+        def clear(self) -> None: pass
+
+    class Thing1(Appendable, Clearable):
+        def append(self, other): pass
+        def clear(self) -> None: pass
+
+    class Thing2(Appendable):
+        def append(self, other): pass
+        def clear(self) -> None: pass
+
+    class Thing3(Clearable):
+        def append(self, other): pass
+        def clear(self) -> None: pass
+
+    assert issubclass(Thing0, AppendableClearable)
+    assert issubclass(Thing0, Appendable)
+    assert issubclass(Thing0, Clearable)
+
+    assert issubclass(Thing1, AppendableClearable)
+    assert issubclass(Thing1, Appendable)
+    assert issubclass(Thing1, Clearable)
+
+    assert not issubclass(Thing2, AppendableClearable)
+    assert issubclass(Thing2, Appendable)
+    assert not issubclass(Thing2, Clearable)
+
+    assert not issubclass(Thing3, AppendableClearable)
+    assert not issubclass(Thing3, Appendable)
+    assert issubclass(Thing3, Clearable)
+
+    class Hashable(classes_.Abstract):
+
+        @abc.abstractmethod
+        def hash(self) -> int:
+            raise NotImplementedError
+
+    class AppendableClearableHashable(AppendableClearable, Hashable, classes_.Intersection):
+        pass
+
+    class Thing4(Thing0, Hashable):
+        def hash(self) -> int: pass
+
+    assert issubclass(Thing4, AppendableClearableHashable)
+    assert issubclass(Thing4, Hashable)
+
+    assert not issubclass(Thing0, Hashable)
+    assert not issubclass(Thing1, Hashable)
+    assert not issubclass(Thing2, Hashable)
+    assert not issubclass(Thing3, Hashable)
+
+    with pytest.raises(TypeError):
+        class AppendableClearableHashable2(AppendableClearable, Hashable):
+            pass

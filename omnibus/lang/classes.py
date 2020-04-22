@@ -6,6 +6,7 @@ TODO:
 import abc
 import functools
 import sys
+import threading
 import types
 import typing as ta
 
@@ -454,3 +455,54 @@ class Inner(ta.Generic[T], metaclass=_InnerMeta):
         if self.__outer__ is None:
             raise TypeError
         return self.__outer__
+
+
+_INTERSECTION_CHECKING = threading.local()
+_INTERSECTION_CHECKING._value = False
+
+
+class _IntersectionMeta(abc.ABCMeta):
+
+    def __subclasscheck__(self, subclass):
+        if _INTERSECTION_CHECKING._value:
+            return False
+        try:
+            _INTERSECTION_CHECKING._value = True
+            for base in self.__bases__:
+                if base is Intersection:
+                    continue
+                if not issubclass(subclass, base):
+                    return False
+            return True
+        finally:
+            _INTERSECTION_CHECKING._value = False
+
+    def __new__(mcls, name, bases, namespace, **kwargs):
+        if 'Intersection' not in globals():
+            return super().__new__(mcls, name, bases, namespace, **kwargs)
+        if Intersection not in bases:
+            raise TypeError
+
+        new_bases = []
+        seen = set()
+        for base in bases:
+            if base is Intersection or base in seen:
+                continue
+            if isinstance(base, _IntersectionMeta):
+                for sub in base.__bases__:
+                    if sub is Intersection or sub in seen:
+                        continue
+                    if Intersection in sub.__mro__ or isinstance(type(sub), _IntersectionMeta):
+                        raise TypeError(sub)
+                    new_bases.append(sub)
+                    seen.add(sub)
+            else:
+                new_bases.append(base)
+                seen.add(base)
+        new_bases.append(Intersection)
+
+        return super().__new__(mcls, name, tuple(new_bases), namespace, **kwargs)
+
+
+class Intersection(NotInstantiable, metaclass=_IntersectionMeta):
+    pass
