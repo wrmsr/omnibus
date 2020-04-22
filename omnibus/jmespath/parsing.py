@@ -10,22 +10,22 @@ class _ParseVisitor(JmespathVisitor):
 
     _chainedNode: n.Node = None
 
-    def createProjectionIfChained(self, node):
+    def _createProjectionIfChained(self, node):
         if self._chainedNode is not None:
             node = n.Sequence([node, n.Project(self._chainedNode)])
             self._chainedNode = None
         return node
 
-    def createSequenceIfChained(self, node):
+    def _createSequenceIfChained(self, node):
         if self._chainedNode is not None:
             node = n.Sequence([node, self._chainedNode])
             self._chainedNode = None
         return node
 
-    def nonChainingVisit(self, tree):
+    def _nonChainingVisit(self, tree):
         stashedNextNode = self._chainedNode
         self._chainedNode = None
-        result = self.createSequenceIfChained(self.visit(tree))
+        result = self._createSequenceIfChained(self.visit(tree))
         self._chainedNode = stashedNextNode
         return result
 
@@ -53,12 +53,12 @@ class _ParseVisitor(JmespathVisitor):
 
     def visitComparisonExpression(self, ctx: JmespathParser.ComparisonExpressionContext):
         cmp = n.Compare.Op._by_value[ctx.COMPARATOR().getText()]
-        right = self.nonChainingVisit(ctx.expression(1))
-        left = self.nonChainingVisit(ctx.expression(0))
+        right = self._nonChainingVisit(ctx.expression(1))
+        left = self._nonChainingVisit(ctx.expression(0))
         return n.Compare(cmp, left, right)
 
     def visitParenExpression(self, ctx: JmespathParser.ParenExpressionContext):
-        return self.createSequenceIfChained(self.nonChainingVisit(ctx.expression()))
+        return self._createSequenceIfChained(self._nonChainingVisit(ctx.expression()))
 
     def visitBracketExpression(self, ctx: JmespathParser.BracketExpressionContext):
         result = self.visit(ctx.bracketSpecifier())
@@ -68,34 +68,34 @@ class _ParseVisitor(JmespathVisitor):
         return result
 
     def visitOrExpression(self, ctx: JmespathParser.OrExpressionContext):
-        left = self.nonChainingVisit(ctx.expression(0))
-        right = self.nonChainingVisit(ctx.expression(1))
-        return self.createSequenceIfChained(n.Or(left, right))
+        left = self._nonChainingVisit(ctx.expression(0))
+        right = self._nonChainingVisit(ctx.expression(1))
+        return self._createSequenceIfChained(n.Or(left, right))
 
     def visitChainExpression(self, ctx: JmespathParser.ChainExpressionContext):
         self._chainedNode = self.visit(ctx.chainedExpression())
-        return self.createSequenceIfChained(self.visit(ctx.expression()))
+        return self._createSequenceIfChained(self.visit(ctx.expression()))
 
     def visitAndExpression(self, ctx: JmespathParser.AndExpressionContext):
-        left = self.nonChainingVisit(ctx.expression(0))
-        right = self.nonChainingVisit(ctx.expression(1))
-        return self.createSequenceIfChained(n.And(left, right))
+        left = self._nonChainingVisit(ctx.expression(0))
+        right = self._nonChainingVisit(ctx.expression(1))
+        return self._createSequenceIfChained(n.And(left, right))
 
     def visitWildcardExpression(self, ctx: JmespathParser.WildcardExpressionContext):
         return self.visit(ctx.wildcard())
 
     def visitBracketedExpression(self, ctx: JmespathParser.BracketedExpressionContext):
         chainAfterExpression = self.visit(ctx.bracketSpecifier())
-        expression = self.createSequenceIfChained(self.visit(ctx.expression()))
+        expression = self._createSequenceIfChained(self.visit(ctx.expression()))
         self._chainedNode = chainAfterExpression
-        return self.createSequenceIfChained(expression)
+        return self._createSequenceIfChained(expression)
 
     def visitWildcard(self, ctx: JmespathParser.WildcardContext):
-        return self.createProjectionIfChained(n.FlattenObject())
+        return self._createProjectionIfChained(n.FlattenObject())
 
     def visitBracketIndex(self, ctx: JmespathParser.BracketIndexContext):
         index = int(ctx.SIGNED_INT().getText())
-        self._chainedNode = self.createSequenceIfChained(n.Index(index))
+        self._chainedNode = self._createSequenceIfChained(n.Index(index))
         return None
 
     def visitBracketStar(self, ctx: JmespathParser.BracketStarContext):
@@ -116,21 +116,21 @@ class _ParseVisitor(JmespathVisitor):
             step = int(sliceCtx.step.getText())
             if step == 0:
                 raise ValueError
-        self._chainedNode = self.createProjectionIfChained(n.Slice(start, stop, step))
+        self._chainedNode = self._createProjectionIfChained(n.Slice(start, stop, step))
         return None
 
     def visitBracketFlatten(self, ctx: JmespathParser.BracketFlattenContext):
-        return self.createProjectionIfChained(n.FlattenArray())
+        return self._createProjectionIfChained(n.FlattenArray())
 
     def visitSelect(self, ctx: JmespathParser.SelectContext):
-        self._chainedNode = self.createProjectionIfChained(n.Selection(self.nonChainingVisit(ctx.expression())))
+        self._chainedNode = self._createProjectionIfChained(n.Selection(self._nonChainingVisit(ctx.expression())))
         return None
 
     def visitMultiSelectList(self, ctx: JmespathParser.MultiSelectListContext):
         lst = []
         for i in range(len(ctx.expression())):
-            lst.append(self.nonChainingVisit(ctx.expression(i)))
-        return self.createSequenceIfChained(n.CreateArray(lst))
+            lst.append(self._nonChainingVisit(ctx.expression(i)))
+        return self._createSequenceIfChained(n.CreateArray(lst))
 
     def visitMultiSelectHash(self, ctx: JmespathParser.MultiSelectHashContext):
         dct = {}
@@ -138,9 +138,9 @@ class _ParseVisitor(JmespathVisitor):
             kvCtx = ctx.keyvalExpr(i)
             # FIXME: unquote?
             key = kvCtx.identifier().getText()
-            value = self.nonChainingVisit(kvCtx.expression())
+            value = self._nonChainingVisit(kvCtx.expression())
             dct[key] = value
-        return self.createSequenceIfChained(n.CreateObject(dct))
+        return self._createSequenceIfChained(n.CreateObject(dct))
 
     def visitNameParameter(self, ctx: JmespathParser.NameParameterContext):
         return n.Parameter(n.Parameter.NameTarget(ctx.NAME().getText()))
@@ -152,8 +152,8 @@ class _ParseVisitor(JmespathVisitor):
         name = ctx.NAME().getText()
         args = []
         for i in range(len(ctx.functionArg())):
-            args.append(self.nonChainingVisit(ctx.functionArg(i)))
-        return self.createSequenceIfChained(n.FunctionCall(name, args))
+            args.append(self._nonChainingVisit(ctx.functionArg(i)))
+        return self._createSequenceIfChained(n.FunctionCall(name, args))
 
     def visitCurrentNode(self, ctx: JmespathParser.CurrentNodeContext):
         if self._chainedNode is None:
@@ -164,7 +164,7 @@ class _ParseVisitor(JmespathVisitor):
             return result
 
     def visitExpressionType(self, ctx: JmespathParser.ExpressionTypeContext):
-        expression = self.createSequenceIfChained(self.visit(ctx.expression()))
+        expression = self._createSequenceIfChained(self.visit(ctx.expression()))
         return n.ExpressionRef(expression)
 
     def visitLiteral(self, ctx: JmespathParser.LiteralContext):
@@ -175,7 +175,7 @@ class _ParseVisitor(JmespathVisitor):
 
     def visitIdentifier(self, ctx: JmespathParser.IdentifierContext):
         # FIXME: unquote
-        return self.createSequenceIfChained(n.Property(ctx.getText()))
+        return self._createSequenceIfChained(n.Property(ctx.getText()))
 
 
 def parse(buf: str) -> n.Node:
