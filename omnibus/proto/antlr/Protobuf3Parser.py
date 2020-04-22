@@ -443,6 +443,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitProto" ):
                 listener.exitProto(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitProto" ):
+                return visitor.visitProto(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -532,6 +538,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitSyntax" ):
                 listener.exitSyntax(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSyntax" ):
+                return visitor.visitSyntax(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -595,6 +607,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitImportStatement" ):
                 listener.exitImportStatement(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitImportStatement" ):
+                return visitor.visitImportStatement(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -661,6 +679,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitPackageStatement" ):
                 listener.exitPackageStatement(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPackageStatement" ):
+                return visitor.visitPackageStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -722,6 +746,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOption" ):
                 listener.exitOption(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOption" ):
+                return visitor.visitOption(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -808,6 +838,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOptionName" ):
                 listener.exitOptionName(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOptionName" ):
+                return visitor.visitOptionName(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -900,6 +936,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitOptionBody" ):
                 listener.exitOptionBody(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOptionBody" ):
+                return visitor.visitOptionBody(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -958,6 +1000,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitOptionBodyVariable" ):
                 listener.exitOptionBodyVariable(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOptionBodyVariable" ):
+                return visitor.visitOptionBodyVariable(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1014,6 +1062,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitTopLevelDef" ):
                 listener.exitTopLevelDef(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTopLevelDef" ):
+                return visitor.visitTopLevelDef(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1085,6 +1139,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMessage" ):
                 listener.exitMessage(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessage" ):
+                return visitor.visitMessage(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1196,6 +1256,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitMessageBody" ):
                 listener.exitMessageBody(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessageBody" ):
+                return visitor.visitMessageBody(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1304,6 +1370,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitEnumDefinition" ):
                 listener.exitEnumDefinition(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEnumDefinition" ):
+                return visitor.visitEnumDefinition(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1371,6 +1443,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitEnumBody" ):
                 listener.exitEnumBody(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEnumBody" ):
+                return visitor.visitEnumBody(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1472,6 +1550,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitEnumField" ):
                 listener.exitEnumField(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEnumField" ):
+                return visitor.visitEnumField(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1559,6 +1643,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitEnumValueOption" ):
                 listener.exitEnumValueOption(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEnumValueOption" ):
+                return visitor.visitEnumValueOption(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1620,6 +1710,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitExtend" ):
                 listener.exitExtend(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExtend" ):
+                return visitor.visitExtend(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1711,6 +1807,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitService" ):
                 listener.exitService(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitService" ):
+                return visitor.visitService(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1840,6 +1942,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitRpc" ):
                 listener.exitRpc(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRpc" ):
+                return visitor.visitRpc(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1962,6 +2070,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitReserved" ):
                 listener.exitReserved(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReserved" ):
+                return visitor.visitReserved(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2028,6 +2142,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitRanges" ):
                 listener.exitRanges(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRanges" ):
+                return visitor.visitRanges(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2086,6 +2206,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitRangeRule" ):
                 listener.exitRangeRule(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRangeRule" ):
+                return visitor.visitRangeRule(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2152,6 +2278,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFieldNames" ):
                 listener.exitFieldNames(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFieldNames" ):
+                return visitor.visitFieldNames(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2252,6 +2384,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitTypeRule" ):
                 listener.exitTypeRule(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTypeRule" ):
+                return visitor.visitTypeRule(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2310,6 +2448,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFieldNumber" ):
                 listener.exitFieldNumber(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFieldNumber" ):
+                return visitor.visitFieldNumber(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2378,6 +2522,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitField" ):
                 listener.exitField(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitField" ):
+                return visitor.visitField(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2458,6 +2608,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitFieldOptions" ):
                 listener.exitFieldOptions(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFieldOptions" ):
+                return visitor.visitFieldOptions(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2518,6 +2674,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFieldOption" ):
                 listener.exitFieldOption(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFieldOption" ):
+                return visitor.visitFieldOption(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2586,6 +2748,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOneof" ):
                 listener.exitOneof(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOneof" ):
+                return visitor.visitOneof(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2680,6 +2848,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitOneofField" ):
                 listener.exitOneofField(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOneofField" ):
+                return visitor.visitOneofField(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2782,6 +2956,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMapField" ):
                 listener.exitMapField(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMapField" ):
+                return visitor.visitMapField(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -2887,6 +3067,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitKeyType" ):
                 listener.exitKeyType(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitKeyType" ):
+                return visitor.visitKeyType(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -2960,6 +3146,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitReservedWord" ):
                 listener.exitReservedWord(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReservedWord" ):
+                return visitor.visitReservedWord(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3015,6 +3207,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitFullIdent" ):
                 listener.exitFullIdent(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFullIdent" ):
+                return visitor.visitFullIdent(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3068,6 +3266,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitMessageName" ):
                 listener.exitMessageName(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessageName" ):
+                return visitor.visitMessageName(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3108,6 +3312,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitEnumName" ):
                 listener.exitEnumName(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEnumName" ):
+                return visitor.visitEnumName(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3147,6 +3357,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMessageOrEnumName" ):
                 listener.exitMessageOrEnumName(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessageOrEnumName" ):
+                return visitor.visitMessageOrEnumName(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3191,6 +3407,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitFieldName" ):
                 listener.exitFieldName(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitFieldName" ):
+                return visitor.visitFieldName(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3245,6 +3467,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitOneofName" ):
                 listener.exitOneofName(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitOneofName" ):
+                return visitor.visitOneofName(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3284,6 +3512,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMapName" ):
                 listener.exitMapName(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMapName" ):
+                return visitor.visitMapName(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3325,6 +3559,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitServiceName" ):
                 listener.exitServiceName(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitServiceName" ):
+                return visitor.visitServiceName(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3364,6 +3604,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitRpcName" ):
                 listener.exitRpcName(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRpcName" ):
+                return visitor.visitRpcName(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3417,6 +3663,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitMessageType" ):
                 listener.exitMessageType(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessageType" ):
+                return visitor.visitMessageType(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3500,6 +3752,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitMessageOrEnumType" ):
                 listener.exitMessageOrEnumType(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMessageOrEnumType" ):
+                return visitor.visitMessageOrEnumType(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3574,6 +3832,12 @@ class Protobuf3Parser ( Parser ):
             if hasattr( listener, "exitEmptyStatement" ):
                 listener.exitEmptyStatement(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitEmptyStatement" ):
+                return visitor.visitEmptyStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -3632,6 +3896,12 @@ class Protobuf3Parser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitConstant" ):
                 listener.exitConstant(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitConstant" ):
+                return visitor.visitConstant(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 

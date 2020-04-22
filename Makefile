@@ -149,7 +149,7 @@ antlr:
 		fi ; \
 		\
 		P=$$(pwd) ; \
-		(cd "$$D" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -o antlr $$(basename $$F)) ; \
+		(cd "$$D" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor -o antlr $$(basename $$F)) ; \
 		\
 		for P in $$(find "$$D/antlr" -name '*.py') ; do \
 			echo "$$P" ; \

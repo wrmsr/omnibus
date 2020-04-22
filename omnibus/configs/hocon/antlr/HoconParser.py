@@ -187,6 +187,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitPath" ):
                 listener.exitPath(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPath" ):
+                return visitor.visitPath(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -243,6 +249,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitKey" ):
                 listener.exitKey(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitKey" ):
+                return visitor.visitKey(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -314,6 +326,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitHocon" ):
                 listener.exitHocon(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitHocon" ):
+                return visitor.visitHocon(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -411,6 +429,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitObj" ):
                 listener.exitObj(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitObj" ):
+                return visitor.visitObj(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -506,6 +530,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitProp" ):
                 listener.exitProp(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitProp" ):
+                return visitor.visitProp(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -579,6 +609,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitRawstring" ):
                 listener.exitRawstring(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRawstring" ):
+                return visitor.visitRawstring(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -658,6 +694,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitV_rawstring" ):
                 listener.exitV_rawstring(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitV_rawstring" ):
+                return visitor.visitV_rawstring(self)
+            else:
+                return visitor.visitChildren(self)
+
 
     class V_referenceContext(StringValueContext):
 
@@ -682,6 +724,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitV_reference" ):
                 listener.exitV_reference(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitV_reference" ):
+                return visitor.visitV_reference(self)
+            else:
+                return visitor.visitChildren(self)
+
 
     class V_stringContext(StringValueContext):
 
@@ -705,6 +753,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitV_string" ):
                 listener.exitV_string(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitV_string" ):
+                return visitor.visitV_string(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -797,6 +851,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitObjectBegin" ):
                 listener.exitObjectBegin(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitObjectBegin" ):
+                return visitor.visitObjectBegin(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -834,6 +894,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitObjectEnd" ):
                 listener.exitObjectEnd(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitObjectEnd" ):
+                return visitor.visitObjectEnd(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -882,6 +948,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitObjectData" ):
                 listener.exitObjectData(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitObjectData" ):
+                return visitor.visitObjectData(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -942,6 +1014,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitArrayData" ):
                 listener.exitArrayData(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayData" ):
+                return visitor.visitArrayData(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -994,6 +1072,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitStringData" ):
                 listener.exitStringData(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitStringData" ):
+                return visitor.visitStringData(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1044,6 +1128,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitReferenceData" ):
                 listener.exitReferenceData(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReferenceData" ):
+                return visitor.visitReferenceData(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1096,6 +1186,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitNumberData" ):
                 listener.exitNumberData(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitNumberData" ):
+                return visitor.visitNumberData(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1138,6 +1234,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitArrayBegin" ):
                 listener.exitArrayBegin(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayBegin" ):
+                return visitor.visitArrayBegin(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1175,6 +1277,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArrayEnd" ):
                 listener.exitArrayEnd(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayEnd" ):
+                return visitor.visitArrayEnd(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1227,6 +1335,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArray" ):
                 listener.exitArray(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArray" ):
+                return visitor.visitArray(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1307,6 +1421,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitArrayString" ):
                 listener.exitArrayString(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayString" ):
+                return visitor.visitArrayString(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1347,6 +1467,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitArrayReference" ):
                 listener.exitArrayReference(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayReference" ):
+                return visitor.visitArrayReference(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1386,6 +1512,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArrayNumber" ):
                 listener.exitArrayNumber(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayNumber" ):
+                return visitor.visitArrayNumber(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1428,6 +1560,12 @@ class HoconParser ( Parser ):
             if hasattr( listener, "exitArrayObj" ):
                 listener.exitArrayObj(self)
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayObj" ):
+                return visitor.visitArrayObj(self)
+            else:
+                return visitor.visitChildren(self)
+
 
 
 
@@ -1468,6 +1606,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArrayArray" ):
                 listener.exitArrayArray(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayArray" ):
+                return visitor.visitArrayArray(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -1525,6 +1669,12 @@ class HoconParser ( Parser ):
         def exitRule(self, listener:ParseTreeListener):
             if hasattr( listener, "exitArrayValue" ):
                 listener.exitArrayValue(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitArrayValue" ):
+                return visitor.visitArrayValue(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
