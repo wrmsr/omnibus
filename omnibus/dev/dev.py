@@ -42,6 +42,7 @@ TODO:
  - pants
  - compose
  - dep mgmt
+ - hypothesis
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)

@@ -11,7 +11,6 @@ from .classes import access_forbidden  # noqa
 from .classes import AccessForbiddenDescriptor  # noqa
 from .classes import AttrAccessForbiddenException  # noqa
 from .classes import Descriptor  # noqa
-from .classes import ExceptionInfo  # noqa
 from .classes import Extension  # noqa
 from .classes import Final  # noqa
 from .classes import FinalException  # noqa
