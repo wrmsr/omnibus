@@ -76,6 +76,7 @@ from .lang import cached_nullary  # noqa
 from .lang import CellType  # noqa
 from .lang import ClassDctFn  # noqa
 from .lang import cls_dct_fn  # noqa
+from .lang import cmp  # noqa
 from .lang import constant  # noqa
 from .lang import dir_dict  # noqa
 from .lang import empty_map  # noqa

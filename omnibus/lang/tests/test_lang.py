@@ -47,3 +47,9 @@ def test_empty_mmap():
     buf = pickle.dumps(ed)
     ed2 = pickle.loads(buf)
     assert ed2 is ed
+
+
+def test_cmp():
+    assert lang_.cmp('a', 'b') == -1
+    assert lang_.cmp('b', 'b') == 0
+    assert lang_.cmp('c', 'b') == 1

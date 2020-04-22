@@ -322,3 +322,7 @@ EmptyMap.INSTANCE = object.__new__(EmptyMap)
 
 def empty_map():
     return EmptyMap.INSTANCE
+
+
+def cmp(l: ta.Any, r: ta.Any) -> int:
+    return (l > r) - (l < r)
