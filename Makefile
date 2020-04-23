@@ -146,12 +146,14 @@ antlr:
 		D=$$(dirname "$$F") ; \
 		if [ -d "$$D/antlr" ] ; then \
 			rm -rf "$$D/antlr" ; \
+			mkdir "$$D/antlr" ; \
+			echo > "$$D/antlr/__init__.py" ; \
 		fi ; \
 		\
 		P=$$(pwd) ; \
 		(cd "$$D" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor -o antlr $$(basename $$F)) ; \
 		\
-		for P in $$(find "$$D/antlr" -name '*.py') ; do \
+		for P in $$(find "$$D/antlr" -name '*.py' -not -name '__init__.py') ; do \
 			echo "$$P" ; \
 			( \
 				BUF=$$(echo -e '# flake8: noqa' && cat "$$P") ; \
