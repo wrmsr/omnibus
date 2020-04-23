@@ -4,16 +4,17 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
 
 TODO:
  - ** PROVIDER DEPENDENCY INTROSPECTION - include defaults
+ - ** type converters **
  - listeners
   - children
   - toposort deps
   - once per scope?
   - dep chain
+  - recursion bit lifecycle listener, handle or just force impls to handle? scopes just force impls lol
  - more generic support - bind_class takes type, take spec
  - freezing?
  - parent/child traversing multis
  - proxies / circular injection
- - type converters
  - redundant providers / resolve
  - override
  - custom scopes: async/cvar/dyn?
