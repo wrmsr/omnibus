@@ -21,6 +21,13 @@ TODO:
  - *dimensions* - cartesians, etc - likely child injectors
  - hybridize w actors/otp/akka props
   - ** PROPS ARE HERE, SUPER TREE IS IN LIFECYCLES **
+  - message dispatcher
+  - lifecycle rework for fsms/actors/btrees
+ - use for generic Templates..
+  - prob want field injection..
+   - resurrect unwrappers? :|
+   - ALT: templates are dataclasses lol, free ctor
+    - weird poss's like pointlessly cythonized generic templates.. too much freedom?
 """
 import collections
 import typing as ta
