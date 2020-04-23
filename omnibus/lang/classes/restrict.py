@@ -1,6 +1,7 @@
 """
 TODO:
  - resurrect Interface is_abstract - ellipsis, raise, return
+ - Markers become ta.Literals after dropping 3.7? or same just diff anns
 """
 import abc
 import functools
@@ -164,13 +165,26 @@ class NotInstantiable(Abstract):
         raise TypeError
 
 
+_MARKER_NAMESPACE_KEYS: ta.Set[str] = None
+
+
 class _MarkerMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
-        if not (namespace.get('__module__') == __name__ and name == 'Marker'):
+        global _MARKER_NAMESPACE_KEYS
+        if _MARKER_NAMESPACE_KEYS is None:
+            if not (namespace.get('__module__') == __name__ and name == 'Marker'):
+                raise RuntimeError
+            _MARKER_NAMESPACE_KEYS = set(namespace)
+        else:
+            if set(namespace) != _MARKER_NAMESPACE_KEYS:
+                raise TypeError('Markers must not include contents. Did you mean to use Namespace?')
             if Final not in bases:
                 bases += (Final,)
         return super().__new__(mcls, name, bases, namespace)
+
+    def __instancecheck__(self, instance):
+        return instance is self
 
     def __repr__(cls) -> str:
         return f'<{cls.__name__}>'

@@ -1,4 +1,7 @@
 """
+FIXME:
+ - lol, it's __subclasshook__ not __subclasscheck__
+
 TODO:
  - refresh protocol
   - typing_extensions? no.
@@ -110,6 +113,7 @@ _INTERSECTION_CHECKING._value = False
 
 class _IntersectionMeta(abc.ABCMeta):
 
+    # FIXME: USE __SUBCLASSHOOK__ NOT THIS.
     def __subclasscheck__(self, subclass):
         if _INTERSECTION_CHECKING._value:
             return False

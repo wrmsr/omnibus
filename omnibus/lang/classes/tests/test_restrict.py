@@ -185,6 +185,20 @@ def test_marker():
 
     assert repr(M) == '<M>'
 
+    assert isinstance(M, M)
+    assert issubclass(M, M)
+
+    class O(restrict_.Marker):
+        pass
+
+    assert isinstance(O, O)
+    assert issubclass(O, O)
+
+    assert not isinstance(M, O)
+    assert not issubclass(M, O)
+    assert not isinstance(O, M)
+    assert not issubclass(O, M)
+
 
 def test_access_forbidden():
     class C:
