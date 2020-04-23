@@ -2,6 +2,7 @@
 TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
  - ValueEnum - build _by_value if unique, optional kwarg to enforce
+ - inheritance>
 """
 import enum
 import typing as ta
@@ -11,6 +12,7 @@ from .strings import is_dunder
 
 
 EnumT = ta.TypeVar('EnumT', bound=enum.Enum)
+V = ta.TypeVar('V')
 
 
 def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
@@ -78,7 +80,9 @@ class _ValueEnumMeta(type):
         return cls
 
 
-class ValueEnum(metaclass=_ValueEnumMeta):
+class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
+
+    _by_name: ta.Mapping[str, V]
 
     def __new__(cls, *args, **kwargs):
         raise TypeError

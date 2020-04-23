@@ -28,3 +28,13 @@ def test_autoenum():
     assert F.A.value.thing == 1
     assert F.B.value.thing == 2
     assert F.B.value.f() == 3
+
+
+def test_valueenum():
+    class E(enums_.ValueEnum):
+        X = 0
+        Y = 1
+        Z = 2
+
+    assert E.Y == 1
+    assert E._by_name['Y'] == 1

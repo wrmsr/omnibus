@@ -147,7 +147,7 @@ antlr:
 		if [ -d "$$D/antlr" ] ; then \
 			rm -rf "$$D/antlr" ; \
 			mkdir "$$D/antlr" ; \
-			echo > "$$D/antlr/__init__.py" ; \
+			touch "$$D/antlr/__init__.py" ; \
 		fi ; \
 		\
 		P=$$(pwd) ; \
