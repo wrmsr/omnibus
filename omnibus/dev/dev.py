@@ -24,6 +24,7 @@ TODO:
  - type hierarchy graphviz
  - packaging
   - tame freeze (pyinstaller? pyoxidizer?)
+   - incl/dist in dev support machinery to build pyox bins
   - pex
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
@@ -43,6 +44,7 @@ TODO:
  - compose
  - dep mgmt
  - hypothesis
+ - https://github.com/commercialhaskell/stack/blob/master/src/Stack/New.hs
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
