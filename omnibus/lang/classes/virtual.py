@@ -1,6 +1,7 @@
 """
 FIXME:
  - lol, it's __subclasshook__ not __subclasscheck__
+ - also threadlocal default? but can hopefully die after hook fix
 
 TODO:
  - refresh protocol
