@@ -3,8 +3,8 @@ import html
 import subprocess
 import typing as ta
 
-from .. import lang
-from .. import os as oos
+from ... import lang
+from ... import os as oos
 
 
 def escape(s: str) -> str:

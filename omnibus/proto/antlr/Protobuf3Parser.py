@@ -261,9 +261,9 @@ class Protobuf3Parser ( Parser ):
                       "PROTO3_SINGLE", "PUBLIC", "REPEATED", "RESERVED", 
                       "RETURNS", "RPC", "SERVICE", "SFIXED32", "SFIXED64", 
                       "SINT32", "SINT64", "STREAM", "STRING", "SYNTAX", 
-                      "TO", "UINT32", "UINT64", "WEAK", "Ident", "IntLit", 
-                      "FloatLit", "BoolLit", "StrLit", "Quote", "WS", "COMMENT", 
-                      "LINE_COMMENT" ]
+                      "TO", "UINT32", "UINT64", "WEAK", "IDENT", "INT_LIT", 
+                      "FLOAT_LIT", "BOOL_LIT", "STR_LIT", "QUOTE", "WS", 
+                      "COMMENT", "LINE_COMMENT" ]
 
     RULE_proto = 0
     RULE_syntax = 1
@@ -378,12 +378,12 @@ class Protobuf3Parser ( Parser ):
     UINT32=48
     UINT64=49
     WEAK=50
-    Ident=51
-    IntLit=52
-    FloatLit=53
-    BoolLit=54
-    StrLit=55
-    Quote=56
+    IDENT=51
+    INT_LIT=52
+    FLOAT_LIT=53
+    BOOL_LIT=54
+    STR_LIT=55
+    QUOTE=56
     WS=57
     COMMENT=58
     LINE_COMMENT=59
@@ -631,8 +631,8 @@ class Protobuf3Parser ( Parser ):
         def IMPORT(self):
             return self.getToken(Protobuf3Parser.IMPORT, 0)
 
-        def StrLit(self):
-            return self.getToken(Protobuf3Parser.StrLit, 0)
+        def STR_LIT(self):
+            return self.getToken(Protobuf3Parser.STR_LIT, 0)
 
         def WEAK(self):
             return self.getToken(Protobuf3Parser.WEAK, 0)
@@ -683,7 +683,7 @@ class Protobuf3Parser ( Parser ):
 
 
             self.state = 121
-            self.match(Protobuf3Parser.StrLit)
+            self.match(Protobuf3Parser.STR_LIT)
             self.state = 122
             self.match(Protobuf3Parser.T__1)
         except RecognitionException as re:
@@ -805,7 +805,7 @@ class Protobuf3Parser ( Parser ):
             self.state = 133
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [Protobuf3Parser.T__8, Protobuf3Parser.T__14, Protobuf3Parser.Ident, Protobuf3Parser.IntLit, Protobuf3Parser.FloatLit, Protobuf3Parser.BoolLit, Protobuf3Parser.StrLit]:
+            if token in [Protobuf3Parser.T__8, Protobuf3Parser.T__14, Protobuf3Parser.IDENT, Protobuf3Parser.INT_LIT, Protobuf3Parser.FLOAT_LIT, Protobuf3Parser.BOOL_LIT, Protobuf3Parser.STR_LIT]:
                 self.state = 131
                 self.constant()
                 pass
@@ -833,11 +833,11 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self, i:int=None):
+        def IDENT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.Ident)
+                return self.getTokens(Protobuf3Parser.IDENT)
             else:
-                return self.getToken(Protobuf3Parser.Ident, i)
+                return self.getToken(Protobuf3Parser.IDENT, i)
 
         def fullIdent(self):
             return self.getTypedRuleContext(Protobuf3Parser.FullIdentContext,0)
@@ -880,9 +880,9 @@ class Protobuf3Parser ( Parser ):
             self.state = 142
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [Protobuf3Parser.Ident]:
+            if token in [Protobuf3Parser.IDENT]:
                 self.state = 137
-                self.match(Protobuf3Parser.Ident)
+                self.match(Protobuf3Parser.IDENT)
                 pass
             elif token in [Protobuf3Parser.T__2]:
                 self.state = 138
@@ -904,9 +904,9 @@ class Protobuf3Parser ( Parser ):
                 self.state = 147
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [Protobuf3Parser.Ident]:
+                if token in [Protobuf3Parser.IDENT]:
                     self.state = 145
-                    self.match(Protobuf3Parser.Ident)
+                    self.match(Protobuf3Parser.IDENT)
                     pass
                 elif token in [Protobuf3Parser.EXTEND, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.WEAK]:
                     self.state = 146
@@ -973,7 +973,7 @@ class Protobuf3Parser ( Parser ):
             self.state = 158
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==Protobuf3Parser.T__2 or _la==Protobuf3Parser.Ident:
+            while _la==Protobuf3Parser.T__2 or _la==Protobuf3Parser.IDENT:
                 self.state = 155
                 self.optionBodyVariable()
                 self.state = 160
@@ -1231,7 +1231,7 @@ class Protobuf3Parser ( Parser ):
             self.state = 181
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.T__4) | (1 << Protobuf3Parser.BOOL) | (1 << Protobuf3Parser.BYTES) | (1 << Protobuf3Parser.DOUBLE) | (1 << Protobuf3Parser.ENUM) | (1 << Protobuf3Parser.EXTEND) | (1 << Protobuf3Parser.FIXED32) | (1 << Protobuf3Parser.FIXED64) | (1 << Protobuf3Parser.FLOAT) | (1 << Protobuf3Parser.INT32) | (1 << Protobuf3Parser.INT64) | (1 << Protobuf3Parser.MAP) | (1 << Protobuf3Parser.MESSAGE) | (1 << Protobuf3Parser.ONEOF) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.PACKAGE) | (1 << Protobuf3Parser.REPEATED) | (1 << Protobuf3Parser.RESERVED) | (1 << Protobuf3Parser.RPC) | (1 << Protobuf3Parser.SERVICE) | (1 << Protobuf3Parser.SFIXED32) | (1 << Protobuf3Parser.SFIXED64) | (1 << Protobuf3Parser.SINT32) | (1 << Protobuf3Parser.SINT64) | (1 << Protobuf3Parser.STREAM) | (1 << Protobuf3Parser.STRING) | (1 << Protobuf3Parser.SYNTAX) | (1 << Protobuf3Parser.UINT32) | (1 << Protobuf3Parser.UINT64) | (1 << Protobuf3Parser.WEAK) | (1 << Protobuf3Parser.Ident))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.T__4) | (1 << Protobuf3Parser.BOOL) | (1 << Protobuf3Parser.BYTES) | (1 << Protobuf3Parser.DOUBLE) | (1 << Protobuf3Parser.ENUM) | (1 << Protobuf3Parser.EXTEND) | (1 << Protobuf3Parser.FIXED32) | (1 << Protobuf3Parser.FIXED64) | (1 << Protobuf3Parser.FLOAT) | (1 << Protobuf3Parser.INT32) | (1 << Protobuf3Parser.INT64) | (1 << Protobuf3Parser.MAP) | (1 << Protobuf3Parser.MESSAGE) | (1 << Protobuf3Parser.ONEOF) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.PACKAGE) | (1 << Protobuf3Parser.REPEATED) | (1 << Protobuf3Parser.RESERVED) | (1 << Protobuf3Parser.RPC) | (1 << Protobuf3Parser.SERVICE) | (1 << Protobuf3Parser.SFIXED32) | (1 << Protobuf3Parser.SFIXED64) | (1 << Protobuf3Parser.SINT32) | (1 << Protobuf3Parser.SINT64) | (1 << Protobuf3Parser.STREAM) | (1 << Protobuf3Parser.STRING) | (1 << Protobuf3Parser.SYNTAX) | (1 << Protobuf3Parser.UINT32) | (1 << Protobuf3Parser.UINT64) | (1 << Protobuf3Parser.WEAK) | (1 << Protobuf3Parser.IDENT))) != 0):
                 self.state = 178
                 self.messageBodyContent()
                 self.state = 183
@@ -1500,7 +1500,7 @@ class Protobuf3Parser ( Parser ):
             self.state = 207
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.Ident))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.IDENT))) != 0):
                 self.state = 205
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -1508,7 +1508,7 @@ class Protobuf3Parser ( Parser ):
                     self.state = 202
                     self.option()
                     pass
-                elif token in [Protobuf3Parser.Ident]:
+                elif token in [Protobuf3Parser.IDENT]:
                     self.state = 203
                     self.enumField()
                     pass
@@ -1540,11 +1540,11 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
-        def IntLit(self):
-            return self.getToken(Protobuf3Parser.IntLit, 0)
+        def INT_LIT(self):
+            return self.getToken(Protobuf3Parser.INT_LIT, 0)
 
         def enumValueOption(self, i:int=None):
             if i is None:
@@ -1581,7 +1581,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 212
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
             self.state = 213
             self.match(Protobuf3Parser.T__0)
             self.state = 215
@@ -1593,7 +1593,7 @@ class Protobuf3Parser ( Parser ):
 
 
             self.state = 217
-            self.match(Protobuf3Parser.IntLit)
+            self.match(Protobuf3Parser.INT_LIT)
             self.state = 229
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -1740,7 +1740,7 @@ class Protobuf3Parser ( Parser ):
             self.state = 242
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [Protobuf3Parser.T__4, Protobuf3Parser.BOOL, Protobuf3Parser.BYTES, Protobuf3Parser.DOUBLE, Protobuf3Parser.EXTEND, Protobuf3Parser.FIXED32, Protobuf3Parser.FIXED64, Protobuf3Parser.FLOAT, Protobuf3Parser.INT32, Protobuf3Parser.INT64, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.REPEATED, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.SFIXED32, Protobuf3Parser.SFIXED64, Protobuf3Parser.SINT32, Protobuf3Parser.SINT64, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.UINT32, Protobuf3Parser.UINT64, Protobuf3Parser.WEAK, Protobuf3Parser.Ident]:
+            if token in [Protobuf3Parser.T__4, Protobuf3Parser.BOOL, Protobuf3Parser.BYTES, Protobuf3Parser.DOUBLE, Protobuf3Parser.EXTEND, Protobuf3Parser.FIXED32, Protobuf3Parser.FIXED64, Protobuf3Parser.FLOAT, Protobuf3Parser.INT32, Protobuf3Parser.INT64, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.REPEATED, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.SFIXED32, Protobuf3Parser.SFIXED64, Protobuf3Parser.SINT32, Protobuf3Parser.SINT64, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.UINT32, Protobuf3Parser.UINT64, Protobuf3Parser.WEAK, Protobuf3Parser.IDENT]:
                 self.state = 240
                 self.field()
                 pass
@@ -2065,11 +2065,11 @@ class Protobuf3Parser ( Parser ):
             self.state = 289
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [Protobuf3Parser.IntLit]:
+            if token in [Protobuf3Parser.INT_LIT]:
                 self.state = 287
                 self.ranges()
                 pass
-            elif token in [Protobuf3Parser.StrLit]:
+            elif token in [Protobuf3Parser.STR_LIT]:
                 self.state = 288
                 self.fieldNames()
                 pass
@@ -2156,11 +2156,11 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def IntLit(self, i:int=None):
+        def INT_LIT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.IntLit)
+                return self.getTokens(Protobuf3Parser.INT_LIT)
             else:
-                return self.getToken(Protobuf3Parser.IntLit, i)
+                return self.getToken(Protobuf3Parser.INT_LIT, i)
 
         def TO(self):
             return self.getToken(Protobuf3Parser.TO, 0)
@@ -2196,17 +2196,17 @@ class Protobuf3Parser ( Parser ):
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 301
-                self.match(Protobuf3Parser.IntLit)
+                self.match(Protobuf3Parser.INT_LIT)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 302
-                self.match(Protobuf3Parser.IntLit)
+                self.match(Protobuf3Parser.INT_LIT)
                 self.state = 303
                 self.match(Protobuf3Parser.TO)
                 self.state = 304
-                self.match(Protobuf3Parser.IntLit)
+                self.match(Protobuf3Parser.INT_LIT)
                 pass
 
 
@@ -2225,11 +2225,11 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def StrLit(self, i:int=None):
+        def STR_LIT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.StrLit)
+                return self.getTokens(Protobuf3Parser.STR_LIT)
             else:
-                return self.getToken(Protobuf3Parser.StrLit, i)
+                return self.getToken(Protobuf3Parser.STR_LIT, i)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_fieldNames
@@ -2259,7 +2259,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 307
-            self.match(Protobuf3Parser.StrLit)
+            self.match(Protobuf3Parser.STR_LIT)
             self.state = 312
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -2267,7 +2267,7 @@ class Protobuf3Parser ( Parser ):
                 self.state = 308
                 self.match(Protobuf3Parser.T__10)
                 self.state = 309
-                self.match(Protobuf3Parser.StrLit)
+                self.match(Protobuf3Parser.STR_LIT)
                 self.state = 314
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2445,8 +2445,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def IntLit(self):
-            return self.getToken(Protobuf3Parser.IntLit, 0)
+        def INT_LIT(self):
+            return self.getToken(Protobuf3Parser.INT_LIT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_fieldNumber
@@ -2475,7 +2475,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 321
-            self.match(Protobuf3Parser.IntLit)
+            self.match(Protobuf3Parser.INT_LIT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2757,11 +2757,11 @@ class Protobuf3Parser ( Parser ):
             self.state = 357
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.T__4) | (1 << Protobuf3Parser.BOOL) | (1 << Protobuf3Parser.BYTES) | (1 << Protobuf3Parser.DOUBLE) | (1 << Protobuf3Parser.EXTEND) | (1 << Protobuf3Parser.FIXED32) | (1 << Protobuf3Parser.FIXED64) | (1 << Protobuf3Parser.FLOAT) | (1 << Protobuf3Parser.INT32) | (1 << Protobuf3Parser.INT64) | (1 << Protobuf3Parser.MESSAGE) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.PACKAGE) | (1 << Protobuf3Parser.RPC) | (1 << Protobuf3Parser.SERVICE) | (1 << Protobuf3Parser.SFIXED32) | (1 << Protobuf3Parser.SFIXED64) | (1 << Protobuf3Parser.SINT32) | (1 << Protobuf3Parser.SINT64) | (1 << Protobuf3Parser.STREAM) | (1 << Protobuf3Parser.STRING) | (1 << Protobuf3Parser.SYNTAX) | (1 << Protobuf3Parser.UINT32) | (1 << Protobuf3Parser.UINT64) | (1 << Protobuf3Parser.WEAK) | (1 << Protobuf3Parser.Ident))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Protobuf3Parser.T__1) | (1 << Protobuf3Parser.T__4) | (1 << Protobuf3Parser.BOOL) | (1 << Protobuf3Parser.BYTES) | (1 << Protobuf3Parser.DOUBLE) | (1 << Protobuf3Parser.EXTEND) | (1 << Protobuf3Parser.FIXED32) | (1 << Protobuf3Parser.FIXED64) | (1 << Protobuf3Parser.FLOAT) | (1 << Protobuf3Parser.INT32) | (1 << Protobuf3Parser.INT64) | (1 << Protobuf3Parser.MESSAGE) | (1 << Protobuf3Parser.OPTION) | (1 << Protobuf3Parser.PACKAGE) | (1 << Protobuf3Parser.RPC) | (1 << Protobuf3Parser.SERVICE) | (1 << Protobuf3Parser.SFIXED32) | (1 << Protobuf3Parser.SFIXED64) | (1 << Protobuf3Parser.SINT32) | (1 << Protobuf3Parser.SINT64) | (1 << Protobuf3Parser.STREAM) | (1 << Protobuf3Parser.STRING) | (1 << Protobuf3Parser.SYNTAX) | (1 << Protobuf3Parser.UINT32) | (1 << Protobuf3Parser.UINT64) | (1 << Protobuf3Parser.WEAK) | (1 << Protobuf3Parser.IDENT))) != 0):
                 self.state = 355
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
-                if token in [Protobuf3Parser.T__4, Protobuf3Parser.BOOL, Protobuf3Parser.BYTES, Protobuf3Parser.DOUBLE, Protobuf3Parser.EXTEND, Protobuf3Parser.FIXED32, Protobuf3Parser.FIXED64, Protobuf3Parser.FLOAT, Protobuf3Parser.INT32, Protobuf3Parser.INT64, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.SFIXED32, Protobuf3Parser.SFIXED64, Protobuf3Parser.SINT32, Protobuf3Parser.SINT64, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.UINT32, Protobuf3Parser.UINT64, Protobuf3Parser.WEAK, Protobuf3Parser.Ident]:
+                if token in [Protobuf3Parser.T__4, Protobuf3Parser.BOOL, Protobuf3Parser.BYTES, Protobuf3Parser.DOUBLE, Protobuf3Parser.EXTEND, Protobuf3Parser.FIXED32, Protobuf3Parser.FIXED64, Protobuf3Parser.FLOAT, Protobuf3Parser.INT32, Protobuf3Parser.INT64, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.SFIXED32, Protobuf3Parser.SFIXED64, Protobuf3Parser.SINT32, Protobuf3Parser.SINT64, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.UINT32, Protobuf3Parser.UINT64, Protobuf3Parser.WEAK, Protobuf3Parser.IDENT]:
                     self.state = 353
                     self.oneofField()
                     pass
@@ -3134,11 +3134,11 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self, i:int=None):
+        def IDENT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.Ident)
+                return self.getTokens(Protobuf3Parser.IDENT)
             else:
-                return self.getToken(Protobuf3Parser.Ident, i)
+                return self.getToken(Protobuf3Parser.IDENT, i)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_fullIdent
@@ -3168,7 +3168,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 395
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
             self.state = 400
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -3176,7 +3176,7 @@ class Protobuf3Parser ( Parser ):
                 self.state = 396
                 self.match(Protobuf3Parser.T__4)
                 self.state = 397
-                self.match(Protobuf3Parser.Ident)
+                self.match(Protobuf3Parser.IDENT)
                 self.state = 402
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -3196,8 +3196,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_messageName
@@ -3226,7 +3226,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 403
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3242,8 +3242,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_enumName
@@ -3272,7 +3272,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 405
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3288,8 +3288,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_messageOrEnumName
@@ -3318,7 +3318,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 407
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3334,8 +3334,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def reservedWord(self):
             return self.getTypedRuleContext(Protobuf3Parser.ReservedWordContext,0)
@@ -3369,10 +3369,10 @@ class Protobuf3Parser ( Parser ):
             self.state = 411
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [Protobuf3Parser.Ident]:
+            if token in [Protobuf3Parser.IDENT]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 409
-                self.match(Protobuf3Parser.Ident)
+                self.match(Protobuf3Parser.IDENT)
                 pass
             elif token in [Protobuf3Parser.EXTEND, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.WEAK]:
                 self.enterOuterAlt(localctx, 2)
@@ -3397,8 +3397,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_oneofName
@@ -3427,7 +3427,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 413
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3443,8 +3443,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_mapName
@@ -3473,7 +3473,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 415
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3489,8 +3489,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_serviceName
@@ -3519,7 +3519,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 417
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3535,8 +3535,8 @@ class Protobuf3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def Ident(self):
-            return self.getToken(Protobuf3Parser.Ident, 0)
+        def IDENT(self):
+            return self.getToken(Protobuf3Parser.IDENT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_rpcName
@@ -3565,7 +3565,7 @@ class Protobuf3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 419
-            self.match(Protobuf3Parser.Ident)
+            self.match(Protobuf3Parser.IDENT)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -3585,11 +3585,11 @@ class Protobuf3Parser ( Parser ):
             return self.getTypedRuleContext(Protobuf3Parser.MessageNameContext,0)
 
 
-        def Ident(self, i:int=None):
+        def IDENT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.Ident)
+                return self.getTokens(Protobuf3Parser.IDENT)
             else:
-                return self.getToken(Protobuf3Parser.Ident, i)
+                return self.getToken(Protobuf3Parser.IDENT, i)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_messageType
@@ -3632,7 +3632,7 @@ class Protobuf3Parser ( Parser ):
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     self.state = 424
-                    self.match(Protobuf3Parser.Ident)
+                    self.match(Protobuf3Parser.IDENT)
                     self.state = 425
                     self.match(Protobuf3Parser.T__4) 
                 self.state = 430
@@ -3660,11 +3660,11 @@ class Protobuf3Parser ( Parser ):
             return self.getTypedRuleContext(Protobuf3Parser.MessageOrEnumNameContext,0)
 
 
-        def Ident(self, i:int=None):
+        def IDENT(self, i:int=None):
             if i is None:
-                return self.getTokens(Protobuf3Parser.Ident)
+                return self.getTokens(Protobuf3Parser.IDENT)
             else:
-                return self.getToken(Protobuf3Parser.Ident, i)
+                return self.getToken(Protobuf3Parser.IDENT, i)
 
         def reservedWord(self, i:int=None):
             if i is None:
@@ -3716,9 +3716,9 @@ class Protobuf3Parser ( Parser ):
                     self.state = 438
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
-                    if token in [Protobuf3Parser.Ident]:
+                    if token in [Protobuf3Parser.IDENT]:
                         self.state = 436
-                        self.match(Protobuf3Parser.Ident)
+                        self.match(Protobuf3Parser.IDENT)
                         pass
                     elif token in [Protobuf3Parser.EXTEND, Protobuf3Parser.MESSAGE, Protobuf3Parser.OPTION, Protobuf3Parser.PACKAGE, Protobuf3Parser.RPC, Protobuf3Parser.SERVICE, Protobuf3Parser.STREAM, Protobuf3Parser.STRING, Protobuf3Parser.SYNTAX, Protobuf3Parser.WEAK]:
                         self.state = 437
@@ -3798,17 +3798,17 @@ class Protobuf3Parser ( Parser ):
             return self.getTypedRuleContext(Protobuf3Parser.FullIdentContext,0)
 
 
-        def IntLit(self):
-            return self.getToken(Protobuf3Parser.IntLit, 0)
+        def INT_LIT(self):
+            return self.getToken(Protobuf3Parser.INT_LIT, 0)
 
-        def FloatLit(self):
-            return self.getToken(Protobuf3Parser.FloatLit, 0)
+        def FLOAT_LIT(self):
+            return self.getToken(Protobuf3Parser.FLOAT_LIT, 0)
 
-        def StrLit(self):
-            return self.getToken(Protobuf3Parser.StrLit, 0)
+        def STR_LIT(self):
+            return self.getToken(Protobuf3Parser.STR_LIT, 0)
 
-        def BoolLit(self):
-            return self.getToken(Protobuf3Parser.BoolLit, 0)
+        def BOOL_LIT(self):
+            return self.getToken(Protobuf3Parser.BOOL_LIT, 0)
 
         def getRuleIndex(self):
             return Protobuf3Parser.RULE_constant
@@ -3861,7 +3861,7 @@ class Protobuf3Parser ( Parser ):
 
 
                 self.state = 454
-                self.match(Protobuf3Parser.IntLit)
+                self.match(Protobuf3Parser.INT_LIT)
                 pass
 
             elif la_ == 3:
@@ -3880,19 +3880,19 @@ class Protobuf3Parser ( Parser ):
 
 
                 self.state = 458
-                self.match(Protobuf3Parser.FloatLit)
+                self.match(Protobuf3Parser.FLOAT_LIT)
                 pass
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 459
-                self.match(Protobuf3Parser.StrLit)
+                self.match(Protobuf3Parser.STR_LIT)
                 pass
 
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 460
-                self.match(Protobuf3Parser.BoolLit)
+                self.match(Protobuf3Parser.BOOL_LIT)
                 pass
 
 

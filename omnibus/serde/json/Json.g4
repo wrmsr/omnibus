@@ -1,4 +1,12 @@
+/*
+https://github.com/antlr/grammars-v4/blob/f9b1c203dc6368d972bedcb6f8c3670688ad8008/json/JSON.g4
+
+Taken from "The Definitive ANTLR 4 Reference" by Terence Parr.
+
+Derived from http://json.org
+*/
 grammar Json;
+
 
 json
     : value

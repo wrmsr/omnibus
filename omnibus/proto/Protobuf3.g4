@@ -1,4 +1,6 @@
 /*
+https://github.com/antlr/grammars-v4/blob/f9b1c203dc6368d972bedcb6f8c3670688ad8008/protobuf3/Protobuf3.g4
+
 A Protocol Buffers 3 grammar for ANTLR v4.
 
 Derived and adapted from:
@@ -26,7 +28,7 @@ syntaxExtra
     ;
 
 importStatement
-    : IMPORT (WEAK | PUBLIC)? StrLit ';'
+    : IMPORT (WEAK | PUBLIC)? STR_LIT ';'
     ;
 
 packageStatement
@@ -38,7 +40,7 @@ option
     ;
 
 optionName
-    : (Ident | '(' fullIdent ')' ) ('.' (Ident | reservedWord))*
+    : (IDENT | '(' fullIdent ')' ) ('.' (IDENT | reservedWord))*
     ;
 
 optionBody
@@ -85,7 +87,7 @@ enumBody
     ;
 
 enumField
-    : Ident '=' '-'? IntLit ('[' enumValueOption (','  enumValueOption)* ']')? ';'
+    : IDENT '=' '-'? INT_LIT ('[' enumValueOption (','  enumValueOption)* ']')? ';'
     ;
 
 enumValueOption
@@ -115,12 +117,12 @@ ranges
     ;
 
 rangeRule
-    : IntLit
-    | IntLit TO IntLit
+    : INT_LIT
+    | INT_LIT TO INT_LIT
     ;
 
 fieldNames
-    : StrLit (',' StrLit)*
+    : STR_LIT (',' STR_LIT)*
     ;
 
 typeRule
@@ -147,7 +149,7 @@ simpleType
     ;
 
 fieldNumber
-    : IntLit
+    : INT_LIT
     ;
 
 field
@@ -202,6 +204,63 @@ reservedWord
     | WEAK
     ;
 
+fullIdent
+    : IDENT ('.' IDENT)*
+    ;
+
+messageName
+    : IDENT
+    ;
+
+enumName
+    : IDENT
+    ;
+
+messageOrEnumName
+    : IDENT
+    ;
+
+fieldName
+    : IDENT
+    | reservedWord
+    ;
+
+oneofName
+    : IDENT
+    ;
+
+mapName
+    : IDENT
+    ;
+
+serviceName
+    : IDENT
+    ;
+
+rpcName
+    : IDENT
+    ;
+
+messageType
+    : '.'? (IDENT '.')* messageName
+    ;
+
+messageOrEnumType
+    : '.'? ( (IDENT | reservedWord) '.')* messageOrEnumName
+    ;
+
+emptyStatement
+    :   ';'
+    ;
+
+constant
+    : fullIdent
+    | ('-' | '+')? INT_LIT
+    | ('-' | '+')? FLOAT_LIT
+    | STR_LIT
+    | BOOL_LIT
+    ;
+
 BOOL: 'bool';
 BYTES: 'bytes';
 DOUBLE: 'double';
@@ -238,147 +297,90 @@ UINT32: 'uint32';
 UINT64: 'uint64';
 WEAK: 'weak';
 
-fragment Letter
+fragment LETTER
     : [A-Za-z_]
     ;
 
-fragment DecimalDigit
+fragment DECIMAL_DIGIT
     : [0-9]
     ;
 
-fragment OctalDigit
+fragment OCTAL_DIGIT
     : [0-7]
     ;
 
-fragment HexDigit
+fragment HEX_DIGIT
     : [0-9A-Fa-f]
     ;
 
-Ident
-    : Letter (Letter | DecimalDigit)*
+IDENT
+    : LETTER (LETTER | DECIMAL_DIGIT)*
     ;
 
-fullIdent
-    : Ident ('.' Ident)*
+INT_LIT
+    : DECIMAL_LIT
+    | OCTAL_LIT
+    | HEX_LIT
     ;
 
-messageName
-    : Ident
+fragment DECIMAL_LIT
+    : [1-9] DECIMAL_DIGIT*
     ;
 
-enumName
-    : Ident
+fragment OCTAL_LIT
+    : '0' OCTAL_DIGIT*
     ;
 
-messageOrEnumName
-    : Ident
+fragment HEX_LIT
+    : '0' ('x' | 'X') HEX_DIGIT+
     ;
 
-fieldName
-    : Ident
-    | reservedWord
-    ;
-
-oneofName
-    : Ident
-    ;
-
-mapName
-    : Ident
-    ;
-
-serviceName
-    : Ident
-    ;
-
-rpcName
-    : Ident
-    ;
-
-messageType
-    : '.'? (Ident '.')* messageName
-    ;
-
-messageOrEnumType
-    : '.'? ( (Ident | reservedWord) '.')* messageOrEnumName
-    ;
-
-IntLit
-    : DecimalLit
-    | OctalLit
-    | HexLit
-    ;
-
-fragment DecimalLit
-    : [1-9] DecimalDigit*
-    ;
-
-fragment OctalLit
-    : '0' OctalDigit*
-    ;
-
-fragment HexLit
-    : '0' ('x' | 'X') HexDigit+
-    ;
-
-FloatLit
-    : (Decimals '.' Decimals? Exponent? | Decimals Exponent | '.' Decimals Exponent?)
+FLOAT_LIT
+    : (DECIMALS '.' DECIMALS? EXPONENT? | DECIMALS EXPONENT | '.' DECIMALS EXPONENT?)
     | 'inf'
     | 'nan'
     ;
 
-fragment Decimals
-    : DecimalDigit+
+fragment DECIMALS
+    : DECIMAL_DIGIT+
     ;
 
-fragment Exponent
-    : ('e' | 'E') ('+' | '-')? Decimals
+fragment EXPONENT
+    : ('e' | 'E') ('+' | '-')? DECIMALS
     ;
 
-BoolLit
+BOOL_LIT
     : 'true'
     | 'false'
     ;
 
-StrLit
-    : '\'' CharValue* '\''
-    | '"' CharValue* '"'
+STR_LIT
+    : '\'' CHAR_VALUE* '\''
+    | '"' CHAR_VALUE* '"'
     ;
 
-fragment CharValue
-    : HexEscape
-    | OctEscape
-    | CharEscape
+fragment CHAR_VALUE
+    : HEX_ESCAPE
+    | OCT_ESCAPE
+    | CHAR_ESCAPE
     | ~[\u0000\n\\]
     ;
 
-fragment HexEscape
-    : '\\' ('x' | 'X') HexDigit HexDigit
+fragment HEX_ESCAPE
+    : '\\' ('x' | 'X') HEX_DIGIT HEX_DIGIT
     ;
 
-fragment OctEscape
-    : '\\' OctalDigit OctalDigit OctalDigit
+fragment OCT_ESCAPE
+    : '\\' OCTAL_DIGIT OCTAL_DIGIT OCTAL_DIGIT
     ;
 
-fragment CharEscape
+fragment CHAR_ESCAPE
     : '\\' [abfnrtv\\'"]
     ;
 
-Quote
+QUOTE
     : '\''
     | '"'
-    ;
-
-emptyStatement
-    :   ';'
-    ;
-
-constant
-    : fullIdent
-    | ('-' | '+')? IntLit
-    | ('-' | '+')? FloatLit
-    | StrLit
-    | BoolLit
     ;
 
 WS

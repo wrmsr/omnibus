@@ -318,12 +318,12 @@ class Protobuf3Lexer(Lexer):
     UINT32 = 48
     UINT64 = 49
     WEAK = 50
-    Ident = 51
-    IntLit = 52
-    FloatLit = 53
-    BoolLit = 54
-    StrLit = 55
-    Quote = 56
+    IDENT = 51
+    INT_LIT = 52
+    FLOAT_LIT = 53
+    BOOL_LIT = 54
+    STR_LIT = 55
+    QUOTE = 56
     WS = 57
     COMMENT = 58
     LINE_COMMENT = 59
@@ -349,8 +349,8 @@ class Protobuf3Lexer(Lexer):
             "OPTION", "PACKAGE", "PROTO3_DOUBLE", "PROTO3_SINGLE", "PUBLIC", 
             "REPEATED", "RESERVED", "RETURNS", "RPC", "SERVICE", "SFIXED32", 
             "SFIXED64", "SINT32", "SINT64", "STREAM", "STRING", "SYNTAX", 
-            "TO", "UINT32", "UINT64", "WEAK", "Ident", "IntLit", "FloatLit", 
-            "BoolLit", "StrLit", "Quote", "WS", "COMMENT", "LINE_COMMENT" ]
+            "TO", "UINT32", "UINT64", "WEAK", "IDENT", "INT_LIT", "FLOAT_LIT", 
+            "BOOL_LIT", "STR_LIT", "QUOTE", "WS", "COMMENT", "LINE_COMMENT" ]
 
     ruleNames = [ "T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", 
                   "T__7", "T__8", "T__9", "T__10", "T__11", "T__12", "T__13", 
@@ -360,11 +360,11 @@ class Protobuf3Lexer(Lexer):
                   "PROTO3_SINGLE", "PUBLIC", "REPEATED", "RESERVED", "RETURNS", 
                   "RPC", "SERVICE", "SFIXED32", "SFIXED64", "SINT32", "SINT64", 
                   "STREAM", "STRING", "SYNTAX", "TO", "UINT32", "UINT64", 
-                  "WEAK", "Letter", "DecimalDigit", "OctalDigit", "HexDigit", 
-                  "Ident", "IntLit", "DecimalLit", "OctalLit", "HexLit", 
-                  "FloatLit", "Decimals", "Exponent", "BoolLit", "StrLit", 
-                  "CharValue", "HexEscape", "OctEscape", "CharEscape", "Quote", 
-                  "WS", "COMMENT", "LINE_COMMENT" ]
+                  "WEAK", "LETTER", "DECIMAL_DIGIT", "OCTAL_DIGIT", "HEX_DIGIT", 
+                  "IDENT", "INT_LIT", "DECIMAL_LIT", "OCTAL_LIT", "HEX_LIT", 
+                  "FLOAT_LIT", "DECIMALS", "EXPONENT", "BOOL_LIT", "STR_LIT", 
+                  "CHAR_VALUE", "HEX_ESCAPE", "OCT_ESCAPE", "CHAR_ESCAPE", 
+                  "QUOTE", "WS", "COMMENT", "LINE_COMMENT" ]
 
     grammarFileName = "Protobuf3.g4"
 
