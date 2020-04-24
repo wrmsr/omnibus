@@ -1,5 +1,6 @@
 """
 TODO:
+ - ** move into ../serde ? **
  - msgpack
  - bson
  - cloudpickle

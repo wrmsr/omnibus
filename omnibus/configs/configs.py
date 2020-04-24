@@ -1,6 +1,15 @@
-"""
+"""  # noqa
 TODO:
  - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
+  - DIFFS:
+   - non-local, non-inherited, injected defaults: db.timeout = global.defualt
+    - dep on global config? ... InitVar -> ValidationVar?
+     - inject defaulters with initvars?
+      - global_config: dc.InitVar[GlobalConfig] = None
+      - dc.default('timeout', lambda global_config: global_config.timeout if global_config is not None else None)
+       - https://www.python.org/dev/peps/pep-0505/ ugh
+ - ** usable without but fully integrated with inj **
+  - config.inject *not imported in init*
  - polled sources: file (+url, git), sql, redis
   - atomicity - class UsernameAndPassword etc
  - pushed sources: zk, etcd
@@ -15,12 +24,20 @@ TODO:
   - https://github.com/facebookresearch/hydra
  - pyo3 adapter (serde?)
  - newable-style object graphs, refs
- - cmdline overrides (env-var? dict?)
+ - cmdline overrides (+env-var? +dict?)
+  - argparse ala record?
+  - env extends dict - cfgable handling for 'empty means None' and shit, plus more str-coercion than dict
+   - hm - csv serde handling escaping
+    - just use builtin csv
+ - * fqon (fully-qualified object name) resolver
+  - train_fn.optimizer_cls = @tf.train.GradientDescentOptimizer
+  - build_model.network_fn = @DNN()
+  - newable style..
+  - https://github.com/google/gin-config#4-configuring-the-same-function-in-different-ways-scopes
  - callbacks are dc-level - both field-lvl and inst-lvl
  - look at:
   - kubernetes
   - envoy
- - yaml+json+other parsers that record positions and comments like hocon
  - pluggable interpolation ala commons-cfg
   - dns lookup (polled/dynamic?)
   - JNDI equiv? (actor interop - Namespace abstr? jmx?)
@@ -29,9 +46,17 @@ TODO:
   - inline include and extract? jmespath lol. hit url?
  - LAZINESS.
  - 'mounting' sys-level shit (procfs)
+ - datetime.timedelta vs foo_s, friendly (hocon?) parsing
+ - *inherited defaults* - mysqldb.timeout inherits global.timeout
+  - example isn't mysqldb inherits db cuz prob subclass
+ - secrets: https://github.com/hashicorp/envconsul
+ - docs: https://github.com/willkg/everett/blob/master/everett/sphinxext.py
 
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/
 https://blog.twitter.com/engineering/en_us/topics/infrastructure/2018/dynamic-configuration-at-twitter.html
+https://news.ycombinator.com/item?id=22964910
+https://github.com/alexandru/scala-best-practices/blob/master/sections/3-architecture.md#35-must-not-use-parameterless-configfactoryload-or-access-a-config-object-directly
+https://github.com/google/gin-config - ghetto injection
 """
 import abc
 import types

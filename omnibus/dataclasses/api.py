@@ -48,6 +48,12 @@ TODO:
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - these aspeects are kind of 'Deriving'..
   - rm 'derive', -> dc.default()/dc.default_factory(), 'derive' used for aspects
+   - default_factories NEVER INJECTED - conventionally nullary blackboxes (defaultdict etc)
+   - dc.default('y', lambda x: x + 1)
+   - dc.default('z', lambda x, y: x + y + 1)
+   - dc.default(('y', 'z'), lambda x: x + 1, x + 2)
+   - dc.default_factory('x', collections.defaultdict)
+   - dc.default_factory(('x', 'y', some_nullary_returning_pair)
 """
 import collections
 import collections.abc

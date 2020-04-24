@@ -6,6 +6,8 @@ TODO:
  - typingx: Intersect, Dependent, Raises
  - https://github.com/python/typing/issues/213
  - reflect/__init__.py? is this where subtyper lives? or is that dispatch-only? hinting required..
+
+https://github.com/ilevkivskyi/typing_inspect
 """
 import abc
 import enum

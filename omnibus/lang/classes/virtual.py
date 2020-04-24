@@ -1,13 +1,25 @@
-"""
+"""  # noqa
+WATCH:
+ - https://github.com/python/typing/issues/213 :|||
+
 FIXME:
+ - overhaul Protcol - https://www.python.org/dev/peps/pep-0544/
  - lol, it's __subclasshook__ not __subclasscheck__
  - also threadlocal default? but can hopefully die after hook fix
 
 TODO:
- - refresh protocol
-  - typing_extensions? no.
-  - common _VirtualMeta, Protocol mandatory in bases, flatten like Intersection
+ - common _VirtualMeta, Protocol mandatory in bases, flatten like Intersection
  - 'Value' ? AnyVal equiv, runtime-present yet erased/non-instantiated, NewType+
+  - usable for check - return NotEmpty[str] actually returns str at runtime but NotEmpty[T] in type
+   - virtual intersection really - T -> Intersection[T, NotEmpty]
+    - implying ta.Intersection still needs to exist not just class I(..., lang.classes.virtual.Intersection): ... :/
+     - class HashableT(ta.Generic[T], Hashable, Intersection): ...
+     - def check.hashable(obj: T) -> Hashable[T] .. no
+
+
+https://zio.dev/docs/howto/howto_use_layers
+
+https://github.com/python/mypy/commit/ad6c717c408c6ab6d21a488ab1f89930448ae83c
 
 
 class IntMod3(int):

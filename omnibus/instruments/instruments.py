@@ -4,5 +4,5 @@ TODO:
   - errors: rollbar
   - metrics: datadog
   - tracing: ddtrace
- - profiling: yappi, cprofile
+ - profiling: yappi, cprofile, pyinstrument
 """

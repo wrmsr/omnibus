@@ -1,7 +1,6 @@
 import os.path
 
 from ..._vendor import antlr4
-
 from ..antlr.Protobuf3Lexer import Protobuf3Lexer
 from ..antlr.Protobuf3Listener import Protobuf3Listener
 from ..antlr.Protobuf3Parser import Protobuf3Parser
@@ -44,7 +43,7 @@ class Protobuf3PrintListener(Protobuf3Listener):
 
 
 def test_proto():
-    with open(os.path.join(os.path.dirname(__file__), 'addressbook.proto'), 'r') as f:
+    with open(os.path.join(os.path.dirname(__file__), 'examples/addressbook.proto'), 'r') as f:
         buf = f.read()
     lexer = Protobuf3Lexer(antlr4.InputStream(buf))
     stream = antlr4.CommonTokenStream(lexer)
