@@ -38,10 +38,12 @@ TODO:
  - build-time classpath scanning (yield_importable) + codegen
   - resolve.rb paths
  - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcp?)
+  - awscli/gcloud cli expect vs libs
   - kubectl?
   - docean/linode?
   - aws/gcp have runtime components, do/linode don't?
   - lol fuck heroku
+  - https://github.com/GoogleCloudPlatform/python-docs-samples/tree/master/compute/api
  - packing here but llvm.so dynalinking in main
  - pants
  - compose

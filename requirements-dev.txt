@@ -11,19 +11,25 @@ wheel>=0.34.2
 
 pytest==5.4.1
 pytest-benchmark==3.2.3
+pytest-randomly==3.3.1
 pytest-xdist==1.31.0
 
 
 # useful tools
 
 astpretty==2.0.0
+awscli==1.18.46
 black==19.10b0
 flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2
 ipython==7.13.0
+mycli==1.21.1
 mypy==0.770
 objgraph==3.4.1
+pgcli==3.0.0
 pipdeptree==0.13.2
 pyrasite==2.0
+s3cmd==2.1.0
+sqlparse==0.3.1
 typed-ast==1.4.1

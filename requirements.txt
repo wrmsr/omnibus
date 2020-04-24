@@ -6,19 +6,22 @@ Cython==0.29.16
 # optional integrations
 
 billiard==3.6.3.0
-boto3==1.12.40
-botocore==1.15.40
+boto3==1.12.46
+botocore==1.15.46
 cbor==1.0.0
 cytoolz==0.10.1
 docker==4.2.0
 fastuuid==0.3.0; python_version > '3.7'
+google-api-python-client==1.8.2
+google-auth-httplib2==0.0.3
+google-auth==1.14.1
 greenlet==0.4.15
 httptools==0.1.1
 jmespath==0.9.5
 lz4==3.0.2
 msgpack==1.0.0
 mysql-connector-python==8.0.19
-orjson==2.6.5
+orjson==2.6.6
 pg8000==1.15.2
 psutil==5.7.0
 psycopg2==2.8.5
