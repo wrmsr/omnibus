@@ -7,6 +7,24 @@ TODO:
  - refresh protocol
   - typing_extensions? no.
   - common _VirtualMeta, Protocol mandatory in bases, flatten like Intersection
+ - 'Value' ? AnyVal equiv, runtime-present yet erased/non-instantiated, NewType+
+
+
+class IntMod3(int):
+
+    def __new__(cls, val):
+        if not isinstance(val, int) or val % 3 != 0:
+            raise TypeError(val)
+        return val
+
+    def __instancecheck__(self, instance):
+        return isinstance(instance, int) and instance % 3 == 0
+
+    @classmethod
+    def all(cls) -> ta.Iterator[int]:
+        for i in itertools.count():
+            if i % 3 == 0:
+                yield i
 """
 import abc
 import threading

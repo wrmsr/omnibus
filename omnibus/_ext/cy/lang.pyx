@@ -1,3 +1,7 @@
+def identity(obj):
+    return obj
+
+
 cdef class constant:
     cdef public object obj
 

@@ -263,19 +263,31 @@ def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
     raise exc
 
 
+def identity(obj: T) -> T:
+    return obj
+
+
 try:
-    from .._ext.cy.lang import constant
-
+    from .._ext.cy.lang import identity  # noqa
 except ImportError:
-    class constant(ta.Generic[T]):
+    pass
 
-        def __init__(self, obj: T) -> None:
-            super().__init__()
 
-            self._obj = obj
+class constant(ta.Generic[T]):
 
-        def __call__(self) -> T:
-            return self._obj
+    def __init__(self, obj: T) -> None:
+        super().__init__()
+
+        self._obj = obj
+
+    def __call__(self) -> T:
+        return self._obj
+
+
+try:
+    from .._ext.cy.lang import constant  # noqa
+except ImportError:
+    pass
 
 
 def _get_cell_type() -> type:
