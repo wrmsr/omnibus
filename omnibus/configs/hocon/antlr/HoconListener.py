@@ -9,39 +9,12 @@ else:
 # This class defines a complete listener for a parse tree produced by HoconParser.
 class HoconListener(ParseTreeListener):
 
-    # Enter a parse tree produced by HoconParser#path.
-    def enterPath(self, ctx:HoconParser.PathContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#path.
-    def exitPath(self, ctx:HoconParser.PathContext):
-        pass
-
-
-    # Enter a parse tree produced by HoconParser#key.
-    def enterKey(self, ctx:HoconParser.KeyContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#key.
-    def exitKey(self, ctx:HoconParser.KeyContext):
-        pass
-
-
     # Enter a parse tree produced by HoconParser#hocon.
     def enterHocon(self, ctx:HoconParser.HoconContext):
         pass
 
     # Exit a parse tree produced by HoconParser#hocon.
     def exitHocon(self, ctx:HoconParser.HoconContext):
-        pass
-
-
-    # Enter a parse tree produced by HoconParser#obj.
-    def enterObj(self, ctx:HoconParser.ObjContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#obj.
-    def exitObj(self, ctx:HoconParser.ObjContext):
         pass
 
 
@@ -54,39 +27,12 @@ class HoconListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by HoconParser#rawstring.
-    def enterRawstring(self, ctx:HoconParser.RawstringContext):
+    # Enter a parse tree produced by HoconParser#obj.
+    def enterObj(self, ctx:HoconParser.ObjContext):
         pass
 
-    # Exit a parse tree produced by HoconParser#rawstring.
-    def exitRawstring(self, ctx:HoconParser.RawstringContext):
-        pass
-
-
-    # Enter a parse tree produced by HoconParser#v_string.
-    def enterV_string(self, ctx:HoconParser.V_stringContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#v_string.
-    def exitV_string(self, ctx:HoconParser.V_stringContext):
-        pass
-
-
-    # Enter a parse tree produced by HoconParser#v_rawstring.
-    def enterV_rawstring(self, ctx:HoconParser.V_rawstringContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#v_rawstring.
-    def exitV_rawstring(self, ctx:HoconParser.V_rawstringContext):
-        pass
-
-
-    # Enter a parse tree produced by HoconParser#v_reference.
-    def enterV_reference(self, ctx:HoconParser.V_referenceContext):
-        pass
-
-    # Exit a parse tree produced by HoconParser#v_reference.
-    def exitV_reference(self, ctx:HoconParser.V_referenceContext):
+    # Exit a parse tree produced by HoconParser#obj.
+    def exitObj(self, ctx:HoconParser.ObjContext):
         pass
 
 
@@ -153,6 +99,24 @@ class HoconListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by HoconParser#key.
+    def enterKey(self, ctx:HoconParser.KeyContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#key.
+    def exitKey(self, ctx:HoconParser.KeyContext):
+        pass
+
+
+    # Enter a parse tree produced by HoconParser#path.
+    def enterPath(self, ctx:HoconParser.PathContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#path.
+    def exitPath(self, ctx:HoconParser.PathContext):
+        pass
+
+
     # Enter a parse tree produced by HoconParser#arrayBegin.
     def enterArrayBegin(self, ctx:HoconParser.ArrayBeginContext):
         pass
@@ -177,6 +141,15 @@ class HoconListener(ParseTreeListener):
 
     # Exit a parse tree produced by HoconParser#array.
     def exitArray(self, ctx:HoconParser.ArrayContext):
+        pass
+
+
+    # Enter a parse tree produced by HoconParser#arrayValue.
+    def enterArrayValue(self, ctx:HoconParser.ArrayValueContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#arrayValue.
+    def exitArrayValue(self, ctx:HoconParser.ArrayValueContext):
         pass
 
 
@@ -225,12 +198,39 @@ class HoconListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by HoconParser#arrayValue.
-    def enterArrayValue(self, ctx:HoconParser.ArrayValueContext):
+    # Enter a parse tree produced by HoconParser#v_string.
+    def enterV_string(self, ctx:HoconParser.V_stringContext):
         pass
 
-    # Exit a parse tree produced by HoconParser#arrayValue.
-    def exitArrayValue(self, ctx:HoconParser.ArrayValueContext):
+    # Exit a parse tree produced by HoconParser#v_string.
+    def exitV_string(self, ctx:HoconParser.V_stringContext):
+        pass
+
+
+    # Enter a parse tree produced by HoconParser#v_rawstring.
+    def enterV_rawstring(self, ctx:HoconParser.V_rawstringContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#v_rawstring.
+    def exitV_rawstring(self, ctx:HoconParser.V_rawstringContext):
+        pass
+
+
+    # Enter a parse tree produced by HoconParser#v_reference.
+    def enterV_reference(self, ctx:HoconParser.V_referenceContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#v_reference.
+    def exitV_reference(self, ctx:HoconParser.V_referenceContext):
+        pass
+
+
+    # Enter a parse tree produced by HoconParser#rawstring.
+    def enterRawstring(self, ctx:HoconParser.RawstringContext):
+        pass
+
+    # Exit a parse tree produced by HoconParser#rawstring.
+    def exitRawstring(self, ctx:HoconParser.RawstringContext):
         pass
 
 

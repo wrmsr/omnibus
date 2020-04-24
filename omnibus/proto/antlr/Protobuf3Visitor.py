@@ -20,6 +20,11 @@ class Protobuf3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Protobuf3Parser#syntaxExtra.
+    def visitSyntaxExtra(self, ctx:Protobuf3Parser.SyntaxExtraContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Protobuf3Parser#importStatement.
     def visitImportStatement(self, ctx:Protobuf3Parser.ImportStatementContext):
         return self.visitChildren(ctx)
@@ -62,6 +67,11 @@ class Protobuf3Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by Protobuf3Parser#messageBody.
     def visitMessageBody(self, ctx:Protobuf3Parser.MessageBodyContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Protobuf3Parser#messageBodyContent.
+    def visitMessageBodyContent(self, ctx:Protobuf3Parser.MessageBodyContentContext):
         return self.visitChildren(ctx)
 
 
@@ -122,6 +132,11 @@ class Protobuf3Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by Protobuf3Parser#typeRule.
     def visitTypeRule(self, ctx:Protobuf3Parser.TypeRuleContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Protobuf3Parser#simpleType.
+    def visitSimpleType(self, ctx:Protobuf3Parser.SimpleTypeContext):
         return self.visitChildren(ctx)
 
 

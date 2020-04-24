@@ -10,23 +10,8 @@ else:
 
 class HoconVisitor(ParseTreeVisitor):
 
-    # Visit a parse tree produced by HoconParser#path.
-    def visitPath(self, ctx:HoconParser.PathContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by HoconParser#key.
-    def visitKey(self, ctx:HoconParser.KeyContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by HoconParser#hocon.
     def visitHocon(self, ctx:HoconParser.HoconContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by HoconParser#obj.
-    def visitObj(self, ctx:HoconParser.ObjContext):
         return self.visitChildren(ctx)
 
 
@@ -35,23 +20,8 @@ class HoconVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by HoconParser#rawstring.
-    def visitRawstring(self, ctx:HoconParser.RawstringContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by HoconParser#v_string.
-    def visitV_string(self, ctx:HoconParser.V_stringContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by HoconParser#v_rawstring.
-    def visitV_rawstring(self, ctx:HoconParser.V_rawstringContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by HoconParser#v_reference.
-    def visitV_reference(self, ctx:HoconParser.V_referenceContext):
+    # Visit a parse tree produced by HoconParser#obj.
+    def visitObj(self, ctx:HoconParser.ObjContext):
         return self.visitChildren(ctx)
 
 
@@ -90,6 +60,16 @@ class HoconVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by HoconParser#key.
+    def visitKey(self, ctx:HoconParser.KeyContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by HoconParser#path.
+    def visitPath(self, ctx:HoconParser.PathContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by HoconParser#arrayBegin.
     def visitArrayBegin(self, ctx:HoconParser.ArrayBeginContext):
         return self.visitChildren(ctx)
@@ -102,6 +82,11 @@ class HoconVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by HoconParser#array.
     def visitArray(self, ctx:HoconParser.ArrayContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by HoconParser#arrayValue.
+    def visitArrayValue(self, ctx:HoconParser.ArrayValueContext):
         return self.visitChildren(ctx)
 
 
@@ -130,8 +115,23 @@ class HoconVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by HoconParser#arrayValue.
-    def visitArrayValue(self, ctx:HoconParser.ArrayValueContext):
+    # Visit a parse tree produced by HoconParser#v_string.
+    def visitV_string(self, ctx:HoconParser.V_stringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by HoconParser#v_rawstring.
+    def visitV_rawstring(self, ctx:HoconParser.V_rawstringContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by HoconParser#v_reference.
+    def visitV_reference(self, ctx:HoconParser.V_referenceContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by HoconParser#rawstring.
+    def visitRawstring(self, ctx:HoconParser.RawstringContext):
         return self.visitChildren(ctx)
 
 

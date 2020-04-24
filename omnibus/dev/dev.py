@@ -37,8 +37,11 @@ TODO:
  - awk(pawk)/jq(jp) entrypoints
  - build-time classpath scanning (yield_importable) + codegen
   - resolve.rb paths
- - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcloud?)
+ - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcp?)
   - kubectl?
+  - docean/linode?
+  - aws/gcp have runtime components, do/linode don't?
+  - lol fuck heroku
  - packing here but llvm.so dynalinking in main
  - pants
  - compose

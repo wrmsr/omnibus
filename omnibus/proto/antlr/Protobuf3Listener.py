@@ -27,6 +27,15 @@ class Protobuf3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Protobuf3Parser#syntaxExtra.
+    def enterSyntaxExtra(self, ctx:Protobuf3Parser.SyntaxExtraContext):
+        pass
+
+    # Exit a parse tree produced by Protobuf3Parser#syntaxExtra.
+    def exitSyntaxExtra(self, ctx:Protobuf3Parser.SyntaxExtraContext):
+        pass
+
+
     # Enter a parse tree produced by Protobuf3Parser#importStatement.
     def enterImportStatement(self, ctx:Protobuf3Parser.ImportStatementContext):
         pass
@@ -105,6 +114,15 @@ class Protobuf3Listener(ParseTreeListener):
 
     # Exit a parse tree produced by Protobuf3Parser#messageBody.
     def exitMessageBody(self, ctx:Protobuf3Parser.MessageBodyContext):
+        pass
+
+
+    # Enter a parse tree produced by Protobuf3Parser#messageBodyContent.
+    def enterMessageBodyContent(self, ctx:Protobuf3Parser.MessageBodyContentContext):
+        pass
+
+    # Exit a parse tree produced by Protobuf3Parser#messageBodyContent.
+    def exitMessageBodyContent(self, ctx:Protobuf3Parser.MessageBodyContentContext):
         pass
 
 
@@ -213,6 +231,15 @@ class Protobuf3Listener(ParseTreeListener):
 
     # Exit a parse tree produced by Protobuf3Parser#typeRule.
     def exitTypeRule(self, ctx:Protobuf3Parser.TypeRuleContext):
+        pass
+
+
+    # Enter a parse tree produced by Protobuf3Parser#simpleType.
+    def enterSimpleType(self, ctx:Protobuf3Parser.SimpleTypeContext):
+        pass
+
+    # Exit a parse tree produced by Protobuf3Parser#simpleType.
+    def exitSimpleType(self, ctx:Protobuf3Parser.SimpleTypeContext):
         pass
 
 
