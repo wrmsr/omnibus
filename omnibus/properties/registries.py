@@ -9,8 +9,8 @@ from .base import Property
 
 if ta.TYPE_CHECKING:
     from .. import registries
-
-registries_ = lang.lazy_import('..registries', __package__)  # noqa
+else:
+    registries = lang.proxy_import('..registries', __package__)
 
 
 K = ta.TypeVar('K')
@@ -29,7 +29,7 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
         super().__init__()
 
         if policy is None:
-            policy = registries_().CompositeRegistry.FIRST_ONE
+            policy = registries.CompositeRegistry.FIRST_ONE
 
         self._bind = bind
         self._lock = lang.default_lock(lock, True)
@@ -56,7 +56,7 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
             self._key_sets_by_value = {}
 
     def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictRegistry[K, V]:
-        return registries_().DictRegistry(items)
+        return registries.DictRegistry(items)
 
     def _get_immediate_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         try:
@@ -88,7 +88,7 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
             return registry
 
     def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
-        return registries_().CompositeRegistry(regs, policy=self._policy)
+        return registries.CompositeRegistry(regs, policy=self._policy)
 
     def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
         with self._lock():
@@ -208,17 +208,17 @@ class MultiRegistryProperty(RegistryProperty):
             policy: registries.CompositeRegistry.Policy = None,
     ) -> None:
         if policy is None:
-            policy = registries_().CompositeMultiRegistry.MERGE
+            policy = registries.CompositeMultiRegistry.MERGE
         super().__init__(bind=bind, lock=lock, policy=policy)
 
     def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictMultiRegistry[K, V]:
         dct = {}
         for k, v in items:
             dct.setdefault(k, set()).add(v)
-        return registries_().DictMultiRegistry(dct)
+        return registries.DictMultiRegistry(dct)
 
     def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
-        return registries_().CompositeMultiRegistry(regs, policy=self._policy)
+        return registries.CompositeMultiRegistry(regs, policy=self._policy)
 
 
 def multi_registry(

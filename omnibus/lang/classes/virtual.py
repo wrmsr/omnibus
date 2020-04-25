@@ -4,6 +4,7 @@ WATCH:
 
 FIXME:
  - overhaul Protcol - https://www.python.org/dev/peps/pep-0544/
+  - 3.8 only :|
  - lol, it's __subclasshook__ not __subclasscheck__
  - also threadlocal default? but can hopefully die after hook fix
 

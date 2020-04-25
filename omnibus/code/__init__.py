@@ -47,3 +47,6 @@ from .objs import FUNCTION_ARGS  # noqa
 from .objs import get_code_flag_names  # noqa
 from .objs import get_code_function  # noqa
 from .objs import recode_func  # noqa
+from .protos import Code  # noqa
+from .protos import Frame  # noqa
+from .protos import Traceback  # noqa
