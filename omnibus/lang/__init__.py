@@ -14,6 +14,7 @@ from .classes import Descriptor  # noqa
 from .classes import Extension  # noqa
 from .classes import Final  # noqa
 from .classes import FinalException  # noqa
+from .classes import Inner  # noqa
 from .classes import Interface  # noqa
 from .classes import Intersection  # noqa
 from .classes import is_abstract  # noqa

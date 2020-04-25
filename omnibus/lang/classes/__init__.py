@@ -18,6 +18,7 @@ from .restrict import Override  # noqa
 from .restrict import override  # noqa
 from .restrict import Sealed  # noqa
 from .restrict import SealedException  # noqa
+from .simple import Inner  # noqa
 from .simple import SimpleMetaDict  # noqa
 from .simple import singleton  # noqa
 from .simple import staticfunction  # noqa
