@@ -26,9 +26,10 @@ TODO:
  - newable-style object graphs, refs
  - cmdline overrides (+env-var? +dict?)
   - argparse ala record?
-  - env extends dict - cfgable handling for 'empty means None' and shit, plus more str-coercion than dict
+  - env extends dict w/ cfgable handling for 'empty means None' and shit, plus more str-coercion than dict
    - hm - csv serde handling escaping
     - just use builtin csv
+    - is this 'stringly typed' shit more appropriate in serde - is it useful for csv?
  - * fqon (fully-qualified object name) resolver
   - train_fn.optimizer_cls = @tf.train.GradientDescentOptimizer
   - build_model.network_fn = @DNN()
