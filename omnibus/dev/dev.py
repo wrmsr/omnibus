@@ -50,6 +50,9 @@ TODO:
  - dep mgmt
  - hypothesis
  - https://github.com/commercialhaskell/stack/blob/master/src/Stack/New.hs
+ - astor / https://gist.github.com/treo/1250562
+  - https://github.com/psf/black - mine, not use
+  - yapf
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
