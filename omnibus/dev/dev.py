@@ -26,6 +26,7 @@ TODO:
   - tame freeze (pyinstaller? pyoxidizer?)
    - incl/dist in dev support machinery to build pyox bins
   - pex
+  - beeware briefcase?
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
   - DO NOT WANT compile-timme forced impl-all mandate but do want flake
