@@ -23,7 +23,7 @@ def test_inline_http():
         server.shutdown()
         return [b'hi']
 
-    port = 8181
+    port = 9999
 
     def fn1():
         time.sleep(0.5)
@@ -42,6 +42,7 @@ def test_inline_http():
 
     with wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', port)), app) as server:
         with server.loop_context() as loop:
+            port = server.binder.port
             for _ in loop:
                 pass
 
@@ -49,6 +50,7 @@ def test_inline_http():
 
 
 def test_http():
+    # FIXME: dynamic port
     server: wsgiref_.WsgiServer = None
 
     def app(environ, start_response):
@@ -86,12 +88,7 @@ def test_json_http():
         server.shutdown()
         return {'hi': True}
 
-    port = 8181
-
-    def fn0():
-        nonlocal server
-        server = wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', port)), apps_.simple_json_app(json_app))  # noqa
-        server.run()
+    port = 9998
 
     def fn1():
         time.sleep(0.5)
@@ -106,7 +103,16 @@ def test_json_http():
                 pass
             time.sleep(0.1)
 
-    helpers.run_with_timeout(fn0, fn1)
+    thread = threading.Thread(target=fn1)
+    thread.start()
+
+    with wsgiref_.ThreadSpawningWsgiRefServer(bind_.TcpBinder(bind_.TcpBinder.Config('0.0.0.0', 0)), apps_.simple_json_app(json_app)) as server:  # noqa as server:
+        with server.loop_context() as loop:
+            port = server.binder.port
+            for _ in loop:
+                pass
+
+    thread.join()
 
 
 @pytest.mark.xfail()

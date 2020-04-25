@@ -69,7 +69,7 @@ def provide_binder(config: http.bind.Binder.Config) -> http.bind.Binder:
 def test_app():
     server: http.servers.WsgiServer = None
 
-    port = 8181
+    port = 9997
 
     def fn1():
         time.sleep(0.5)
@@ -102,7 +102,7 @@ def test_app():
     bind_contextmanager_lifecycle(binder, replserver.ReplServer)
     binder.bind(ReplServerThread, as_eager_singleton=True)
 
-    binder.bind(http.bind.TcpBinder.Config('0.0.0.0', port))
+    binder.bind(http.bind.TcpBinder.Config('0.0.0.0', 0))
     binder.bind(http.bind.Binder.Config, to=http.bind.TcpBinder.Config)
     binder.bind_callable(provide_binder)
 
@@ -118,6 +118,7 @@ def test_app():
     with lifecycles.context_manage(lm):
         server = injector.get_instance(http.servers.WsgiServer)
         with server.loop_context() as loop:
+            port = server.binder.port
             for _ in loop:
                 pass
 

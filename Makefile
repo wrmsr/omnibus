@@ -203,7 +203,7 @@ test-37: venv-37
 
 .PHONY: test-verbose
 test-verbose: build
-	.venv/bin/pytest -svvv omnibus
+	.venv/bin/pytest -svvv -n 0 omnibus
 
 
 ### Dist
