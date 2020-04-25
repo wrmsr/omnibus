@@ -65,6 +65,10 @@ def get_code_flag_names(flags: int) -> ta.List[str]:
     return [k for k, v in CO_FLAG_VALUES.items() if flags & v]
 
 
+def instruction_bytes(instrs: ta.Iterable[dis.Instruction]) -> bytes:
+    return bytes(b if b is not None else 0 for instr in instrs for b in [instr.opcode, instr.arg])
+
+
 def recode_func(func: types.FunctionType, code_bytes: ta.Union[bytes, bytearray]) -> ta.Iterable[ta.Any]:
     codeargs = [getattr(func.__code__, f'co_{k}') for k in CODE_ARGS]
     codeargs[CODE_ARGS.index('code')] = bytes(code_bytes)

@@ -46,6 +46,7 @@ from .objs import FUNC_NONE  # noqa
 from .objs import FUNCTION_ARGS  # noqa
 from .objs import get_code_flag_names  # noqa
 from .objs import get_code_function  # noqa
+from .objs import instruction_bytes  # noqa
 from .objs import recode_func  # noqa
 from .protocols import CodeProtocol  # noqa
 from .protocols import FrameProtocol  # noqa
