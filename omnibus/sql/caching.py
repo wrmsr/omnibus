@@ -8,7 +8,7 @@ import sqlalchemy.sql.elements  # noqa
 from .. import caches
 from .. import check
 from .. import dataclasses as dc
-from .. import instruments
+from .. import interfaces
 from .. import properties
 
 
@@ -89,13 +89,13 @@ class QueryCompilationCache(ta.Generic[K, V]):
             parameterizer: Parameterizer[K, V],
             constructor: QueryConstructor[V],
             *,
-            metrics: instruments.MetricsCollection = instruments.NopMetricsCollection(),
+            metrics: interfaces.MetricsCollection = interfaces.NopMetricsCollection(),
     ) -> None:
         super().__init__()
 
         self._parameterizer = check.isinstance(parameterizer, Parameterizer)
         self._constructor = check.callable(constructor)
-        self._metrics = check.isinstance(metrics, instruments.MetricsCollection)
+        self._metrics = check.isinstance(metrics, interfaces.MetricsCollection)
 
         self._cache: ta.MutableMapping[K, QueryCompilationCache.Entry] = caches.new_cache()
 
