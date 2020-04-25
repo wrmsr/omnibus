@@ -290,14 +290,13 @@ except ImportError:
     pass
 
 
-def _get_cell_type() -> type:
+def make_cell(_):
     def fn():
         nonlocal value
-    value = None  # noqa
-    return type(fn.__closure__[0])
+    return fn.__closure__[0]
 
 
-CellType = _get_cell_type()
+CellType = type(make_cell(None))
 
 
 class EmptyMap(ta.Mapping[K, V]):
