@@ -11,6 +11,7 @@ TODO:
  - queues: sqs, ..., internal?
  - bittorrent?
  - ssh? (paramiko + bltin expect)
- - kv already way too big
+ - kv already way too big (..everything)
+ - coord also too big (sql, kazoo, etcd)
  - broker? kafka (msk), amzn mq, activemq?
 """

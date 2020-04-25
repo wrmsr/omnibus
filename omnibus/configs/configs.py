@@ -13,6 +13,7 @@ TODO:
  - polled sources: file (+url, git), sql, redis
   - atomicity - class UsernameAndPassword etc
  - pushed sources: zk, etcd
+  - omnibus 'coord' iface
  - callbacks only on 'winning' value change
  - dc stuff - validate, coerce, etc
  - config_cls->cls registry pattern?
