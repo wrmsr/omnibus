@@ -1,6 +1,7 @@
 """
 TODO:
  - inner=False ** InnerMeta
+ - FFData (frozen, final) + SAData (sealed, abstract)
 """
 import abc
 import dataclasses as dc
