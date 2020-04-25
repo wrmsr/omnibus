@@ -24,6 +24,7 @@ flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2
 ipython==7.13.0
+iredis==1.6.2
 mycli==1.21.1
 mypy==0.770
 objgraph==3.4.1

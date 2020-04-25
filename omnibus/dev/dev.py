@@ -20,7 +20,6 @@ TODO:
  - cargo stuff
  - pycharm interop (but runtime pydevd still in core)
  - gh shit
- - protobuf shit
  - type hierarchy graphviz
  - packaging
   - tame freeze (pyinstaller? pyoxidizer?)
@@ -35,7 +34,6 @@ TODO:
  - vendoring - import rewriting
  - pycparser / pycpp
  - diffing - dc -> protofbuf gen
- - awk(pawk)/jq(jp) entrypoints
  - build-time classpath scanning (yield_importable) + codegen
   - resolve.rb paths
  - deployment, self infra, pub+priv gh -> aws, suproc-heavy (incl aws/gcp?)
@@ -74,7 +72,7 @@ https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
 https://github.com/pypa/packaging
 https://python-devtools.helpmanual.io/
 https://github.com/MacPython/pandas-wheels
-https://github.com/jasontrigg0/pawk
 https://github.com/cookiecutter/cookiecutter/blob/1.7.0/cookiecutter/repository.py
+https://github.com/tmrts/boilr
 https://gitlab.com/rekodah/hrep
 """
