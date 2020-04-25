@@ -1,6 +1,7 @@
 """
 TODO:
  - dataclasses
+ - omnibus.sysinfo, +psutil interop?
 """
 import argparse
 import logging
