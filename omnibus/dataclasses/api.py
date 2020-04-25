@@ -44,6 +44,9 @@ TODO:
   - handle multiple inheritance lols
  - ** CYTHON **
   - dogfood CacheLink
+  - with jitted/compiled dataclasses ~can bypass dict hits~...
+  - maven style classpath scan at build, hash/cmp structure at boot, use if present / warn if not
+   - just like tok
  - make FunctionCtx use code.FunctionGen (need argspec earlier)
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - these aspeects are kind of 'Deriving'..

@@ -1,4 +1,6 @@
 """
+!! https://github.com/apache/airflow/tree/master/airflow/providers
+
 TODO:
  - when move from omnibus.integrations.queues.queue to omnibus.queues.types?
   - move out when impls no longer stubs or trivial, or when non-trivial support machinery
