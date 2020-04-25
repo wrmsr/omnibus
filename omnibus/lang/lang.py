@@ -290,7 +290,7 @@ except ImportError:
     pass
 
 
-def make_cell(_):
+def make_cell(value: ta.Any) -> 'CellType':
     def fn():
         nonlocal value
     return fn.__closure__[0]
