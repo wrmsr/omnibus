@@ -183,8 +183,7 @@ class SubprocessLike(lang.Protocol):
         raise NotImplementedError
 
 
-@SubprocessLike
-class TempSubprocess:
+class TempSubprocess(SubprocessLike):
 
     def __init__(
             self,

@@ -22,7 +22,7 @@ def make_abstract(obj: T) -> T:
             abc.abstractmethod(obj.fdel) if obj.fdel is not None else None,
         )
     elif isinstance(obj, classmethod) or isinstance(obj, staticmethod):
-        return type(obj)(abc.abstractmethod(obj))
+        return type(obj)(abc.abstractmethod(obj.__func__))
     else:
         return obj
 

@@ -26,4 +26,3 @@ from .virtual import Intersection  # noqa
 from .virtual import NotPicklable  # noqa
 from .virtual import Picklable  # noqa
 from .virtual import Protocol  # noqa
-from .virtual import ProtocolException  # noqa

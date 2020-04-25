@@ -10,7 +10,10 @@ def test_protocol():
     class P(virtual_.Protocol):
         @restrict_.abstract
         def f(self):
-            raise NotImplementedError()
+            raise NotImplementedError
+
+    with pytest.raises(TypeError):
+        P()
 
     class A:
         def f(self):
@@ -20,20 +23,22 @@ def test_protocol():
         def g(self):
             pass
 
+    A()
+
     assert issubclass(A, P)
     assert not issubclass(B, P)
     assert isinstance(A(), P)
     assert not isinstance(B(), P)
 
-    @P
-    class C:
+    class C(P):
         def f(self):
             pass
 
-    with pytest.raises(virtual_.ProtocolException):
-        @P
-        class D:
+    with pytest.raises(TypeError):
+        class D(P):
             pass
+
+        D()
 
 
 def test_intersection():

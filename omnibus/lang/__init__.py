@@ -28,7 +28,6 @@ from .classes import Override  # noqa
 from .classes import override  # noqa
 from .classes import Picklable  # noqa
 from .classes import Protocol  # noqa
-from .classes import ProtocolException  # noqa
 from .classes import Sealed  # noqa
 from .classes import SealedException  # noqa
 from .classes import SimpleMetaDict  # noqa

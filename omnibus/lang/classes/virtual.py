@@ -5,6 +5,7 @@ WATCH:
 FIXME:
  - overhaul Protcol - https://www.python.org/dev/peps/pep-0544/
   - 3.8 only :|
+  - kill @Protocol usage
  - lol, it's __subclasshook__ not __subclasscheck__
  - also threadlocal default? but can hopefully die after hook fix
 
@@ -50,19 +51,14 @@ from .restrict import NotInstantiable
 Ty = ta.TypeVar('Ty', bound=type)
 
 
-class ProtocolException(TypeError):
-
-    def __init__(self, reqs: ta.Set[str]) -> None:
-        super().__init__()
-        self._reqs = reqs
-
-    def __repr__(self) -> str:
-        return f'{type(self).__name__}({self._reqs})'
-
-
 class _ProtocolMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
+        if 'Protocol' not in globals():
+            return super().__new__(mcls, name, bases, namespace)
+        if Protocol not in bases:
+            raise TypeError
+
         for k, v in list(namespace.items()):
             absv = make_abstract(v)
             if absv is not v:
@@ -78,38 +74,26 @@ class _ProtocolMeta(abc.ABCMeta):
             return reqset
 
         def __subclasshook__(cls, subclass):
+            if cls is not kls:
+                return super(kls, cls).__subclasshook__(subclass)
             if get_missing_reqs(subclass):
                 return False
             if user_subclasshook is not None:
                 ret = user_subclasshook(cls, subclass)
             else:
-                ret = super().__subclasshook__(subclass)
+                ret = super(kls, cls).__subclasshook__(subclass)
             return True if ret is NotImplemented else ret
 
         namespace['__subclasshook__'] = classmethod(__subclasshook__)
 
-        def __protocolcheck__(cls, subclass):
-            missing_reqs = get_missing_reqs(subclass)
-            if missing_reqs:
-                raise ProtocolException(missing_reqs)
-            try:
-                chain = super().__protocolcheck__
-            except AttributeError:
-                pass
-            else:
-                chain(subclass)
-
-        namespace['__protocolcheck__'] = classmethod(__protocolcheck__)
-
-        kls = super().__new__(mcls, name, bases, namespace)
+        kls = super().__new__(abc.ABCMeta, name, tuple(b for b in bases if b is not Protocol), namespace)
         return kls
 
 
 class Protocol(metaclass=_ProtocolMeta):
 
     def __new__(cls, impl: Ty) -> Ty:
-        cls.__protocolcheck__(impl)
-        return impl
+        raise TypeError
 
     def __init__(self, *args, **kwarg) -> None:
         raise TypeError
