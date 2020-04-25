@@ -70,4 +70,5 @@ https://python-devtools.helpmanual.io/
 https://github.com/MacPython/pandas-wheels
 https://github.com/jasontrigg0/pawk
 https://github.com/cookiecutter/cookiecutter/blob/1.7.0/cookiecutter/repository.py
+https://gitlab.com/rekodah/hrep
 """
