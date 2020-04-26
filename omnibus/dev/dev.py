@@ -71,7 +71,9 @@ https://github.com/github/semantic
 https://gitlab.com/coala/bears/coala-antlr/commit/abc9f3b0
 https://github.com/indygreg/python-build-standalone
 https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
+https://github.com/pypa/wheel
 https://github.com/pypa/packaging
+https://github.com/pypa/twine
 https://python-devtools.helpmanual.io/
 https://github.com/MacPython/pandas-wheels
 https://github.com/cookiecutter/cookiecutter/blob/1.7.0/cookiecutter/repository.py
