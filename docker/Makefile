@@ -2,16 +2,29 @@ DOCKER_USER=wrmsr
 
 DOCKER_IMAGES:= \
 	omnibus-dev \
+	omnibus-elasticsearch \
+	omnibus-kafka \
+	omnibus-memcached \
+	omnibus-minnio \
 	omnibus-mysql \
 	omnibus-postgres \
 	omnibus-redis \
+	omnibus-zookeeper \
 
-DOCKER_COMPOSE_SERVICES:= \
+DOCKER_COMPOSE_DEFAULT_SERVICES:= \
 	omnibus-mysql-master \
 	omnibus-mysql-slave \
 	omnibus-postgres-master \
 	omnibus-postgres-slave \
 	omnibus-redis \
+
+DOCKER_COMPOSE_SERVICES:= \
+	$DOCKER_COMPOSE_DEFAULT_SERVICES \
+	omnibus-elasticsearch \
+	omnibus-kafka \
+	omnibus-memcached \
+	omnibus-minnio \
+	omnibus-zookeeper \
 
 .PHONY: all
 all: clean images

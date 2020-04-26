@@ -1,3 +1,7 @@
+"""
+TODO:
+ - rename 'objects'? codecs/serde interplay still unresolved
+"""
 import datetime
 import types
 import typing as ta
@@ -113,7 +117,7 @@ class NodeWrappingConstructorMixin:
         return self.__construct_yaml_pairs(node, super().construct_yaml_pairs)
 
 
-class Loaders(lang.Namespace):
+class WrappedLoaders(lang.Namespace):
 
     @staticmethod
     def _wrap(cls):
@@ -182,3 +186,23 @@ class Loaders(lang.Namespace):
     @classmethod
     def cunsafe(cls, *args, **kwargs) -> 'yaml.CUnsafeLoader':
         return cls.CUnsafe(*args, **kwargs)
+
+
+def load(stream, Loader):
+    with lang.disposing(Loader(stream)) as loader:
+        return loader.get_single_data()
+
+
+def load_all(stream, Loader):
+    with lang.disposing(Loader(stream)) as loader:
+        while loader.check_data():
+            yield loader.get_data()
+
+
+def full_load(stream):
+    return load(stream, yaml.FullLoader)
+
+
+def full_load_all(stream):
+    return load_all(stream, yaml.FullLoader)
+

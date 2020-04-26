@@ -2,6 +2,60 @@ version: '2'
 
 services:
 
+  omnibus-elasticsearch:
+    build: '.'
+    image: 'wrmsr/omnibus-elasticsearch:latest'
+    restart: 'always'
+    environment:
+      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'false'
+    expose:
+      - '9200'
+    ports:
+      - '21211:9200'
+
+  omnibus-kafka:
+    image: 'wrmsr/omnibus-kafka:latest'
+    hostname: 'omnibus-kafka'
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
+      KAFKA_ZOOKEEPER_CONNECT: 'omnibus-zookeeper:2181'
+      KAFKA_BROKER_ID: '1'
+      KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - '../temp/kafka/data:/var/lib/kafka/data'
+    depends_on:
+      - 'omnibus-zookeeper'
+    expose:
+      - '9092'
+    ports:
+      - '21212:9092'
+
+  omnibus-memcached:
+    build: '.'
+    image: 'wrmsr/omnibus-memcached:latest'
+    restart: 'always'
+    expose:
+      - '11211'
+    ports:
+      - '21213:11211'
+
+  omnibus-minio:
+    build: '.'
+    image: 'wrmsr/omnibus-minio:latest'
+    restart: 'always'
+    environment:
+      MINIO_ACCESS_KEY: 'AKIAIOSFODNN7EXAMPLE'
+      MINIO_SECRET_KEY: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
+    expose:
+      - '9000'
+    ports:
+      - '21214:9000'
+
   omnibus-mysql-master:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
@@ -72,6 +126,21 @@ services:
       - '6379'
     ports:
       - '22219:6379'
+
+  omnibus-zookeeper:
+    image: 'wrmsr/omnibus-zookeeper:latest'
+    hostname: 'omnibus-zookeeper'
+    environment:
+      ZOO_MY_ID: '1'
+      ZOO_PORT: '2181'
+      ZOO_SERVERS: 'server.1=omnibus-zookeeper:2888:3888'
+    volumes:
+      - '../temp/zookeeper/data:/data'
+      - '../temp/zookeeper/datalog:/datalog'
+    expose:
+      - '2181'
+    ports:
+      - '21220:2181'
 
   omnibus-dev:
     build: '.'

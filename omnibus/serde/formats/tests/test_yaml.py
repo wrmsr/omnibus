@@ -11,7 +11,7 @@ def test_yaml():
         print()
 
         try:
-            loader = yaml_.Loaders.base(buf)
+            loader = yaml_.WrappedLoaders.base(buf)
             vals = []
             try:
                 while loader.check_data():

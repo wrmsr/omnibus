@@ -8,7 +8,7 @@ import typing as ta
 
 import pkg_resources
 
-from . import lang
+from .. import lang
 
 
 LINUX_PLATFORMS = ('linux', 'linux2')

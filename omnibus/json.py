@@ -1,6 +1,7 @@
 """
 TODO:
  - *both* orjson (default) and ujson
+ - *move to serde*
 """
 import typing as ta
 
