@@ -120,3 +120,7 @@ def test_irc():
         response_thread = threading.Thread(target=print_response)
         response_thread.daemon = True
         response_thread.start()
+
+
+if __name__ == '__main__':
+    test_irc()

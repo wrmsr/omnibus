@@ -13,7 +13,7 @@ services:
     expose:
       - '9200'
     ports:
-      - '21211:9200'
+      - '22211:9200'
 
   omnibus-kafka:
     image: 'wrmsr/omnibus-kafka:latest'
@@ -33,7 +33,7 @@ services:
     expose:
       - '9092'
     ports:
-      - '21212:9092'
+      - '22212:9092'
 
   omnibus-memcached:
     build: '.'
@@ -42,7 +42,7 @@ services:
     expose:
       - '11211'
     ports:
-      - '21213:11211'
+      - '22213:11211'
 
   omnibus-minio:
     build: '.'
@@ -54,7 +54,7 @@ services:
     expose:
       - '9000'
     ports:
-      - '21214:9000'
+      - '22214:9000'
 
   omnibus-mysql-master:
     build: '.'
@@ -140,7 +140,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '21220:2181'
+      - '22220:2181'
 
   omnibus-dev:
     build: '.'

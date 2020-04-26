@@ -205,4 +205,3 @@ def full_load(stream):
 
 def full_load_all(stream):
     return load_all(stream, yaml.FullLoader)
-

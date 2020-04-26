@@ -195,15 +195,15 @@ typecheck: venv
 
 .PHONY: test
 test: build
-	.venv/bin/pytest -v omnibus
+	.venv/bin/pytest -v -n auto omnibus
 
 .PHONY: test-37
 test-37: venv-37
-	.venv-37/bin/pytest -v omnibus
+	.venv-37/bin/pytest -v -n auto omnibus
 
 .PHONY: test-verbose
 test-verbose: build
-	.venv/bin/pytest -svvv -n 0 omnibus
+	.venv/bin/pytest -svvv omnibus
 
 
 ### Dist
@@ -388,11 +388,11 @@ _docker-build-37:
 
 .PHONY: docker-test
 docker-test: docker-build
-	./docker-dev .venv-docker/bin/pytest -v omnibus
+	./docker-dev .venv-docker/bin/pytest -v -n auto omnibus
 
 .PHONY: docker-test-37
 docker-test-37: docker-build-37
-	./docker-dev .venv-docker-37/bin/pytest -v omnibus
+	./docker-dev .venv-docker-37/bin/pytest -v -n auto omnibus
 
 ## Dist
 

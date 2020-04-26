@@ -5,7 +5,7 @@ DOCKER_IMAGES:= \
 	omnibus-elasticsearch \
 	omnibus-kafka \
 	omnibus-memcached \
-	omnibus-minnio \
+	omnibus-minio \
 	omnibus-mysql \
 	omnibus-postgres \
 	omnibus-redis \
@@ -19,11 +19,11 @@ DOCKER_COMPOSE_DEFAULT_SERVICES:= \
 	omnibus-redis \
 
 DOCKER_COMPOSE_SERVICES:= \
-	$DOCKER_COMPOSE_DEFAULT_SERVICES \
+	$(DOCKER_COMPOSE_DEFAULT_SERVICES) \
 	omnibus-elasticsearch \
 	omnibus-kafka \
 	omnibus-memcached \
-	omnibus-minnio \
+	omnibus-minio \
 	omnibus-zookeeper \
 
 .PHONY: all
@@ -78,7 +78,7 @@ rmdev:
 reup: stop
 	docker-compose rm -sf $(DOCKER_COMPOSE_SERVICES)
 	$(MAKE) clean-services images
-	docker-compose up --no-recreate $(DOCKER_COMPOSE_SERVICES) omnibus-dev
+	docker-compose up --no-recreate $(DOCKER_DEFAULT_COMPOSE_SERVICES) omnibus-dev
 
 .PHONY: enable-ptrace
 enable-ptrace:
