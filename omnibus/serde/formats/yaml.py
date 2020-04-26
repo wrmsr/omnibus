@@ -1,6 +1,9 @@
 """
 TODO:
+ - goal: perfect rewrites (comments, whitespace)
+  - or at least comments
  - rename 'objects'? codecs/serde interplay still unresolved
+ - just fuckin vendor?
 """
 import datetime
 import types
