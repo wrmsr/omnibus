@@ -74,6 +74,7 @@ https://github.com/pypa/auditwheel/blob/master/auditwheel/elfutils.py
 https://github.com/pypa/wheel
 https://github.com/pypa/packaging
 https://github.com/pypa/twine
+https://github.com/pypa/pipenv/tree/master/pipenv
 https://python-devtools.helpmanual.io/
 https://github.com/MacPython/pandas-wheels
 https://github.com/cookiecutter/cookiecutter/blob/1.7.0/cookiecutter/repository.py
