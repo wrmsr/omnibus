@@ -56,6 +56,7 @@ TODO:
   - these all suck - lib2to3?
  - om entrypoint
  - jupyter
+ - clang bindings
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
