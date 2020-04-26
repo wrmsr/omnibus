@@ -26,6 +26,7 @@ TODO:
    - incl/dist in dev support machinery to build pyox bins
   - pex
   - beeware briefcase?
+ - pyo3 autobinder? rocksdb, v8, luajit
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
   - DO NOT WANT compile-timme forced impl-all mandate but do want flake
@@ -54,6 +55,7 @@ TODO:
   - yapf?
   - these all suck - lib2to3?
  - om entrypoint
+ - jupyter
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
