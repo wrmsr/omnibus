@@ -1,4 +1,4 @@
-"""
+"""  # noqa
 DECREE:
  - *DEPLESS*.
  - Dev vs 'Main' - dev = everything not shipped to prod
@@ -57,6 +57,19 @@ TODO:
  - om entrypoint
  - jupyter
  - clang bindings
+ - type hierarchy plot, skeletonize
+
+DEPS:
+ - dep version security tool.. hash verification
+ - take over requirements.txt, or tack on hash (hot comment? rewritten in place?)
+ - prob hook into dep resolution
+ - might be safer to treat like cli, REALLY dangerous code
+ - forbid external dls?
+ - https://warehouse.readthedocs.io/api-reference/json/
+ - https://github.com/pypa/pipfile ?
+ - https://github.com/pypa/pipenv ugh
+ - holy hell that vendor dir
+ - https://github.com/indygreg/PyOxidizer/blob/a9f7356b9e9464ae4917a41123ff0d0ca8777694/pyoxidizer/src/py_packaging/packaging_tool.rs#L25
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
