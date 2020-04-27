@@ -65,6 +65,7 @@ https://news.ycombinator.com/item?id=22964910
 https://github.com/alexandru/scala-best-practices/blob/master/sections/3-architecture.md#35-must-not-use-parameterless-configfactoryload-or-access-a-config-object-directly
 https://github.com/google/gin-config - ghetto injection
 https://github.com/spf13/viper - merging
+ / https://gitlab.com/dashwav/gila
 """
 import abc
 import types
