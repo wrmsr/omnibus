@@ -1,18 +1,15 @@
 import os.path
 
-from ....._vendor import antlr4
-from ..antlr.JsonLexer import JsonLexer
-from ..antlr.JsonParser import JsonParser
-from ..antlr.JsonVisitor import JsonVisitor
+from .. import parsing as parsing_
+from .. import json as json_
 
 
-def test_json():
+def test_parsee():
     with open(os.path.join(os.path.dirname(__file__), 'examples/example2.json'), 'r') as f:
         buf = f.read()
-    lexer = JsonLexer(antlr4.InputStream(buf))
-    stream = antlr4.CommonTokenStream(lexer)
-    stream.fill()
-    parser = JsonParser(stream)
+    ret = parsing_.parse(buf)
+    print(ret)
 
-    visitor = JsonVisitor()
-    print(visitor.visit(parser.json()))
+
+def test_codec():
+    assert json_.codec().decode(json_.codec().encode({'a': 2})) == {'a': 2}
