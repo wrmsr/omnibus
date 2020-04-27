@@ -1,3 +1,8 @@
+"""
+NOTE:
+ - dispatch _below_ injector - usable without
+  - but this much simpler - main usecase is intra-class shit (registry properties)
+"""
 import abc
 import typing as ta
 
