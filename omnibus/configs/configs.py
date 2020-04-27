@@ -1,4 +1,9 @@
 """  # noqa
+POSS:
+ - common, typed node hierarchy?
+  - general purpose, higher-level 'alias'? or pushed down into serde?
+   - hocon has 'aliases', need to take it over? or push it down? interop/share?
+
 TODO:
  - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
   - DIFFS:
@@ -59,6 +64,7 @@ https://blog.twitter.com/engineering/en_us/topics/infrastructure/2018/dynamic-co
 https://news.ycombinator.com/item?id=22964910
 https://github.com/alexandru/scala-best-practices/blob/master/sections/3-architecture.md#35-must-not-use-parameterless-configfactoryload-or-access-a-config-object-directly
 https://github.com/google/gin-config - ghetto injection
+https://github.com/spf13/viper - merging
 """
 import abc
 import types

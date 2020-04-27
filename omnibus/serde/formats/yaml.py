@@ -1,5 +1,7 @@
 """
 TODO:
+ - !! shared 'object format' node hierarchy
+  - fuse yaml and hocon - marks, *COMMENTS*, etc
  - goal: perfect rewrites (comments, whitespace)
   - or at least comments
  - rename 'objects'? codecs/serde interplay still unresolved
