@@ -1,6 +1,5 @@
-import typing as ta
+import typing as ta  # noqa
 
-from .. import collections as ocol
 from .. import lang
 from ..serde.formats import yaml
 
