@@ -21,11 +21,7 @@ TODO:
  - pycharm interop (but runtime pydevd still in core)
  - gh shit
  - type hierarchy graphviz
- - packaging
-  - tame freeze (pyinstaller? pyoxidizer?)
-   - incl/dist in dev support machinery to build pyox bins
-  - pex
-  - beeware briefcase?
+  - + skeletonnize / stub / mock
  - pyo3 autobinder? rocksdb, v8, luajit
  - pyenv stuff
  - ‘semi-static’ checks..? match exhaustiveness etc
@@ -57,7 +53,6 @@ TODO:
  - om entrypoint
  - jupyter
  - clang bindings
- - type hierarchy plot, skeletonize
 
 DEPS:
  - dep version security tool.. hash verification
@@ -70,6 +65,18 @@ DEPS:
  - https://github.com/pypa/pipenv ugh
  - holy hell that vendor dir
  - https://github.com/indygreg/PyOxidizer/blob/a9f7356b9e9464ae4917a41123ff0d0ca8777694/pyoxidizer/src/py_packaging/packaging_tool.rs#L25
+
+PKG:
+ - tame freeze (pyinstaller? pyoxidizer?)
+  - incl/dist in dev support machinery to build pyox bins
+ - pex
+ - beeware briefcase?
+ - prob gonna wanna xz self for pyox lam lol - llvm 20M z 13M xz
+  - w/ numpy gonna crack it no matter what - tool up ‘unpacking’? bundled setup?
+  - lol, hybrid venv  - THE OMNIBUS that venvs itself
+  - hm, already have setuptools/pip and venv is now builtin..
+  - no actually, pyox strips?
+
 
 ast.copy_location(new_node, node)
 ast.fix_missing_locations(new_node)
