@@ -15,6 +15,8 @@ TODO:
  - mypy
  - twine
  - project gens (cy/rs/cc)
+  - now + mvn, go, cmake
+   - if using for spark/go gen need sooner than later..
  - dev helping fuse stuff
  - venv helpers
  - makefile shit
