@@ -32,7 +32,10 @@ TODO:
   - pyhash
   - preshed (mph)
   - tdigest (move to math/, with stats.py)
+ - bidir map
+ - guava table (graph in graph pkg)
  - https://github.com/rust-lang/ena
+ - https://github.com/aio-libs/multidict
 """
 import functools
 import typing as ta
