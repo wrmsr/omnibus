@@ -3,6 +3,9 @@ DECREE:
  - *DEPLESS*.
  - Dev vs 'Main' - dev = everything not shipped to prod
 
+!!:
+ - omnibus.x.dev, omnibus.y.dev, etc ala tests??
+
 FIXME:
  - fix req-dev.txt? keep depless? already non-mako tmpl in main for nginx..
  - ** common test code goes in here and is not stripped, usable by consumers**
