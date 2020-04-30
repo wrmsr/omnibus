@@ -65,6 +65,7 @@ DEPS:
  - https://github.com/pypa/pipenv ugh
  - holy hell that vendor dir
  - https://github.com/indygreg/PyOxidizer/blob/a9f7356b9e9464ae4917a41123ff0d0ca8777694/pyoxidizer/src/py_packaging/packaging_tool.rs#L25
+ - https://github.com/jazzband/pip-tools
 
 PKG:
  - tame freeze (pyinstaller? pyoxidizer?)

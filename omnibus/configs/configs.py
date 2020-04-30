@@ -44,7 +44,7 @@ TODO:
  - callbacks are dc-level - both field-lvl and inst-lvl
  - look at:
   - kubernetes
-  - envoy
+  - envoy https://www.envoyproxy.io/docs/envoy/latest/configuration/overview/examples
  - pluggable interpolation ala commons-cfg
   - dns lookup (polled/dynamic?)
   - JNDI equiv? (actor interop - Namespace abstr? jmx?)
