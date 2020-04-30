@@ -12,4 +12,5 @@ TODO:
 https://github.com/jmespath/jmespath.py/blob/develop/jmespath/functions.py
 https://github.com/stedolan/jq/blob/master/src/builtin.jq
 http://docs.jsonata.org/programming
+https://jsonnet.org/
 """
