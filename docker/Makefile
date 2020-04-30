@@ -6,6 +6,7 @@ DOCKER_IMAGES:= \
 	omnibus-kafka \
 	omnibus-memcached \
 	omnibus-minio \
+	omnibus-mongo \
 	omnibus-mysql \
 	omnibus-postgres \
 	omnibus-redis \
@@ -24,6 +25,7 @@ DOCKER_COMPOSE_SERVICES:= \
 	omnibus-kafka \
 	omnibus-memcached \
 	omnibus-minio \
+	omnibus-mongo \
 	omnibus-zookeeper \
 
 .PHONY: all

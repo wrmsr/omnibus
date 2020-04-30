@@ -57,6 +57,18 @@ services:
     ports:
       - '22214:9000'
 
+  omnibus-mongo:
+    build: '.'
+    image: 'wrmsr/omnibus-mongo:latest'
+    restart: 'always'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: 'root'
+      MONGO_INITDB_ROOT_PASSWORD: 'omnibus'
+    expose:
+      - '8081'
+    ports:
+      - '22215:8081'
+
   omnibus-mysql-master:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
@@ -68,7 +80,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22215:3306'
+      - '22216:3306'
 
   omnibus-mysql-slave:
     build: '.'
@@ -86,7 +98,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22216:3306'
+      - '22217:3306'
 
   omnibus-postgres-master:
     build: '.'
@@ -99,7 +111,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22217:5432'
+      - '22218:5432'
 
   omnibus-postgres-slave:
     build: '.'
@@ -117,7 +129,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22218:5432'
+      - '22219:5432'
 
   omnibus-redis:
     build: '.'
@@ -126,7 +138,7 @@ services:
     expose:
       - '6379'
     ports:
-      - '22219:6379'
+      - '22220:6379'
 
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
@@ -141,7 +153,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '22220:2181'
+      - '22221:2181'
 
   omnibus-dev:
     build: '.'
