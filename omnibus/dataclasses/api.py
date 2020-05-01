@@ -10,6 +10,9 @@ TODO:
  - transient (+cache_hash)
  - *default_factory with lambda args* - toposort again
  - *default null makes optional.. lol..*
+  - !! NO: *ENFORCE* optional for None defaults
+   - really, typecheck all (static) defaults or just enforce None?
+    - Yes: typecheck by default w/ explicit opt out
  - redaction - RedactedStr type?
  - auto-typecheck-validation
  - coerce: True=just call w val, cls-lvl default on/off, unary void callable
