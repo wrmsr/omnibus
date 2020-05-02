@@ -3,6 +3,10 @@ from .composites import CompositeMultiRegistry  # noqa
 from .composites import CompositeRegistry  # noqa
 from .dicts import DictMultiRegistry  # noqa
 from .dicts import DictRegistry  # noqa
+from .properties import multi_property  # noqa
+from .properties import MultiProperty  # noqa
+from .properties import Property  # noqa
+from .properties import property_ as property  # noqa
 from .types import AlreadyRegisteredException  # noqa
 from .types import AmbiguouslyRegisteredException  # noqa
 from .types import BaseRegistry  # noqa

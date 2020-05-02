@@ -1,35 +1,33 @@
-from __future__ import annotations
-
 import typing as ta
 import weakref
 
 from .. import check
 from .. import lang
-from .base import Property
-
-if ta.TYPE_CHECKING:
-    from .. import registries
-else:
-    registries = lang.proxy_import('..registries', __package__)
+from ..properties import Property
+from .composites import CompositeMultiRegistry
+from .composites import CompositeRegistry
+from .dicts import DictMultiRegistry
+from .dicts import DictRegistry
+from .types import Registry
 
 
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class RegistryProperty(Property['registries.Registry[K, V]']):
+class Property(Property[Registry[K, V]]):
 
     def __init__(
             self,
             *,
             bind: bool = None,
             lock: lang.DefaultLockable = None,
-            policy: registries.CompositeRegistry.Policy = None,
+            policy: CompositeRegistry.Policy = None,
     ) -> None:
         super().__init__()
 
         if policy is None:
-            policy = registries.CompositeRegistry.FIRST_ONE
+            policy = CompositeRegistry.FIRST_ONE
 
         self._bind = bind
         self._lock = lang.default_lock(lock, True)
@@ -38,8 +36,8 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
         self._name: str = None
         self._registrations_attr_name = '__%s_%x_registrations' % (type(self).__name__, id(self))
 
-        self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
-        self._registries_by_cls: ta.MutableMapping[ta.Type, registries.Registry[K, V]] = weakref.WeakKeyDictionary()
+        self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
+        self._registries_by_cls: ta.MutableMapping[ta.Type, Registry[K, V]] = weakref.WeakKeyDictionary()
 
     def __set_name__(self, owner, name):
         if self._name is None:
@@ -55,24 +53,24 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
             self._consumed = False
             self._key_sets_by_value = {}
 
-    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictRegistry[K, V]:
-        return registries.DictRegistry(items)
+    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> DictRegistry[K, V]:
+        return DictRegistry(items)
 
-    def _get_immediate_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
+    def _get_immediate_registry(self, cls: ta.Type) -> Registry[K, V]:
         try:
             return self._immediate_registries_by_cls[cls]
 
         except KeyError:
             items = []
 
-            registrations: RegistryProperty.Registrations
+            registrations: Property.Registrations
             try:
                 registrations = cls.__dict__[self._registrations_attr_name]
             except KeyError:
                 pass
 
             else:
-                check.isinstance(registrations, RegistryProperty.Registrations)
+                check.isinstance(registrations, Property.Registrations)
                 check.state(not registrations._consumed)
 
                 for value, keys in registrations._key_sets_by_value.items():
@@ -87,10 +85,10 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
             self._immediate_registries_by_cls[cls] = registry
             return registry
 
-    def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
-        return registries.CompositeRegistry(regs, policy=self._policy)
+    def _build_composite_registry(self, regs: ta.Iterable[Registry[K, V]]) -> Registry[K, V]:
+        return CompositeRegistry(regs, policy=self._policy)
 
-    def get_registry(self, cls: ta.Type) -> registries.Registry[K, V]:
+    def get_registry(self, cls: ta.Type) -> Registry[K, V]:
         with self._lock():
             try:
                 return self._registries_by_cls[cls]
@@ -118,7 +116,7 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
             self.registering = self._owner.registering
 
         @property
-        def registry(self) -> registries.Registry[K, V]:
+        def registry(self) -> Registry[K, V]:
             return self._registry
 
         def __getitem__(self, key):
@@ -154,13 +152,13 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
 
     def _register(self, cls_dct, value, keys):
         with self._lock():
-            registrations: RegistryProperty.Registrations
+            registrations: Property.Registrations
             try:
                 registrations = cls_dct[self._registrations_attr_name]
             except KeyError:
-                registrations = cls_dct[self._registrations_attr_name] = RegistryProperty.Registrations()
+                registrations = cls_dct[self._registrations_attr_name] = Property.Registrations()
 
-            check.isinstance(registrations, RegistryProperty.Registrations)
+            check.isinstance(registrations, Property.Registrations)
             check.state(not registrations._consumed)
 
             try:
@@ -184,50 +182,50 @@ class RegistryProperty(Property['registries.Registry[K, V]']):
         return inner
 
 
-def registry(
+def property_(
         *,
         bind: bool = None,
         lock: lang.DefaultLockable = None,
-        policy: registries.CompositeRegistry.Policy = None,
-) -> RegistryProperty:
-    return RegistryProperty(
+        policy: CompositeRegistry.Policy = None,
+) -> Property:
+    return Property(
         bind=bind,
         lock=lock,
         policy=policy,
     )
 
 
-# FIXME: class MultiRegistryProperty(Property[registries.MultiRegistry[K, V]], RegistryProperty[K, ta.AbstractSet[V]]):
-class MultiRegistryProperty(RegistryProperty):
+# FIXME: class MultiProperty(Property[MultiRegistry[K, V]], Property[K, ta.AbstractSet[V]]):
+class MultiProperty(Property):
 
     def __init__(
             self,
             *,
             bind: bool = None,
             lock: lang.DefaultLockable = None,
-            policy: registries.CompositeRegistry.Policy = None,
+            policy: CompositeRegistry.Policy = None,
     ) -> None:
         if policy is None:
-            policy = registries.CompositeMultiRegistry.MERGE
+            policy = CompositeMultiRegistry.MERGE
         super().__init__(bind=bind, lock=lock, policy=policy)
 
-    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> registries.DictMultiRegistry[K, V]:
+    def _build_immediate_registry(self, items: ta.Iterable[ta.Tuple[K, V]]) -> DictMultiRegistry[K, V]:
         dct = {}
         for k, v in items:
             dct.setdefault(k, set()).add(v)
-        return registries.DictMultiRegistry(dct)
+        return DictMultiRegistry(dct)
 
-    def _build_composite_registry(self, regs: ta.Iterable[registries.Registry[K, V]]) -> registries.Registry[K, V]:
-        return registries.CompositeMultiRegistry(regs, policy=self._policy)
+    def _build_composite_registry(self, regs: ta.Iterable[Registry[K, V]]) -> Registry[K, V]:
+        return CompositeMultiRegistry(regs, policy=self._policy)
 
 
-def multi_registry(
+def multi_property(
         *,
         bind: bool = None,
         lock: lang.DefaultLockable = None,
-        policy: registries.CompositeRegistry.Policy = None,
-) -> RegistryProperty:
-    return MultiRegistryProperty(
+        policy: CompositeRegistry.Policy = None,
+) -> Property:
+    return MultiProperty(
         bind=bind,
         lock=lock,
         policy=policy,

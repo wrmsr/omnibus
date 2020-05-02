@@ -7,10 +7,6 @@ from .caching import locked_cached  # noqa
 from .caching import locked_cached_class  # noqa
 from .caching import pure_cached  # noqa
 from .caching import pure_cached_class  # noqa
-from .registries import multi_registry  # noqa
-from .registries import MultiRegistryProperty  # noqa
-from .registries import registry  # noqa
-from .registries import RegistryProperty  # noqa
 from .simple import class_  # noqa
 from .simple import ClassProperty  # noqa
 from .simple import set_once  # noqa

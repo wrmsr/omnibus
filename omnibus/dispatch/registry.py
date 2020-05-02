@@ -5,8 +5,8 @@ import weakref
 
 from .. import c3
 from .. import lang
-from .. import properties
 from .. import reflect as rfl
+from .. import registries
 from .caching import CachingDispatcher
 from .erasing import ErasingDispatcher
 from .manifests import inject_manifest
@@ -19,7 +19,7 @@ Impl = ta.TypeVar('Impl')
 TypeOrSpec = ta.Union[ta.Type, rfl.Spec]
 
 
-class Property(properties.RegistryProperty):
+class Property(registries.Property):
 
     def __init__(self) -> None:
         super().__init__(bind=True)
@@ -39,7 +39,7 @@ class Property(properties.RegistryProperty):
 
             return dispatcher
 
-    class Accessor(properties.RegistryProperty.Accessor):
+    class Accessor(registries.Property.Accessor):
 
         def __init__(self, owner, obj, cls):
             super().__init__(owner, obj, cls)

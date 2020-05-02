@@ -1,12 +1,12 @@
 import pytest
 
-from .. import registries as registries_
-from ... import registries
+from .. import properties as properties_
+from .. import types as types_
 
 
 def test_registries_property():
     class C:
-        vals = registries_.registry()
+        vals = properties_.property_()
 
         vals.registering('a')('C.a')
         vals.registering('b')('C.b')
@@ -21,7 +21,7 @@ def test_registries_property():
 
     assert C().vals['a'] == 'C.a'
     assert C().vals['b'] == 'C.b'
-    with pytest.raises(registries.NotRegisteredException):
+    with pytest.raises(types_.NotRegisteredException):
         C().vals['c']
 
     assert D().vals['a'] == 'C.a'
@@ -34,7 +34,7 @@ def test_registries_property():
 
 def test_binding_registries_property():
     class C:
-        fns = registries_.registry(bind=True)
+        fns = properties_.property_(bind=True)
 
         @fns.registering('a')
         def _a(self):
@@ -58,7 +58,7 @@ def test_binding_registries_property():
 
     assert C().fns['a']() == 0
     assert C().fns['b']() == 1
-    with pytest.raises(registries.NotRegisteredException):
+    with pytest.raises(types_.NotRegisteredException):
         C().fns['c']()
 
     assert D().fns['a']() == 0
@@ -71,7 +71,7 @@ def test_binding_registries_property():
 
 def test_multi_registries_property():
     class C:
-        vals = registries_.multi_registry()
+        vals = properties_.multi_property()
 
         vals.registering('a')(0)
         vals.registering('a')(1)

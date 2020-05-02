@@ -3,6 +3,7 @@ TODO:
  - DictReg.weak? key/val? currently _cannot remove_
  - *ordering* - insert
   - diverging usecases: insert_after w/ arbitrary obj key and retrieval via linear scan *vs* conventional mapping
+   - naw: del is wrap with overriding null-obj, moving is wrap with new order, etc
  - [Mutable]Registry?
 """
 import abc
