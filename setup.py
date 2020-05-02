@@ -62,7 +62,7 @@ DEBUG = 'DEBUG' in os.environ
 EXT_MODULES = [
     *[
         setuptools.Extension(
-            'omnibus._ext.cc.' + os.path.basename(fpath).rpartition('.')[0],
+            fpath.rpartition('.')[0].replace('/', '.'),
             sources=[fpath],
             extra_compile_args=['-std=c++14'],
             optional=True,
@@ -84,7 +84,7 @@ else:
         *Cython.Build.cythonize(
             [
                 setuptools.Extension(
-                    'omnibus._ext.cy.' + os.path.basename(fpath).rpartition('.')[0],
+                    fpath.rpartition('.')[0].replace('/', '.'),
                     sources=[fpath],
                     language='c++',
                     extra_compile_args=['-std=c++14'],
@@ -106,7 +106,7 @@ else:
 if APPLE:
     EXT_MODULES.extend([
         setuptools.Extension(
-            'omnibus._ext.m.' + os.path.basename(fpath).rpartition('.')[0],
+            fpath.rpartition('.')[0].replace('/', '.'),
             sources=[fpath],
             extra_link_args=[
                 '-framework', 'AppKit',
