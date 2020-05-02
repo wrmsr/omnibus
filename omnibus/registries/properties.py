@@ -3,7 +3,7 @@ import weakref
 
 from .. import check
 from .. import lang
-from ..properties import Property
+from .. import properties
 from .composites import CompositeMultiRegistry
 from .composites import CompositeRegistry
 from .dicts import DictMultiRegistry
@@ -15,7 +15,7 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-class Property(Property[Registry[K, V]]):
+class Property(properties.Property[Registry[K, V]]):
 
     def __init__(
             self,
