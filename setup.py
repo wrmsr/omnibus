@@ -87,6 +87,7 @@ else:
                     'omnibus._ext.cy.' + os.path.basename(fpath).rpartition('.')[0],
                     sources=[fpath],
                     language='c++',
+                    extra_compile_args=['-std=c++14'],
                     optional=True,
                 )
                 for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
