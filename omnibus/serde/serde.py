@@ -10,6 +10,11 @@ TODO:
   - typelevel (ta.Range[ta.Literal[0], ta.Literal[10]]) vs non..
  - camel/snake(/kebab/pascal/dot)
  - enums
+ - shared object ast
+  - coments, block comments, Mark, spaces, ...
+  - large overlap between codegen and object serde - marks, mark chain, blanks, quoting, coments, etc
+  - pandoc?
+ - xml (maven gen)
 
 builtins:
     Decimal

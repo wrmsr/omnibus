@@ -27,8 +27,6 @@ services:
       KAFKA_BROKER_ID: '1'
       KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - '../temp/kafka/data:/var/lib/kafka/data'
     depends_on:
       - 'omnibus-zookeeper'
     expose:
@@ -140,6 +138,25 @@ services:
     ports:
       - '22220:6379'
 
+  omnibus-spark-master:
+    image: 'wrmsr/spark-master'
+    environment:
+      - 'INIT_DAEMON_STEP=setup_spark'
+      - 'constraint:node==omnibus-master'
+    ports:
+      - '22221:8080'
+      - '22222:7077'
+
+  omnibus-spark-worker:
+    image: 'wrmsr/spark-worker'
+    depends_on:
+      - 'omnibus-spark-master'
+    environment:
+      - 'SPARK_MASTER=spark://omnibus-spark-master:7077'
+      - 'constraint:node==omnibus-worker'
+    ports:
+      - '22223:8081'
+
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
     hostname: 'omnibus-zookeeper'
@@ -147,13 +164,10 @@ services:
       ZOO_MY_ID: '1'
       ZOO_PORT: '2181'
       ZOO_SERVERS: 'server.1=omnibus-zookeeper:2888:3888'
-    volumes:
-      - '../temp/zookeeper/data:/data'
-      - '../temp/zookeeper/datalog:/datalog'
     expose:
       - '2181'
     ports:
-      - '22221:2181'
+      - '22224:2181'
 
   omnibus-dev:
     build: '.'

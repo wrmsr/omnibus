@@ -1,7 +1,7 @@
 import typing as ta  # noqa
 
 from .. import lang
-from ..serde.formats import yaml
+from ..serde.objects import yaml
 
 
 lang.warn_unstable()
