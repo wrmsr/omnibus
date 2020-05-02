@@ -337,3 +337,9 @@ def empty_map():
 
 def cmp(l: ta.Any, r: ta.Any) -> int:
     return (l > r) - (l < r)
+
+
+def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
+    def rec(*args, **kwargs):
+        return fn(rec, *args, **kwargs)
+    return rec(*args, **kwargs)

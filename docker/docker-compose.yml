@@ -139,21 +139,27 @@ services:
       - '22220:6379'
 
   omnibus-spark-master:
-    image: 'wrmsr/spark-master'
+    build: '.'
+    image: 'wrmsr/omnibus-spark-master:latest'
+    restart: 'always'
     environment:
       - 'INIT_DAEMON_STEP=setup_spark'
-      - 'constraint:node==omnibus-master'
+      - 'constraint:node==omnibus-spark-master'
     ports:
       - '22221:8080'
       - '22222:7077'
 
   omnibus-spark-worker:
-    image: 'wrmsr/spark-worker'
-    depends_on:
-      - 'omnibus-spark-master'
+    build: '.'
+    image: 'wrmsr/omnibus-spark-worker:latest'
+    restart: 'always'
     environment:
       - 'SPARK_MASTER=spark://omnibus-spark-master:7077'
-      - 'constraint:node==omnibus-worker'
+      - 'constraint:node==omnibus-spark-worker'
+    links:
+      - 'omnibus-spark-master'
+    depends_on:
+      - 'omnibus-spark-master'
     ports:
       - '22223:8081'
 

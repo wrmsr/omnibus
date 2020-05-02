@@ -53,3 +53,7 @@ def test_cmp():
     assert lang_.cmp('a', 'b') == -1
     assert lang_.cmp('b', 'b') == 0
     assert lang_.cmp('c', 'b') == 1
+
+
+def test_recurse():
+    assert lang_.recurse(lambda rec, i: i + (rec(i - 1) if i else 0), 5) == 5 + 4 + 3 + 2 + 1

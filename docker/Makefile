@@ -10,6 +10,8 @@ DOCKER_IMAGES:= \
 	omnibus-mysql \
 	omnibus-postgres \
 	omnibus-redis \
+	omnibus-spark-master \
+	omnibus-spark-worker \
 	omnibus-zookeeper \
 
 DOCKER_COMPOSE_DEFAULT_SERVICES:= \
@@ -26,6 +28,8 @@ DOCKER_COMPOSE_SERVICES:= \
 	omnibus-memcached \
 	omnibus-minio \
 	omnibus-mongo \
+	omnibus-spark-master \
+	omnibus-spark-worker \
 	omnibus-zookeeper \
 
 .PHONY: all

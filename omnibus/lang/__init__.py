@@ -91,6 +91,7 @@ from .lang import new_type  # noqa
 from .lang import public  # noqa
 from .lang import public_as  # noqa
 from .lang import raise_  # noqa
+from .lang import recurse  # noqa
 from .lang import register_on  # noqa
 from .lang import Self  # noqa
 from .lang import super_meta  # noqa
