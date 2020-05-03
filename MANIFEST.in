@@ -11,7 +11,7 @@ global-exclude __pycache__
 global-exclude **/tests/**
 exclude omnibus/conftest.py
 
-global-exclude omnibus/dev/**
+global-exclude **/dev/**
 
 exclude omnibus/_ext/cy/*.cpp
 include omnibus/_ext/cc/*.cc
