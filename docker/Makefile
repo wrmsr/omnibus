@@ -2,6 +2,7 @@ DOCKER_USER=wrmsr
 
 DOCKER_IMAGES:= \
 	omnibus-dev \
+	omnibus-dynamodb \
 	omnibus-elasticsearch \
 	omnibus-kafka \
 	omnibus-memcached \

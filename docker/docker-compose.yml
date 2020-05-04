@@ -1,7 +1,16 @@
 version: '2'
 
-# Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment Test Comment
+# Not all are default.
 services:
+
+  omnibus-dynamodb:
+    build: '.'
+    image: 'wrmsr/omnibus-dynamodb:latest'
+    restart: 'always'
+    expose:
+      - '8000'
+    ports:
+      - '22211:8000'
 
   omnibus-elasticsearch:
     build: '.'
@@ -14,7 +23,7 @@ services:
     expose:
       - '9200'
     ports:
-      - '22211:9200'
+      - '22212:9200'
 
   omnibus-kafka:
     image: 'wrmsr/omnibus-kafka:latest'
@@ -32,7 +41,7 @@ services:
     expose:
       - '9092'
     ports:
-      - '22212:9092'
+      - '22213:9092'
 
   omnibus-memcached:
     build: '.'
@@ -41,7 +50,7 @@ services:
     expose:
       - '11211'
     ports:
-      - '22213:11211'
+      - '22214:11211'
 
   omnibus-minio:
     build: '.'
@@ -53,7 +62,7 @@ services:
     expose:
       - '9000'
     ports:
-      - '22214:9000'
+      - '22215:9000'
 
   omnibus-mongo:
     build: '.'
@@ -65,7 +74,7 @@ services:
     expose:
       - '8081'
     ports:
-      - '22215:8081'
+      - '22216:8081'
 
   omnibus-mysql-master:
     build: '.'
@@ -78,7 +87,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22216:3306'
+      - '22217:3306'
 
   omnibus-mysql-slave:
     build: '.'
@@ -96,7 +105,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22217:3306'
+      - '22218:3306'
 
   omnibus-postgres-master:
     build: '.'
@@ -109,7 +118,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22218:5432'
+      - '22219:5432'
 
   omnibus-postgres-slave:
     build: '.'
@@ -127,7 +136,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22219:5432'
+      - '22220:5432'
 
   omnibus-redis:
     build: '.'
@@ -136,7 +145,7 @@ services:
     expose:
       - '6379'
     ports:
-      - '22220:6379'
+      - '22221:6379'
 
   omnibus-spark-master:
     build: '.'
@@ -146,8 +155,8 @@ services:
       - 'INIT_DAEMON_STEP=setup_spark'
       - 'constraint:node==omnibus-spark-master'
     ports:
-      - '22221:8080'
-      - '22222:7077'
+      - '22222:8080'
+      - '22223:7077'
 
   omnibus-spark-worker:
     build: '.'
@@ -161,7 +170,7 @@ services:
     depends_on:
       - 'omnibus-spark-master'
     ports:
-      - '22223:8081'
+      - '22224:8081'
 
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
@@ -173,7 +182,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '22224:2181'
+      - '22225:2181'
 
   omnibus-dev:
     build: '.'
