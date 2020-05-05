@@ -136,7 +136,7 @@ fragment EXP
     ;
 
 COMMENT
-    : ('#'|'//') ~( '\r' | '\n' )* -> skip
+    : ('#'|'//') ~('\r' | '\n')* -> skip
     ;
 
 NUMBER

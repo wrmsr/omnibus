@@ -206,19 +206,6 @@ identifier
     : IDENTIFIER
     ;
 
-IDENTIFIER
-    : (LETTER | '_') (LETTER | DIGIT | '.' | '_')*
-    ;
-
-fragment LETTER
-    : 'A'..'Z'
-    | 'a'..'z'
-    ;
-
-DIGIT
-    : '0'..'9'
-    ;
-
 BINARY: 'binary';
 BOOL: 'bool';
 BYTE: 'byte';
@@ -270,6 +257,19 @@ XSD_ALL: 'xsd_all';
 XSD_ATTRS: 'xsd_attrs';
 XSD_NILLABLE: 'xsd_nillable';
 XSD_OPTIONAL: 'xsd_optional';
+
+IDENTIFIER
+    : (LETTER | '_') (LETTER | DIGIT | '.' | '_')*
+    ;
+
+fragment LETTER
+    : 'A'..'Z'
+    | 'a'..'z'
+    ;
+
+DIGIT
+    : '0'..'9'
+    ;
 
 WS
     : [ \t\r\n\u000C]+ -> channel(2)

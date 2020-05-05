@@ -151,7 +151,7 @@ LINE_COMMENT
     : '//' .*? '\r'? '\n' -> skip
     ;
 
-// A '#' character is considered a line output from a C preprocessor (e.g., # 34 to indicate line 34 ) and discarded
+// A '#' character is considered a line output from a C preprocessor (e.g., # 34 to indicate line 34) and discarded
 PREPROC
     : '#' ~[\r\n]* -> skip
     ;

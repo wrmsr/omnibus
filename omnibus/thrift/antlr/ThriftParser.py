@@ -55,64 +55,64 @@ def serializedATN():
         buf.write("%\3%\3&\3&\7&\u0191\n&\f&\16&\u0194\13&\3&\3&\3&\7&\u0199")
         buf.write("\n&\f&\16&\u019c\13&\3&\5&\u019f\n&\3\'\3\'\3(\3(\3(\2")
         buf.write("\2)\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60")
-        buf.write("\62\64\668:<>@BDFHJLN\2\n\r\2\3\3\34\34\36\36!\"\'\'-")
-        buf.write(".\60\60\63\63\66:@@GG\4\2\65\65;;\7\2\31\33##(+??AA\3")
-        buf.write("\2\r\16\3\2\20\21\3\2\24\24\3\2\25\25\4\2\13\13\26\26")
-        buf.write("\2\u01be\2S\3\2\2\2\4a\3\2\2\2\6c\3\2\2\2\bf\3\2\2\2\n")
-        buf.write("i\3\2\2\2\fm\3\2\2\2\16w\3\2\2\2\20y\3\2\2\2\22\u0081")
-        buf.write("\3\2\2\2\24\u0085\3\2\2\2\26\u0097\3\2\2\2\30\u00a5\3")
-        buf.write("\2\2\2\32\u00b3\3\2\2\2\34\u00c1\3\2\2\2\36\u00cc\3\2")
-        buf.write("\2\2 \u00dc\3\2\2\2\"\u00eb\3\2\2\2$\u00ee\3\2\2\2&\u00f1")
-        buf.write("\3\2\2\2(\u00f9\3\2\2\2*\u0104\3\2\2\2,\u0118\3\2\2\2")
-        buf.write(".\u011a\3\2\2\2\60\u0127\3\2\2\2\62\u012b\3\2\2\2\64\u012d")
-        buf.write("\3\2\2\2\66\u0132\3\2\2\28\u0134\3\2\2\2:\u013e\3\2\2")
-        buf.write("\2<\u0146\3\2\2\2>\u014d\3\2\2\2@\u0156\3\2\2\2B\u0159")
-        buf.write("\3\2\2\2D\u0161\3\2\2\2F\u0174\3\2\2\2H\u0180\3\2\2\2")
-        buf.write("J\u019e\3\2\2\2L\u01a0\3\2\2\2N\u01a2\3\2\2\2PR\5\4\3")
-        buf.write("\2QP\3\2\2\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2TY\3\2\2\2U")
-        buf.write("S\3\2\2\2VX\5\16\b\2WV\3\2\2\2X[\3\2\2\2YW\3\2\2\2YZ\3")
-        buf.write("\2\2\2Z\\\3\2\2\2[Y\3\2\2\2\\]\7\2\2\3]\3\3\2\2\2^b\5")
-        buf.write("\6\4\2_b\5\b\5\2`b\5\n\6\2a^\3\2\2\2a_\3\2\2\2a`\3\2\2")
-        buf.write("\2b\5\3\2\2\2cd\7,\2\2de\5J&\2e\7\3\2\2\2fg\7\37\2\2g")
-        buf.write("h\5J&\2h\t\3\2\2\2ij\7\62\2\2jk\5\f\7\2kl\5N(\2l\13\3")
-        buf.write("\2\2\2mn\t\2\2\2n\r\3\2\2\2ox\5\20\t\2px\5\22\n\2qx\5")
-        buf.write("\24\13\2rx\5\26\f\2sx\5\30\r\2tx\5\32\16\2ux\5\34\17\2")
-        buf.write("vx\5\36\20\2wo\3\2\2\2wp\3\2\2\2wq\3\2\2\2wr\3\2\2\2w")
-        buf.write("s\3\2\2\2wt\3\2\2\2wu\3\2\2\2wv\3\2\2\2x\17\3\2\2\2yz")
-        buf.write("\7\35\2\2z{\5\60\31\2{|\5N(\2|}\7\4\2\2}\177\5@!\2~\u0080")
-        buf.write("\5L\'\2\177~\3\2\2\2\177\u0080\3\2\2\2\u0080\21\3\2\2")
-        buf.write("\2\u0081\u0082\7D\2\2\u0082\u0083\5\62\32\2\u0083\u0084")
-        buf.write("\5N(\2\u0084\23\3\2\2\2\u0085\u0086\7$\2\2\u0086\u0087")
-        buf.write("\5N(\2\u0087\u0092\7\5\2\2\u0088\u008b\5N(\2\u0089\u008a")
-        buf.write("\7\4\2\2\u008a\u008c\5B\"\2\u008b\u0089\3\2\2\2\u008b")
-        buf.write("\u008c\3\2\2\2\u008c\u008e\3\2\2\2\u008d\u008f\5L\'\2")
-        buf.write("\u008e\u008d\3\2\2\2\u008e\u008f\3\2\2\2\u008f\u0091\3")
-        buf.write("\2\2\2\u0090\u0088\3\2\2\2\u0091\u0094\3\2\2\2\u0092\u0090")
-        buf.write("\3\2\2\2\u0092\u0093\3\2\2\2\u0093\u0095\3\2\2\2\u0094")
-        buf.write("\u0092\3\2\2\2\u0095\u0096\7\6\2\2\u0096\25\3\2\2\2\u0097")
-        buf.write("\u0098\7<\2\2\u0098\u0099\5N(\2\u0099\u00a0\7\5\2\2\u009a")
-        buf.write("\u009c\5J&\2\u009b\u009d\5L\'\2\u009c\u009b\3\2\2\2\u009c")
-        buf.write("\u009d\3\2\2\2\u009d\u009f\3\2\2\2\u009e\u009a\3\2\2\2")
-        buf.write("\u009f\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3")
-        buf.write("\2\2\2\u00a1\u00a3\3\2\2\2\u00a2\u00a0\3\2\2\2\u00a3\u00a4")
-        buf.write("\7\6\2\2\u00a4\27\3\2\2\2\u00a5\u00a6\7B\2\2\u00a6\u00a8")
-        buf.write("\5N(\2\u00a7\u00a9\7H\2\2\u00a8\u00a7\3\2\2\2\u00a8\u00a9")
+        buf.write("\62\64\668:<>@BDFHJLN\2\n\r\2\3\3\32\32\34\34\37 %%+,")
+        buf.write("..\61\61\648>>EE\4\2\63\6399\7\2\27\31!!&)==??\3\2\r\16")
+        buf.write("\3\2\20\21\3\2\24\24\3\2\25\25\4\2\13\13\26\26\2\u01be")
+        buf.write("\2S\3\2\2\2\4a\3\2\2\2\6c\3\2\2\2\bf\3\2\2\2\ni\3\2\2")
+        buf.write("\2\fm\3\2\2\2\16w\3\2\2\2\20y\3\2\2\2\22\u0081\3\2\2\2")
+        buf.write("\24\u0085\3\2\2\2\26\u0097\3\2\2\2\30\u00a5\3\2\2\2\32")
+        buf.write("\u00b3\3\2\2\2\34\u00c1\3\2\2\2\36\u00cc\3\2\2\2 \u00dc")
+        buf.write("\3\2\2\2\"\u00eb\3\2\2\2$\u00ee\3\2\2\2&\u00f1\3\2\2\2")
+        buf.write("(\u00f9\3\2\2\2*\u0104\3\2\2\2,\u0118\3\2\2\2.\u011a\3")
+        buf.write("\2\2\2\60\u0127\3\2\2\2\62\u012b\3\2\2\2\64\u012d\3\2")
+        buf.write("\2\2\66\u0132\3\2\2\28\u0134\3\2\2\2:\u013e\3\2\2\2<\u0146")
+        buf.write("\3\2\2\2>\u014d\3\2\2\2@\u0156\3\2\2\2B\u0159\3\2\2\2")
+        buf.write("D\u0161\3\2\2\2F\u0174\3\2\2\2H\u0180\3\2\2\2J\u019e\3")
+        buf.write("\2\2\2L\u01a0\3\2\2\2N\u01a2\3\2\2\2PR\5\4\3\2QP\3\2\2")
+        buf.write("\2RU\3\2\2\2SQ\3\2\2\2ST\3\2\2\2TY\3\2\2\2US\3\2\2\2V")
+        buf.write("X\5\16\b\2WV\3\2\2\2X[\3\2\2\2YW\3\2\2\2YZ\3\2\2\2Z\\")
+        buf.write("\3\2\2\2[Y\3\2\2\2\\]\7\2\2\3]\3\3\2\2\2^b\5\6\4\2_b\5")
+        buf.write("\b\5\2`b\5\n\6\2a^\3\2\2\2a_\3\2\2\2a`\3\2\2\2b\5\3\2")
+        buf.write("\2\2cd\7*\2\2de\5J&\2e\7\3\2\2\2fg\7\35\2\2gh\5J&\2h\t")
+        buf.write("\3\2\2\2ij\7\60\2\2jk\5\f\7\2kl\5N(\2l\13\3\2\2\2mn\t")
+        buf.write("\2\2\2n\r\3\2\2\2ox\5\20\t\2px\5\22\n\2qx\5\24\13\2rx")
+        buf.write("\5\26\f\2sx\5\30\r\2tx\5\32\16\2ux\5\34\17\2vx\5\36\20")
+        buf.write("\2wo\3\2\2\2wp\3\2\2\2wq\3\2\2\2wr\3\2\2\2ws\3\2\2\2w")
+        buf.write("t\3\2\2\2wu\3\2\2\2wv\3\2\2\2x\17\3\2\2\2yz\7\33\2\2z")
+        buf.write("{\5\60\31\2{|\5N(\2|}\7\4\2\2}\177\5@!\2~\u0080\5L\'\2")
+        buf.write("\177~\3\2\2\2\177\u0080\3\2\2\2\u0080\21\3\2\2\2\u0081")
+        buf.write("\u0082\7B\2\2\u0082\u0083\5\62\32\2\u0083\u0084\5N(\2")
+        buf.write("\u0084\23\3\2\2\2\u0085\u0086\7\"\2\2\u0086\u0087\5N(")
+        buf.write("\2\u0087\u0092\7\5\2\2\u0088\u008b\5N(\2\u0089\u008a\7")
+        buf.write("\4\2\2\u008a\u008c\5B\"\2\u008b\u0089\3\2\2\2\u008b\u008c")
+        buf.write("\3\2\2\2\u008c\u008e\3\2\2\2\u008d\u008f\5L\'\2\u008e")
+        buf.write("\u008d\3\2\2\2\u008e\u008f\3\2\2\2\u008f\u0091\3\2\2\2")
+        buf.write("\u0090\u0088\3\2\2\2\u0091\u0094\3\2\2\2\u0092\u0090\3")
+        buf.write("\2\2\2\u0092\u0093\3\2\2\2\u0093\u0095\3\2\2\2\u0094\u0092")
+        buf.write("\3\2\2\2\u0095\u0096\7\6\2\2\u0096\25\3\2\2\2\u0097\u0098")
+        buf.write("\7:\2\2\u0098\u0099\5N(\2\u0099\u00a0\7\5\2\2\u009a\u009c")
+        buf.write("\5J&\2\u009b\u009d\5L\'\2\u009c\u009b\3\2\2\2\u009c\u009d")
+        buf.write("\3\2\2\2\u009d\u009f\3\2\2\2\u009e\u009a\3\2\2\2\u009f")
+        buf.write("\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3\2\2\2")
+        buf.write("\u00a1\u00a3\3\2\2\2\u00a2\u00a0\3\2\2\2\u00a3\u00a4\7")
+        buf.write("\6\2\2\u00a4\27\3\2\2\2\u00a5\u00a6\7@\2\2\u00a6\u00a8")
+        buf.write("\5N(\2\u00a7\u00a9\7F\2\2\u00a8\u00a7\3\2\2\2\u00a8\u00a9")
         buf.write("\3\2\2\2\u00a9\u00aa\3\2\2\2\u00aa\u00ae\7\5\2\2\u00ab")
         buf.write("\u00ad\5 \21\2\u00ac\u00ab\3\2\2\2\u00ad\u00b0\3\2\2\2")
         buf.write("\u00ae\u00ac\3\2\2\2\u00ae\u00af\3\2\2\2\u00af\u00b1\3")
         buf.write("\2\2\2\u00b0\u00ae\3\2\2\2\u00b1\u00b2\7\6\2\2\u00b2\31")
-        buf.write("\3\2\2\2\u00b3\u00b4\7E\2\2\u00b4\u00b6\5N(\2\u00b5\u00b7")
-        buf.write("\7H\2\2\u00b6\u00b5\3\2\2\2\u00b6\u00b7\3\2\2\2\u00b7")
+        buf.write("\3\2\2\2\u00b3\u00b4\7C\2\2\u00b4\u00b6\5N(\2\u00b5\u00b7")
+        buf.write("\7F\2\2\u00b6\u00b5\3\2\2\2\u00b6\u00b7\3\2\2\2\u00b7")
         buf.write("\u00b8\3\2\2\2\u00b8\u00bc\7\5\2\2\u00b9\u00bb\5 \21\2")
         buf.write("\u00ba\u00b9\3\2\2\2\u00bb\u00be\3\2\2\2\u00bc\u00ba\3")
         buf.write("\2\2\2\u00bc\u00bd\3\2\2\2\u00bd\u00bf\3\2\2\2\u00be\u00bc")
         buf.write("\3\2\2\2\u00bf\u00c0\7\6\2\2\u00c0\33\3\2\2\2\u00c1\u00c2")
-        buf.write("\7%\2\2\u00c2\u00c3\5N(\2\u00c3\u00c7\7\5\2\2\u00c4\u00c6")
+        buf.write("\7#\2\2\u00c2\u00c3\5N(\2\u00c3\u00c7\7\5\2\2\u00c4\u00c6")
         buf.write("\5 \21\2\u00c5\u00c4\3\2\2\2\u00c6\u00c9\3\2\2\2\u00c7")
         buf.write("\u00c5\3\2\2\2\u00c7\u00c8\3\2\2\2\u00c8\u00ca\3\2\2\2")
         buf.write("\u00c9\u00c7\3\2\2\2\u00ca\u00cb\7\6\2\2\u00cb\35\3\2")
-        buf.write("\2\2\u00cc\u00cd\7=\2\2\u00cd\u00d0\5N(\2\u00ce\u00cf")
-        buf.write("\7&\2\2\u00cf\u00d1\5N(\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1")
+        buf.write("\2\2\u00cc\u00cd\7;\2\2\u00cd\u00d0\5N(\2\u00ce\u00cf")
+        buf.write("\7$\2\2\u00cf\u00d1\5N(\2\u00d0\u00ce\3\2\2\2\u00d0\u00d1")
         buf.write("\3\2\2\2\u00d1\u00d2\3\2\2\2\u00d2\u00d6\7\5\2\2\u00d3")
         buf.write("\u00d5\5*\26\2\u00d4\u00d3\3\2\2\2\u00d5\u00d8\3\2\2\2")
         buf.write("\u00d6\u00d4\3\2\2\2\u00d6\u00d7\3\2\2\2\u00d7\u00d9\3")
@@ -126,15 +126,15 @@ def serializedATN():
         buf.write("\u00ea\5L\'\2\u00e9\u00e8\3\2\2\2\u00e9\u00ea\3\2\2\2")
         buf.write("\u00ea!\3\2\2\2\u00eb\u00ec\5B\"\2\u00ec\u00ed\7\7\2\2")
         buf.write("\u00ed#\3\2\2\2\u00ee\u00ef\t\3\2\2\u00ef%\3\2\2\2\u00f0")
-        buf.write("\u00f2\7K\2\2\u00f1\u00f0\3\2\2\2\u00f1\u00f2\3\2\2\2")
-        buf.write("\u00f2\u00f4\3\2\2\2\u00f3\u00f5\7J\2\2\u00f4\u00f3\3")
+        buf.write("\u00f2\7I\2\2\u00f1\u00f0\3\2\2\2\u00f1\u00f2\3\2\2\2")
+        buf.write("\u00f2\u00f4\3\2\2\2\u00f3\u00f5\7H\2\2\u00f4\u00f3\3")
         buf.write("\2\2\2\u00f4\u00f5\3\2\2\2\u00f5\u00f7\3\2\2\2\u00f6\u00f8")
         buf.write("\5(\25\2\u00f7\u00f6\3\2\2\2\u00f7\u00f8\3\2\2\2\u00f8")
-        buf.write("\'\3\2\2\2\u00f9\u00fa\7I\2\2\u00fa\u00fe\7\5\2\2\u00fb")
+        buf.write("\'\3\2\2\2\u00f9\u00fa\7G\2\2\u00fa\u00fe\7\5\2\2\u00fb")
         buf.write("\u00fd\5 \21\2\u00fc\u00fb\3\2\2\2\u00fd\u0100\3\2\2\2")
         buf.write("\u00fe\u00fc\3\2\2\2\u00fe\u00ff\3\2\2\2\u00ff\u0101\3")
         buf.write("\2\2\2\u0100\u00fe\3\2\2\2\u0101\u0102\7\6\2\2\u0102)")
-        buf.write("\3\2\2\2\u0103\u0105\7\64\2\2\u0104\u0103\3\2\2\2\u0104")
+        buf.write("\3\2\2\2\u0103\u0105\7\62\2\2\u0104\u0103\3\2\2\2\u0104")
         buf.write("\u0105\3\2\2\2\u0105\u0106\3\2\2\2\u0106\u0107\5,\27\2")
         buf.write("\u0107\u0108\5N(\2\u0108\u010c\7\b\2\2\u0109\u010b\5 ")
         buf.write("\21\2\u010a\u0109\3\2\2\2\u010b\u010e\3\2\2\2\u010c\u010a")
@@ -143,8 +143,8 @@ def serializedATN():
         buf.write("\u0111\u0110\3\2\2\2\u0111\u0112\3\2\2\2\u0112\u0114\3")
         buf.write("\2\2\2\u0113\u0115\5L\'\2\u0114\u0113\3\2\2\2\u0114\u0115")
         buf.write("\3\2\2\2\u0115+\3\2\2\2\u0116\u0119\5\60\31\2\u0117\u0119")
-        buf.write("\7F\2\2\u0118\u0116\3\2\2\2\u0118\u0117\3\2\2\2\u0119")
-        buf.write("-\3\2\2\2\u011a\u011b\7C\2\2\u011b\u011f\7\b\2\2\u011c")
+        buf.write("\7D\2\2\u0118\u0116\3\2\2\2\u0118\u0117\3\2\2\2\u0119")
+        buf.write("-\3\2\2\2\u011a\u011b\7A\2\2\u011b\u011f\7\b\2\2\u011c")
         buf.write("\u011e\5 \21\2\u011d\u011c\3\2\2\2\u011e\u0121\3\2\2\2")
         buf.write("\u011f\u011d\3\2\2\2\u011f\u0120\3\2\2\2\u0120\u0122\3")
         buf.write("\2\2\2\u0121\u011f\3\2\2\2\u0122\u0123\7\t\2\2\u0123/")
@@ -155,61 +155,60 @@ def serializedATN():
         buf.write("\u012a\3\2\2\2\u012c\63\3\2\2\2\u012d\u012e\t\4\2\2\u012e")
         buf.write("\65\3\2\2\2\u012f\u0133\58\35\2\u0130\u0133\5:\36\2\u0131")
         buf.write("\u0133\5<\37\2\u0132\u012f\3\2\2\2\u0132\u0130\3\2\2\2")
-        buf.write("\u0132\u0131\3\2\2\2\u0133\67\3\2\2\2\u0134\u0136\7\61")
-        buf.write("\2\2\u0135\u0137\5> \2\u0136\u0135\3\2\2\2\u0136\u0137")
-        buf.write("\3\2\2\2\u0137\u0138\3\2\2\2\u0138\u0139\7\n\2\2\u0139")
-        buf.write("\u013a\5\60\31\2\u013a\u013b\7\13\2\2\u013b\u013c\5\60")
-        buf.write("\31\2\u013c\u013d\7\f\2\2\u013d9\3\2\2\2\u013e\u0140\7")
-        buf.write(">\2\2\u013f\u0141\5> \2\u0140\u013f\3\2\2\2\u0140\u0141")
-        buf.write("\3\2\2\2\u0141\u0142\3\2\2\2\u0142\u0143\7\n\2\2\u0143")
-        buf.write("\u0144\5\60\31\2\u0144\u0145\7\f\2\2\u0145;\3\2\2\2\u0146")
-        buf.write("\u0147\7/\2\2\u0147\u0148\7\n\2\2\u0148\u0149\5\60\31")
-        buf.write("\2\u0149\u014b\7\f\2\2\u014a\u014c\5> \2\u014b\u014a\3")
-        buf.write("\2\2\2\u014b\u014c\3\2\2\2\u014c=\3\2\2\2\u014d\u014e")
-        buf.write("\7 \2\2\u014e\u014f\5J&\2\u014f?\3\2\2\2\u0150\u0157\5")
-        buf.write("B\"\2\u0151\u0157\5D#\2\u0152\u0157\5J&\2\u0153\u0157")
-        buf.write("\5N(\2\u0154\u0157\5F$\2\u0155\u0157\5H%\2\u0156\u0150")
-        buf.write("\3\2\2\2\u0156\u0151\3\2\2\2\u0156\u0152\3\2\2\2\u0156")
-        buf.write("\u0153\3\2\2\2\u0156\u0154\3\2\2\2\u0156\u0155\3\2\2\2")
-        buf.write("\u0157A\3\2\2\2\u0158\u015a\t\5\2\2\u0159\u0158\3\2\2")
-        buf.write("\2\u0159\u015a\3\2\2\2\u015a\u015c\3\2\2\2\u015b\u015d")
-        buf.write("\7\30\2\2\u015c\u015b\3\2\2\2\u015d\u015e\3\2\2\2\u015e")
-        buf.write("\u015c\3\2\2\2\u015e\u015f\3\2\2\2\u015fC\3\2\2\2\u0160")
-        buf.write("\u0162\t\5\2\2\u0161\u0160\3\2\2\2\u0161\u0162\3\2\2\2")
-        buf.write("\u0162\u0164\3\2\2\2\u0163\u0165\7\30\2\2\u0164\u0163")
-        buf.write("\3\2\2\2\u0165\u0166\3\2\2\2\u0166\u0164\3\2\2\2\u0166")
-        buf.write("\u0167\3\2\2\2\u0167\u016e\3\2\2\2\u0168\u016a\7\17\2")
-        buf.write("\2\u0169\u016b\7\30\2\2\u016a\u0169\3\2\2\2\u016b\u016c")
-        buf.write("\3\2\2\2\u016c\u016a\3\2\2\2\u016c\u016d\3\2\2\2\u016d")
-        buf.write("\u016f\3\2\2\2\u016e\u0168\3\2\2\2\u016e\u016f\3\2\2\2")
-        buf.write("\u016f\u0172\3\2\2\2\u0170\u0171\t\6\2\2\u0171\u0173\5")
-        buf.write("B\"\2\u0172\u0170\3\2\2\2\u0172\u0173\3\2\2\2\u0173E\3")
-        buf.write("\2\2\2\u0174\u017b\7\22\2\2\u0175\u0177\5@!\2\u0176\u0178")
-        buf.write("\5L\'\2\u0177\u0176\3\2\2\2\u0177\u0178\3\2\2\2\u0178")
-        buf.write("\u017a\3\2\2\2\u0179\u0175\3\2\2\2\u017a\u017d\3\2\2\2")
-        buf.write("\u017b\u0179\3\2\2\2\u017b\u017c\3\2\2\2\u017c\u017e\3")
-        buf.write("\2\2\2\u017d\u017b\3\2\2\2\u017e\u017f\7\23\2\2\u017f")
-        buf.write("G\3\2\2\2\u0180\u0189\7\5\2\2\u0181\u0182\5@!\2\u0182")
-        buf.write("\u0183\7\7\2\2\u0183\u0185\5@!\2\u0184\u0186\5L\'\2\u0185")
-        buf.write("\u0184\3\2\2\2\u0185\u0186\3\2\2\2\u0186\u0188\3\2\2\2")
-        buf.write("\u0187\u0181\3\2\2\2\u0188\u018b\3\2\2\2\u0189\u0187\3")
-        buf.write("\2\2\2\u0189\u018a\3\2\2\2\u018a\u018c\3\2\2\2\u018b\u0189")
-        buf.write("\3\2\2\2\u018c\u018d\7\6\2\2\u018dI\3\2\2\2\u018e\u0192")
-        buf.write("\7\24\2\2\u018f\u0191\n\7\2\2\u0190\u018f\3\2\2\2\u0191")
-        buf.write("\u0194\3\2\2\2\u0192\u0190\3\2\2\2\u0192\u0193\3\2\2\2")
-        buf.write("\u0193\u0195\3\2\2\2\u0194\u0192\3\2\2\2\u0195\u019f\7")
-        buf.write("\24\2\2\u0196\u019a\7\25\2\2\u0197\u0199\n\b\2\2\u0198")
-        buf.write("\u0197\3\2\2\2\u0199\u019c\3\2\2\2\u019a\u0198\3\2\2\2")
-        buf.write("\u019a\u019b\3\2\2\2\u019b\u019d\3\2\2\2\u019c\u019a\3")
-        buf.write("\2\2\2\u019d\u019f\7\25\2\2\u019e\u018e\3\2\2\2\u019e")
-        buf.write("\u0196\3\2\2\2\u019fK\3\2\2\2\u01a0\u01a1\t\t\2\2\u01a1")
-        buf.write("M\3\2\2\2\u01a2\u01a3\7\27\2\2\u01a3O\3\2\2\2\66SYaw\177")
-        buf.write("\u008b\u008e\u0092\u009c\u00a0\u00a8\u00ae\u00b6\u00bc")
-        buf.write("\u00c7\u00d0\u00d6\u00dc\u00df\u00e5\u00e9\u00f1\u00f4")
-        buf.write("\u00f7\u00fe\u0104\u010c\u0111\u0114\u0118\u011f\u0127")
-        buf.write("\u012b\u0132\u0136\u0140\u014b\u0156\u0159\u015e\u0161")
-        buf.write("\u0166\u016c\u016e\u0172\u0177\u017b\u0185\u0189\u0192")
-        buf.write("\u019a\u019e")
+        buf.write("\u0132\u0131\3\2\2\2\u0133\67\3\2\2\2\u0134\u0136\7/\2")
+        buf.write("\2\u0135\u0137\5> \2\u0136\u0135\3\2\2\2\u0136\u0137\3")
+        buf.write("\2\2\2\u0137\u0138\3\2\2\2\u0138\u0139\7\n\2\2\u0139\u013a")
+        buf.write("\5\60\31\2\u013a\u013b\7\13\2\2\u013b\u013c\5\60\31\2")
+        buf.write("\u013c\u013d\7\f\2\2\u013d9\3\2\2\2\u013e\u0140\7<\2\2")
+        buf.write("\u013f\u0141\5> \2\u0140\u013f\3\2\2\2\u0140\u0141\3\2")
+        buf.write("\2\2\u0141\u0142\3\2\2\2\u0142\u0143\7\n\2\2\u0143\u0144")
+        buf.write("\5\60\31\2\u0144\u0145\7\f\2\2\u0145;\3\2\2\2\u0146\u0147")
+        buf.write("\7-\2\2\u0147\u0148\7\n\2\2\u0148\u0149\5\60\31\2\u0149")
+        buf.write("\u014b\7\f\2\2\u014a\u014c\5> \2\u014b\u014a\3\2\2\2\u014b")
+        buf.write("\u014c\3\2\2\2\u014c=\3\2\2\2\u014d\u014e\7\36\2\2\u014e")
+        buf.write("\u014f\5J&\2\u014f?\3\2\2\2\u0150\u0157\5B\"\2\u0151\u0157")
+        buf.write("\5D#\2\u0152\u0157\5J&\2\u0153\u0157\5N(\2\u0154\u0157")
+        buf.write("\5F$\2\u0155\u0157\5H%\2\u0156\u0150\3\2\2\2\u0156\u0151")
+        buf.write("\3\2\2\2\u0156\u0152\3\2\2\2\u0156\u0153\3\2\2\2\u0156")
+        buf.write("\u0154\3\2\2\2\u0156\u0155\3\2\2\2\u0157A\3\2\2\2\u0158")
+        buf.write("\u015a\t\5\2\2\u0159\u0158\3\2\2\2\u0159\u015a\3\2\2\2")
+        buf.write("\u015a\u015c\3\2\2\2\u015b\u015d\7K\2\2\u015c\u015b\3")
+        buf.write("\2\2\2\u015d\u015e\3\2\2\2\u015e\u015c\3\2\2\2\u015e\u015f")
+        buf.write("\3\2\2\2\u015fC\3\2\2\2\u0160\u0162\t\5\2\2\u0161\u0160")
+        buf.write("\3\2\2\2\u0161\u0162\3\2\2\2\u0162\u0164\3\2\2\2\u0163")
+        buf.write("\u0165\7K\2\2\u0164\u0163\3\2\2\2\u0165\u0166\3\2\2\2")
+        buf.write("\u0166\u0164\3\2\2\2\u0166\u0167\3\2\2\2\u0167\u016e\3")
+        buf.write("\2\2\2\u0168\u016a\7\17\2\2\u0169\u016b\7K\2\2\u016a\u0169")
+        buf.write("\3\2\2\2\u016b\u016c\3\2\2\2\u016c\u016a\3\2\2\2\u016c")
+        buf.write("\u016d\3\2\2\2\u016d\u016f\3\2\2\2\u016e\u0168\3\2\2\2")
+        buf.write("\u016e\u016f\3\2\2\2\u016f\u0172\3\2\2\2\u0170\u0171\t")
+        buf.write("\6\2\2\u0171\u0173\5B\"\2\u0172\u0170\3\2\2\2\u0172\u0173")
+        buf.write("\3\2\2\2\u0173E\3\2\2\2\u0174\u017b\7\22\2\2\u0175\u0177")
+        buf.write("\5@!\2\u0176\u0178\5L\'\2\u0177\u0176\3\2\2\2\u0177\u0178")
+        buf.write("\3\2\2\2\u0178\u017a\3\2\2\2\u0179\u0175\3\2\2\2\u017a")
+        buf.write("\u017d\3\2\2\2\u017b\u0179\3\2\2\2\u017b\u017c\3\2\2\2")
+        buf.write("\u017c\u017e\3\2\2\2\u017d\u017b\3\2\2\2\u017e\u017f\7")
+        buf.write("\23\2\2\u017fG\3\2\2\2\u0180\u0189\7\5\2\2\u0181\u0182")
+        buf.write("\5@!\2\u0182\u0183\7\7\2\2\u0183\u0185\5@!\2\u0184\u0186")
+        buf.write("\5L\'\2\u0185\u0184\3\2\2\2\u0185\u0186\3\2\2\2\u0186")
+        buf.write("\u0188\3\2\2\2\u0187\u0181\3\2\2\2\u0188\u018b\3\2\2\2")
+        buf.write("\u0189\u0187\3\2\2\2\u0189\u018a\3\2\2\2\u018a\u018c\3")
+        buf.write("\2\2\2\u018b\u0189\3\2\2\2\u018c\u018d\7\6\2\2\u018dI")
+        buf.write("\3\2\2\2\u018e\u0192\7\24\2\2\u018f\u0191\n\7\2\2\u0190")
+        buf.write("\u018f\3\2\2\2\u0191\u0194\3\2\2\2\u0192\u0190\3\2\2\2")
+        buf.write("\u0192\u0193\3\2\2\2\u0193\u0195\3\2\2\2\u0194\u0192\3")
+        buf.write("\2\2\2\u0195\u019f\7\24\2\2\u0196\u019a\7\25\2\2\u0197")
+        buf.write("\u0199\n\b\2\2\u0198\u0197\3\2\2\2\u0199\u019c\3\2\2\2")
+        buf.write("\u019a\u0198\3\2\2\2\u019a\u019b\3\2\2\2\u019b\u019d\3")
+        buf.write("\2\2\2\u019c\u019a\3\2\2\2\u019d\u019f\7\25\2\2\u019e")
+        buf.write("\u018e\3\2\2\2\u019e\u0196\3\2\2\2\u019fK\3\2\2\2\u01a0")
+        buf.write("\u01a1\t\t\2\2\u01a1M\3\2\2\2\u01a2\u01a3\7J\2\2\u01a3")
+        buf.write("O\3\2\2\2\66SYaw\177\u008b\u008e\u0092\u009c\u00a0\u00a8")
+        buf.write("\u00ae\u00b6\u00bc\u00c7\u00d0\u00d6\u00dc\u00df\u00e5")
+        buf.write("\u00e9\u00f1\u00f4\u00f7\u00fe\u0104\u010c\u0111\u0114")
+        buf.write("\u0118\u011f\u0127\u012b\u0132\u0136\u0140\u014b\u0156")
+        buf.write("\u0159\u015e\u0161\u0166\u016c\u016e\u0172\u0177\u017b")
+        buf.write("\u0185\u0189\u0192\u019a\u019e")
         return buf.getvalue()
 
 
@@ -225,34 +224,34 @@ class ThriftParser ( Parser ):
 
     literalNames = [ "<INVALID>", "'*'", "'='", "'{'", "'}'", "':'", "'('", 
                      "')'", "'<'", "','", "'>'", "'+'", "'-'", "'.'", "'E'", 
-                     "'e'", "'['", "']'", "'\"'", "'''", "';'", "<INVALID>", 
-                     "<INVALID>", "'binary'", "'bool'", "'byte'", "'c_glib'", 
-                     "'const'", "'cpp'", "'cpp_include'", "'cpp_type'", 
-                     "'csharp'", "'delphi'", "'double'", "'enum'", "'exception'", 
-                     "'extends'", "'go'", "'i16'", "'i32'", "'i64'", "'i8'", 
-                     "'include'", "'java'", "'js'", "'list'", "'lua'", "'map'", 
-                     "'namespace'", "'netcore'", "'oneway'", "'optional'", 
-                     "'perl'", "'php'", "'py'", "'py.twisted'", "'rb'", 
-                     "'required'", "'senum'", "'service'", "'set'", "'slist'", 
-                     "'st'", "'string'", "'struct'", "'throws'", "'typedef'", 
-                     "'union'", "'void'", "'xsd'", "'xsd_all'", "'xsd_attrs'", 
-                     "'xsd_nillable'", "'xsd_optional'" ]
+                     "'e'", "'['", "']'", "'\"'", "'''", "';'", "'binary'", 
+                     "'bool'", "'byte'", "'c_glib'", "'const'", "'cpp'", 
+                     "'cpp_include'", "'cpp_type'", "'csharp'", "'delphi'", 
+                     "'double'", "'enum'", "'exception'", "'extends'", "'go'", 
+                     "'i16'", "'i32'", "'i64'", "'i8'", "'include'", "'java'", 
+                     "'js'", "'list'", "'lua'", "'map'", "'namespace'", 
+                     "'netcore'", "'oneway'", "'optional'", "'perl'", "'php'", 
+                     "'py'", "'py.twisted'", "'rb'", "'required'", "'senum'", 
+                     "'service'", "'set'", "'slist'", "'st'", "'string'", 
+                     "'struct'", "'throws'", "'typedef'", "'union'", "'void'", 
+                     "'xsd'", "'xsd_all'", "'xsd_attrs'", "'xsd_nillable'", 
+                     "'xsd_optional'" ]
 
     symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "IDENTIFIER", "DIGIT", "BINARY", "BOOL", 
-                      "BYTE", "C_GLIB", "CONST", "CPP", "CPP_INCLUDE", "CPP_TYPE", 
-                      "CSHARP", "DELPHI", "DOUBLE", "ENUM", "EXCEPTION", 
-                      "EXTENDS", "GO", "I16", "I32", "I64", "I8", "INCLUDE", 
-                      "JAVA", "JS", "LIST", "LUA", "MAP", "NAMESPACE", "NETCORE", 
-                      "ONEWAY", "OPTIONAL", "PERL", "PHP", "PY", "PY_TWISTED", 
-                      "RB", "REQUIRED", "SENUM", "SERVICE", "SET", "SLIST", 
-                      "ST", "STRING", "STRUCT", "THROWS", "TYPEDEF", "UNION", 
-                      "VOID", "XSD", "XSD_ALL", "XSD_ATTRS", "XSD_NILLABLE", 
-                      "XSD_OPTIONAL", "WS", "COMMENT", "LINE_COMMENT" ]
+                      "<INVALID>", "BINARY", "BOOL", "BYTE", "C_GLIB", "CONST", 
+                      "CPP", "CPP_INCLUDE", "CPP_TYPE", "CSHARP", "DELPHI", 
+                      "DOUBLE", "ENUM", "EXCEPTION", "EXTENDS", "GO", "I16", 
+                      "I32", "I64", "I8", "INCLUDE", "JAVA", "JS", "LIST", 
+                      "LUA", "MAP", "NAMESPACE", "NETCORE", "ONEWAY", "OPTIONAL", 
+                      "PERL", "PHP", "PY", "PY_TWISTED", "RB", "REQUIRED", 
+                      "SENUM", "SERVICE", "SET", "SLIST", "ST", "STRING", 
+                      "STRUCT", "THROWS", "TYPEDEF", "UNION", "VOID", "XSD", 
+                      "XSD_ALL", "XSD_ATTRS", "XSD_NILLABLE", "XSD_OPTIONAL", 
+                      "IDENTIFIER", "DIGIT", "WS", "COMMENT", "LINE_COMMENT" ]
 
     RULE_document = 0
     RULE_header = 1
@@ -325,59 +324,59 @@ class ThriftParser ( Parser ):
     T__17=18
     T__18=19
     T__19=20
-    IDENTIFIER=21
-    DIGIT=22
-    BINARY=23
-    BOOL=24
-    BYTE=25
-    C_GLIB=26
-    CONST=27
-    CPP=28
-    CPP_INCLUDE=29
-    CPP_TYPE=30
-    CSHARP=31
-    DELPHI=32
-    DOUBLE=33
-    ENUM=34
-    EXCEPTION=35
-    EXTENDS=36
-    GO=37
-    I16=38
-    I32=39
-    I64=40
-    I8=41
-    INCLUDE=42
-    JAVA=43
-    JS=44
-    LIST=45
-    LUA=46
-    MAP=47
-    NAMESPACE=48
-    NETCORE=49
-    ONEWAY=50
-    OPTIONAL=51
-    PERL=52
-    PHP=53
-    PY=54
-    PY_TWISTED=55
-    RB=56
-    REQUIRED=57
-    SENUM=58
-    SERVICE=59
-    SET=60
-    SLIST=61
-    ST=62
-    STRING=63
-    STRUCT=64
-    THROWS=65
-    TYPEDEF=66
-    UNION=67
-    VOID=68
-    XSD=69
-    XSD_ALL=70
-    XSD_ATTRS=71
-    XSD_NILLABLE=72
-    XSD_OPTIONAL=73
+    BINARY=21
+    BOOL=22
+    BYTE=23
+    C_GLIB=24
+    CONST=25
+    CPP=26
+    CPP_INCLUDE=27
+    CPP_TYPE=28
+    CSHARP=29
+    DELPHI=30
+    DOUBLE=31
+    ENUM=32
+    EXCEPTION=33
+    EXTENDS=34
+    GO=35
+    I16=36
+    I32=37
+    I64=38
+    I8=39
+    INCLUDE=40
+    JAVA=41
+    JS=42
+    LIST=43
+    LUA=44
+    MAP=45
+    NAMESPACE=46
+    NETCORE=47
+    ONEWAY=48
+    OPTIONAL=49
+    PERL=50
+    PHP=51
+    PY=52
+    PY_TWISTED=53
+    RB=54
+    REQUIRED=55
+    SENUM=56
+    SERVICE=57
+    SET=58
+    SLIST=59
+    ST=60
+    STRING=61
+    STRUCT=62
+    THROWS=63
+    TYPEDEF=64
+    UNION=65
+    VOID=66
+    XSD=67
+    XSD_ALL=68
+    XSD_ATTRS=69
+    XSD_NILLABLE=70
+    XSD_OPTIONAL=71
+    IDENTIFIER=72
+    DIGIT=73
     WS=74
     COMMENT=75
     LINE_COMMENT=76
@@ -454,7 +453,7 @@ class ThriftParser ( Parser ):
             self.state = 87
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while ((((_la - 27)) & ~0x3f) == 0 and ((1 << (_la - 27)) & ((1 << (ThriftParser.CONST - 27)) | (1 << (ThriftParser.ENUM - 27)) | (1 << (ThriftParser.EXCEPTION - 27)) | (1 << (ThriftParser.SENUM - 27)) | (1 << (ThriftParser.SERVICE - 27)) | (1 << (ThriftParser.STRUCT - 27)) | (1 << (ThriftParser.TYPEDEF - 27)) | (1 << (ThriftParser.UNION - 27)))) != 0):
+            while ((((_la - 25)) & ~0x3f) == 0 and ((1 << (_la - 25)) & ((1 << (ThriftParser.CONST - 25)) | (1 << (ThriftParser.ENUM - 25)) | (1 << (ThriftParser.EXCEPTION - 25)) | (1 << (ThriftParser.SENUM - 25)) | (1 << (ThriftParser.SERVICE - 25)) | (1 << (ThriftParser.STRUCT - 25)) | (1 << (ThriftParser.TYPEDEF - 25)) | (1 << (ThriftParser.UNION - 25)))) != 0):
                 self.state = 84
                 self.definition()
                 self.state = 89
@@ -1317,7 +1316,7 @@ class ThriftParser ( Parser ):
             self.state = 172
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 169
                 self.field()
                 self.state = 174
@@ -1402,7 +1401,7 @@ class ThriftParser ( Parser ):
             self.state = 186
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 183
                 self.field()
                 self.state = 188
@@ -1476,7 +1475,7 @@ class ThriftParser ( Parser ):
             self.state = 197
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 194
                 self.field()
                 self.state = 199
@@ -1566,7 +1565,7 @@ class ThriftParser ( Parser ):
             self.state = 212
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while ((((_la - 21)) & ~0x3f) == 0 and ((1 << (_la - 21)) & ((1 << (ThriftParser.IDENTIFIER - 21)) | (1 << (ThriftParser.BINARY - 21)) | (1 << (ThriftParser.BOOL - 21)) | (1 << (ThriftParser.BYTE - 21)) | (1 << (ThriftParser.DOUBLE - 21)) | (1 << (ThriftParser.I16 - 21)) | (1 << (ThriftParser.I32 - 21)) | (1 << (ThriftParser.I64 - 21)) | (1 << (ThriftParser.I8 - 21)) | (1 << (ThriftParser.LIST - 21)) | (1 << (ThriftParser.MAP - 21)) | (1 << (ThriftParser.ONEWAY - 21)) | (1 << (ThriftParser.SET - 21)) | (1 << (ThriftParser.SLIST - 21)) | (1 << (ThriftParser.STRING - 21)) | (1 << (ThriftParser.VOID - 21)))) != 0):
+            while ((((_la - 21)) & ~0x3f) == 0 and ((1 << (_la - 21)) & ((1 << (ThriftParser.BINARY - 21)) | (1 << (ThriftParser.BOOL - 21)) | (1 << (ThriftParser.BYTE - 21)) | (1 << (ThriftParser.DOUBLE - 21)) | (1 << (ThriftParser.I16 - 21)) | (1 << (ThriftParser.I32 - 21)) | (1 << (ThriftParser.I64 - 21)) | (1 << (ThriftParser.I8 - 21)) | (1 << (ThriftParser.LIST - 21)) | (1 << (ThriftParser.MAP - 21)) | (1 << (ThriftParser.ONEWAY - 21)) | (1 << (ThriftParser.SET - 21)) | (1 << (ThriftParser.SLIST - 21)) | (1 << (ThriftParser.STRING - 21)) | (1 << (ThriftParser.VOID - 21)) | (1 << (ThriftParser.IDENTIFIER - 21)))) != 0):
                 self.state = 209
                 self.function()
                 self.state = 214
@@ -1648,7 +1647,7 @@ class ThriftParser ( Parser ):
             self.state = 218
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.DIGIT))) != 0):
+            if ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 217
                 self.fieldID()
 
@@ -1924,7 +1923,7 @@ class ThriftParser ( Parser ):
             self.state = 252
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 249
                 self.field()
                 self.state = 254
@@ -2018,7 +2017,7 @@ class ThriftParser ( Parser ):
             self.state = 266
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 263
                 self.field()
                 self.state = 268
@@ -2093,7 +2092,7 @@ class ThriftParser ( Parser ):
             self.state = 278
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [ThriftParser.IDENTIFIER, ThriftParser.BINARY, ThriftParser.BOOL, ThriftParser.BYTE, ThriftParser.DOUBLE, ThriftParser.I16, ThriftParser.I32, ThriftParser.I64, ThriftParser.I8, ThriftParser.LIST, ThriftParser.MAP, ThriftParser.SET, ThriftParser.SLIST, ThriftParser.STRING]:
+            if token in [ThriftParser.BINARY, ThriftParser.BOOL, ThriftParser.BYTE, ThriftParser.DOUBLE, ThriftParser.I16, ThriftParser.I32, ThriftParser.I64, ThriftParser.I8, ThriftParser.LIST, ThriftParser.MAP, ThriftParser.SET, ThriftParser.SLIST, ThriftParser.STRING, ThriftParser.IDENTIFIER]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 276
                 self.fieldType()
@@ -2165,7 +2164,7 @@ class ThriftParser ( Parser ):
             self.state = 285
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.LIST) | (1 << ThriftParser.MAP) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.STRING))) != 0):
+            while ((((_la - 11)) & ~0x3f) == 0 and ((1 << (_la - 11)) & ((1 << (ThriftParser.T__10 - 11)) | (1 << (ThriftParser.T__11 - 11)) | (1 << (ThriftParser.BINARY - 11)) | (1 << (ThriftParser.BOOL - 11)) | (1 << (ThriftParser.BYTE - 11)) | (1 << (ThriftParser.DOUBLE - 11)) | (1 << (ThriftParser.I16 - 11)) | (1 << (ThriftParser.I32 - 11)) | (1 << (ThriftParser.I64 - 11)) | (1 << (ThriftParser.I8 - 11)) | (1 << (ThriftParser.LIST - 11)) | (1 << (ThriftParser.MAP - 11)) | (1 << (ThriftParser.OPTIONAL - 11)) | (1 << (ThriftParser.REQUIRED - 11)) | (1 << (ThriftParser.SET - 11)) | (1 << (ThriftParser.SLIST - 11)) | (1 << (ThriftParser.STRING - 11)) | (1 << (ThriftParser.IDENTIFIER - 11)) | (1 << (ThriftParser.DIGIT - 11)))) != 0):
                 self.state = 282
                 self.field()
                 self.state = 287
@@ -3085,7 +3084,7 @@ class ThriftParser ( Parser ):
             self.state = 377
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__2) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__18) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__2) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__18))) != 0) or _la==ThriftParser.IDENTIFIER or _la==ThriftParser.DIGIT:
                 self.state = 371
                 self.constValue()
                 self.state = 373
@@ -3163,7 +3162,7 @@ class ThriftParser ( Parser ):
             self.state = 391
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__2) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__18) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT))) != 0):
+            while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__2) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__18))) != 0) or _la==ThriftParser.IDENTIFIER or _la==ThriftParser.DIGIT:
                 self.state = 383
                 self.constValue()
                 self.state = 384
@@ -3236,7 +3235,7 @@ class ThriftParser ( Parser ):
                 self.state = 400
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__0) | (1 << ThriftParser.T__1) | (1 << ThriftParser.T__2) | (1 << ThriftParser.T__3) | (1 << ThriftParser.T__4) | (1 << ThriftParser.T__5) | (1 << ThriftParser.T__6) | (1 << ThriftParser.T__7) | (1 << ThriftParser.T__8) | (1 << ThriftParser.T__9) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__12) | (1 << ThriftParser.T__13) | (1 << ThriftParser.T__14) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__16) | (1 << ThriftParser.T__18) | (1 << ThriftParser.T__19) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.C_GLIB) | (1 << ThriftParser.CONST) | (1 << ThriftParser.CPP) | (1 << ThriftParser.CPP_INCLUDE) | (1 << ThriftParser.CPP_TYPE) | (1 << ThriftParser.CSHARP) | (1 << ThriftParser.DELPHI) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.ENUM) | (1 << ThriftParser.EXCEPTION) | (1 << ThriftParser.EXTENDS) | (1 << ThriftParser.GO) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.INCLUDE) | (1 << ThriftParser.JAVA) | (1 << ThriftParser.JS) | (1 << ThriftParser.LIST) | (1 << ThriftParser.LUA) | (1 << ThriftParser.MAP) | (1 << ThriftParser.NAMESPACE) | (1 << ThriftParser.NETCORE) | (1 << ThriftParser.ONEWAY) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.PERL) | (1 << ThriftParser.PHP) | (1 << ThriftParser.PY) | (1 << ThriftParser.PY_TWISTED) | (1 << ThriftParser.RB) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SENUM) | (1 << ThriftParser.SERVICE) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.ST) | (1 << ThriftParser.STRING))) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & ((1 << (ThriftParser.STRUCT - 64)) | (1 << (ThriftParser.THROWS - 64)) | (1 << (ThriftParser.TYPEDEF - 64)) | (1 << (ThriftParser.UNION - 64)) | (1 << (ThriftParser.VOID - 64)) | (1 << (ThriftParser.XSD - 64)) | (1 << (ThriftParser.XSD_ALL - 64)) | (1 << (ThriftParser.XSD_ATTRS - 64)) | (1 << (ThriftParser.XSD_NILLABLE - 64)) | (1 << (ThriftParser.XSD_OPTIONAL - 64)) | (1 << (ThriftParser.WS - 64)) | (1 << (ThriftParser.COMMENT - 64)) | (1 << (ThriftParser.LINE_COMMENT - 64)))) != 0):
+                while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__0) | (1 << ThriftParser.T__1) | (1 << ThriftParser.T__2) | (1 << ThriftParser.T__3) | (1 << ThriftParser.T__4) | (1 << ThriftParser.T__5) | (1 << ThriftParser.T__6) | (1 << ThriftParser.T__7) | (1 << ThriftParser.T__8) | (1 << ThriftParser.T__9) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__12) | (1 << ThriftParser.T__13) | (1 << ThriftParser.T__14) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__16) | (1 << ThriftParser.T__18) | (1 << ThriftParser.T__19) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.C_GLIB) | (1 << ThriftParser.CONST) | (1 << ThriftParser.CPP) | (1 << ThriftParser.CPP_INCLUDE) | (1 << ThriftParser.CPP_TYPE) | (1 << ThriftParser.CSHARP) | (1 << ThriftParser.DELPHI) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.ENUM) | (1 << ThriftParser.EXCEPTION) | (1 << ThriftParser.EXTENDS) | (1 << ThriftParser.GO) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.INCLUDE) | (1 << ThriftParser.JAVA) | (1 << ThriftParser.JS) | (1 << ThriftParser.LIST) | (1 << ThriftParser.LUA) | (1 << ThriftParser.MAP) | (1 << ThriftParser.NAMESPACE) | (1 << ThriftParser.NETCORE) | (1 << ThriftParser.ONEWAY) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.PERL) | (1 << ThriftParser.PHP) | (1 << ThriftParser.PY) | (1 << ThriftParser.PY_TWISTED) | (1 << ThriftParser.RB) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SENUM) | (1 << ThriftParser.SERVICE) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.ST) | (1 << ThriftParser.STRING) | (1 << ThriftParser.STRUCT) | (1 << ThriftParser.THROWS))) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & ((1 << (ThriftParser.TYPEDEF - 64)) | (1 << (ThriftParser.UNION - 64)) | (1 << (ThriftParser.VOID - 64)) | (1 << (ThriftParser.XSD - 64)) | (1 << (ThriftParser.XSD_ALL - 64)) | (1 << (ThriftParser.XSD_ATTRS - 64)) | (1 << (ThriftParser.XSD_NILLABLE - 64)) | (1 << (ThriftParser.XSD_OPTIONAL - 64)) | (1 << (ThriftParser.IDENTIFIER - 64)) | (1 << (ThriftParser.DIGIT - 64)) | (1 << (ThriftParser.WS - 64)) | (1 << (ThriftParser.COMMENT - 64)) | (1 << (ThriftParser.LINE_COMMENT - 64)))) != 0):
                     self.state = 397
                     _la = self._input.LA(1)
                     if _la <= 0 or _la==ThriftParser.T__17:
@@ -3257,7 +3256,7 @@ class ThriftParser ( Parser ):
                 self.state = 408
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__0) | (1 << ThriftParser.T__1) | (1 << ThriftParser.T__2) | (1 << ThriftParser.T__3) | (1 << ThriftParser.T__4) | (1 << ThriftParser.T__5) | (1 << ThriftParser.T__6) | (1 << ThriftParser.T__7) | (1 << ThriftParser.T__8) | (1 << ThriftParser.T__9) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__12) | (1 << ThriftParser.T__13) | (1 << ThriftParser.T__14) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__16) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__19) | (1 << ThriftParser.IDENTIFIER) | (1 << ThriftParser.DIGIT) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.C_GLIB) | (1 << ThriftParser.CONST) | (1 << ThriftParser.CPP) | (1 << ThriftParser.CPP_INCLUDE) | (1 << ThriftParser.CPP_TYPE) | (1 << ThriftParser.CSHARP) | (1 << ThriftParser.DELPHI) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.ENUM) | (1 << ThriftParser.EXCEPTION) | (1 << ThriftParser.EXTENDS) | (1 << ThriftParser.GO) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.INCLUDE) | (1 << ThriftParser.JAVA) | (1 << ThriftParser.JS) | (1 << ThriftParser.LIST) | (1 << ThriftParser.LUA) | (1 << ThriftParser.MAP) | (1 << ThriftParser.NAMESPACE) | (1 << ThriftParser.NETCORE) | (1 << ThriftParser.ONEWAY) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.PERL) | (1 << ThriftParser.PHP) | (1 << ThriftParser.PY) | (1 << ThriftParser.PY_TWISTED) | (1 << ThriftParser.RB) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SENUM) | (1 << ThriftParser.SERVICE) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.ST) | (1 << ThriftParser.STRING))) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & ((1 << (ThriftParser.STRUCT - 64)) | (1 << (ThriftParser.THROWS - 64)) | (1 << (ThriftParser.TYPEDEF - 64)) | (1 << (ThriftParser.UNION - 64)) | (1 << (ThriftParser.VOID - 64)) | (1 << (ThriftParser.XSD - 64)) | (1 << (ThriftParser.XSD_ALL - 64)) | (1 << (ThriftParser.XSD_ATTRS - 64)) | (1 << (ThriftParser.XSD_NILLABLE - 64)) | (1 << (ThriftParser.XSD_OPTIONAL - 64)) | (1 << (ThriftParser.WS - 64)) | (1 << (ThriftParser.COMMENT - 64)) | (1 << (ThriftParser.LINE_COMMENT - 64)))) != 0):
+                while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << ThriftParser.T__0) | (1 << ThriftParser.T__1) | (1 << ThriftParser.T__2) | (1 << ThriftParser.T__3) | (1 << ThriftParser.T__4) | (1 << ThriftParser.T__5) | (1 << ThriftParser.T__6) | (1 << ThriftParser.T__7) | (1 << ThriftParser.T__8) | (1 << ThriftParser.T__9) | (1 << ThriftParser.T__10) | (1 << ThriftParser.T__11) | (1 << ThriftParser.T__12) | (1 << ThriftParser.T__13) | (1 << ThriftParser.T__14) | (1 << ThriftParser.T__15) | (1 << ThriftParser.T__16) | (1 << ThriftParser.T__17) | (1 << ThriftParser.T__19) | (1 << ThriftParser.BINARY) | (1 << ThriftParser.BOOL) | (1 << ThriftParser.BYTE) | (1 << ThriftParser.C_GLIB) | (1 << ThriftParser.CONST) | (1 << ThriftParser.CPP) | (1 << ThriftParser.CPP_INCLUDE) | (1 << ThriftParser.CPP_TYPE) | (1 << ThriftParser.CSHARP) | (1 << ThriftParser.DELPHI) | (1 << ThriftParser.DOUBLE) | (1 << ThriftParser.ENUM) | (1 << ThriftParser.EXCEPTION) | (1 << ThriftParser.EXTENDS) | (1 << ThriftParser.GO) | (1 << ThriftParser.I16) | (1 << ThriftParser.I32) | (1 << ThriftParser.I64) | (1 << ThriftParser.I8) | (1 << ThriftParser.INCLUDE) | (1 << ThriftParser.JAVA) | (1 << ThriftParser.JS) | (1 << ThriftParser.LIST) | (1 << ThriftParser.LUA) | (1 << ThriftParser.MAP) | (1 << ThriftParser.NAMESPACE) | (1 << ThriftParser.NETCORE) | (1 << ThriftParser.ONEWAY) | (1 << ThriftParser.OPTIONAL) | (1 << ThriftParser.PERL) | (1 << ThriftParser.PHP) | (1 << ThriftParser.PY) | (1 << ThriftParser.PY_TWISTED) | (1 << ThriftParser.RB) | (1 << ThriftParser.REQUIRED) | (1 << ThriftParser.SENUM) | (1 << ThriftParser.SERVICE) | (1 << ThriftParser.SET) | (1 << ThriftParser.SLIST) | (1 << ThriftParser.ST) | (1 << ThriftParser.STRING) | (1 << ThriftParser.STRUCT) | (1 << ThriftParser.THROWS))) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & ((1 << (ThriftParser.TYPEDEF - 64)) | (1 << (ThriftParser.UNION - 64)) | (1 << (ThriftParser.VOID - 64)) | (1 << (ThriftParser.XSD - 64)) | (1 << (ThriftParser.XSD_ALL - 64)) | (1 << (ThriftParser.XSD_ATTRS - 64)) | (1 << (ThriftParser.XSD_NILLABLE - 64)) | (1 << (ThriftParser.XSD_OPTIONAL - 64)) | (1 << (ThriftParser.IDENTIFIER - 64)) | (1 << (ThriftParser.DIGIT - 64)) | (1 << (ThriftParser.WS - 64)) | (1 << (ThriftParser.COMMENT - 64)) | (1 << (ThriftParser.LINE_COMMENT - 64)))) != 0):
                     self.state = 405
                     _la = self._input.LA(1)
                     if _la <= 0 or _la==ThriftParser.T__18:

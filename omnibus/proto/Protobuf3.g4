@@ -40,7 +40,7 @@ option
     ;
 
 optionName
-    : (IDENT | '(' fullIdent ')' ) ('.' (IDENT | reservedWord))*
+    : (IDENT | '(' fullIdent ')') ('.' (IDENT | reservedWord))*
     ;
 
 optionBody
@@ -83,7 +83,7 @@ enumDefinition
     ;
 
 enumBody
-    :  '{' (option | enumField |emptyStatement)* '}'
+    : '{' (option | enumField |emptyStatement)* '}'
     ;
 
 enumField
@@ -246,11 +246,11 @@ messageType
     ;
 
 messageOrEnumType
-    : '.'? ( (IDENT | reservedWord) '.')* messageOrEnumName
+    : '.'? ((IDENT | reservedWord) '.')* messageOrEnumName
     ;
 
 emptyStatement
-    :   ';'
+    : ';'
     ;
 
 constant

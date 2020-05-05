@@ -350,6 +350,11 @@ docker-invalidate:
 
 ## Venvs
 
+.PHONY: docker-clean-venv
+docker-clean-venv:
+	rm -rf .venv-docker
+	rm -rf .venv-docker-37
+
 .PHONY: docker-venv
 docker-venv:
 	./docker-dev make _docker-venv
