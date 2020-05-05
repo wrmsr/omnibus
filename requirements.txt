@@ -39,5 +39,5 @@ zstd==1.4.4.0
 
 fastuuid==0.3.0; python_version > '3.7'
 
-pyhash==0.9.3; python_version < '3.8'
-git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8; python_version > '3.7'
+# pyhash==0.9.3; python_version < '3.8'
+# git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8; python_version > '3.7'
