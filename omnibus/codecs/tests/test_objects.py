@@ -16,6 +16,13 @@ def test_yaml():
     assert c.decode(c.encode(dct)) == dct
 
 
+def test_bson():
+    c = objects_.bson()
+    dct = {'a': 2}
+    assert isinstance(c.encode(dct), bytes)
+    assert c.decode(c.encode(dct)) == dct
+
+
 def test_cbor():
     c = objects_.cbor()
     dct = {1: 2}

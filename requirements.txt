@@ -8,6 +8,7 @@ Cython==0.29.17
 billiard==3.6.3.0
 boto3==1.13.2
 botocore==1.16.2
+bson==0.5.9
 cbor==1.0.0
 cytoolz==0.10.1
 docker==4.2.0

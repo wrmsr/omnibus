@@ -84,6 +84,23 @@ class YamlCodec(Codec[F, str], lang.Final):
 yaml = YamlCodec
 
 
+@EXTENSION_REGISTRY.registering('bson')
+@MIME_TYPE_REGISTRY.registering('application/bson')
+class BsonCodec(Codec[F, bytes], lang.Final):
+    _MODULE = lang.lazy_import('bson')
+
+    defs.repr()
+
+    def encode(self, o: F) -> bytes:
+        return self._MODULE().dumps(o)
+
+    def decode(self, o: bytes) -> F:
+        return self._MODULE().loads(o)
+
+
+bson = BsonCodec
+
+
 @EXTENSION_REGISTRY.registering('cbor')
 @MIME_TYPE_REGISTRY.registering('application/cbor')
 class CborCodec(Codec[F, bytes], lang.Final):
