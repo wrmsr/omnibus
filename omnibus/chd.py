@@ -17,20 +17,23 @@ MAX_UINT64 = 0xffffffffffffffff
 _FNV_OFFSET = 0xcbf29ce484222325
 _FNV_PRIME = 0x100000001b3
 
+
+def _fnv1a_64(data: bytes) -> uint64:
+    hsh = _FNV_OFFSET
+    for c in data:
+        hsh ^= c
+        hsh *= _FNV_PRIME
+        hsh &= MAX_UINT64
+    return hsh
+
+
+fnv1a_64: ta.Callable[[bytes], uint64]
 try:
     import pyhash
-
 except ImportError:
-    def fnv1a_64(data: bytes) -> uint64:
-        hsh = _FNV_OFFSET
-        for c in data:
-            hsh ^= c
-            hsh *= _FNV_PRIME
-            hsh &= MAX_UINT64
-        return hsh
-
+    fnv1a_64 = _fnv1a_64
 else:
-    fnv1a_64: ta.Callable[[bytes], uint64] = pyhash.fnv1a_64(_FNV_OFFSET)
+    fnv1a_64 = pyhash.fnv1a_64(_FNV_OFFSET)
 
 
 @dc.dataclass()

@@ -5,6 +5,10 @@ def test_fnv():
     assert chd_.fnv1a_64(b'Hello') == 0x63f0bfacf2c00f6b
 
 
+def test_fnv_fallback():
+    assert chd_._fnv1a_64(b'Hello') == 0x63f0bfacf2c00f6b
+
+
 GO_ZERO_SEED_RAND_U64S = [
     0xf1f85ff53eb60825,
     0xa7ecbff20de97a55,
