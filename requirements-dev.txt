@@ -19,7 +19,6 @@ pytest-xdist==1.32.0
 
 astpretty==2.0.0
 awscli==1.18.52
-black==19.10b0
 flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2
@@ -36,3 +35,4 @@ pyrasite==2.0
 s3cmd==2.1.0
 sqlparse==0.3.1
 typed-ast==1.4.1
+yappi==1.2.5

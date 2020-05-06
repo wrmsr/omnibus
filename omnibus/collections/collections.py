@@ -18,6 +18,9 @@ TODO:
    - sqlite
    - redis
    - dynamo
+   - rocksdb
+   - leveldb (btc)
+   - bsddb3 (btc)
  - boost::MultiIndex - sorted.py?
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
