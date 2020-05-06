@@ -18,7 +18,7 @@ pytest-xdist==1.32.0
 # useful tools
 
 astpretty==2.0.0
-awscli==1.18.52
+awscli==1.18.54
 flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2

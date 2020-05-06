@@ -6,8 +6,8 @@ Cython==0.29.17
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.13.2
-botocore==1.16.2
+boto3==1.13.4
+botocore==1.16.4
 bson==0.5.9
 cbor==1.0.0
 cytoolz==0.10.1
@@ -18,7 +18,7 @@ google-auth==1.14.1
 greenlet==0.4.15
 httptools==0.1.1
 jmespath==0.9.5
-kazoo==2.5.0
+kazoo==2.7.0
 lz4==3.0.2
 msgpack==1.0.0
 mysql-connector-python==8.0.20
