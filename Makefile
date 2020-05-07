@@ -318,9 +318,7 @@ dep-updates: venv
 
 .PHONY: deptree
 dep-tree: test-install
-	.venv-install/bin/pip install pipdeptree
-	echo ; echo ; echo
-	.venv-install/bin/pipdeptree
+	.venv/bin/pipdeptree
 
 
 ### Docker

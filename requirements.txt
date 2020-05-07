@@ -14,7 +14,7 @@ cytoolz==0.10.1
 docker==4.2.0
 google-api-python-client==1.8.2
 google-auth-httplib2==0.0.3
-google-auth==1.14.1
+google-auth==1.14.2
 greenlet==0.4.15
 httptools==0.1.1
 jmespath==0.9.5
@@ -43,49 +43,49 @@ zstd==1.4.4.0
 
 ## pending optional integrations
 
-bsddb3==6.2.7
-chardet==3.0.4
-datadog==0.36.0
-ddtrace==0.37.0
-dnspython==1.16.0
-fuse-python==1.0.0
-hyperscan==0.1.5
-idna==2.9
-jupyter-client==6.1.2
-jupyter-console==6.1.0
-jupyter-core==4.6.3
-kafka==1.3.5
-kiwisolver==1.2.0
-llvmlite==0.31.0
-matplotlib==3.2.1
-notebook==6.0.3
-numpy==1.18.2
-oauthlib==2.1.0
-plotly==4.6.0
-plyvel==1.2.0
-pyglet==1.5.0
-pyjwt==1.7.1
-pykafka==2.8.0
-pymc3==3.8
-pyomo==5.6.9
-pyroaring==0.2.9
-pyspark==2.4.5
-python-snappy==0.5.4
-pyzmq==19.0.0
-regex==2015.10.29
-rocksdb==0.7.0
-slackclient==2.5.0
-uvloop==0.14.0
-z3-solver==4.8.7.0
+# bsddb3==6.2.7
+# chardet==3.0.4
+# datadog==0.36.0
+# ddtrace==0.37.0
+# dnspython==1.16.0
+# fuse-python==1.0.0
+# google-re2==0.0.6
+# hyperscan==0.1.5
+# idna==2.9
+# jupyter-client==6.1.3
+# jupyter-console==6.1.0
+# jupyter-core==4.6.3
+# kafka==1.3.5
+# kiwisolver==1.2.0
+# llvmlite==0.32.0
+# matplotlib==3.2.1
+# notebook==6.0.3
+# numpy==1.18.4
+# oauthlib==3.1.0
+# plotly==4.7.0
+# plyvel==1.2.0
+# py4j==0.10.9
+# pyglet==1.5.5
+# pyjwt==1.7.1
+# pykafka==2.8.0
+# pymc3==3.8
+# pyomo==5.6.9
+# pyroaring==0.2.9
+# pyspark==2.4.5
+# python-snappy==0.5.4
+# pyzmq==19.0.0
+# regex==2020.4.4
+# rocksdb==0.7.0
+# slackclient==2.5.0
+# uvloop==0.14.0
+# v8eval==0.3.0
+# z3-solver==4.8.7.0
 
 
 ## problematic optional deps
 
-# google-re2==0.0.6
-# v8eval==0.3.0
+# fastuuid==0.3.0; python_version > '3.7'
 
-fastuuid==0.3.0; python_version > '3.7'
-
-git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8
-git+git://github.com/Maratyszcza/PeachPy@f189ad26e898171c17c96df9898d581d026d9c6d
-git+git://github.com/wrmsr/lupa@63e86ad8604e2692c0c56e04db90ff74e52a4672
+# git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8
+# git+git://github.com/Maratyszcza/PeachPy@f189ad26e898171c17c96df9898d581d026d9c6d
+# git+git://github.com/wrmsr/lupa@63e86ad8604e2692c0c56e04db90ff74e52a4672
