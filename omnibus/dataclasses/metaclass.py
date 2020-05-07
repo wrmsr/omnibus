@@ -1,8 +1,8 @@
 """
 TODO:
  - inner=False ** InnerMeta
- - EnumData - SealedAbstract + bequeath FrozenFinal
- - need a single word for FrozenFinal... 'Pure'? implies deep.. 'Record'? overloaded..
+ - EnumData - frozen+abstract (but not sealed by default, but can be) + bequeath={'frozen', 'final'}
+ - PureData - frozen+final
 """
 import abc
 import dataclasses as dc
