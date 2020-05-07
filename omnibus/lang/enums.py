@@ -2,6 +2,7 @@
 TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
  - build _by_value on ValueEnum if unique, optional kwarg to enforce
+  - lazy? kwarg?
  - inheritance>
 """
 import enum
