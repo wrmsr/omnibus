@@ -140,7 +140,7 @@ antlr:
 	set -e ; \
 	java -version ; \
 	\
-	for F in $$(find omnibus -name '*.g4') ; do \
+	for F in $$(find omnibus -name '*.g4' | sort) ; do \
 		echo "$$F" ; \
 		\
 		D=$$(dirname "$$F") ; \
@@ -151,7 +151,9 @@ antlr:
 		fi ; \
 		\
 		P=$$(pwd) ; \
-		(cd "$$D" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor -o antlr $$(basename $$F)) ; \
+		cp "$$F" "$$D/" ; \
+		(cd "$$D/antlr" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor $$(basename $$F)) ; \
+		rm "$$D/antlr/*.g4" ; \
 		\
 		for P in $$(find "$$D/antlr" -name '*.py' -not -name '__init__.py') ; do \
 			echo "$$P" ; \
