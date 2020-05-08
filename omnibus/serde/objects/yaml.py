@@ -6,6 +6,7 @@ TODO:
   - or at least comments
  - rename 'objects'? codecs/serde interplay still unresolved
  - just fuckin vendor?
+ - !! going antlr internal for most parsers, worth the investment now?
 """
 import datetime
 import types
