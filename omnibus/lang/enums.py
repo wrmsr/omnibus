@@ -1,8 +1,6 @@
 """
 TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
- - build _by_value on ValueEnum if unique, optional kwarg to enforce
-  - lazy? kwarg?
  - inheritance>
 """
 import enum
@@ -62,28 +60,50 @@ class _ValueEnumMeta(type):
 
     IGNORED_BASES = {
         object,
+        ta.Generic,
     }
 
-    IGNORED_ATTRS = {
+    ILLEGAL_ATTRS = {
         '_by_name',
+        '_by_value',
     }
 
-    def __new__(mcls, name, bases, namespace):
-        cls = super().__new__(mcls, name, bases, namespace)
+    class _ByValueDescriptor:
+
+        def __get__(self, instance, owner):
+            if owner is None:
+                return self
+            by_value = {}
+            for k, v in owner._by_name.items():
+                if v in by_value:
+                    raise TypeError(f'Duplicate value {v!r} with name {k!r}')
+                by_value[v] = k
+            owner._by_value = by_value
+            return by_value
+
+    def __new__(mcls, name, bases, namespace, *, unique=False, **kwargs):
+        cls = super().__new__(mcls, name, bases, namespace, **kwargs)
+        for k in mcls.ILLEGAL_ATTRS:
+            if k in namespace:
+                raise NameError(k)
         by_name = {}
         for mrocls in cls.__mro__:
             if mrocls in mcls.IGNORED_BASES:
                 continue
             for k, v in mrocls.__dict__.items():
-                if k not in by_name and k not in mcls.IGNORED_ATTRS and not is_dunder(k):
+                if k not in by_name and k not in mcls.ILLEGAL_ATTRS and not is_dunder(k):
                     by_name[k] = v
         cls._by_name = by_name
+        cls._by_value = mcls._ByValueDescriptor()
+        if unique:
+            getattr(cls, '_by_value')
         return cls
 
 
 class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
 
     _by_name: ta.Mapping[str, V]
+    _by_value: ta.Mapping[V, str]
 
     def __new__(cls, *args, **kwargs):
         raise TypeError

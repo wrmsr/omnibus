@@ -78,13 +78,13 @@ zstd==1.4.4.0
 # rocksdb==0.7.0
 # slackclient==2.5.0
 # uvloop==0.14.0
-# v8eval==0.3.0
 # z3-solver==4.8.7.0
 
 
 ## problematic optional deps
 
 # fastuuid==0.3.0; python_version > '3.7'
+# v8eval==0.3.0
 
 # git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8
 # git+git://github.com/Maratyszcza/PeachPy@f189ad26e898171c17c96df9898d581d026d9c6d

@@ -1,3 +1,5 @@
+import pytest
+
 from .. import classes as classes_
 from .. import enums as enums_
 
@@ -37,4 +39,13 @@ def test_valueenum():
         Z = 2
 
     assert E.Y == 1
+    assert len(E._by_name) == 3
     assert E._by_name['Y'] == 1
+
+    assert len(E._by_value) == 3
+    assert E._by_value[1] == 'Y'
+
+    with pytest.raises(Exception):
+        class F(enums_.ValueEnum, unique=True):
+            X = 1
+            Y = 1
