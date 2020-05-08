@@ -72,9 +72,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: 'root'
       MONGO_INITDB_ROOT_PASSWORD: 'omnibus'
     expose:
-      - '8081'
+      - '27017'
     ports:
-      - '22216:8081'
+      - '22216:27017'
 
   omnibus-mysql-master:
     build: '.'
