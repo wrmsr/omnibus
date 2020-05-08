@@ -146,14 +146,14 @@ antlr:
 		D=$$(dirname "$$F") ; \
 		if [ -d "$$D/antlr" ] ; then \
 			rm -rf "$$D/antlr" ; \
-			mkdir "$$D/antlr" ; \
-			touch "$$D/antlr/__init__.py" ; \
 		fi ; \
+		mkdir "$$D/antlr" ; \
+		touch "$$D/antlr/__init__.py" ; \
 		\
 		P=$$(pwd) ; \
-		cp "$$F" "$$D/" ; \
+		cp "$$F" "$$D/antlr/" ; \
 		(cd "$$D/antlr" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor $$(basename $$F)) ; \
-		rm "$$D/antlr/*.g4" ; \
+		rm "$$D/antlr/$$(basename $$F)" ; \
 		\
 		for P in $$(find "$$D/antlr" -name '*.py' -not -name '__init__.py') ; do \
 			echo "$$P" ; \
