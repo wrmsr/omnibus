@@ -13,6 +13,7 @@ TODO:
  - asgi
  - http2?
  - uvloop. (uvloop good and pure, sanic bad and disgusting)
+  - nogil uvicorn
  - use consts not 200
  - client too? tok-style sync+async?
  - simmple routinng?
