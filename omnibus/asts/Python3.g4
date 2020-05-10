@@ -38,7 +38,7 @@ grammar Python3;
 
 tokens { INDENT, DEDENT }
 
-@lexer::header{
+@lexer::header {
 from antlr4.Token import CommonToken
 import re
 import importlib
@@ -114,6 +114,7 @@ def nextToken(self):
             self.indents.pop()
 
         self.emitToken(self.commonToken(LanguageParser.EOF, '<EOF>'))
+
     next = super().nextToken()
     if next.channel == Token.DEFAULT_CHANNEL:
         self.lastToken = next
@@ -633,8 +634,8 @@ ASYNC : 'async';
 AWAIT : 'await';
 
 NEWLINE
- : ( {self.atStartOfInput()}?   SPACES
-   | ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+ : ( {self.atStartOfInput()}? SPACES
+   | ('\r'? '\n' | '\r' | '\f') SPACES?
    ) {
 tempt = Lexer.text.fget(self)
 new_line = re.sub('[^\r\n\f]+', '', tempt)
@@ -656,7 +657,7 @@ except ValueError:
 else:
     nextnext_eof = False
 
-if self.opened > 0 or nextnext_eof is False and (la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
+if self.opened > 0 or not nextnext_eof and (la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
     self.skip()
 else:
     indent = self.getIndentationCount(spaces)
