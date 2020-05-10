@@ -1,9 +1,9 @@
 import os.path
 
 from ....._vendor import antlr4
-from ..antlr.TomlLexer import TomlLexer
-from ..antlr.TomlParser import TomlParser
-from ..antlr.TomlVisitor import TomlVisitor
+from .._antlr.TomlLexer import TomlLexer
+from .._antlr.TomlParser import TomlParser
+from .._antlr.TomlVisitor import TomlVisitor
 
 
 def test_toml():

@@ -1,7 +1,7 @@
 from ...._vendor import antlr4
-from .antlr.JsonLexer import JsonLexer
-from .antlr.JsonParser import JsonParser
-from .antlr.JsonVisitor import JsonVisitor
+from ._antlr.JsonLexer import JsonLexer
+from ._antlr.JsonParser import JsonParser
+from ._antlr.JsonVisitor import JsonVisitor
 
 
 def parse(buf):

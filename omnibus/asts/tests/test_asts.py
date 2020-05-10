@@ -1,9 +1,9 @@
 import os.path
 
 from ..._vendor import antlr4
-from ..antlr.Python3Lexer import Python3Lexer
-from ..antlr.Python3Listener import Python3Listener
-from ..antlr.Python3Parser import Python3Parser
+from .._antlr.Python3Lexer import Python3Lexer
+from .._antlr.Python3Listener import Python3Listener
+from .._antlr.Python3Parser import Python3Parser
 
 
 class Python3PrintListener(Python3Listener):

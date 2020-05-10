@@ -134,29 +134,45 @@ venv-37:
 .PHONY: antlr
 antlr:
 	if [ ! -f "antlr-$(ANTLR_VERSION)-complete.jar" ] ; then \
-		curl --proto '=https' --tlsv1.2 "https://www.antlr.org/download/antlr-$(ANTLR_VERSION)-complete.jar" -o "antlr-$(ANTLR_VERSION)-complete.jar" ; \
+		curl \
+			--proto '=https' \
+			--tlsv1.2 \
+			"https://www.antlr.org/download/antlr-$(ANTLR_VERSION)-complete.jar" \
+			-o "antlr-$(ANTLR_VERSION)-complete.jar" ; \
 	fi
 
 	set -e ; \
+	\
 	java -version ; \
 	\
-	for F in $$(find omnibus -name '*.g4' | sort) ; do \
-		echo "$$F" ; \
+	find omnibus -name _antlr -type d | xargs -n 1 rm -rf ; \
+	\
+	for D in $$(find omnibus -name '*.g4' | xargs -n1 dirname | sort | uniq) ; do \
+		echo "$$D" ; \
 		\
-		D=$$(dirname "$$F") ; \
-		if [ -d "$$D/antlr" ] ; then \
-			rm -rf "$$D/antlr" ; \
-		fi ; \
-		mkdir "$$D/antlr" ; \
-		touch "$$D/antlr/__init__.py" ; \
+		mkdir "$$D/_antlr" ; \
+		touch "$$D/_antlr/__init__.py" ; \
+		\
+		for F in $$(find "$$D" -name '*.g4' | sort) ; do \
+			cp "$$F" "$$D/_antlr/"; \
+		done ; \
 		\
 		P=$$(pwd) ; \
-		cp "$$F" "$$D/antlr/" ; \
-		(cd "$$D/antlr" && java -jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" -Dlanguage=Python3 -visitor $$(basename $$F)) ; \
-		rm "$$D/antlr/$$(basename $$F)" ; \
+		for F in $$(find "$$D/_antlr" -name '*.g4' | sort) ; do \
+			echo "$$F" ; \
+			( \
+				cd "$$D/_antlr" && \
+				java \
+					-jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" \
+					-Dlanguage=Python3 \
+					-visitor \
+					$$(basename "$$F") \
+			) ; \
+		done ; \
 		\
-		for P in $$(find "$$D/antlr" -name '*.py' -not -name '__init__.py') ; do \
-			echo "$$P" ; \
+		find "$$D/_antlr" -name '*.g4' -delete ; \
+		\
+		for P in $$(find "$$D/_antlr" -name '*.py' -not -name '__init__.py') ; do \
 			( \
 				BUF=$$(echo -e '# flake8: noqa' && cat "$$P") ; \
 				IMP=$$(echo "$$D" | tr -dc / | tr / .) ; \

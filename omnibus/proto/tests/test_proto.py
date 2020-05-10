@@ -1,9 +1,9 @@
 import os.path
 
 from ..._vendor import antlr4
-from ..antlr.Protobuf3Lexer import Protobuf3Lexer
-from ..antlr.Protobuf3Listener import Protobuf3Listener
-from ..antlr.Protobuf3Parser import Protobuf3Parser
+from .._antlr.Protobuf3Lexer import Protobuf3Lexer
+from .._antlr.Protobuf3Listener import Protobuf3Listener
+from .._antlr.Protobuf3Parser import Protobuf3Parser
 
 
 class Protobuf3PrintListener(Protobuf3Listener):

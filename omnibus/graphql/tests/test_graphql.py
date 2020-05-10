@@ -1,9 +1,9 @@
 import os.path
 
 from ..._vendor import antlr4
-from ..antlr.GraphQlLexer import GraphQlLexer
-from ..antlr.GraphQlListener import GraphQlListener
-from ..antlr.GraphQlParser import GraphQlParser
+from .._antlr.GraphQlLexer import GraphQlLexer
+from .._antlr.GraphQlListener import GraphQlListener
+from .._antlr.GraphQlParser import GraphQlParser
 
 
 class GraphQlPrintListener(GraphQlListener):
