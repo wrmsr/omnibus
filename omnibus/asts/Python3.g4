@@ -688,7 +688,7 @@ BYTES_LITERAL
     ;
 
 DECIMAL_INTEGER
-    : NON_ZERO_DIGIT DIGIT*
+    : NON_ZERO_DIGIT ('_'? DIGIT)*
     | '0'+
     ;
 
@@ -823,15 +823,15 @@ fragment EXPONENT_FLOAT
     ;
 
 fragment INT_PART
-    : DIGIT+
+    : DIGIT ('_'? DIGIT)*
     ;
 
 fragment FRACTION
-    : '.' DIGIT+
+    : '.' DIGIT ('_'? DIGIT)*
     ;
 
 fragment EXPONENT
-    : [eE] [+-]? DIGIT+
+    : [eE] [+-]? DIGIT ('_'? DIGIT)*
     ;
 
 fragment SHORT_BYTES

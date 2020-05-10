@@ -1,3 +1,4 @@
+import glob
 import os.path
 
 from ..._vendor import antlr4
@@ -25,13 +26,19 @@ class Python3PrintListener(Python3Listener):
 
 
 def test_internal():
-    with open(os.path.join(os.path.dirname(__file__), 'test_asts.py'), 'r') as f:
-        buf = f.read()
-    lexer = Python3Lexer(antlr4.InputStream(buf))
-    stream = antlr4.CommonTokenStream(lexer)
-    stream.fill()
-    parser = Python3Parser(stream)
-    tree = parser.fileInput()
-    printer = Python3PrintListener(stream, parser)
-    walker = antlr4.ParseTreeWalker()
-    walker.walk(printer, tree)
+    def run(buf):
+        lexer = Python3Lexer(antlr4.InputStream(buf))
+        stream = antlr4.CommonTokenStream(lexer)
+        stream.fill()
+        parser = Python3Parser(stream)
+        tree = parser.fileInput()
+        printer = Python3PrintListener(stream, parser)
+        walker = antlr4.ParseTreeWalker()
+        walker.walk(printer, tree)
+
+    dp = os.path.abspath(os.path.dirname(__file__) + '/../..')
+    for fp in glob.glob(f'{dp}/**/*.py', recursive=True):
+        with open(fp, 'r') as f:
+            buf = f.read()
+        print(fp)
+        run(buf)
