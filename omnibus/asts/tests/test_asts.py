@@ -19,8 +19,8 @@ class Python3PrintListener(Python3Listener):
         self._parser = parser
 
     def enterCompoundStmt(self, ctx: Python3Parser.CompoundStmtContext):
-        print(ctx)
-        print(ctx.start.tokenIndex)
+        # print(ctx)
+        # print(ctx.start.tokenIndex)
         for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
             print(t.text)
 
