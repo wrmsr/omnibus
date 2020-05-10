@@ -762,14 +762,14 @@ class Python3Lexer(Lexer):
                 self.emitToken(self.createDedent())
                 self.indents.pop()
 
-            self.emitToken(self.commonToken(LanguageParser.EOF, "<EOF>"))
+            self.emitToken(self.commonToken(LanguageParser.EOF, '<EOF>'))
         next = super().nextToken()
         if next.channel == Token.DEFAULT_CHANNEL:
             self.lastToken = next
         return next if not self.tokens else self.tokens.pop(0)
 
     def createDedent(self):
-        dedent = self.commonToken(LanguageParser.DEDENT, "")
+        dedent = self.commonToken(LanguageParser.DEDENT, '')
         dedent.line = self.lastToken.line
         return dedent
 
@@ -814,9 +814,9 @@ class Python3Lexer(Lexer):
         if actionIndex == 0:
 
             tempt = Lexer.text.fget(self)
-            new_line = re.sub("[^\r\n\f]+", "", tempt)
-            spaces = re.sub("[\r\n\f]+", "", tempt)
-            la_char = ""
+            new_line = re.sub('[^\r\n\f]+', '', tempt)
+            spaces = re.sub('[\r\n\f]+', '', tempt)
+            la_char = ''
             try:
                 la = self._input.LA(1)
                 la_char = chr(la)  # Python does not compare char to ints directly
