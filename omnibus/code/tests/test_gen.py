@@ -30,6 +30,7 @@ def test_indent():
     with g.indent():
         g.write('a ')
         g.write('there\n')
+    g.write('barf')
 
     print()
     print(g.getvalue())

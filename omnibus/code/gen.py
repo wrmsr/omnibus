@@ -32,6 +32,7 @@ class IndentWriter:
         self._buf = buf if buf is not None else io.StringIO()
         self._indent = check.isinstance(indent, str) if indent is not None else self.DEFAULT_INDENT
         self._level = 0
+        self._has_indented = False
 
     @contextlib.contextmanager
     def indent(self, num: int = 1) -> ta.Generator[None, None, None]:
@@ -42,12 +43,21 @@ class IndentWriter:
             self._level -= num
 
     def write(self, s: str) -> None:
-        i = self._indent * self._level
-        s = '\n'.join([(i + l) if l else '' for l in textwrap.dedent(s).split('\n')])
-        self._buf.write(s)
-
-    def writeraw(self, s: str) -> None:
-        self._buf.write(s)
+        indent = self._indent * self._level
+        s = textwrap.dedent(s)
+        i = 0
+        while i < len(s):
+            if not self._has_indented:
+                self._buf.write(indent)
+                self._has_indented = True
+            try:
+                n = s.index('\n', i)
+            except ValueError:
+                self._buf.write(s[i:])
+                break
+            self._buf.write(s[i:n + 1])
+            self._has_indented = False
+            i = n + 2
 
     def getvalue(self) -> str:
         return self._buf.getvalue()
