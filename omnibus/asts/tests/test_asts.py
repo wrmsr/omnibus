@@ -36,7 +36,7 @@ def test_internal():
         walker = antlr4.ParseTreeWalker()
         walker.walk(printer, tree)
 
-    dp = os.path.abspath(os.path.dirname(__file__) + '/../..')
+    dp = os.path.abspath(os.path.dirname(__file__))  # + '/..')
     for fp in sorted(glob.glob(f'{dp}/**/*.py', recursive=True)):
         with open(fp, 'r') as f:
             buf = f.read()
