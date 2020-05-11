@@ -28,10 +28,11 @@ def test_indent():
     g = gen_.IndentWriter()
     g.write('hi\n')
     with g.indent():
+        g.write('a ')
         g.write('there\n')
 
     print()
-    print(str(g))
+    print(g.getvalue())
 
 
 def test_createfn():

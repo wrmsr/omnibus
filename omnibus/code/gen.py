@@ -1,6 +1,7 @@
 """
 TODO:
  - posonly
+ - IndentWriter more like CodeBuilder..
 """
 import contextlib
 import io
@@ -43,6 +44,9 @@ class IndentWriter:
     def write(self, s: str) -> None:
         i = self._indent * self._level
         s = '\n'.join([(i + l) if l else '' for l in textwrap.dedent(s).split('\n')])
+        self._buf.write(s)
+
+    def writeraw(self, s: str) -> None:
         self._buf.write(s)
 
     def getvalue(self) -> str:
