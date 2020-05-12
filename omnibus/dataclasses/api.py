@@ -60,6 +60,7 @@ TODO:
    - dc.default(('y', 'z'), lambda x: x + 1, x + 2)
    - dc.default_factory('x', collections.defaultdict)
    - dc.default_factory(('x', 'y', some_nullary_returning_pair)
+ - enforce immut metadata
 """
 import collections
 import collections.abc

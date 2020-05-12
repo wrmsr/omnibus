@@ -1,2 +1,2 @@
-FROM redis:5.0.8
+FROM redis:6.0.1
 COPY .dockertimestamp /

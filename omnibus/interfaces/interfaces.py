@@ -18,4 +18,6 @@ TODO:
  - coord also too big (sql, kazoo, etcd)
  - broker? kafka (msk), amzn mq, activemq?
  - logging? already have dedicated iface
+ - 'notifications' - email + chat adapters
+  - + sns, PD
 """
