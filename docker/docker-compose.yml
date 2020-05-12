@@ -38,20 +38,19 @@ services:
     image: 'wrmsr/omnibus-kafka:latest'
     hostname: 'omnibus-kafka'
     environment:
-      # FIXME: This fucking piece of shit container's hardcoded port. Fuck you.
-      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:9092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:22214'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:22214'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
       KAFKA_ZOOKEEPER_CONNECT: 'omnibus-zookeeper:2181'
       KAFKA_BROKER_ID: '1'
       KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
     depends_on:
       - 'omnibus-zookeeper'
     expose:
-      - '9092'
+      - '22214'
     ports:
-      - '22214:9092'
+      - '22214:22214'
 
   omnibus-memcached:
     build: '.'
@@ -188,7 +187,7 @@ services:
     environment:
       ZOO_MY_ID: '1'
       ZOO_PORT: '2181'
-      ZOO_SERVERS: 'server.1=omnibus-zookeeper:2888:3888'
+      ZOO_SERVERS: 'server.1=0.0.0.0:2888:3888;2181'
     expose:
       - '2181'
     ports:
