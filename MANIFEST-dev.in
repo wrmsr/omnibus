@@ -2,18 +2,16 @@ include README.md
 include LICENSE
 include LICENSE-*
 
+exclude omnibus
+include omnibus/__init__.py
+include omnibus/__about__.py
+global-include **/dev/**
+
 global-exclude *.py[cod]
 global-exclude *.so
 global-exclude .DS_Store
 global-exclude .gitignore
 global-exclude __pycache__
 
-exclude omnibus
-
-global-include **/dev/**
-
 global-exclude **/tests/**
 exclude omnibus/conftest.py
-
-include omnibus/__init__.py
-include omnibus/__about__.py

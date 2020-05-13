@@ -44,18 +44,20 @@ getmac(PyObject *self, PyObject *args)
     char *name = NULL;
     int hwlen = 6;
 
-    if (!PyArg_ParseTuple(args, "s", &name))
+    if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
+    }
 
 #if __linux__
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if(sock < 0)
+    if (sock < 0) {
         Py_RETURN_NONE;
+    }
 
     struct ifreq ifr = {0};
     strncpy(ifr.ifr_name, name, IFNAMSIZ - 1);
 
-    if(ioctl(sock, SIOCGIFHWADDR, &ifr)) {
+    if (ioctl(sock, SIOCGIFHWADDR, &ifr)) {
         close(sock);
         Py_RETURN_NONE;
     }
@@ -65,11 +67,11 @@ getmac(PyObject *self, PyObject *args)
 
 #elif __APPLE__
     struct ifaddrs *addrs = NULL;
-    if(getifaddrs(&addrs) != -1) {
-        for(struct ifaddrs *ifa = addrs; ifa; ifa = ifa->ifa_next) {
-            if(ifa->ifa_addr->sa_family == AF_LINK && !strcmp(ifa->ifa_name, name)) {
+    if (getifaddrs(&addrs) != -1) {
+        for (struct ifaddrs *ifa = addrs; ifa; ifa = ifa->ifa_next) {
+            if (ifa->ifa_addr->sa_family == AF_LINK && !strcmp(ifa->ifa_name, name)) {
                 struct sockaddr_dl* sdl = (struct sockaddr_dl*)ifa->ifa_addr;
-                if(sdl->sdl_type == IFT_ETHER) {
+                if (sdl->sdl_type == IFT_ETHER) {
                     return PyBytes_FromStringAndSize(LLADDR(sdl), hwlen);
                 }
             }

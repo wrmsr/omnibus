@@ -2,7 +2,6 @@ import typing as ta
 
 import pytest
 import sqlalchemy as sa
-import sqlalchemy.pool
 import sqlalchemy.sql.elements
 
 from .. import caching as caching_
@@ -10,6 +9,7 @@ from .. import mysql as mysql_
 from ... import dataclasses as dc
 from ... import docker
 from ... import lang
+from .fixtures import sqlite_engine  # noqa
 
 
 def test_pymysql():
@@ -54,25 +54,12 @@ def test_docker_postgres():
             print(conn.scalar(sa.select([sa.func.version()])))
 
 
-@pytest.yield_fixture()
-def sqlite_engine() -> ta.Generator[sa.engine.Engine, None, None]:
-    engine: sa.engine.Engine
-    with lang.disposing(
-            sa.create_engine(
-                f'sqlite://',
-                connect_args={'check_same_thread': False},
-                poolclass=sa.pool.StaticPool,
-            )
-    ) as engine:
-        yield engine
-
-
-def test_sqlite(sqlite_engine: sa.engine.Engine):
+def test_sqlite(sqlite_engine: sa.engine.Engine):  # noqa
     with sqlite_engine.connect() as conn:
         print(conn.scalar(sa.select([sa.func.sqlite_version()])))
 
 
-def test_caching(sqlite_engine):
+def test_caching(sqlite_engine):  # noqa
     @dc.dataclass(frozen=True)
     class Point:
         x: int

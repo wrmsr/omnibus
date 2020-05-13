@@ -29,6 +29,7 @@ SOFTWARE.
 
 #if (__x86_64__ || __i386__)
 
+
 #if __i386__
 #define __cpuid(leaf, eax, ebx, ecx, edx) \
     __asm("cpuid" : "=a"(eax), "=b" (ebx), "=c"(ecx), "=d"(edx)
@@ -54,6 +55,7 @@ SOFTWARE.
         : "0"(leaf), "2"(count))
 #endif // __i386__
 
+
 static __inline
 int __get_cpuid_max(unsigned int leaf, unsigned int *sig) {
     unsigned int eax, ebx, ecx, edx;
@@ -75,37 +77,44 @@ int __get_cpuid_max(unsigned int leaf, unsigned int *sig) {
           "  movl   $1,%0\n"
           "1:"
         : "=r" (cpuid_supported) : : "eax", "ecx");
-    if (!cpuid_supported)
+    if (!cpuid_supported) {
         return 0;
+    }
 #endif // __i386__
 
     __cpuid(leaf, eax, ebx, ecx, edx);
-    if (sig)
+    if (sig) {
         *sig = ebx;
+    }
     return eax;
 }
+
 
 static __inline int
 _cpuid(unsigned int leaf, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx) {
     unsigned int max_leaf = __get_cpuid_max(leaf & 0x80000000, 0);
 
-    if (max_leaf == 0 || max_leaf < leaf)
+    if (max_leaf == 0 || max_leaf < leaf) {
         return 0;
+    }
 
     __cpuid(leaf, *eax, *ebx, *ecx, *edx);
     return 1;
 }
 
+
 static __inline int
 _cpuid_count(unsigned int leaf, unsigned int subleaf, unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx) {
     unsigned int max_leaf = __get_cpuid_max(leaf & 0x80000000, 0);
 
-    if (max_leaf == 0 || max_leaf < leaf)
+    if (max_leaf == 0 || max_leaf < leaf) {
         return 0;
+    }
 
     __cpuid_count(leaf, subleaf, *eax, *ebx, *ecx, *edx);
     return 1;
 }
+
 
 //Based on https://github.com/vectorclass/version2/blob/master/instrset_detect.cpp#L21
 static __inline uint64_t
@@ -115,6 +124,7 @@ _xgetbv(int ctr) {
    return a | (uint64_t(d) << 32);
 }
 
+
 // https://stackoverflow.com/questions/14783782/which-inline-assembly-code-is-correct-for-rdtscp/14783846#14783846
 static __inline uint64_t
 _rdtscp(unsigned int *aux) {
@@ -122,6 +132,7 @@ _rdtscp(unsigned int *aux) {
     asm volatile ( "rdtscp\n" : "=a" (rax), "=d" (rdx), "=c" (aux) : : );
     return (rdx << 32) + rax;
 }
+
 
 #endif // (__x86_64__ || __i386__)
 
@@ -131,8 +142,9 @@ cpuid(PyObject *self, PyObject *args) {
 #if (__x86_64__ || __i386__)
     unsigned int py_leaf;
 
-    if (!PyArg_ParseTuple(args, "I", &py_leaf))
+    if (!PyArg_ParseTuple(args, "I", &py_leaf)) {
         return NULL;
+    }
 
     unsigned int eax = 0, ebx = 0, ecx = 0, edx = 0;
     int res = _cpuid(py_leaf, &eax, &ebx, &ecx, &edx);
@@ -146,14 +158,16 @@ cpuid(PyObject *self, PyObject *args) {
 #endif
 }
 
+
 static PyObject *
 cpuid_count(PyObject *self, PyObject *args) {
 #if (__x86_64__ || __i386__)
     unsigned int py_leaf;
     unsigned int py_subleaf;
 
-    if (!PyArg_ParseTuple(args, "II", &py_leaf, &py_subleaf))
+    if (!PyArg_ParseTuple(args, "II", &py_leaf, &py_subleaf)) {
         return NULL;
+    }
 
     unsigned int eax = 0, ebx = 0, ecx = 0, edx = 0;
     int res = _cpuid_count(py_leaf, py_subleaf, &eax, &ebx, &ecx, &edx);
@@ -166,6 +180,7 @@ cpuid_count(PyObject *self, PyObject *args) {
 
 #endif
 }
+
 
 static PyObject *
 xgetbv(PyObject *self, PyObject *args) {
@@ -185,6 +200,7 @@ xgetbv(PyObject *self, PyObject *args) {
 
 #endif
 }
+
 
 static PyObject *
 rdtscp(PyObject *self, PyObject *args) {
