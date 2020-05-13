@@ -1,4 +1,8 @@
 """
+TODO:
+ - optional paramiko ssh-server
+ - optional ipython embed
+
 socat - UNIX-CONNECT:repl.sock
 """
 import contextlib
