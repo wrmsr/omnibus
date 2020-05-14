@@ -1,6 +1,7 @@
 """
 TODO:
  - dict update w policy (replace, check, raise)
+  - generic? mutating vs immut?
 """
 import collections.abc
 import typing as ta

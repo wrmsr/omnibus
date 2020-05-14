@@ -1,6 +1,9 @@
 """
 TODO:
  - data generator
+
+https://github.com/dragansah/tpch-dbgen
+https://github.com/2ndQuadrant/pg-tpch
 """
 import sqlalchemy as sa
 import sqlalchemy.ext.declarative
