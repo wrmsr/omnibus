@@ -2,6 +2,7 @@
 TODO:
  - dict update w policy (replace, check, raise)
   - generic? mutating vs immut?
+  - cats/tcs/dispatch powered?
 """
 import collections.abc
 import typing as ta

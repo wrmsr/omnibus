@@ -1,3 +1,8 @@
+"""
+TODO:
+ - (|u)int(8|16|32|64)
+  - + cython lol
+"""
 import typing as ta
 
 from .classes import Final
