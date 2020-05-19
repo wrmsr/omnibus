@@ -2,6 +2,7 @@
 **/.idea/
 *.dylib
 *.exe
+*.pstats
 *.pyc
 *.pyo
 *.so
