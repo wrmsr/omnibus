@@ -1,3 +1,8 @@
+"""
+TODO:
+ - dep-updates equiv
+  - https://hub.docker.com/v2/repositories/bkuhl/game-watcher/tags
+"""
 import typing as ta  # noqa
 
 from .. import lang
