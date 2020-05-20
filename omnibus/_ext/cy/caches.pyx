@@ -2,6 +2,7 @@ from libcpp cimport bool
 
 
 cdef class CacheLink:
+
     cdef public int seq
     cdef public object ins_prev
     cdef public object ins_next

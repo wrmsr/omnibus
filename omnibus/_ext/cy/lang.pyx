@@ -3,6 +3,7 @@ def identity(obj):
 
 
 cdef class constant:
+
     cdef public object obj
 
     def __init__(self, obj):
