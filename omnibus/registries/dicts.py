@@ -59,9 +59,6 @@ class DictRegistry(BaseRegistry[K, V]):
     def version(self) -> int:
         return self._version
 
-    def __setitem__(self, k: K, v: V) -> None:
-        self.register(k, v)
-
     def __getitem__(self, k: K) -> V:
         try:
             return self._dct[k]

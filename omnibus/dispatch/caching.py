@@ -84,12 +84,15 @@ class CachingDispatcher(Dispatcher[Impl]):
         with self._lock():
             self._cache.clear()
 
-    def __setitem__(self, key: TypeOrSpec, value: Impl):
-        self._child[key] = value
-        self._guard.update(key)
+    def register_many(self, keys: ta.Iterable[TypeOrSpec], impl: Impl) -> 'CachingDispatcher[Impl]':
+        keys = list(keys)
+        self._child.register_many(keys, impl)
+        for key in keys:
+            self._guard.update(key)
         self.clear()
+        return self
 
-    def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+    def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
         self._guard.maybe_clear()
         try:
             impl, manifest = self._cache[key]

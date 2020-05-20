@@ -44,9 +44,8 @@ class Registry(lang.Abstract, ta.Mapping[K, V]):
     def version(self) -> ta.Any:
         raise NotImplementedError
 
-    @abc.abstractmethod
     def __setitem__(self, k: K, v: V) -> None:
-        raise NotImplementedError
+        self.register(k, v)
 
     @abc.abstractmethod
     def __getitem__(self, k: K) -> V:

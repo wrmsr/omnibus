@@ -84,9 +84,6 @@ class CompositeRegistry(BaseRegistry[K, V]):
     def composed(self) -> ta.Mapping[K, V]:
         return self._maybe_build()[1]
 
-    def __setitem__(self, k: K, v: V) -> None:
-        raise TypeError
-
     def __getitem__(self, k: K) -> V:
         try:
             return self.composed[k]

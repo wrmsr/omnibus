@@ -1,4 +1,7 @@
 """
+TODO:
+ - simple typeclasses, boilerplate is just too much
+
 NOTE:
  - dispatch _below_ injector - usable without
   - but this much simpler - main usecase is intra-class shit (registry properties)
@@ -6,6 +9,7 @@ NOTE:
 import abc
 import typing as ta
 
+from .. import check
 from .. import lang
 from .. import reflect as rfl
 from .. import registries
@@ -85,16 +89,29 @@ class Dispatcher(lang.Abstract, ta.Generic[Impl]):
     def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
         raise NotImplementedError
 
-    def registering(self, *ks: TypeOrSpec) -> 'ta.Callable[[Impl], Impl]':
-        return self.registry.registering(*ks)
-
     @abc.abstractmethod
-    def __setitem__(self, cls: TypeOrSpec, impl: Impl) -> None:
+    def register_many(self, keys: ta.Iterable[TypeOrSpec], impl: Impl) -> 'Dispatcher[Impl]':
         raise NotImplementedError
 
+    def register(self, key: TypeOrSpec, impl: Impl) -> 'Dispatcher[Impl]':
+        check.not_none(key)
+        return self.register_many([key], impl)
+
+    def registering(self, *keys: TypeOrSpec) -> 'ta.Callable[[Impl], Impl]':
+        def inner(impl: Impl) -> Impl:
+            self.register_many(keys, impl)
+            return impl
+        return inner
+
+    def __setitem__(self, key: TypeOrSpec, impl: Impl) -> None:
+        self.register(key, impl)
+
     @abc.abstractmethod
+    def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        raise NotImplementedError
+
     def __getitem__(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
-        raise NotImplementedError
+        return self.dispatch(key)
 
     @abc.abstractmethod
     def __contains__(self, key: TypeOrSpec) -> bool:

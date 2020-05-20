@@ -9,7 +9,7 @@ wheel>=0.34.2
 
 # actual code deps
 
-pytest==5.4.1
+pytest==5.4.2
 pytest-benchmark==3.2.3
 pytest-randomly==3.3.1
 pytest-xdist==1.32.0
@@ -18,7 +18,7 @@ pytest-xdist==1.32.0
 # useful tools
 
 astpretty==2.0.0
-awscli==1.18.54
+awscli==1.18.63
 flake8==3.7.9
 guppy3==3.0.9
 ipdb==0.13.2

@@ -1,9 +1,9 @@
-from .. import registry as registry_
+from .. import classes as classes_
 
 
 def test_property():
     class A:
-        fn = registry_.property_()
+        fn = classes_.property_()
 
         @fn.registering(object)
         def fn_object(self, o):
@@ -60,8 +60,8 @@ def test_property():
 
 
 def test_class():
-    class A(registry_.Class):
-        fn = registry_.property_()
+    class A(classes_.Class):
+        fn = classes_.property_()
 
         def fn(self, o: object):  # noqa
             return 'object'

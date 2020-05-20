@@ -75,19 +75,21 @@ class ErasingDispatcher(Dispatcher[Impl]):
     def _erase(self, cls: TypeOrSpec) -> ta.Type:
         return check.isinstance(rfl.erase_generic(cls.erased_cls if isinstance(cls, rfl.TypeSpec) else cls), type)
 
-    def __setitem__(self, cls: TypeOrSpec, impl: Impl) -> None:
-        cls = self._erase(cls)
-        self._registry[cls] = impl
+    def register_many(self, keys: ta.Iterable[TypeOrSpec], impl: Impl) -> 'ErasingDispatcher[Impl]':
+        for key in keys:
+            cls = self._erase(key)
+            self._registry[cls] = impl
+        return self
 
-    def __getitem__(self, cls: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
-        ecls = self._erase(cls)
+    def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        ecls = self._erase(key)
         try:
             impl = self._registry[ecls]
         except registries.NotRegisteredException:
             match, impl = self._resolve(ecls)
-            return impl, Manifest(cls, match)
+            return impl, Manifest(key, match)
         else:
-            return impl, Manifest(cls, ecls)
+            return impl, Manifest(key, ecls)
 
     def __contains__(self, cls: TypeOrSpec) -> bool:
         cls = self._erase(cls)
