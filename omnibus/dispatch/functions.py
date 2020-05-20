@@ -30,13 +30,12 @@ def function(
 
     def registering(*clss):
         def inner(impl):
-            for cls in clss:
-                dispatcher[cls] = impl
+            dispatcher.register_many(clss, impl)
             return impl
         return inner
 
     def wrapper(arg, *args, **kw):
-        impl, manifest = dispatcher[dispatcher.key(arg)]
+        impl, manifest = dispatcher.dispatch(dispatcher.key(arg))
         impl = inject_manifest(impl, manifest)
         return impl(arg, *args, **kw)
 

@@ -137,12 +137,12 @@ DESERIALIZATION_DISPATCHER: dispatch.Dispatcher[Deserialization] = dispatch.Cach
 
 
 def build_serializer(cls) -> Serializer:
-    impl, manifest = SERIALIZATION_DISPATCHER[cls]
+    impl, manifest = SERIALIZATION_DISPATCHER.dispatch(cls)
     return dispatch.inject_manifest(impl, manifest)()
 
 
 def build_deserializer(cls) -> Deserializer:
-    impl, manifest = DESERIALIZATION_DISPATCHER[cls]
+    impl, manifest = DESERIALIZATION_DISPATCHER.dispatch(cls)
     return dispatch.inject_manifest(impl, manifest)()
 
 

@@ -98,7 +98,7 @@ class CachingDispatcher(Dispatcher[Impl]):
             impl, manifest = self._cache[key]
         except KeyError:
             with self._lock():
-                impl, manifest = self._child[key]
+                impl, manifest = self._child.dispatch(key)
                 self._cache[key] = (impl, manifest)
         return impl, manifest
 

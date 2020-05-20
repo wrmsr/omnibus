@@ -3,6 +3,7 @@ TODO:
  - return bool not raise, don't throw/catch in unions
   - *this is check vs validate*
   - prob doable generically
+ - **generalize traversal out of dataclasses.. monoids :|**
 """
 import collections.abc
 import dataclasses as dc
@@ -23,7 +24,8 @@ DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = disp
 
 
 def build_default_field_validation(fld: Field, type=dc.MISSING) -> FieldValidator:
-    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER[type if type is not dc.MISSING else (fld.type or object)]
+    impl, manifest = DEFAULT_FIELD_VALIDATION_DISPATCHER.dispatch(
+        type if type is not dc.MISSING else (fld.type or object))
     return dispatch.inject_manifest(impl, manifest)(fld)
 
 

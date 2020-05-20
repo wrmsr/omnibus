@@ -11,6 +11,7 @@ from .caching import CachingDispatcher
 from .erasing import ErasingDispatcher
 from .manifests import inject_manifest
 from .types import Dispatcher
+from .types import Manifest
 
 
 T = ta.TypeVar('T')
@@ -29,14 +30,10 @@ class Property(registries.Property):
     def get_dispatcher(self, cls: ta.Type) -> Dispatcher:
         try:
             return self._dispatcher_cache[cls]
-
         except KeyError:
             registry = self.get_registry(cls)
-
             dispatcher = CachingDispatcher(ErasingDispatcher(registry))
-
             self._dispatcher_cache[cls] = dispatcher
-
             return dispatcher
 
     class Accessor(registries.Property.Accessor):
@@ -52,14 +49,13 @@ class Property(registries.Property):
             try:
                 bound = self._bound_cache[key]
             except KeyError:
-                impl, manifest = self._dispatcher[key]
+                impl, manifest = self._dispatcher.dispatch(key)
                 impl = inject_manifest(impl, manifest)
                 bound = self._bound_cache[key] = impl.__get__(self._obj, self._cls)
-
             return bound(arg, *args, **kwargs)
 
-        def dispatch(self, cls: ta.Any) -> ta.Callable:
-            return self._dispatcher[cls]
+        def dispatch(self, cls: ta.Any) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+            return self._dispatcher.dispatch(cls)
 
     @lang.cls_dct_fn()
     def register(self, cls_dct, *args):
