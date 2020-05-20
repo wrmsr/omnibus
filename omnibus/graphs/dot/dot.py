@@ -1,6 +1,11 @@
 """
 TODO:
  - import colorsys
+
+https://github.com/chadbrewbaker/ReverseSnowflakeJoins/blob/master/dir.g lolwut
+ - https://github.com/chadbrewbaker/ReverseSnowflakeJoins/blob/5a1186843b47db0c94d976ca115efa6012b572ba/gui.py#L37
+ - * https://linux.die.net/man/1/gvpr *
+ - https://github.com/rodw/gvpr-lib
 """
 import abc
 import html

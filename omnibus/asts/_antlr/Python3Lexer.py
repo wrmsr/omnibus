@@ -774,6 +774,7 @@ class Python3Lexer(Lexer):
                 self.indents.pop()
 
             self.emitToken(self.commonToken(LanguageParser.EOF, '<EOF>'))
+
         next = super().nextToken()
         if next.channel == Token.DEFAULT_CHANNEL:
             self.lastToken = next
@@ -844,7 +845,7 @@ class Python3Lexer(Lexer):
             else:
                 nextnext_eof = False
 
-            if self.opened > 0 or nextnext_eof is False and (la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
+            if self.opened > 0 or not nextnext_eof and (la_char == '\r' or la_char == '\n' or la_char == '\f' or la_char == '#'):
                 self.skip()
             else:
                 indent = self.getIndentationCount(spaces)

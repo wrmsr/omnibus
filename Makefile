@@ -153,7 +153,7 @@ antlr:
 		mkdir "$$D/_antlr" ; \
 		touch "$$D/_antlr/__init__.py" ; \
 		\
-		for F in $$(find "$$D" -name '*.g4' | sort) ; do \
+		for F in $$(find "$$D" -name '*.g4' -maxdepth 1 | sort) ; do \
 			cp "$$F" "$$D/_antlr/"; \
 		done ; \
 		\
