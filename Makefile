@@ -110,12 +110,15 @@ define do-venv
 		fi ; \
 		\
 		$(1)/bin/pip install --upgrade pip setuptools wheel ; \
-		$(1)/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
-		\
-		if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
-			if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
-				$(1)/bin/python "/Applications/PyCharm.app/Contents/helpers/pydev/setup_cython.py" build_ext --inplace ; \
-			fi ; \
+	fi
+endef
+
+define do-deps
+	$(1)/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
+	\
+	if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
+		if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
+			$(1)/bin/python "/Applications/PyCharm.app/Contents/helpers/pydev/setup_cython.py" build_ext --inplace ; \
 		fi ; \
 	fi
 endef
@@ -123,10 +126,12 @@ endef
 .PHONY: venv
 venv:
 	$(call do-venv,.venv,$(PYTHON_VERSION))
+	$(call do-deps,.venv)
 
 .PHONY: venv-37
 venv-37:
 	$(call do-venv,.venv-37,$(PYTHON_37_VERSION))
+	$(call do-deps,.venv-37)
 
 
 ### Antlr
@@ -329,6 +334,18 @@ test-pypi:
 
 
 ### Deps
+
+.PHONY: deps
+deps: venv
+	$(call do-deps,.venv)
+
+.PHONY: deps-37
+deps-37: venv
+	$(call do-deps,.venv-37)
+
+.PHONY: deptree
+dep-tree: test-install
+	.venv/bin/pipdeptree
 
 .PHONY: depupdates
 dep-updates: venv
