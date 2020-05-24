@@ -1,4 +1,8 @@
 """
+Dynamically scoped variables (implemented by stackwalking). Unlike threadlocals these are generator-correct both in
+binding and retrieval, and unlike ContextVars they require no manual context management. They are however *slow* and
+should be used sparingly (once per sql statement executed not once per inner function call).
+
 TODO:
  - clj-style binding conveyance
  - contextvar/async interop

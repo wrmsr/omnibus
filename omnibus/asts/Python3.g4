@@ -884,7 +884,7 @@ fragment COMMENT
     ;
 
 fragment LINE_JOINING
-    : '\\' SPACES? ( '\r'? '\n' | '\r' | '\f' )
+    : '\\' SPACES? ('\r'? '\n' | '\r' | '\f')
     ;
 
 fragment ID_START

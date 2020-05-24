@@ -2,8 +2,10 @@
 TODO:
  - ** move into ../serde ? **
  - msgpack
+  - https://github.com/vsergeev/u-msgpack-python ?
  - bson
  - cloudpickle
+ - https://github.com/agronholm/cbor2 ?
 """
 import io
 import pickle as pickle_

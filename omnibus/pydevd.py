@@ -1,7 +1,12 @@
 """
+A small but likely growing collection of (completely optional) tools to make pydevd (PyCharm's, among other python
+IDE's, debugger) do hard things. Originally explored and added to get spark jvm python subprocesses to connect back to
+an already-debugging PyCharm instance to debug PySpark jobs.
+
 TODO:
  - https://www.jetbrains.com/help/pycharm/remote-debugging-with-product.html#
  - move to dev?
+ - cython help? or in cython.py
 """
 import json
 import os

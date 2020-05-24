@@ -1,4 +1,8 @@
 """
+A collection of composable, transparent iterable transformations, which unlike most opaque generator compositions can be
+externally inspected, analyzed, rewritten, optimized, and fused as desired (as well as carrying with them more
+descriptive reprs and debug information).
+
 TODO:
  - toolz wrappers
 """

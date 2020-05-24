@@ -1,3 +1,9 @@
+"""
+A self-awarely unpythonic set of helpers for defining common boilerplate methods (repr, hash_eq, delegates, etc) in
+class definitions. Should be used sparingly for methods not directly used by humans (like repr) - @property's should
+remain @property's for type annotation, tool assistance, debugging, and otherwise, but these are still nice to have in
+certain circumstances (the real-world alternative usually being simply not adding them).
+"""
 import abc
 import functools
 import operator

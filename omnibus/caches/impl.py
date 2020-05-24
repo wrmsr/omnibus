@@ -5,6 +5,7 @@ TODO:
  - heapq/etc powered lfu
  - thread scoped?
  - __sizeof__ interop
+ - further cythonize hot path?
 """
 import collections
 import functools

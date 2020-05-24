@@ -1,4 +1,9 @@
 """
+An imo missing stdlib component for breaking apart and representing python's ever-expanding generic typing machinery in
+a more stable and friendly object hierarchy. Frees users from having to deal with notoriously version-volatile typing
+impl detail like __args__, __origin__, Generic's __mro_entries__, and such - ideally approximating something stable like
+java.lang.reflect.
+
 TODO:
  - 3.8: TypedDict, Literal, Final, Protocol, get_origin, get_args
  - forward refs / sugar for using god dam ta.get_type_hints

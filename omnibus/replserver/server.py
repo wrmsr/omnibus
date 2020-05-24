@@ -2,6 +2,7 @@
 TODO:
  - optional paramiko ssh-server
  - optional ipython embed
+ - asyncio?
 
 socat - UNIX-CONNECT:repl.sock
 """
