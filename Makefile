@@ -64,53 +64,51 @@ brew:
 	brew install $(PYENV_BREW_DEPS)
 
 define do-venv
-	if [ ! -d $(1) ] ; then \
-		set -e ; \
-		\
-		if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
-			virtualenv $(1) ; \
-		\
-		else \
-			PYENV_INSTALL_DIR="$(2)" ; \
-			PYENV_INSTALL_FLAGS="-s -v"; \
-			if [ ! -z "$$DEBUG" ] ; then \
-				PYENV_INSTALL_DIR="$$PYENV_INSTALL_DIR"-debug ; \
-				PYENV_INSTALL_FLAGS="$$PYENV_INSTALL_FLAGS -g" ; \
-			fi ; \
-			\
-			if [ "$$(uname)" = "Darwin" ] && command -v brew ; then \
-				PYENV_CFLAGS="" ; \
-				PYENV_LDFLAGS="" ; \
-				for DEP in $(PYENV_BREW_DEPS); do \
-					DEP_PREFIX="$$(brew --prefix "$$DEP")" ; \
-					PYENV_CFLAGS="-I$$DEP_PREFIX/include $$PYENV_CFLAGS" ; \
-					PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
-				done ; \
-				\
-				PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
-				if brew --prefix tcl-tk ; then \
-					TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
-					TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
-					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include'" ; \
-					PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
-				fi ; \
-				\
-				CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
-				LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
-				PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
-				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS" \
-				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
-			\
-			else \
-				"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
-			\
-			fi ; \
-			\
-			"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
+	set -e ; \
+	\
+	if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
+		virtualenv $(1) ; \
+	\
+	else \
+		PYENV_INSTALL_DIR="$(2)" ; \
+		PYENV_INSTALL_FLAGS="-s -v"; \
+		if [ ! -z "$$DEBUG" ] ; then \
+			PYENV_INSTALL_DIR="$$PYENV_INSTALL_DIR"-debug ; \
+			PYENV_INSTALL_FLAGS="$$PYENV_INSTALL_FLAGS -g" ; \
 		fi ; \
 		\
-		$(1)/bin/pip install --upgrade pip setuptools wheel ; \
-	fi
+		if [ "$$(uname)" = "Darwin" ] && command -v brew ; then \
+			PYENV_CFLAGS="" ; \
+			PYENV_LDFLAGS="" ; \
+			for DEP in $(PYENV_BREW_DEPS); do \
+				DEP_PREFIX="$$(brew --prefix "$$DEP")" ; \
+				PYENV_CFLAGS="-I$$DEP_PREFIX/include $$PYENV_CFLAGS" ; \
+				PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
+			done ; \
+			\
+			PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
+			if brew --prefix tcl-tk ; then \
+				TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
+				TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
+				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include'" ; \
+				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
+			fi ; \
+			\
+			CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
+			LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
+			PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
+			PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS" \
+			"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
+		\
+		else \
+			"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
+		\
+		fi ; \
+		\
+		"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
+	fi ; \
+	\
+	$(1)/bin/pip install --upgrade pip setuptools wheel
 endef
 
 define do-deps
@@ -125,13 +123,17 @@ endef
 
 .PHONY: venv
 venv:
-	$(call do-venv,.venv,$(PYTHON_VERSION))
-	$(call do-deps,.venv)
+	if [ ! -d .venv ] ; then \
+		$(call do-venv,.venv,$(PYTHON_VERSION)) ; \
+		$(call do-deps,.venv) ; \
+	fi
 
 .PHONY: venv-37
 venv-37:
-	$(call do-venv,.venv-37,$(PYTHON_37_VERSION))
-	$(call do-deps,.venv-37)
+	if [ ! -d .venv-37 ] ; then \
+		$(call do-venv,.venv-37,$(PYTHON_37_VERSION)) ; \
+		$(call do-deps,.venv-37) ; \
+	fi
 
 
 ### Antlr
@@ -343,17 +345,13 @@ deps: venv
 deps-37: venv
 	$(call do-deps,.venv-37)
 
-.PHONY: deptree
-dep-tree: test-install
+.PHONY: dep-tree
+dep-tree: venv
 	.venv/bin/pipdeptree
 
-.PHONY: depupdates
+.PHONY: dep-updates
 dep-updates: venv
 	.venv/bin/pip list -o --format=columns
-
-.PHONY: deptree
-dep-tree: test-install
-	.venv/bin/pipdeptree
 
 
 ### Docker
@@ -398,11 +396,35 @@ docker-venv-37:
 
 .PHONY: _docker-venv
 _docker-venv:
-	$(call do-venv,.venv-docker,$(PYTHON_VERSION))
+	if [ ! -d .venv-docker ] ; then \
+		$(call do-venv,.venv-docker,$(PYTHON_VERSION)) ; \
+		$(call do-deps,.venv-docker) ; \
+	fi
 
 .PHONY: _docker-venv-37
 _docker-venv-37:
-	$(call do-venv,.venv-docker-37,$(PYTHON_37_VERSION))
+	if [ ! -d .venv-docker-37 ] ; then \
+		$(call do-venv,.venv-docker-37,$(PYTHON_37_VERSION)) ; \
+		$(call do-deps,.venv-docker-37) ; \
+	fi
+
+### Deps
+
+.PHONY: docker-deps
+docker-deps:
+	./docker-dev make _docker-deps
+
+.PHONY: docker-deps-37
+docker-deps-37:
+	./docker-dev make _docker-deps-37
+
+.PHONY: _docker-deps
+_docker-deps: _docker-venv
+	$(call do-deps,.venv-docker)
+
+.PHONY: _docker-deps-37
+_docker-deps-37: _docker-venv-37
+	$(call do-deps,.venv-docker-37)
 
 ## Build
 
@@ -415,11 +437,11 @@ docker-build-37: docker-venv-37
 	./docker-dev make _docker-build-37
 
 .PHONY: _docker-build
-_docker-build:
+_docker-build: _docker-venv
 	$(call do-build,.venv-docker)
 
 .PHONY: _docker-build-37
-_docker-build-37:
+_docker-build-37: _docker-venv-37
 	$(call do-build,.venv-docker-37)
 
 ## Test
@@ -443,9 +465,9 @@ docker-dist-37: docker-venv-37
 	./docker-dev make _docker-dist-37
 
 .PHONY: _docker-dist
-_docker-dist:
+_docker-dist: _docker-venv
 	$(call do-dist,.venv-docker,0)
 
 .PHONY: _docker-dist-37
-_docker-dist-37:
+_docker-dist-37: _docker-venv-37
 	$(call do-dist,.venv-docker-37,0)

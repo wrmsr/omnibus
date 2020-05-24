@@ -29,7 +29,7 @@ def new(
         _int=None,
         version=None,
         *,
-        is_safe=uuid.SafeUUID.unknown
+        is_safe=uuid.SafeUUID.unknown,
 ):
     self = object_new(UUID)
 

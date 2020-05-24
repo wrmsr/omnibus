@@ -29,6 +29,7 @@ import typing as ta
 from omnibus import lang
 from omnibus import dataclasses as dc
 
+
 _cpu = lang.proxy_import('._ext.cc.cpu', package=__package__)
 
 

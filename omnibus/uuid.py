@@ -1,11 +1,6 @@
 import typing as ta
 import uuid
 
-from . import lang
-
-
-lang.warn_unstable()
-
 
 try:
     import fastuuid
@@ -27,6 +22,35 @@ else:
     uuid5 = fastuuid.uuid5
     uuid4_bulk = fastuuid.uuid4_bulk
     uuid4_as_strings_bulk = fastuuid.uuid4_as_strings_bulk
+
+
+def new(
+        hex=None,
+        bytes=None,
+        bytes_le=None,
+        fields=None,
+        int=None,
+        version=None,
+        *,
+        is_safe=uuid.SafeUUID.unknown,
+) -> uuid.UUID:
+    return uuid.UUID(
+        hex,
+        bytes,
+        bytes_le,
+        fields,
+        int,
+        version,
+        is_safe=is_safe
+    )
+
+
+try:
+    from ._ext.cy import uuid as _uuid
+except ImportError:
+    globals()['new'] = uuid.UUID
+else:
+    globals()['new'] = _uuid.new
 
 
 UUID = uuid.UUID
