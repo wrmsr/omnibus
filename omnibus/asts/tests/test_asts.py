@@ -1,5 +1,6 @@
 import glob
 import os.path
+import typing as ta
 
 from ..._vendor import antlr4
 from .._antlr.Python3Lexer import Python3Lexer
@@ -19,10 +20,12 @@ class Python3PrintListener(Python3Listener):
         self._parser = parser
 
     def enterCompoundStmt(self, ctx: Python3Parser.CompoundStmtContext):
-        # print(ctx)
-        # print(ctx.start.tokenIndex)
         for t in (self._stream.getHiddenTokensToRight(ctx.start.tokenIndex, 2) or []):
             print(t.text)
+
+
+def var_fn(a: int, *b: ta.Dict[str, ta.Tuple[int, float]], **c: ta.Callable[..., float]) -> ta.List[int]:  # noqa
+    pass
 
 
 def test_internal():

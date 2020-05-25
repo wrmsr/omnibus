@@ -1513,12 +1513,6 @@ class Python3Parser ( Parser ):
                 return self.getTypedRuleContext(Python3Parser.TfpdefContext,i)
 
 
-        def STAR(self):
-            return self.getToken(Python3Parser.STAR, 0)
-
-        def POWER(self):
-            return self.getToken(Python3Parser.POWER, 0)
-
         def ASSIGN(self, i:int=None):
             if i is None:
                 return self.getTokens(Python3Parser.ASSIGN)
@@ -1537,6 +1531,12 @@ class Python3Parser ( Parser ):
                 return self.getTokens(Python3Parser.COMMA)
             else:
                 return self.getToken(Python3Parser.COMMA, i)
+
+        def STAR(self):
+            return self.getToken(Python3Parser.STAR, 0)
+
+        def POWER(self):
+            return self.getToken(Python3Parser.POWER, 0)
 
         def getRuleIndex(self):
             return Python3Parser.RULE_typedargslist
@@ -1564,11 +1564,11 @@ class Python3Parser ( Parser ):
         self.enterRule(localctx, 18, self.RULE_typedargslist)
         self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
             self.state = 319
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [Python3Parser.NAME]:
+                self.enterOuterAlt(localctx, 1)
                 self.state = 238
                 self.tfpdef()
                 self.state = 241
@@ -1696,6 +1696,7 @@ class Python3Parser ( Parser ):
 
                 pass
             elif token in [Python3Parser.STAR]:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 289
                 self.match(Python3Parser.STAR)
                 self.state = 291
@@ -1757,6 +1758,7 @@ class Python3Parser ( Parser ):
 
                 pass
             elif token in [Python3Parser.POWER]:
+                self.enterOuterAlt(localctx, 3)
                 self.state = 314
                 self.match(Python3Parser.POWER)
                 self.state = 315
@@ -1859,12 +1861,6 @@ class Python3Parser ( Parser ):
                 return self.getTypedRuleContext(Python3Parser.VfpdefContext,i)
 
 
-        def STAR(self):
-            return self.getToken(Python3Parser.STAR, 0)
-
-        def POWER(self):
-            return self.getToken(Python3Parser.POWER, 0)
-
         def ASSIGN(self, i:int=None):
             if i is None:
                 return self.getTokens(Python3Parser.ASSIGN)
@@ -1883,6 +1879,12 @@ class Python3Parser ( Parser ):
                 return self.getTokens(Python3Parser.COMMA)
             else:
                 return self.getToken(Python3Parser.COMMA, i)
+
+        def STAR(self):
+            return self.getToken(Python3Parser.STAR, 0)
+
+        def POWER(self):
+            return self.getToken(Python3Parser.POWER, 0)
 
         def getRuleIndex(self):
             return Python3Parser.RULE_varargslist
@@ -1910,11 +1912,11 @@ class Python3Parser ( Parser ):
         self.enterRule(localctx, 22, self.RULE_varargslist)
         self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
             self.state = 407
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [Python3Parser.NAME]:
+                self.enterOuterAlt(localctx, 1)
                 self.state = 326
                 self.vfpdef()
                 self.state = 329
@@ -2042,6 +2044,7 @@ class Python3Parser ( Parser ):
 
                 pass
             elif token in [Python3Parser.STAR]:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 377
                 self.match(Python3Parser.STAR)
                 self.state = 379
@@ -2103,6 +2106,7 @@ class Python3Parser ( Parser ):
 
                 pass
             elif token in [Python3Parser.POWER]:
+                self.enterOuterAlt(localctx, 3)
                 self.state = 402
                 self.match(Python3Parser.POWER)
                 self.state = 403
@@ -6530,6 +6534,14 @@ class Python3Parser ( Parser ):
         def CLOSE_PAREN(self):
             return self.getToken(Python3Parser.CLOSE_PAREN, 0)
 
+        def yieldExpr(self):
+            return self.getTypedRuleContext(Python3Parser.YieldExprContext,0)
+
+
+        def testlistComp(self):
+            return self.getTypedRuleContext(Python3Parser.TestlistCompContext,0)
+
+
         def OPEN_BRACK(self):
             return self.getToken(Python3Parser.OPEN_BRACK, 0)
 
@@ -6542,11 +6554,21 @@ class Python3Parser ( Parser ):
         def CLOSE_BRACE(self):
             return self.getToken(Python3Parser.CLOSE_BRACE, 0)
 
+        def dictorsetmaker(self):
+            return self.getTypedRuleContext(Python3Parser.DictorsetmakerContext,0)
+
+
         def NAME(self):
             return self.getToken(Python3Parser.NAME, 0)
 
         def NUMBER(self):
             return self.getToken(Python3Parser.NUMBER, 0)
+
+        def STRING(self, i:int=None):
+            if i is None:
+                return self.getTokens(Python3Parser.STRING)
+            else:
+                return self.getToken(Python3Parser.STRING, i)
 
         def ELLIPSIS(self):
             return self.getToken(Python3Parser.ELLIPSIS, 0)
@@ -6559,24 +6581,6 @@ class Python3Parser ( Parser ):
 
         def FALSE(self):
             return self.getToken(Python3Parser.FALSE, 0)
-
-        def yieldExpr(self):
-            return self.getTypedRuleContext(Python3Parser.YieldExprContext,0)
-
-
-        def testlistComp(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistCompContext,0)
-
-
-        def dictorsetmaker(self):
-            return self.getTypedRuleContext(Python3Parser.DictorsetmakerContext,0)
-
-
-        def STRING(self, i:int=None):
-            if i is None:
-                return self.getTokens(Python3Parser.STRING)
-            else:
-                return self.getToken(Python3Parser.STRING, i)
 
         def getRuleIndex(self):
             return Python3Parser.RULE_atom
@@ -6604,11 +6608,11 @@ class Python3Parser ( Parser ):
         self.enterRule(localctx, 136, self.RULE_atom)
         self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
             self.state = 895
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [Python3Parser.OPEN_PAREN]:
+                self.enterOuterAlt(localctx, 1)
                 self.state = 868
                 self.match(Python3Parser.OPEN_PAREN)
                 self.state = 871
@@ -6630,6 +6634,7 @@ class Python3Parser ( Parser ):
                 self.match(Python3Parser.CLOSE_PAREN)
                 pass
             elif token in [Python3Parser.OPEN_BRACK]:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 874
                 self.match(Python3Parser.OPEN_BRACK)
                 self.state = 876
@@ -6644,6 +6649,7 @@ class Python3Parser ( Parser ):
                 self.match(Python3Parser.CLOSE_BRACK)
                 pass
             elif token in [Python3Parser.OPEN_BRACE]:
+                self.enterOuterAlt(localctx, 3)
                 self.state = 879
                 self.match(Python3Parser.OPEN_BRACE)
                 self.state = 881
@@ -6658,14 +6664,17 @@ class Python3Parser ( Parser ):
                 self.match(Python3Parser.CLOSE_BRACE)
                 pass
             elif token in [Python3Parser.NAME]:
+                self.enterOuterAlt(localctx, 4)
                 self.state = 884
                 self.match(Python3Parser.NAME)
                 pass
             elif token in [Python3Parser.NUMBER]:
+                self.enterOuterAlt(localctx, 5)
                 self.state = 885
                 self.match(Python3Parser.NUMBER)
                 pass
             elif token in [Python3Parser.STRING]:
+                self.enterOuterAlt(localctx, 6)
                 self.state = 887 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -6680,18 +6689,22 @@ class Python3Parser ( Parser ):
 
                 pass
             elif token in [Python3Parser.ELLIPSIS]:
+                self.enterOuterAlt(localctx, 7)
                 self.state = 891
                 self.match(Python3Parser.ELLIPSIS)
                 pass
             elif token in [Python3Parser.NONE]:
+                self.enterOuterAlt(localctx, 8)
                 self.state = 892
                 self.match(Python3Parser.NONE)
                 pass
             elif token in [Python3Parser.TRUE]:
+                self.enterOuterAlt(localctx, 9)
                 self.state = 893
                 self.match(Python3Parser.TRUE)
                 pass
             elif token in [Python3Parser.FALSE]:
+                self.enterOuterAlt(localctx, 10)
                 self.state = 894
                 self.match(Python3Parser.FALSE)
                 pass
@@ -7391,18 +7404,18 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.CompForContext,0)
 
 
+        def COMMA(self, i:int=None):
+            if i is None:
+                return self.getTokens(Python3Parser.COMMA)
+            else:
+                return self.getToken(Python3Parser.COMMA, i)
+
         def starExpr(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(Python3Parser.StarExprContext)
             else:
                 return self.getTypedRuleContext(Python3Parser.StarExprContext,i)
 
-
-        def COMMA(self, i:int=None):
-            if i is None:
-                return self.getTokens(Python3Parser.COMMA)
-            else:
-                return self.getToken(Python3Parser.COMMA, i)
 
         def getRuleIndex(self):
             return Python3Parser.RULE_dictorsetmaker
@@ -7430,11 +7443,11 @@ class Python3Parser ( Parser ):
         self.enterRule(localctx, 152, self.RULE_dictorsetmaker)
         self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
             self.state = 1034
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,153,self._ctx)
             if la_ == 1:
+                self.enterOuterAlt(localctx, 1)
                 self.state = 992
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -7509,6 +7522,7 @@ class Python3Parser ( Parser ):
                 pass
 
             elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 1016
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -7762,6 +7776,10 @@ class Python3Parser ( Parser ):
                 return self.getTypedRuleContext(Python3Parser.TestContext,i)
 
 
+        def compFor(self):
+            return self.getTypedRuleContext(Python3Parser.CompForContext,0)
+
+
         def ASSIGN(self):
             return self.getToken(Python3Parser.ASSIGN, 0)
 
@@ -7770,10 +7788,6 @@ class Python3Parser ( Parser ):
 
         def STAR(self):
             return self.getToken(Python3Parser.STAR, 0)
-
-        def compFor(self):
-            return self.getTypedRuleContext(Python3Parser.CompForContext,0)
-
 
         def getRuleIndex(self):
             return Python3Parser.RULE_argument
@@ -7801,11 +7815,11 @@ class Python3Parser ( Parser ):
         self.enterRule(localctx, 158, self.RULE_argument)
         self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
             self.state = 1071
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,159,self._ctx)
             if la_ == 1:
+                self.enterOuterAlt(localctx, 1)
                 self.state = 1059
                 self.test()
                 self.state = 1061
@@ -7819,6 +7833,7 @@ class Python3Parser ( Parser ):
                 pass
 
             elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 1063
                 self.test()
                 self.state = 1064
@@ -7828,6 +7843,7 @@ class Python3Parser ( Parser ):
                 pass
 
             elif la_ == 3:
+                self.enterOuterAlt(localctx, 3)
                 self.state = 1067
                 self.match(Python3Parser.POWER)
                 self.state = 1068
@@ -7835,6 +7851,7 @@ class Python3Parser ( Parser ):
                 pass
 
             elif la_ == 4:
+                self.enterOuterAlt(localctx, 4)
                 self.state = 1069
                 self.match(Python3Parser.STAR)
                 self.state = 1070

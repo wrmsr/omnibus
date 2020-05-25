@@ -641,8 +641,8 @@ try:
 except ValueError:  # End of file
     pass
 
-# Strip newlines inside open clauses except if we are near EOF. We keep NEWLINEs near EOF to
-# satisfy the final newline needed by the single_put rule used by the REPL.
+# Strip newlines inside open clauses except if we are near EOF. We keep NEWLINEs near EOF to satisfy the final newline
+# needed by the single_put rule used by the REPL.
 try:
     nextnext_la = self._input.LA(2)
     nextnext_la_char = chr(nextnext_la)
