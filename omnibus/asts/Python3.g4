@@ -35,7 +35,6 @@ All comments that start with "///" are copy-pasted from:
 grammar Python3;
 
 
-
 tokens { INDENT, DEDENT }
 
 @lexer::header {
@@ -183,14 +182,12 @@ parameters
     ;
 
 typedargslist
-    :
-        ( tfpdef
-        ('=' test)?
-        (',' tfpdef ('=' test)?)*
-        (',' ('*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)? | '**' tfpdef ','?)?)?
-        | '*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)?
-        | '**' tfpdef ','?
-        )
+    : tfpdef
+      ('=' test)?
+      (',' tfpdef ('=' test)?)*
+      (',' ('*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)? | '**' tfpdef ','?)?)?
+    | '*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)?
+    | '**' tfpdef ','?
     ;
 
 tfpdef
@@ -198,14 +195,12 @@ tfpdef
     ;
 
 varargslist
-    :
-        ( vfpdef
-        ('=' test)?
-        (',' vfpdef ('=' test)?)*
-        (',' ('*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)? | '**' vfpdef ','?)?)?
-        | '*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)?
-        | '**' vfpdef ','?
-        )
+    : vfpdef
+      ('=' test)?
+      (',' vfpdef ('=' test)?)*
+      (',' ('*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)? | '**' vfpdef ','?)?)?
+    | '*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)?
+    | '**' vfpdef ','?
     ;
 
 vfpdef
@@ -371,7 +366,7 @@ forStmt
     ;
 
 tryStmt
-    : ('try' ':' suite ((exceptClause ':' suite)+ ('else' ':' suite)? ('finally' ':' suite)? | 'finally' ':' suite))
+    : 'try' ':' suite ((exceptClause ':' suite)+ ('else' ':' suite)? ('finally' ':' suite)? | 'finally' ':' suite)
     ;
 
 withStmt
@@ -482,18 +477,16 @@ atomExpr
     ;
 
 atom
-    :
-        ( '(' (yieldExpr | testlistComp)? ')'
-        | '[' testlistComp? ']'
-        | '{' dictorsetmaker? '}'
-        | NAME
-        | NUMBER
-        | STRING+
-        | '...'
-        | 'None'
-        | 'True'
-        | 'False'
-        )
+    : '(' (yieldExpr | testlistComp)? ')'
+    | '[' testlistComp? ']'
+    | '{' dictorsetmaker? '}'
+    | NAME
+    | NUMBER
+    | STRING+
+    | '...'
+    | 'None'
+    | 'True'
+    | 'False'
     ;
 
 testlistComp
@@ -528,10 +521,8 @@ testlist
     ;
 
 dictorsetmaker
-    :
-        ( ((test ':' test | '**' expr) (compFor | (',' (test ':' test | '**' expr))* ','?))
-        | ((test | starExpr) (compFor | (',' (test | starExpr))* ','?))
-        )
+    : (test ':' test | '**' expr) (compFor | (',' (test ':' test | '**' expr))* ','?)
+    | (test | starExpr) (compFor | (',' (test | starExpr))* ','?)
     ;
 
 classdef
@@ -549,7 +540,10 @@ arglist
 // ast.c: multiple (test compFor) arguments are blocked; keyword unpackings that precede iterable unpackings are
 // blocked; etc.
 argument
-    : (test compFor? | test '=' test | '**' test | '*' test)
+    : test compFor?
+    | test '=' test
+    | '**' test
+    | '*' test
     ;
 
 compIter
