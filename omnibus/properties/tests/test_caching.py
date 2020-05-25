@@ -38,21 +38,40 @@ def test_caching_class_property():
         def cached(cls) -> str:
             nonlocal count
             count += 1
-            return 'cached'
+            return f'cached {cls.__name__}'
 
         @caching_.locked_cached_class
         def locked_cached(cls) -> str:
             nonlocal count
             count += 1
-            return 'locked_cached'
+            return f'locked_cached {cls.__name__}'
 
     for _ in range(2):
-        assert C.cached == 'cached'
+        assert C.cached == 'cached C'
     assert count == 1
 
     for _ in range(2):
-        assert C.locked_cached == 'locked_cached'
+        assert C.locked_cached == 'locked_cached C'
     assert count == 2
+
+    class D(C):
+        pass
+
+    for _ in range(2):
+        assert D.cached == 'cached D'
+    assert count == 3
+
+    for _ in range(2):
+        assert D.locked_cached == 'locked_cached D'
+    assert count == 4
+
+    for _ in range(2):
+        assert C.cached == 'cached C'
+    assert count == 4
+
+    for _ in range(2):
+        assert C.locked_cached == 'locked_cached C'
+    assert count == 4
 
 
 def test_unwrapping():

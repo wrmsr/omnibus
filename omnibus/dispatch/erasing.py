@@ -54,8 +54,8 @@ class ErasingDispatcher(Dispatcher[Impl]):
         match = None
         for t in mro:
             if match is not None:
-                # If *match* is an implicit ABC but there is another unrelated,
-                # equally matching implicit ABC, refuse the temptation to guess.
+                # If *match* is an implicit ABC but there is another unrelated, equally matching implicit ABC, refuse
+                # the temptation to guess.
                 if (
                         t in self._registry and
                         t not in cls.__mro__ and

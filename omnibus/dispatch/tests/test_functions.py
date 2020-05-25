@@ -31,3 +31,9 @@ def test_function(nolock):
     assert f(1) == 'int'
     assert f('1') == 'str/bytes'
     assert f(b'1') == 'str/bytes'
+
+    @f.registering()  # noqa
+    def _(val: set):
+        return 'set'
+
+    assert f(set()) == 'set'
