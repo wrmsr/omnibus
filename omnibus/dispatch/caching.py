@@ -68,6 +68,9 @@ class CachingDispatcher(Dispatcher[Impl]):
         self._child = child
         self._guard = guard if guard is not None else AbcCacheGuard(self._lock, self.clear)
 
+    def key(self, obj: ta.Any) -> TypeOrSpec:
+        return self._child.key(obj)
+
     @property
     def child(self) -> Dispatcher[Impl]:
         return self._child

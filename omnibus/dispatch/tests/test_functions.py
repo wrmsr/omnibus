@@ -32,8 +32,28 @@ def test_function(nolock):
     assert f('1') == 'str/bytes'
     assert f(b'1') == 'str/bytes'
 
-    @f.registering()  # noqa
+    @f.register
     def _(val: set):
         return 'set'
 
     assert f(set()) == 'set'
+
+    class A:
+        pass
+
+    class B(A):
+        pass
+
+    @f.register
+    def _(v: A):
+        return 'A'
+
+    assert f(A()) == 'A'
+    assert f(B()) == 'A'
+
+    @f.register
+    def _(v: B):
+        return 'B'
+
+    assert f(A()) == 'A'
+    assert f(B()) == 'B'

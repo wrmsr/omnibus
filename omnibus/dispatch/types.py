@@ -81,9 +81,9 @@ class Manifest(lang.Final):
 
 class Dispatcher(lang.Abstract, ta.Generic[Impl]):
 
-    @staticmethod
-    def key(obj: ta.Any) -> TypeOrSpec:
-        return obj.__class__
+    @abc.abstractmethod
+    def key(self, obj: ta.Any) -> TypeOrSpec:
+        raise NotImplementedError
 
     @abc.abstractproperty
     def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
@@ -110,8 +110,8 @@ class Dispatcher(lang.Abstract, ta.Generic[Impl]):
     def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
         raise NotImplementedError
 
-    def __getitem__(self, key: ta.Any) -> ta.Optional[Impl]:
-        return self.dispatch(self.key(key))[0]
+    def __getitem__(self, obj: ta.Any) -> ta.Optional[Impl]:
+        return self.dispatch(self.key(obj))[0]
 
     @abc.abstractmethod
     def __contains__(self, key: TypeOrSpec) -> bool:

@@ -178,7 +178,6 @@ class Property(properties.Property[Registry[K, V]]):
         def inner(value):
             self._register(cls_dct, value, keys)
             return value
-
         return inner
 
 

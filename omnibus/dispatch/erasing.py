@@ -45,8 +45,11 @@ class ErasingDispatcher(Dispatcher[Impl]):
         else:
             self._registry = registries.DictRegistry()
 
+    def key(self, obj: ta.Any) -> ta.Type:
+        return obj.__class__
+
     @property
-    def registry(self) -> registries.Registry[TypeOrSpec, Impl]:
+    def registry(self) -> registries.Registry[ta.Type, Impl]:
         return self._registry
 
     def _resolve(self, cls: ta.Type) -> ta.Optional[ta.Tuple[ta.Type, Impl]]:

@@ -3,6 +3,7 @@ import typing as ta
 import pytest
 
 from ... import check
+from ... import reflect as rfl
 from ... import registries
 from ..types import Dispatcher
 from ..types import Impl
@@ -32,13 +33,16 @@ class E(D):
 
 class GenericDispatcher(Dispatcher[Impl]):
 
-    def __init__(self, registry: registries.Registry[ta.Type, Impl] = None) -> None:
+    def __init__(self, registry: registries.Registry[rfl.Spec, Impl] = None) -> None:
         super().__init__()
 
         if registry is not None:
             self._registry = check.isinstance(registry, registries.Registry)
         else:
             self._registry = registries.DictRegistry()
+
+    def key(self, obj: ta.Any) -> rfl.Spec:
+        return rfl.get_spec(obj)
 
     @property
     def registry(self) -> registries.Registry[TypeOrSpec, Impl]:

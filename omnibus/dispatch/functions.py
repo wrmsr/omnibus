@@ -28,6 +28,18 @@ def function(
         lock=lock,
     )
 
+    def register(fn):
+        ann = getattr(fn, '__annotations__', {})
+        if not ann:
+            raise TypeError
+
+        _, key = next(iter(ta.get_type_hints(fn).items()))
+        if not isinstance(key, type):
+            raise TypeError(key)
+
+        dispatcher.register(key, fn)
+        return fn
+
     def registering(*clss):
         def inner(impl):
             dispatcher.register_many(clss, impl)
@@ -47,6 +59,7 @@ def function(
         except KeyError:
             pass
 
+        wrapper.register = register
         wrapper.registering = registering
         wrapper.dispatcher = dispatcher
         wrapper.clear_cache = dispatcher.clear
