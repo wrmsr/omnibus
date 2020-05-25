@@ -1,5 +1,7 @@
 import typing as ta
 
+import pytest
+
 from ... import check
 from ... import registries
 from ..types import Dispatcher
@@ -52,6 +54,7 @@ class GenericDispatcher(Dispatcher[Impl]):
         raise NotImplementedError
 
 
+@pytest.mark.xfail()
 def test_generic():
     disp = GenericDispatcher()
 
