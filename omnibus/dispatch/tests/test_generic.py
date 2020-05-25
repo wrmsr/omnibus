@@ -49,9 +49,14 @@ class GenericDispatcher(Dispatcher[Impl]):
         return self._registry
 
     def register_many(self, keys: ta.Iterable[TypeOrSpec], impl: Impl) -> 'Dispatcher[Impl]':
-        raise NotImplementedError
+        for key in keys:
+            cls = rfl.get_spec(key)
+            self._registry[cls] = impl
+        return self
 
     def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        if not isinstance(key, rfl.Spec):
+            key = rfl.get_spec(key)
         raise NotImplementedError
 
     def __contains__(self, key: TypeOrSpec) -> bool:
