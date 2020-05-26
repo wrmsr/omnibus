@@ -15,7 +15,7 @@ from .internals import PARAMS
 from .types import ExtraParams
 from .types import Extras
 from .types import METADATA_ATTR
-from .types import MetaParams
+from .types import MetaclassParams
 
 
 Field = dc.Field
@@ -63,8 +63,8 @@ class DataSpec(ta.Generic[TypeT]):
 
     @properties.cached
     @property
-    def meta_params(self) -> MetaParams:
-        return self.metadata.get(MetaParams, MetaParams())
+    def metaclass_paramss(self) -> MetaclassParams:
+        return self.metadata.get(MetaclassParams, MetaclassParams())
 
     @properties.cached
     @property

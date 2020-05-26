@@ -50,7 +50,25 @@ class StandardValidation(Aspect):
         raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
 
     @attach('init')
-    class Init(Aspect.Function['Validation']):
+    class Init(Aspect.Function['StandardValidation']):
+
+        @attach(InitPhase.VALIDATE)
+        def build_check_lines(self) -> ta.List[str]:
+            ret = []
+            for fld in self.fctx.ctx.spec.fields:
+                chk_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check
+                if callable(chk_md):
+                    chk_args = [fld.name]
+                    bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk_md, chk_args)
+                    ret.append(
+                        f'if not {self.fctx.nsb.put(chk_md)}({", ".join(chk_args)}): '
+                        f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+                    )
+                elif chk_md is False or chk_md is None:
+                    pass
+                else:
+                    raise TypeError(chk_md)
+            return ret
 
         @attach(InitPhase.VALIDATE)
         def build_validate_lines(self) -> ta.List[str]:
@@ -94,7 +112,7 @@ class StandardValidation(Aspect):
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
                     f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(chk_args)}): '
-                    f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+                    f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
                 )
             return ret
 
@@ -106,6 +124,6 @@ class StandardValidation(Aspect):
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, self_chk, self_chk_arg)
                 ret.append(
                     f'if not {self.fctx.nsb.put(self_chk.fn)}({self.fctx.self_name}): '
-                    f'raise {self.fctx.nsb.put(bound_build_chk_exc)}({self.fctx.self_name})'
+                    f'{self.fctx.nsb.put(bound_build_chk_exc)}({self.fctx.self_name})'
                 )
             return ret

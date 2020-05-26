@@ -41,6 +41,8 @@ def test_is_subclass():
     assert isc(E, A)
     assert not isc(D, E)
 
-    assert isc(list, ta.List)
-    assert isc(ta.List, list)
+    assert isc(list, ta.List[ta.Any])
+    assert isc(ta.List[ta.Any], ta.List[ta.Any])
+    assert isc(ta.List[ta.Any], list)
     assert isc(ta.List[int], ta.List[ta.Any])
+    assert not isc(ta.List[ta.Any], ta.List[int])

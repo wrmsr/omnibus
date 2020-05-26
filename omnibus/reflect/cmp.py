@@ -43,3 +43,7 @@ class IsSubclassVisitor(BaseIsSubclassVisitor):
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> bool:
         return self._sub.accept(self.ParametrizedGenericSubVisitor(sup))
+
+
+def issubclass_(sub: specs.Spec, sup: specs.Spec) -> bool:
+    return sup.accept(IsSubclassVisitor(sub))

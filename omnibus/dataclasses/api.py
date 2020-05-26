@@ -6,17 +6,20 @@ DECREE:
  - validate returns None and raises, check returns bool
 
 TODO:
- - kwonly
- - transient (+cache_hash)
- - *default_factory with lambda args* - toposort again
- - *default null makes optional.. lol..*
-  - !! NO: *ENFORCE* optional for None defaults
-   - really, typecheck all (static) defaults or just enforce None?
-    - Yes: typecheck by default w/ explicit opt out
- - redaction - RedactedStr type?
- - auto-typecheck-validation
- - coerce: True=just call w val, cls-lvl default on/off, unary void callable
- - validate: True=default, cls-lvl default on/off, unary void callable ...
+ - Field options:
+  - kwonly
+  - transient (+cache_hash)
+  - *default_factory with lambda args* - toposort again
+  - redaction - RedactedStr type?
+  - per-field finality
+  - per-field ordering (does this already?)
+ -
+ - Class options:
+  - coerce: True=just call w val, cls-lvl default on/off, unary void callable
+  - validate: True=default, cls-lvl default on/off, unary void callable ...
+  - confer
+ -
+ - typecheck defaults on def
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - pyo3 + cy struct type interop
@@ -24,8 +27,7 @@ TODO:
  - ExtraFieldParams?
  - observable? dc.observe? per-cls/per-field? config-lvl?
  - fix: validate/coerce on setattr
- - per-field finality
- - intern?
+ - intern? class-level, can intern fields w/ just coerce
  - frozen_subtypes, frozen_deep - enum?
  - freeze a non-frozen dc
  - lazy derivers
@@ -42,9 +44,6 @@ TODO:
  - parameterized tests - storage, params, etc
  - standard named aspect packs: tuple, dict, pyrsistent
   - 'profiles' - will also be in serde too (but keep eye on inj interop)
- - inherit=None/Iterable[str]/True
-  - bequeath=None/Iterable[str]/True
-  - handle multiple inheritance lols
  - ** CYTHON **
   - dogfood CacheLink
   - with jitted/compiled dataclasses ~can bypass dict hits~...
@@ -52,14 +51,6 @@ TODO:
    - just like tok
  - make FunctionCtx use code.FunctionGen (need argspec earlier)
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
- - these aspeects are kind of 'Deriving'..
-  - rm 'derive', -> dc.default()/dc.default_factory(), 'derive' used for aspects
-   - default_factories NEVER INJECTED - conventionally nullary blackboxes (defaultdict etc)
-   - dc.default('y', lambda x: x + 1)
-   - dc.default('z', lambda x, y: x + y + 1)
-   - dc.default(('y', 'z'), lambda x: x + 1, x + 2)
-   - dc.default_factory('x', collections.defaultdict)
-   - dc.default_factory(('x', 'y', some_nullary_returning_pair)
  - enforce immut metadata
 """
 import collections
@@ -95,6 +86,7 @@ FrozenInstanceError = dc.FrozenInstanceError
 InitVar = dc.InitVar
 is_dataclass = dc.is_dataclass
 MISSING = dc.MISSING
+MISSING_TYPE = dc._MISSING_TYPE  # noqa
 replace = dc.replace
 
 
@@ -203,25 +195,27 @@ def _astuple_inner(obj, tuple_factory):
 
 def field(
         *,
-        default=MISSING,
-        default_factory=MISSING,
-        init=True,
-        repr=True,
-        hash=None,
-        compare=True,
-        metadata=None,
+        default: ta.Union[ta.Any, MISSING_TYPE] = MISSING,
+        default_factory: ta.Union[ta.Callable[[], ta.Any], MISSING_TYPE] = MISSING,
+        init: bool = True,
+        repr: bool = True,
+        hash: ta.Optional[bool] = None,
+        compare: bool = True,
+        metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None,
 
-        coerce=None,
-        derive=None,
-        doc=None,
-        size=None,
-        validate=None,
+        doc: ta.Optional[str] = None,
+        size: ta.Optional[ta.Any] = None,
+        coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None,
+        derive: ta.Optional[ta.Callable[..., ta.Any]] = None,
+        check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None,
+        validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None,
 ) -> Field:
     extra_field_params = ExtraFieldParams(
-        coerce=coerce,
-        derive=derive,
         doc=doc,
         size=size,
+        coerce=coerce,
+        derive=derive,
+        check=check,
         validate=validate,
     )
 
@@ -247,19 +241,20 @@ def field(
 
 
 def dataclass(
-        _cls: ta.Type[T] = None,
+        _cls: ta.Optional[ta.Type[T]] = None,
         *,
-        init=True,
-        repr=True,
-        eq=True,
-        order=False,
-        unsafe_hash=None,
-        frozen=False,
+        init: bool = True,
+        repr: bool = True,
+        eq: bool = True,
+        order: bool = False,
+        unsafe_hash: bool = False,
+        frozen: bool = False,
 
-        validate=None,
-        field_attrs=False,
-        cache_hash=False,
-        aspects=None,
+        validate: bool = False,
+        field_attrs: bool = False,
+        cache_hash: bool = False,
+        confer: ta.Optional[ta.Sequence[str]] = None,
+        aspects: ta.Optional[ta.Sequence[ta.Any]] = None,
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,
@@ -270,6 +265,8 @@ def dataclass(
         frozen=frozen,
     )
 
+    if confer is not None:
+        confer = set(confer)
     if aspects is not None:
         aspects = list(aspects)
 
@@ -277,6 +274,7 @@ def dataclass(
         validate=validate,
         field_attrs=field_attrs,
         cache_hash=cache_hash,
+        confer=confer,
         aspects=aspects,
     )
 

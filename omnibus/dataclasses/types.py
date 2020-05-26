@@ -56,23 +56,25 @@ class CheckException(Exception):
 
 @dc.dataclass(frozen=True)
 class ExtraFieldParams:
-    coerce: ta.Union[bool, ta.Callable] = None
-    derive: ta.Callable = None
-    doc: str = None
-    size: ta.Any = None
-    validate: ta.Union[bool, ta.Callable] = None
+    doc: ta.Optional[str] = None
+    size: ta.Optional[ta.Any] = None
+    coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None
+    derive: ta.Optional[ta.Callable[..., ta.Any]] = None
+    check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
+    validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
 
 
 @dc.dataclass(frozen=True)
 class ExtraParams:
-    validate: bool = None
+    validate: ta.Optional[bool] = None
     field_attrs: bool = False
     cache_hash: bool = False
-    aspects: ta.Sequence[ta.Any] = None
+    confer: ta.Optional[ta.Sequence[str]] = None
+    aspects: ta.Optional[ta.Sequence[ta.Any]] = None
 
 
 @dc.dataclass(frozen=True)
-class MetaParams:
+class MetaclassParams:
     slots: bool = False
     abstract: bool = False
     final: bool = False

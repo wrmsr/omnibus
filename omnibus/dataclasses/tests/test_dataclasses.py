@@ -162,6 +162,16 @@ def test_implicit_abc():
         assert not isinstance(1, virtual_.VirtualClass)
 
 
+def test_check():
+    @api_.dataclass()
+    class C:
+        x: int = api_.field(check=lambda x: x > 2)
+
+    C(3)
+    with pytest.raises(Exception):
+        C(2)
+
+
 def test_validate():
     @api_.dataclass(frozen=True)
     class C:
