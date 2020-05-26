@@ -82,6 +82,8 @@ class ExtraParams(lang.Final):
     validate: ta.Optional[bool] = None
     field_attrs: bool = False
     cache_hash: bool = False
+    pickle: bool = False
+    reorder: bool = False
     aspects: ta.Optional[ta.Sequence[ta.Any]] = None
     confer: ta.Optional[ta.Sequence[str]] = None
 
@@ -89,19 +91,9 @@ class ExtraParams(lang.Final):
     original_extra_params: ta.Optional['ExtraParams'] = None
 
     def __post_init__(self) -> None:
-        if self.confer is not None:
+        if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))
             check.empty(set(self.confer) - CONFERS)
-
-
-@dc.dataclass(frozen=True)
-class MetaclassParams(lang.Final):
-    slots: bool = False
-    abstract: bool = False
-    final: bool = False
-    sealed: bool = False
-    pickle: bool = False
-    reorder: bool = False
 
 
 EXTRA_PARAMS_CONFER_DEFAULTS = {
@@ -110,4 +102,23 @@ EXTRA_PARAMS_CONFER_DEFAULTS = {
     if fld.name not in {'original_params', 'original_extra_params'}
 }
 
-CONFERS = set(check.unique(list(PARAMS_CONFER_DEFAULTS) + list(EXTRA_PARAMS_CONFER_DEFAULTS)))
+
+@dc.dataclass(frozen=True)
+class MetaclassParams(lang.Final):
+    slots: bool = False
+    abstract: bool = False
+    final: bool = False
+    sealed: bool = False
+
+
+METACLASS_PARAMS_CONFER_DEFAULTS = {
+    fld.name: fld.default
+    for fld in getattr(MetaclassParams, FIELDS)
+}
+
+
+CONFERS = set(check.unique([a for l in [
+    PARAMS_CONFER_DEFAULTS,
+    EXTRA_PARAMS_CONFER_DEFAULTS,
+    METACLASS_PARAMS_CONFER_DEFAULTS,
+] for a in l]))

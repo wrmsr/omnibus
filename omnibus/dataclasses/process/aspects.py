@@ -12,6 +12,7 @@ from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
+from ..pickling import SimplePickle
 from ..types import ExtraParams
 from ..types import METADATA_ATTR
 from ..types import PostInit
@@ -226,3 +227,10 @@ class PostInitAspect(Aspect):
             for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
                 ret.append(f'{self.fctx.nsb.put(pi.fn)}({self.fctx.self_name})')
             return ret
+
+
+class PickleAspect(Aspect):
+
+    def process(self) -> None:
+        if self.ctx.extra_params.pickle and self.ctx.cls.__reduce__ is object.__reduce__:
+            setattr(self.ctx.cls, '__reduce__', SimplePickle.__reduce__)

@@ -2,7 +2,7 @@
 ** FEATURE LOCK **
 
 DECREE:
- - reordering only done in metaclass - DECO STRICTLY ADDITIVE.
+ - pickle, reorder moved here. meta strictly for class-rebuilding stuff (final, slots)
  - validate returns None and raises, check returns bool
 
 TODO:
@@ -253,6 +253,8 @@ def dataclass(
         validate: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        pickle: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        reorder: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
         confer: ta.Union[None, ta.Sequence[str], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
@@ -265,15 +267,17 @@ def dataclass(
         frozen=frozen,
     )
 
-    if aspects is not None and aspects is not MISSING:
+    if aspects is not MISSING and aspects is not None:
         aspects = list(aspects)
-    if confer is not None and confer is not MISSING:
+    if confer is not MISSING and confer is not None:
         confer = set(confer)
 
     extra_params = ExtraParams(
         validate=validate,
         field_attrs=field_attrs,
         cache_hash=cache_hash,
+        pickle=pickle,
+        reorder=reorder,
         aspects=aspects,
         confer=confer,
     )

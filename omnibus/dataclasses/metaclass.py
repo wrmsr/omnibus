@@ -115,10 +115,6 @@ def _meta_build(
         bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_init()}, init=False),) + bases
         rebuild = True
 
-    if metaclass_paramss.pickle and cls.__reduce__ is object.__reduce__:
-        namespace['__reduce__'] = SimplePickle.__reduce__
-        rebuild = True
-
     if rebuild:
         cls = dataclass(lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace), **kwargs)
     return cls
@@ -136,8 +132,6 @@ class _Meta(abc.ABCMeta):
             abstract=False,
             final=False,
             sealed=False,
-            pickle=False,
-            reorder=False,
             **kwargs
     ):
         check.arg(not (abstract and final))
@@ -147,8 +141,6 @@ class _Meta(abc.ABCMeta):
             abstract=abstract,
             final=final,
             sealed=sealed,
-            pickle=pickle,
-            reorder=reorder,
         )
 
         return _meta_build(mcls, name, bases, namespace, metaclass_paramss, **kwargs)

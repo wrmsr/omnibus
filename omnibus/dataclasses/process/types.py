@@ -11,10 +11,9 @@ from ... import properties
 from ..internals import DataclassParams
 from ..reflect import DataSpec
 from ..reflect import get_cls_spec
-from ..types import EXTRA_PARAMS_CONFERS
+from ..types import EXTRA_PARAMS_CONFER_DEFAULTS
 from ..types import ExtraParams
-from ..types import PARAMS_CONFERS
-from ..types import PARAMS_DEFAULTS
+from ..types import PARAMS_CONFER_DEFAULTS
 
 
 T = ta.TypeVar('T')
