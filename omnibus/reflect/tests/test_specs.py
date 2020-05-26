@@ -1,4 +1,3 @@
-import collections.abc
 import gc
 import typing as ta
 import weakref
@@ -12,36 +11,8 @@ T0, T1, T2, T3 = map(ta.TypeVar, ['T0', 'T1', 'T2', 'T3'])
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
-gs = specs_.get_spec
-gts = specs_.get_type_spec
-
-
-def test_is_new_type():
-    assert specs_.is_new_type(ta.NewType('Barf', int))
-    assert not specs_.is_new_type(5)
-
-
-def test_generic_bases():
-    assert specs_.generic_bases(ta.Dict[int, str]) == [object]
-
-    class A:
-        pass
-
-    assert specs_.generic_bases(A) == [object]
-
-    class B(ta.Generic[T], A):
-        pass
-
-    assert specs_.generic_bases(B) == [A]
-    assert specs_.generic_bases(B[int]) == [A]
-
-    class C:
-        pass
-
-    class D(B[str], C):
-        pass
-
-    assert specs_.generic_bases(D) == [B[str], C]
+gs = specs_.spec
+gts = specs_.type_spec
 
 
 def test_specs():
@@ -84,14 +55,14 @@ def test_specs():
 
     ts = gts(C)
     assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
-    assert ts.args == [specs_.ANY_SPEC]
+    assert ts.args == [specs_.ANY]
 
     class D(ta.Generic[K, V]):
         pass
 
     ts = gts(D)
     assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
-    assert ts.args == [specs_.ANY_SPEC, specs_.ANY_SPEC]
+    assert ts.args == [specs_.ANY, specs_.ANY]
 
     ts = gts(D[int, str])
     assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
@@ -116,60 +87,20 @@ def test_weak_cache():
 
         cref = weakref.ref(C)
         ts = gts(C)  # noqa
-        stats1 = specs_.get_spec._static.stats
+        stats1 = specs_.spec._static.stats
 
     gc.collect()
-    specs_.get_spec._static.reap()
-    stats0 = specs_.get_spec._static.stats
+    specs_.spec._static.reap()
+    stats0 = specs_.spec._static.stats
 
     f()
 
     gc.collect()
-    specs_.get_spec._static.reap()
-    stats2 = specs_.get_spec._static.stats
+    specs_.spec._static.reap()
+    stats2 = specs_.spec._static.stats
 
     assert stats1.size == stats0.size + 1
     assert stats2.size == stats0.size
-
-
-def test_instance_dependents():
-    assert not specs_.is_instance_dependent(int)
-
-    class A(type):
-        def __instancecheck__(self, instance):
-            return True
-
-    class B(metaclass=A):
-        pass
-
-    assert isinstance(5, B)
-    assert specs_.is_instance_dependent(B)
-
-    class C:
-        pass
-
-    assert not specs_.is_instance_dependent(C)
-
-
-def test_subclass_dependents():
-    assert not specs_.is_dependent(int)
-    assert not specs_.is_subclass_dependent(collections.abc.Mapping)
-    assert specs_.is_abc_dependent(collections.abc.Mapping)
-
-    class A(type):
-        def __subclasscheck__(self, instance):
-            return True
-
-    class B(metaclass=A):
-        pass
-
-    assert issubclass(int, B)
-    assert specs_.is_subclass_dependent(B)
-
-    class C:
-        pass
-
-    assert not specs_.is_subclass_dependent(C)
 
 
 def test_var():

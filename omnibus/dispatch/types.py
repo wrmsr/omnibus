@@ -59,7 +59,7 @@ class Manifest(lang.Final):
     @property
     def spec(self) -> rfl.Spec:
         if self._spec is None:
-            self._spec = rfl.get_spec(self._cls)
+            self._spec = rfl.spec(self._cls)
         return self._spec
 
     def __repr__(self) -> str:

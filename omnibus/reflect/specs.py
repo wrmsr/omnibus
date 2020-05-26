@@ -15,8 +15,6 @@ TODO:
 https://github.com/ilevkivskyi/typing_inspect
 """
 import abc
-import enum
-import types
 import typing as ta
 import weakref
 
@@ -25,6 +23,22 @@ from .. import check
 from .. import defs
 from .. import lang
 from .. import properties
+from .types import GarbageCollectedException
+from .types import GenericAlias
+from .types import NoneType
+from .types import SpecialForm
+from .types import TypeLike
+from .types import TypeLikes
+from .types import Var
+from .types import VariadicGenericAlias
+from .types import Variance
+from .util import erase_generic
+from .util import generic_bases
+from .util import get_root_special
+from .util import is_generic
+from .util import is_new_type
+from .util import is_special_generic
+from .util import unerase_generic
 
 
 T = ta.TypeVar('T')
@@ -127,13 +141,7 @@ class AnySpec(PlaceholderSpec, lang.Final):
         return visitor.visit_any_spec(self)
 
 
-ANY_SPEC = AnySpec(ta.Any)
-
-
-class Variance(enum.Enum):
-    INVARIANT = 'INVARIANT'
-    COVARIANT = 'COVARIANT'
-    CONTRAVARIANT = 'CONTRAVARIANT'
+ANY = AnySpec(ta.Any)
 
 
 class VarSpec(PlaceholderSpec, lang.Final):
@@ -146,7 +154,7 @@ class VarSpec(PlaceholderSpec, lang.Final):
     @properties.cached
     def bound(self) -> ta.Optional[Spec]:
         if self._cls.__bound__ is not None:
-            return get_spec(self._cls.__bound__)
+            return spec(self._cls.__bound__)
         else:
             return None
 
@@ -184,7 +192,7 @@ class UnionSpec(Spec, lang.Final):
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
-        return [get_spec(a) for a in self.args_cls]
+        return [spec(a) for a in self.args_cls]
 
     def __iter__(self) -> ta.Iterator[Spec]:
         yield from super().__iter__()
@@ -210,7 +218,7 @@ class NewTypeSpec(Spec, lang.Final):
 
     @properties.cached
     def base(self) -> 'Spec':
-        return get_spec(self._cls.__supertype__)
+        return spec(self._cls.__supertype__)
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_new_type_spec(self)
@@ -244,7 +252,7 @@ class TypeSpec(Spec, ta.Generic[T], lang.Sealed, lang.Abstract):
 
     @properties.cached
     def bases(self) -> ta.Sequence['TypeSpec']:
-        return [get_type_spec(b) for b in self.bases_cls]
+        return [type_spec(b) for b in self.bases_cls]
 
     def __iter__(self) -> ta.Iterator[Spec]:
         yield from super().__iter__()
@@ -279,7 +287,7 @@ class NonGenericTypeSpec(TypeSpec[T], lang.Final):
         return visitor.visit_non_generic_type_spec(self)
 
 
-OBJECT_SPEC = NonGenericTypeSpec(object)
+OBJECT = NonGenericTypeSpec(object)
 
 
 class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
@@ -302,7 +310,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @properties.cached
     def erased(self) -> TypeSpec:
-        return get_type_spec(self.erased_cls)
+        return type_spec(self.erased_cls)
 
     @property
     def args_cls(self) -> ta.Sequence[Specable]:
@@ -310,7 +318,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
-        return [get_spec(c) for c in self.args_cls]
+        return [spec(c) for c in self.args_cls]
 
     def __iter__(self) -> ta.Iterator[Spec]:
         yield from super().__iter__()
@@ -347,7 +355,7 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
 
     @properties.cached
     def parameters(self) -> ta.Sequence[VarSpec]:
-        return [check.isinstance(get_spec(p), VarSpec) for p in self.parameters_cls]
+        return [check.isinstance(spec(p), VarSpec) for p in self.parameters_cls]
 
     @properties.cached
     def vars(self) -> ta.Mapping[Var, Spec]:
@@ -414,13 +422,13 @@ class TupleTypeSpec(VariadicGenericTypeSpec[T], lang.Final):
         return visitor.visit_tuple_type_spec(self)
 
 
-def _get_spec(cls: Specable) -> Spec:
+def _spec(cls: Specable) -> Spec:
     if isinstance(cls, Spec):
         return cls
     elif cls is None:
-        return get_spec(NoneType)
+        return spec(NoneType)
     elif cls is ta.Any:
-        return ANY_SPEC
+        return ANY
     elif isinstance(cls, Var):
         return VarSpec(cls)
     elif isinstance(cls, VariadicGenericAlias):
@@ -439,25 +447,24 @@ def _get_spec(cls: Specable) -> Spec:
     elif not isinstance(cls, type):
         raise TypeError(cls)
     elif is_generic(cls) and cls.__parameters__:
-        return get_spec(cls.__class_getitem__((ta.Any,) * len(cls.__parameters__)))
+        return spec(cls.__class_getitem__((ta.Any,) * len(cls.__parameters__)))
     else:
         return NonGenericTypeSpec(cls)
 
 
-# FIXME: remove get_
 @caches.cache(weak_keys=True)
-def get_spec(cls: Specable) -> Spec:
-    return _get_spec(cls)
+def spec(cls: Specable) -> Spec:
+    return _spec(cls)
 
 
-def get_type_spec(cls: Specable) -> TypeSpec:
-    return check.isinstance(ta.cast(TypeSpec, get_spec(cls)), TypeSpec)
+def type_spec(cls: Specable) -> TypeSpec:
+    return check.isinstance(ta.cast(TypeSpec, spec(cls)), TypeSpec)
 
 
 def get_unerased_type_spec(cls: Specable) -> TypeSpec:
     if isinstance(cls, TypeLikes) and is_generic(cls):
         cls = unerase_generic(cls)
-    return get_type_spec(cls)
+    return type_spec(cls)
 
 
 def spec_has_placeholders(spec: Spec) -> bool:
@@ -467,7 +474,7 @@ def spec_has_placeholders(spec: Spec) -> bool:
 def spec_is_any(spec: Spec) -> bool:
     if isinstance(spec, AnySpec):
         return True
-    elif spec == OBJECT_SPEC:
+    elif spec == OBJECT:
         return True
     elif isinstance(spec, UnionSpec):
         return any(spec_is_any(a) for a in spec.args)

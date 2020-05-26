@@ -326,14 +326,14 @@ class InjectorImpl(Injector):
             required_by: ta.Any,
     ) -> None:
         check.isinstance(key, Key)
-        spec = rfl.get_spec(key.type)
+        spec = rfl.spec(key.type)
         if isinstance(spec, rfl.ParameterizedGenericTypeSpec) and spec.erased_cls is Provider:
             key = Key(spec.args[0].cls, key.annotation)
         self._required_keys.append(RequiredKey(key, required_by))
 
     def _add_binding(self, binding: Binding[T]) -> None:
         check.isinstance(binding, Binding)
-        spec = rfl.get_spec(binding.key.type)
+        spec = rfl.spec(binding.key.type)
         if not (
                 isinstance(binding.provider, MultiProvider) or
                 (isinstance(spec, rfl.ParameterizedGenericTypeSpec) and issubclass(spec.erased_cls, MultiBinding))

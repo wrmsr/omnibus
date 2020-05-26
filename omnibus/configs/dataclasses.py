@@ -22,6 +22,6 @@ Q:
 #
 #
 # def build_dataclass_config(dcls):
-#     spec = dc.get_spec(dcls)
+#     spec = dc.spec(dcls)
 #     cls = type(dcls.__name__, )
 #     raise NotImplementedError

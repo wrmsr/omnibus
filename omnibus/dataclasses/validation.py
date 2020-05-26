@@ -39,7 +39,7 @@ def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> Fiel
     return inner
 
 
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(reflect.UnionVirtualClass)
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(reflect.UnionVirtual)
 def union_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     uvs = [build_default_field_validation(fld, type=a) for a in manifest.spec.args]
 

@@ -1,21 +1,19 @@
 import abc
-import enum
 import types
 import typing as ta
-import weakref
 
-from .. import caches
 from .. import check
-from .. import defs
 from .. import lang
-from .. import properties
+
+from .types import GenericAlias
+from .types import TypeLike
 
 
 def is_generic(cls: TypeLike) -> bool:
     if isinstance(cls, GenericAlias):
         return True
     elif isinstance(cls, type):
-        return issubclass(cls, ta.Generic) and cls.__parameters__
+        return issubclass(cls, ta.Generic) and cls.__parameters__  # noqa
     else:
         raise TypeError(cls)
 
@@ -41,7 +39,7 @@ def get_root_special(cls: GenericAlias) -> GenericAlias:
     elif cls._special:
         return cls
     else:
-        check.state(not issubclass(cls.__origin__, ta.Generic))
+        check.state(not issubclass(cls.__origin__, ta.Generic))  # noqa
         # FIXME: https://bugs.python.org/issue32873
         # special = getattr(ta, cls._name)
         special = ROOT_SPECIALS_BY_NAME[cls._name]
@@ -54,7 +52,7 @@ def get_root_special(cls: GenericAlias) -> GenericAlias:
 def is_special_generic(cls: GenericAlias) -> bool:
     if not isinstance(cls, GenericAlias):
         raise TypeError(cls)
-    elif not issubclass(cls.__origin__, ta.Generic):
+    elif not issubclass(cls.__origin__, ta.Generic):  # noqa
         get_root_special(cls)
         return True
     elif cls._special:
@@ -96,7 +94,7 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
         ]
 
 
-class _UnionVirtualClassMeta(type):
+class _UnionVirtualMeta(type):
 
     def __subclasscheck__(cls, subclass):
         return isinstance(subclass, GenericAlias) and cls.__origin__ is ta.Union
@@ -105,7 +103,7 @@ class _UnionVirtualClassMeta(type):
         raise TypeError
 
 
-class UnionVirtualClass(metaclass=_UnionVirtualClassMeta):
+class UnionVirtual(metaclass=_UnionVirtualMeta):
 
     def __new__(cls, *args, **kwargs):
         raise TypeError
@@ -117,7 +115,7 @@ class UnionVirtualClass(metaclass=_UnionVirtualClassMeta):
 def erase_generic(cls: TypeLike) -> ta.Optional[ta.Type]:
     if isinstance(cls, GenericAlias):
         if cls.__origin__ is ta.Union:
-            return UnionVirtualClass
+            return UnionVirtual
         else:
             return cls.__origin__
     elif isinstance(cls, type):
@@ -183,7 +181,3 @@ def eval_type(
         globalns=globalns,
         localns=localns
     )['annotation']
-
-
-class GarbageCollectedException(Exception):
-    pass

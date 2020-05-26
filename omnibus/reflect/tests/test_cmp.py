@@ -1,3 +1,9 @@
+import typing as ta
+
+from .. import cmp as cmp_
+from .. import specs as specs_
+
+
 class A:
     pass
 
@@ -20,9 +26,8 @@ class E(D):
 
 def test_is_subclass():
     def isc(sub, sup):
-        return rfl.get_spec(sup).accept(IsSubclassVisitor(rfl.get_spec(sub)))
+        return specs_.spec(sup).accept(cmp_.IsSubclassVisitor(specs_.spec(sub)))
 
     assert isc(int, int)
     assert isc(int, object)
     assert isc(int, ta.Any)
-

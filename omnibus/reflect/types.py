@@ -1,14 +1,7 @@
-import abc
 import enum
-import types
 import typing as ta
-import weakref
 
-from .. import caches
-from .. import check
-from .. import defs
 from .. import lang
-from .. import properties
 
 
 NoneType = type(None)
@@ -26,3 +19,11 @@ class Var(lang.NotInstantiable):
 Var.register(ta.TypeVar)
 
 
+class Variance(enum.Enum):
+    INVARIANT = 'INVARIANT'
+    COVARIANT = 'COVARIANT'
+    CONTRAVARIANT = 'CONTRAVARIANT'
+
+
+class GarbageCollectedException(Exception):
+    pass
