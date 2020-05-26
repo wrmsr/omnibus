@@ -243,18 +243,18 @@ def field(
 def dataclass(
         _cls: ta.Optional[ta.Type[T]] = None,
         *,
-        init: bool = True,
-        repr: bool = True,
-        eq: bool = True,
-        order: bool = False,
-        unsafe_hash: bool = False,
-        frozen: bool = False,
+        init: ta.Union[bool, MISSING_TYPE] = MISSING,  # True
+        repr: ta.Union[bool, MISSING_TYPE] = MISSING,  # True
+        eq: ta.Union[bool, MISSING_TYPE] = MISSING,  # True
+        order: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        unsafe_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        frozen: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
 
-        validate: bool = False,
-        field_attrs: bool = False,
-        cache_hash: bool = False,
-        confer: ta.Optional[ta.Sequence[str]] = None,
-        aspects: ta.Optional[ta.Sequence[ta.Any]] = None,
+        validate: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
+        confer: ta.Union[None, ta.Sequence[str], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,
@@ -265,21 +265,20 @@ def dataclass(
         frozen=frozen,
     )
 
-    if confer is not None:
-        confer = set(confer)
-    if aspects is not None:
+    if aspects is not None and aspects is not MISSING:
         aspects = list(aspects)
+    if confer is not None and confer is not MISSING:
+        confer = set(confer)
 
     extra_params = ExtraParams(
         validate=validate,
         field_attrs=field_attrs,
         cache_hash=cache_hash,
-        confer=confer,
         aspects=aspects,
+        confer=confer,
     )
 
     def build(cls):
-        aspects = extra_params.aspects if extra_params.aspects is not None else process.DEFAULT_ASPECTS
         ctx = process.Context(cls, params, extra_params, aspects)
         drv = process.Driver(ctx)
         drv()

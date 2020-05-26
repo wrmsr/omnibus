@@ -4,6 +4,7 @@ import typing as ta
 from .. import check
 from .. import lang
 from .internals import DataclassParams
+from .internals import FIELDS
 
 
 T = ta.TypeVar('T')
@@ -57,7 +58,7 @@ class CheckException(Exception):
 
 
 @dc.dataclass(frozen=True)
-class ExtraFieldParams:
+class ExtraFieldParams(lang.Final):
     doc: ta.Optional[str] = None
     size: ta.Optional[ta.Any] = None
     coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None
@@ -66,13 +67,24 @@ class ExtraFieldParams:
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
 
 
+PARAMS_CONFER_DEFAULTS = dict(
+    init=True,
+    repr=True,
+    eq=True,
+    order=False,
+    unsafe_hash=False,
+    frozen=False,
+)
+
+
 @dc.dataclass(frozen=True)
-class ExtraParams:
+class ExtraParams(lang.Final):
     validate: ta.Optional[bool] = None
     field_attrs: bool = False
     cache_hash: bool = False
-    confer: ta.Optional[ta.Sequence[str]] = None
     aspects: ta.Optional[ta.Sequence[ta.Any]] = None
+    confer: ta.Optional[ta.Sequence[str]] = None
+
     original_params: ta.Optional[DataclassParams] = None
     original_extra_params: ta.Optional['ExtraParams'] = None
 
@@ -83,7 +95,7 @@ class ExtraParams:
 
 
 @dc.dataclass(frozen=True)
-class MetaclassParams:
+class MetaclassParams(lang.Final):
     slots: bool = False
     abstract: bool = False
     final: bool = False
@@ -92,6 +104,10 @@ class MetaclassParams:
     reorder: bool = False
 
 
-PARAMS_CONFERS = set(DataclassParams.__slots__)
-EXTRA_PARAMS_CONFERS = set(dc.fields(ExtraFieldParams)) - {'original_params', 'original_extra_params'}
-CONFERS = set(check.unique(list(PARAMS_CONFERS) + list(EXTRA_PARAMS_CONFERS)))
+EXTRA_PARAMS_CONFER_DEFAULTS = {
+    fld.name: fld.default
+    for fld in getattr(ExtraFieldParams, FIELDS)
+    if fld.name not in {'original_params', 'original_extra_params'}
+}
+
+CONFERS = set(check.unique(list(PARAMS_CONFER_DEFAULTS) + list(EXTRA_PARAMS_CONFER_DEFAULTS)))

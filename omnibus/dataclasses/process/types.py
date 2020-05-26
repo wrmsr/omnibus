@@ -11,7 +11,10 @@ from ... import properties
 from ..internals import DataclassParams
 from ..reflect import DataSpec
 from ..reflect import get_cls_spec
+from ..types import EXTRA_PARAMS_CONFERS
 from ..types import ExtraParams
+from ..types import PARAMS_CONFERS
+from ..types import PARAMS_DEFAULTS
 
 
 T = ta.TypeVar('T')
@@ -57,13 +60,56 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             cls: TypeT,
             params: DataclassParams,
             extra_params: ExtraParams,
-            aspects: ta.Iterable[ta.Union['Aspect', ta.Callable[..., 'AspectT']]],
+            *,
+            aspects: ta.Iterable[ta.Union['Aspect', ta.Callable[..., 'AspectT']]] = None,
     ) -> None:
+        params, extra_params = self.preprocess_params(params, extra_params)
+
+        if aspects is None:
+            aspects = extra_params.aspects
+            if aspects is None:
+                from .driver import DEFAULT_ASPECTS
+                aspects = DEFAULT_ASPECTS
+
         super().__init__(aspects, Aspect)
 
         self._cls = check.isinstance(cls, type)
-        self._original_params = check.isinstance(params, DataclassParams)
-        self._original_extra_params = check.isinstance(extra_params, ExtraParams)
+        self._params = params
+        self._extra_params = extra_params
+
+    @classmethod
+    def preprocess_params(
+            cls,
+            params: DataclassParams,
+            extra_params: ExtraParams,
+    ) -> ta.Tuple[DataclassParams, ExtraParams]:
+        check.isinstance(params, DataclassParams)
+        check.isinstance(extra_params, ExtraParams)
+
+        pc = {}
+        epc = {}
+
+        for base in cls.__bases__:
+            if not dc.is_dataclass(base):
+                continue
+            spec = get_cls_spec(base)
+
+            for a in PARAMS_CONFERS
+
+
+
+        params = DataclassParams(**{
+            **{a: getattr(params, a) for a in DataclassParams.__slots__},
+            **pc,
+        })
+        extra_params = dc.replace(
+            extra_params,
+            **epc,
+            original_params=params,
+            original_extra_params=extra_params,
+        )
+
+        return params, extra_params
 
     @property
     def cls(self) -> TypeT:
@@ -71,33 +117,11 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
     @property
     def original_params(self) -> DataclassParams:
-        return self._original_params
+        return self._params
 
     @property
     def extra_params(self) -> ExtraParams:
-        return self._original_extra_params
-
-    @properties.cached
-    @property
-    def params(self) -> DataclassParams:
-        conferred = {}
-
-        return dc.replace(
-            self._params,
-            **conferred,
-        )
-
-    @properties.cached
-    @property
-    def extra_params(self) -> ExtraParams:
-        conferred = {}
-
-        return dc.replace(
-            self._original_extra_params,
-            **conferred,
-            original_params=self._original_params,
-            original_extra_params=self._original_extra_params,
-        )
+        return self._extra_params
 
     @properties.cached
     @property
