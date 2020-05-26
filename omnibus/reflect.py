@@ -228,7 +228,7 @@ class GarbageCollectedException(Exception):
 class SpecVisitor(ta.Generic[T]):
 
     def visit_spec(self, spec: 'Spec') -> T:
-        raise TypeError
+        raise TypeError(spec)
 
     def visit_placeholder_spec(self, spec: 'PlaceholderSpec') -> T:
         return self.visit_spec(spec)
