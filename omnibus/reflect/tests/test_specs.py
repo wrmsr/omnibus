@@ -3,8 +3,8 @@ import gc
 import typing as ta
 import weakref
 
-from .. import caches
-from .. import reflect as rfl
+from ... import caches
+from .. import specs as specs_
 
 
 T = ta.TypeVar('T')
@@ -12,28 +12,28 @@ T0, T1, T2, T3 = map(ta.TypeVar, ['T0', 'T1', 'T2', 'T3'])
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
-gs = rfl.get_spec
-gts = rfl.get_type_spec
+gs = specs_.get_spec
+gts = specs_.get_type_spec
 
 
 def test_is_new_type():
-    assert rfl.is_new_type(ta.NewType('Barf', int))
-    assert not rfl.is_new_type(5)
+    assert specs_.is_new_type(ta.NewType('Barf', int))
+    assert not specs_.is_new_type(5)
 
 
 def test_generic_bases():
-    assert rfl.generic_bases(ta.Dict[int, str]) == [object]
+    assert specs_.generic_bases(ta.Dict[int, str]) == [object]
 
     class A:
         pass
 
-    assert rfl.generic_bases(A) == [object]
+    assert specs_.generic_bases(A) == [object]
 
     class B(ta.Generic[T], A):
         pass
 
-    assert rfl.generic_bases(B) == [A]
-    assert rfl.generic_bases(B[int]) == [A]
+    assert specs_.generic_bases(B) == [A]
+    assert specs_.generic_bases(B[int]) == [A]
 
     class C:
         pass
@@ -41,7 +41,7 @@ def test_generic_bases():
     class D(B[str], C):
         pass
 
-    assert rfl.generic_bases(D) == [B[str], C]
+    assert specs_.generic_bases(D) == [B[str], C]
 
 
 def test_specs():
@@ -53,12 +53,12 @@ def test_specs():
     assert ts.erased_cls is dict
     assert len(ts.bases) > 0
     assert len(ts.vars) > 0
-    assert rfl.spec_has_placeholders(ts)
+    assert specs_.spec_has_placeholders(ts)
 
     ts = gts(ta.Dict[str, int])
     assert ts.erased_cls is dict
     assert len(ts.bases) > 0
-    assert not rfl.spec_has_placeholders(ts)
+    assert not specs_.spec_has_placeholders(ts)
 
     class A(ta.Dict[int, str]):
         pass
@@ -74,8 +74,8 @@ def test_specs():
     assert ts.erased_cls is tuple
 
     nts = gs(ta.Optional[int])
-    assert isinstance(nts, rfl.UnionSpec)
-    assert all(isinstance(s, rfl.Spec) for s in nts)
+    assert isinstance(nts, specs_.UnionSpec)
+    assert all(isinstance(s, specs_.Spec) for s in nts)
 
     assert len(list(gs(int))) == 2
 
@@ -83,22 +83,22 @@ def test_specs():
         pass
 
     ts = gts(C)
-    assert isinstance(ts, rfl.ExplicitParameterizedGenericTypeSpec)
-    assert ts.args == [rfl.ANY_SPEC]
+    assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
+    assert ts.args == [specs_.ANY_SPEC]
 
     class D(ta.Generic[K, V]):
         pass
 
     ts = gts(D)
-    assert isinstance(ts, rfl.ExplicitParameterizedGenericTypeSpec)
-    assert ts.args == [rfl.ANY_SPEC, rfl.ANY_SPEC]
+    assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
+    assert ts.args == [specs_.ANY_SPEC, specs_.ANY_SPEC]
 
     ts = gts(D[int, str])
-    assert isinstance(ts, rfl.ExplicitParameterizedGenericTypeSpec)
+    assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
     assert ts.args == [gs(int), gs(str)]
 
     ts = gts(D[T, T][int])
-    assert isinstance(ts, rfl.ExplicitParameterizedGenericTypeSpec)
+    assert isinstance(ts, specs_.ExplicitParameterizedGenericTypeSpec)
     assert ts.args == [gs(int), gs(int)]
 
 
@@ -116,24 +116,24 @@ def test_weak_cache():
 
         cref = weakref.ref(C)
         ts = gts(C)  # noqa
-        stats1 = rfl.get_spec._static.stats
+        stats1 = specs_.get_spec._static.stats
 
     gc.collect()
-    rfl.get_spec._static.reap()
-    stats0 = rfl.get_spec._static.stats
+    specs_.get_spec._static.reap()
+    stats0 = specs_.get_spec._static.stats
 
     f()
 
     gc.collect()
-    rfl.get_spec._static.reap()
-    stats2 = rfl.get_spec._static.stats
+    specs_.get_spec._static.reap()
+    stats2 = specs_.get_spec._static.stats
 
     assert stats1.size == stats0.size + 1
     assert stats2.size == stats0.size
 
 
 def test_instance_dependents():
-    assert not rfl.is_instance_dependent(int)
+    assert not specs_.is_instance_dependent(int)
 
     class A(type):
         def __instancecheck__(self, instance):
@@ -143,18 +143,18 @@ def test_instance_dependents():
         pass
 
     assert isinstance(5, B)
-    assert rfl.is_instance_dependent(B)
+    assert specs_.is_instance_dependent(B)
 
     class C:
         pass
 
-    assert not rfl.is_instance_dependent(C)
+    assert not specs_.is_instance_dependent(C)
 
 
 def test_subclass_dependents():
-    assert not rfl.is_dependent(int)
-    assert not rfl.is_subclass_dependent(collections.abc.Mapping)
-    assert rfl.is_abc_dependent(collections.abc.Mapping)
+    assert not specs_.is_dependent(int)
+    assert not specs_.is_subclass_dependent(collections.abc.Mapping)
+    assert specs_.is_abc_dependent(collections.abc.Mapping)
 
     class A(type):
         def __subclasscheck__(self, instance):
@@ -164,18 +164,18 @@ def test_subclass_dependents():
         pass
 
     assert issubclass(int, B)
-    assert rfl.is_subclass_dependent(B)
+    assert specs_.is_subclass_dependent(B)
 
     class C:
         pass
 
-    assert not rfl.is_subclass_dependent(C)
+    assert not specs_.is_subclass_dependent(C)
 
 
 def test_var():
-    assert gs(ta.TypeVar('T')).variance == rfl.Variance.INVARIANT
-    assert gs(ta.TypeVar('T', covariant=True)).variance == rfl.Variance.COVARIANT
-    assert gs(ta.TypeVar('T', contravariant=True)).variance == rfl.Variance.CONTRAVARIANT
+    assert gs(ta.TypeVar('T')).variance == specs_.Variance.INVARIANT
+    assert gs(ta.TypeVar('T', covariant=True)).variance == specs_.Variance.COVARIANT
+    assert gs(ta.TypeVar('T', contravariant=True)).variance == specs_.Variance.CONTRAVARIANT
 
 
 def test_tc():
@@ -192,15 +192,15 @@ def test_tc():
         pass
 
     ts_c = gts(C)  # noqa
-    ts_c_i: rfl.ParameterizedGenericTypeSpec = gts(C[int])  # noqa
-    ts_c_s: rfl.ParameterizedGenericTypeSpec = gts(C[str])  # noqa
+    ts_c_i: specs_.ParameterizedGenericTypeSpec = gts(C[int])  # noqa
+    ts_c_s: specs_.ParameterizedGenericTypeSpec = gts(C[str])  # noqa
     ts_d = gts(D)  # noqa
-    ts_d_i: rfl.ParameterizedGenericTypeSpec = gts(D[int])  # noqa
-    ts_d_s: rfl.ParameterizedGenericTypeSpec = gts(D[str])  # noqa
+    ts_d_i: specs_.ParameterizedGenericTypeSpec = gts(D[int])  # noqa
+    ts_d_s: specs_.ParameterizedGenericTypeSpec = gts(D[str])  # noqa
     ts_e = gts(E)  # noqa
     ts_f = gts(F)  # noqa
-    ts_f_is: rfl.ParameterizedGenericTypeSpec = gts(F[int, str])  # noqa
-    ts_f_si: rfl.ParameterizedGenericTypeSpec = gts(F[str, int])  # noqa
+    ts_f_is: specs_.ParameterizedGenericTypeSpec = gts(F[int, str])  # noqa
+    ts_f_si: specs_.ParameterizedGenericTypeSpec = gts(F[str, int])  # noqa
 
     assert ts_c_i.vars[T] == gts(int)
     assert ts_c_s.vars[T] == gts(str)
