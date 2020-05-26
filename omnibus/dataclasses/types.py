@@ -1,6 +1,7 @@
 import dataclasses as dc
 import typing as ta
 
+from .. import check
 from .. import lang
 from .internals import DataclassParams
 
@@ -63,8 +64,6 @@ class ExtraFieldParams:
     derive: ta.Optional[ta.Callable[..., ta.Any]] = None
     check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
-    original_params: ta.Optional[DataclassParams] = None
-    original_extra_params: ta.Optional['ExtraFieldParams'] = None
 
 
 @dc.dataclass(frozen=True)
@@ -74,6 +73,13 @@ class ExtraParams:
     cache_hash: bool = False
     confer: ta.Optional[ta.Sequence[str]] = None
     aspects: ta.Optional[ta.Sequence[ta.Any]] = None
+    original_params: ta.Optional[DataclassParams] = None
+    original_extra_params: ta.Optional['ExtraParams'] = None
+
+    def __post_init__(self) -> None:
+        if self.confer is not None:
+            check.arg(not isinstance(self.confer, str))
+            check.empty(set(self.confer) - CONFERS)
 
 
 @dc.dataclass(frozen=True)
@@ -84,3 +90,8 @@ class MetaclassParams:
     sealed: bool = False
     pickle: bool = False
     reorder: bool = False
+
+
+PARAMS_CONFERS = set(DataclassParams.__slots__)
+EXTRA_PARAMS_CONFERS = set(dc.fields(ExtraFieldParams)) - {'original_params', 'original_extra_params'}
+CONFERS = set(check.unique(list(PARAMS_CONFERS) + list(EXTRA_PARAMS_CONFERS)))
