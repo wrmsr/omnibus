@@ -257,7 +257,7 @@ def dataclass(
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
         confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
-   params = DataclassParams(
+    params = DataclassParams(
         init=init,
         repr=repr,
         eq=eq,
