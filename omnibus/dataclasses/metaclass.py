@@ -11,10 +11,20 @@ import typing as ta
 from .. import check
 from .. import lang
 from .api import dataclass
+from .api import MISSING_TYPE
+from .types import DataclassParams
+from .types import ExtraParams
 from .types import MetaclassParams
 
 
 T = ta.TypeVar('T')
+
+
+def _build_stub_init():
+    def __init__(self):
+        raise NotImplementedError
+
+    return __init__
 
 
 def _meta_build(
@@ -49,18 +59,12 @@ def _meta_build(
                 namespace[fld.name] = dc.MISSING
                 rebuild = True
 
-    def _build_init():
-        def __init__(self):
-            raise NotImplementedError
-
-        return __init__
-
     if metaclass_params.abstract and '__init__' not in cls.__abstractmethods__:
         kwargs['init'] = False
-        namespace['__init__'] = abc.abstractmethod(_build_init())
+        namespace['__init__'] = abc.abstractmethod(_build_stub_init)
         rebuild = True
     elif not metaclass_params.abstract and '__init__' in cls.__abstractmethods__:
-        bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_init()}, init=False),) + bases
+        bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_stub_init()}, init=False),) + bases
         rebuild = True
 
     if rebuild:
@@ -76,10 +80,12 @@ class _Meta(abc.ABCMeta):
             bases,
             namespace,
             *,
-            slots=False,
-            abstract=False,
-            final=False,
-            sealed=False,
+
+            slots: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+            abstract: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+            final: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+            sealed: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+
             **kwargs
     ):
         check.arg(not (abstract and final))
@@ -90,6 +96,9 @@ class _Meta(abc.ABCMeta):
             final=final,
             sealed=sealed,
         )
+
+        params = DataclassParams(**{k: kwargs.pop(k) for k in DataclassParams.__slots__ if k in kwargs})
+        extra_params = ExtraParams(**{k: kwargs.pop(k) for k in dc.fields(ExtraParams) if k in kwargs})
 
         return _meta_build(mcls, name, bases, namespace, metaclass_params, **kwargs)
 
