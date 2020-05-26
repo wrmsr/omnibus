@@ -1,3 +1,4 @@
+import dataclasses as dc
 import functools
 import types
 import typing as ta
@@ -61,20 +62,42 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         super().__init__(aspects, Aspect)
 
         self._cls = check.isinstance(cls, type)
-        self._params = check.isinstance(params, DataclassParams)
-        self._extra_params = check.isinstance(extra_params, ExtraParams)
+        self._original_params = check.isinstance(params, DataclassParams)
+        self._original_extra_params = check.isinstance(extra_params, ExtraParams)
 
     @property
     def cls(self) -> TypeT:
         return self._cls
 
     @property
-    def params(self) -> DataclassParams:
-        return self._params
+    def original_params(self) -> DataclassParams:
+        return self._original_params
 
     @property
     def extra_params(self) -> ExtraParams:
-        return self._extra_params
+        return self._original_extra_params
+
+    @properties.cached
+    @property
+    def params(self) -> DataclassParams:
+        conferred = {}
+
+        return dc.replace(
+            self._params,
+            **conferred,
+        )
+
+    @properties.cached
+    @property
+    def extra_params(self) -> ExtraParams:
+        conferred = {}
+
+        return dc.replace(
+            self._original_extra_params,
+            **conferred,
+            original_params=self._original_params,
+            original_extra_params=self._original_extra_params,
+        )
 
     @properties.cached
     @property
