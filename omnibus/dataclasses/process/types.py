@@ -1,4 +1,3 @@
-import dataclasses as dc
 import functools
 import types
 import typing as ta
@@ -8,13 +7,12 @@ from ... import check
 from ... import code
 from ... import lang
 from ... import properties
+from ..confer import confer_params
 from ..internals import DataclassParams
 from ..reflect import DataSpec
 from ..reflect import get_cls_spec
-from ..types import EXTRA_PARAMS_CONFER_DEFAULTS
 from ..types import ExtraParams
-from ..types import PARAMS_CONFER_DEFAULTS
-from ..types import SUPER
+from ..types import MetaclassParams
 
 
 T = ta.TypeVar('T')
@@ -61,9 +59,13 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             params: DataclassParams,
             extra_params: ExtraParams,
             *,
-            aspects: ta.Iterable[ta.Union['Aspect', ta.Callable[..., 'AspectT']]] = None,
+            metaclass_params: ta.Optional[MetaclassParams] = None,
+            aspects: ta.Optional[ta.Iterable[ta.Union['Aspect', ta.Callable[..., 'AspectT']]]] = None,
     ) -> None:
-        params, extra_params = self.preprocess_params(params, extra_params)
+        self._original_params = check.isinstance(params, DataclassParams)
+        self._original_extra_params = check.isinstance(extra_params, ExtraParams)
+        self._original_metaclass_params = check.isinstance(metaclass_params, (MetaclassParams, type(None)))
+        params, extra_params, metaclass_params = confer_params(cls.__bases__, params, extra_params, metaclass_params)
 
         if aspects is None:
             aspects = extra_params.aspects
@@ -76,71 +78,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         self._cls = check.isinstance(cls, type)
         self._params = params
         self._extra_params = extra_params
-
-    @classmethod
-    def preprocess_params(
-            cls,
-            params: DataclassParams,
-            extra_params: ExtraParams,
-    ) -> ta.Tuple[DataclassParams, ExtraParams]:
-        check.isinstance(params, DataclassParams)
-        check.isinstance(extra_params, ExtraParams)
-
-        pc = {}
-        epc = {}
-
-        for base in cls.__bases__:
-            if not dc.is_dataclass(base):
-                continue
-            confer = get_cls_spec(base)..extra_params.confer
-            if not confer:
-                continue
-
-            def update(p, d, c):
-                for a, v in d.items():
-                    if getattr(p, a) is not dc.MISSING or a not in confer:
-                        continue
-                    if isinstance(confer, ta.Mapping):
-                        if confer[a] is not SUPER:
-                            v = confer[a]
-                    if v is dc.MISSING:
-                        continue
-                    if a in c:
-                        if c[a] != v:
-                            raise ValueError(f'Incompatible conferred params: cls={cls} base={base} a={a}')
-                    else:
-                        c[a] = v
-
-            update(params, PARAMS_CONFER_DEFAULTS, pc)
-            update(extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, epc)
-
-        params = DataclassParams(**{
-            **PARAMS_CONFER_DEFAULTS,
-            **{
-                a: v for a in DataclassParams.__slots__
-                for v in [getattr(params, a)]
-                if a not in PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
-            },
-            **pc,
-        })
-
-        extra_params = ExtraParams(**{
-            **EXTRA_PARAMS_CONFER_DEFAULTS,
-            **{
-                a: v
-                for fld in dc.fields(ExtraParams)
-                for a in [fld.name]
-                for v in [getattr(extra_params, a)]
-                if a not in EXTRA_PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
-            },
-            **epc,
-            **dict(
-                original_params=params,
-                original_extra_params=extra_params,
-            ),
-        })
-
-        return params, extra_params
+        self._metaclass_params = metaclass_params
 
     @property
     def cls(self) -> TypeT:
@@ -153,6 +91,22 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
     @property
     def extra_params(self) -> ExtraParams:
         return self._extra_params
+
+    @property
+    def metaclass_params(self) -> ta.Optional[MetaclassParams]:
+        return self._metaclass_params
+
+    @property
+    def original_params(self) -> DataclassParams:
+        return self._original_params
+
+    @property
+    def original_extra_params(self) -> ExtraParams:
+        return self._original_extra_params
+
+    @property
+    def original_metaclass_params(self) -> ta.Optional[MetaclassParams]:
+        return self._original_metaclass_params
 
     @properties.cached
     @property

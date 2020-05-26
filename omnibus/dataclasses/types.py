@@ -127,3 +127,8 @@ CONFERS = set(check.unique([a for l in [
     EXTRA_PARAMS_CONFER_DEFAULTS,
     METACLASS_PARAMS_CONFER_DEFAULTS,
 ] for a in l]))
+
+
+@dc.dataclass(frozen=True)
+class Original(ta.Generic[T], lang.Final):
+    type: ta.Type[T]

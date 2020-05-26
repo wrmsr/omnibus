@@ -13,8 +13,11 @@ from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
 from ..pickling import SimplePickle
+from ..types import DataclassParams
 from ..types import ExtraParams
+from ..types import MetaclassParams
 from ..types import METADATA_ATTR
+from ..types import Original
 from ..types import PostInit
 from .fields import build_cls_fields
 from .types import Aspect
@@ -41,6 +44,11 @@ class Params(Aspect):
         check.state(self.ctx.spec._metadata is md)
 
         md[ExtraParams] = self.ctx.extra_params
+        md[MetaclassParams] = self.ctx.metaclass_params
+
+        md[Original(DataclassParams)] = self.ctx.original_params
+        md[Original(ExtraParams)] = self.ctx.original_extra_params
+        md[Original(MetaclassParams)] = self.ctx.original_metaclass_params
 
 
 class Fields(Aspect):
