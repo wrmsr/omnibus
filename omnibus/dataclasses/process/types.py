@@ -92,21 +92,47 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             if not dc.is_dataclass(base):
                 continue
             spec = get_cls_spec(base)
+            if not spec.extra_params.confer:
+                continue
 
-            for a in PARAMS_CONFERS
+            def update(p, d, c):
+                for a, v in d.items():
+                    if getattr(p, a) is not dc.MISSING or a not in spec.extra_params.confer:
+                        continue
+                    if a in c:
+                        if c[a] != v:
+                            raise ValueError(f'Incompatible conferred params: cls={cls} base={base} a={a}')
+                    else:
+                        c[a] = v
 
-
+            update(params, PARAMS_CONFER_DEFAULTS, pc)
+            update(extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, epc)
 
         params = DataclassParams(**{
-            **{a: getattr(params, a) for a in DataclassParams.__slots__},
+            **PARAMS_CONFER_DEFAULTS,
+            **{
+                a: v for a in DataclassParams.__slots__
+                for v in [getattr(params, a)]
+                if a not in PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
+            },
             **pc,
         })
-        extra_params = dc.replace(
-            extra_params,
+
+        extra_params = ExtraParams(**{
+            **EXTRA_PARAMS_CONFER_DEFAULTS,
+            **{
+                a: v
+                for fld in dc.fields(ExtraParams)
+                for a in [fld.name]
+                for v in [getattr(extra_params, a)]
+                if a not in EXTRA_PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
+            },
             **epc,
-            original_params=params,
-            original_extra_params=extra_params,
-        )
+            **dict(
+                original_params=params,
+                original_extra_params=extra_params,
+            ),
+        })
 
         return params, extra_params
 
@@ -115,7 +141,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         return self._cls
 
     @property
-    def original_params(self) -> DataclassParams:
+    def params(self) -> DataclassParams:
         return self._params
 
     @property

@@ -283,7 +283,7 @@ def dataclass(
     )
 
     def build(cls):
-        ctx = process.Context(cls, params, extra_params, aspects)
+        ctx = process.Context(cls, params, extra_params)
         drv = process.Driver(ctx)
         drv()
         return cls

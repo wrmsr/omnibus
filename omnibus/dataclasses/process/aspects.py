@@ -229,7 +229,7 @@ class PostInitAspect(Aspect):
             return ret
 
 
-class PickleAspect(Aspect):
+class Pickle(Aspect):
 
     def process(self) -> None:
         if self.ctx.extra_params.pickle and self.ctx.cls.__reduce__ is object.__reduce__:

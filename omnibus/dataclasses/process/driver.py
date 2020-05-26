@@ -9,6 +9,7 @@ from .aspects import Frozen
 from .aspects import Hash
 from .aspects import Order
 from .aspects import Params
+from .aspects import Pickle
 from .aspects import PostInitAspect
 from .aspects import Repr
 from .defaulting import Defaulting
@@ -32,6 +33,7 @@ DEFAULT_ASPECTS = {
     Hash,
     Order,
     Params,
+    Pickle,
     PostInitAspect,
     Repr,
     StandardInit,

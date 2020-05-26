@@ -11,7 +11,6 @@ import typing as ta
 from .. import check
 from .. import lang
 from .api import dataclass
-from .pickling import SimplePickle
 from .types import MetaclassParams
 
 

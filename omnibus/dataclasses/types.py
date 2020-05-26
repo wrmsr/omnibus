@@ -98,7 +98,7 @@ class ExtraParams(lang.Final):
 
 EXTRA_PARAMS_CONFER_DEFAULTS = {
     fld.name: fld.default
-    for fld in getattr(ExtraFieldParams, FIELDS)
+    for fld in getattr(ExtraParams, FIELDS).values()
     if fld.name not in {'original_params', 'original_extra_params'}
 }
 
@@ -113,7 +113,7 @@ class MetaclassParams(lang.Final):
 
 METACLASS_PARAMS_CONFER_DEFAULTS = {
     fld.name: fld.default
-    for fld in getattr(MetaclassParams, FIELDS)
+    for fld in getattr(MetaclassParams, FIELDS).values()
 }
 
 
