@@ -2,6 +2,7 @@ import dataclasses as dc
 import typing as ta
 
 from .. import lang
+from .internals import DataclassParams
 
 
 T = ta.TypeVar('T')
@@ -62,6 +63,8 @@ class ExtraFieldParams:
     derive: ta.Optional[ta.Callable[..., ta.Any]] = None
     check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
+    original_params: ta.Optional[DataclassParams] = None
+    original_extra_params: ta.Optional['ExtraFieldParams'] = None
 
 
 @dc.dataclass(frozen=True)
