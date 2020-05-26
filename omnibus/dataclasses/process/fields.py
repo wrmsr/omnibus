@@ -5,7 +5,16 @@ from ..internals import FIELDS
 from ..internals import get_field
 
 
-def build_cls_fields(cls: type, *, install: bool = False) -> Fields:
+def _has_default(fld: dc.Field) -> bool:
+    return fld.default is not dc.MISSING or fld.default_factory is not dc.MISSING
+
+
+def build_cls_fields(
+        cls: type,
+        *,
+        reorder: bool = False,
+        install: bool = False,
+) -> Fields:
     fields = {}
     dc_mro = [b for b in reversed(cls.__mro__) if getattr(b, FIELDS, None)]
     for b in dc_mro:
@@ -46,6 +55,9 @@ def build_cls_fields(cls: type, *, install: bool = False) -> Fields:
     for name, value in cls.__dict__.items():
         if isinstance(value, dc.Field) and name not in cls_annotations:
             raise TypeError(f'{name!r} is a field but has no type annotation')
+
+    if reorder:
+        fields = {k: v for d in [False, True] for k, v in fields.items() if _has_default(v) == d}
 
     if install:
         setattr(cls, FIELDS, dict(fields))

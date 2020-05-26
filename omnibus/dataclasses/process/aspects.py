@@ -50,7 +50,11 @@ class Fields(Aspect):
         return Phase.BOOTSTRAP
 
     def process(self) -> None:
-        build_cls_fields(self.ctx.cls, install=True)
+        build_cls_fields(
+            self.ctx.cls,
+            reorder=self.ctx.extra_params.reorder,
+            install=True,
+        )
 
 
 class Repr(Aspect):

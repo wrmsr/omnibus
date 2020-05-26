@@ -28,17 +28,17 @@ from ..process import tuples as tuples_
 T = ta.TypeVar('T')
 
 
-# def test_reorder():
-#     @build_.dataclass()
-#     class C:
-#         x: int
-#         y: int = 5
-#
-#     @build_.dataclass(reorder=True)
-#     class D(C):
-#         z: int
-#
-#     assert [f.name for f in api_.fields(D)] == ['x', 'z', 'y']
+def test_reorder():
+    @api_.dataclass()
+    class C:
+        x: int
+        y: int = 5
+
+    @api_.dataclass(reorder=True)
+    class D(C):
+        z: int
+
+    assert [f.name for f in api_.fields(D)] == ['x', 'z', 'y']
 
 
 def test_defaultdict():

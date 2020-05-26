@@ -2,7 +2,6 @@
 ** FEATURE LOCK **
 
 DECREE:
- - pickle, reorder moved here. meta strictly for class-rebuilding stuff (final, slots)
  - validate returns None and raises, check returns bool
 
 TODO:
