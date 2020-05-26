@@ -16,14 +16,14 @@ class CachedProperty(Property[T]):
             func: ta.Callable[[ta.Any], T],
             *,
             lock: lang.DefaultLockable = None,
-            pure: bool = False,
+            stateful: bool = False,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = self._unwrap(func)
         self._lock = lang.default_lock(lock, False)
-        self._pure = bool(pure)
+        self._stateful = bool(stateful)
 
         self._name: ta.Optional[str] = None
 
@@ -37,7 +37,7 @@ class CachedProperty(Property[T]):
         if instance is None:
             return self
 
-        if not self._pure:
+        if self._stateful:
             pydevd.forbid_debugger_call()
 
         if self._name is None:
@@ -60,8 +60,8 @@ def locked_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, lock=True)
 
 
-def pure_cached(fn: ta.Callable[..., T]) -> T:
-    return CachedProperty(fn, pure=True)
+def stateful_cached(fn: ta.Callable[..., T]) -> T:
+    return CachedProperty(fn, stateful=True)
 
 
 class CachedClassProperty(Property[T]):
@@ -71,14 +71,14 @@ class CachedClassProperty(Property[T]):
             func: ta.Callable[[ta.Any], T],
             *,
             lock: lang.DefaultLockable = None,
-            pure: bool = False,
+            stateful: bool = False,
     ) -> None:
         super().__init__()
 
         functools.update_wrapper(self, func)
         self._func = self._unwrap(func)
         self._lock = lang.default_lock(lock, False)
-        self._pure = bool(pure)
+        self._stateful = bool(stateful)
         self._name: ta.Optional[str] = None
 
     def __set_name__(self, owner, name):
@@ -107,7 +107,7 @@ class CachedClassProperty(Property[T]):
         if cls is None:
             return self._func(cls)
 
-        if not self._pure:
+        if self._stateful:
             pydevd.forbid_debugger_call()
 
         with self._lock():
@@ -130,5 +130,5 @@ def locked_cached_class(fn: ta.Callable[..., T]) -> T:
     return CachedClassProperty(fn, lock=True)
 
 
-def pure_cached_class(fn: ta.Callable[..., T]) -> T:
-    return CachedClassProperty(fn, pure=True)
+def stateful_cached_class(fn: ta.Callable[..., T]) -> T:
+    return CachedClassProperty(fn, stateful=True)

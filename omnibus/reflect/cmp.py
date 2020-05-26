@@ -1,34 +1,45 @@
+import typing as ta
+
 from . import specs
+from .. import lang
 
 
-class IsSubclassVisitor(specs.SpecVisitor[bool]):
+SpecT = ta.TypeVar('SpecT', bound=specs.Spec, covariant=True)
+
+
+class BaseIsSubclassVisitor(specs.SpecVisitor[bool]):
+
+    def visit_any_spec(self, spec: specs.AnySpec) -> bool:
+        return True
+
+    def visit_union_spec(self, spec: specs.UnionSpec) -> bool:
+        return any(arg.accept(self) for arg in spec.args)
+
+
+class IsSubclassVisitor(BaseIsSubclassVisitor):
 
     def __init__(self, sub: specs.Spec) -> None:
         super().__init__()
-
         self._sub = sub
 
-    def visit_any_spec(self, sup: specs.AnySpec) -> bool:
-        return True
+    class SubVisitor(BaseIsSubclassVisitor, ta.Generic[SpecT], lang.Abstract):
 
-    class NonGenericVisitor(specs.SpecVisitor[bool]):
-
-        def __init__(self, sup: specs.NonGenericTypeSpec) -> None:
+        def __init__(self, sup: SpecT) -> None:
             super().__init__()
-
             self._sup = sup
 
-        def visit_any_spec(self, sub: specs.AnySpec) -> bool:
-            return True
+    class NonGenericSubVisitor(SubVisitor[specs.NonGenericTypeSpec]):
 
         def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> bool:
             return issubclass(sub.erased_cls, self._sup.erased_cls)
 
-        def visit_union_spec(self, sub: specs.UnionSpec) -> bool:
-            return any(arg.accept(self) for arg in sub.args)
-
     def visit_non_generic_type_spec(self, sup: specs.NonGenericTypeSpec) -> bool:
-        return self._sub.accept(self.NonGenericVisitor(sup))
+        return self._sub.accept(self.NonGenericSubVisitor(sup))
 
-    def visit_union_spec(self, sup: specs.UnionSpec) -> bool:
-        return any(arg.accept(self) for arg in sup.args)
+    class ParametrizedGenericSubVisitor(SubVisitor[specs.ParameterizedGenericTypeSpec]):
+
+        def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> bool:
+            raise NotImplementedError
+
+    def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> bool:
+        return self._sub.accept(self.ParametrizedGenericSubVisitor(sup))
