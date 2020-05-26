@@ -14,6 +14,7 @@ from ..reflect import get_cls_spec
 from ..types import EXTRA_PARAMS_CONFER_DEFAULTS
 from ..types import ExtraParams
 from ..types import PARAMS_CONFER_DEFAULTS
+from ..types import SUPER
 
 
 T = ta.TypeVar('T')
@@ -91,13 +92,18 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         for base in cls.__bases__:
             if not dc.is_dataclass(base):
                 continue
-            spec = get_cls_spec(base)
-            if not spec.extra_params.confer:
+            confer = get_cls_spec(base)..extra_params.confer
+            if not confer:
                 continue
 
             def update(p, d, c):
                 for a, v in d.items():
-                    if getattr(p, a) is not dc.MISSING or a not in spec.extra_params.confer:
+                    if getattr(p, a) is not dc.MISSING or a not in confer:
+                        continue
+                    if isinstance(confer, ta.Mapping):
+                        if confer[a] is not SUPER:
+                            v = confer[a]
+                    if v is dc.MISSING:
                         continue
                     if a in c:
                         if c[a] != v:

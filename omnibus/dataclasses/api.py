@@ -255,7 +255,7 @@ def dataclass(
         pickle: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         reorder: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
-        confer: ta.Union[None, ta.Sequence[str], MISSING_TYPE] = MISSING,  # None
+        confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
     params = DataclassParams(
         init=init,

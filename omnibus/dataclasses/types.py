@@ -13,6 +13,10 @@ FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
 
+class SUPER(lang.Marker):
+    pass
+
+
 METADATA_ATTR = '__dataclass_metadata__'
 
 
@@ -85,7 +89,7 @@ class ExtraParams(lang.Final):
     pickle: bool = False
     reorder: bool = False
     aspects: ta.Optional[ta.Sequence[ta.Any]] = None
-    confer: ta.Optional[ta.Sequence[str]] = None
+    confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any]] = None
 
     original_params: ta.Optional[DataclassParams] = None
     original_extra_params: ta.Optional['ExtraParams'] = None
@@ -109,6 +113,7 @@ class MetaclassParams(lang.Final):
     abstract: bool = False
     final: bool = False
     sealed: bool = False
+    inner: bool = False
 
 
 METACLASS_PARAMS_CONFER_DEFAULTS = {

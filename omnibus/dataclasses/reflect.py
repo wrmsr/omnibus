@@ -63,7 +63,7 @@ class DataSpec(ta.Generic[TypeT]):
 
     @properties.cached
     @property
-    def metaclass_paramss(self) -> MetaclassParams:
+    def metaclass_params(self) -> MetaclassParams:
         return self.metadata.get(MetaclassParams, MetaclassParams())
 
     @properties.cached
