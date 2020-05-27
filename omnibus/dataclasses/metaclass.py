@@ -11,15 +11,19 @@ import typing as ta
 from . import process
 from .. import check
 from .. import lang
-from .api import dataclass
 from .api import MISSING_TYPE
 from .confer import confer_params
+from .fields import build_cls_fields
 from .types import DataclassParams
 from .types import ExtraParams
 from .types import MetaclassParams
 
 
 T = ta.TypeVar('T')
+
+
+def _abstract_field_stub(self):
+    raise TypeError(self)
 
 
 class _Meta(abc.ABCMeta):
@@ -35,7 +39,6 @@ class _Meta(abc.ABCMeta):
             abstract: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             final: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             sealed: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
-            inner: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
 
             **kwargs
     ):
@@ -61,7 +64,6 @@ class _Meta(abc.ABCMeta):
             abstract=abstract,
             final=final,
             sealed=sealed,
-            inner=inner,
         )
 
         params, extra_params, metaclass_params = \
@@ -77,18 +79,21 @@ class _Meta(abc.ABCMeta):
         if metaclass_params.abstract and lang.Abstract not in bases:
             bases += (lang.Abstract,)
 
-        # FIXME: slots
-        # fields = build_cls_fields()
-        # check.isinstance(metaclass_params.slots, bool)
-        # if metaclass_params.slots and '__slots__' not in namespace:
-        #     namespace['__slots__'] = tuple(f.name for f in flds)
-        #     rebuild = True
-        # if '__slots__' not in namespace:
-        #     for fld in dc.fields(cls):
-        #         if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
-        #             namespace[fld.name] = dc.MISSING
+        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace)
+        proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
+        proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
 
-        # FIXME: inner
+        if not metaclass_params .abstract:
+            for a in set(proto_flds.by_name) & proto_abs:
+                if a not in namespace:
+                    namespace[a] = _abstract_field_stub
+
+        if metaclass_params.slots and '__slots__' not in namespace:
+            namespace['__slots__'] = tuple(proto_flds.by_name)
+        if '__slots__' not in namespace:
+            for fld in proto_flds:
+                if fld.name not in namespace and fld.name in proto_abs:
+                    namespace[fld.name] = _abstract_field_stub
 
         cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace, **kwargs)
         ctx = process.Context(

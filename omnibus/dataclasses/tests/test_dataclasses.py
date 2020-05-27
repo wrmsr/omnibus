@@ -78,10 +78,23 @@ def test_meta():
         def value(self) -> int:
             raise NotImplementedError
 
+        @abc.abstractmethod
+        def f(self):
+            raise NotImplementedError
+
     class ImplV(AbsV):
         value: int
 
+        def f(self):
+            return 2
+
     assert ImplV(3).value == 3
+
+    class ImplVNoF(AbsV):
+        value: int
+
+    with pytest.raises(TypeError):
+        ImplVNoF(4)
 
     class Iface(metaclass_.Data, abstract=True, sealed=True, pickle=True):
         x: int

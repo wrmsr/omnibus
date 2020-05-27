@@ -4,6 +4,7 @@ import typing as ta
 
 from ... import check
 from ... import properties
+from ..fields import build_cls_fields
 from ..internals import cmp_fn
 from ..internals import FieldType
 from ..internals import frozen_get_del_attr
@@ -19,7 +20,6 @@ from ..types import MetaclassParams
 from ..types import METADATA_ATTR
 from ..types import Original
 from ..types import PostInit
-from .fields import build_cls_fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
