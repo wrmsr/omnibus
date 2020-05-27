@@ -16,10 +16,6 @@ NONE_TYPE = type(None)
 MISSING_TYPE = type(dc.MISSING)
 
 
-class SUPER(lang.Marker):
-    pass
-
-
 METADATA_ATTR = '__dataclass_metadata__'
 
 
@@ -79,6 +75,14 @@ class ExtraFieldParams(lang.Final):
         check.isinstance(self.derive, (lang.Callable, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
+
+
+@dc.dataclass(frozen=True)
+class Conferrer(lang.Final):
+    fn: ta.Callable[[str, ta.Mapping[str, ta.Any], ta.Mapping[str, ta.Any]], ta.Any]
+
+
+SUPER = Conferrer(lambda att, sub, sup: sup[att])
 
 
 PARAMS_CONFER_DEFAULTS = dict(

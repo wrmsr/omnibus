@@ -128,7 +128,7 @@ def test_callable():
     assert isinstance(f, virtual_.Callable)
     assert not isinstance(5, virtual_.Callable)
 
-    class C:
+    class C:  # noqa
         pass
 
     class D:

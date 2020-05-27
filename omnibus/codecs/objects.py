@@ -94,10 +94,10 @@ class BsonCodec(Codec[F, bytes], lang.Final):
     defs.repr()
 
     def encode(self, o: F) -> bytes:
-        return self._MODULE().BSON.encode(o)
+        return self._MODULE().dumps(o)
 
     def decode(self, o: bytes) -> F:
-        return self._MODULE().BSON(o).decode()
+        return self._MODULE().loads(o)
 
 
 bson = BsonCodec

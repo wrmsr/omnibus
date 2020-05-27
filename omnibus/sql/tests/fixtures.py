@@ -12,7 +12,7 @@ def sqlite_engine() -> ta.Generator[sa.engine.Engine, None, None]:
     engine: sa.engine.Engine
     with lang.disposing(
             sa.create_engine(
-                f'sqlite://',
+                'sqlite://',
                 connect_args={'check_same_thread': False},
                 poolclass=sa.pool.StaticPool,
             )

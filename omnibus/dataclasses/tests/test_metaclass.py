@@ -8,6 +8,7 @@ import pytest
 from .. import api as api_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
+from .. import types as types_
 
 
 T = ta.TypeVar('T')
@@ -252,3 +253,99 @@ def test_enum():
     assert ae1.x == 1
     assert ae1.z == 2
     assert ae1.f() == '1'
+
+
+def test_confer():
+    def _confer_enum_final(att, sub, sup):
+        return sub['abstract'] is dc.MISSING or not sub['abstract']
+
+    class A(
+        metaclass_.Data,
+        abstract=True,
+        confer={
+            'final': types_.Conferrer(_confer_enum_final),
+            'confer': types_.SUPER,
+        }
+    ):
+        pass
+
+    class B(A):
+        pass
+
+    with pytest.raises(Exception):
+        class B_(B):
+            pass
+
+    class C(A, abstract=True):
+        pass
+
+    class D:
+        pass
+
+    with pytest.raises(Exception):
+        with D_(D):
+            pass
+
+
+def test_abstract_enum():
+    class A(metaclass_.Enum):
+        a: int
+
+    with pytest.raises(Exception):
+        A(1)
+
+    class B(A):
+        b: int
+
+    with pytest.raises(Exception):
+        class B_(B):
+            pass
+
+    assert B(1, 2).a == 1
+    assert B(1, 2).b == 2
+
+    class C(A, abstract=True):
+        c: int
+
+    with pytest.raises(Exception):
+        C(1, 2)
+
+    class D(C):
+        d: int
+
+    assert D(1, 3, 4).a == 1
+    assert D(1, 3, 4).c == 3
+    assert D(1, 3, 4).d == 4
+
+    with pytest.raises(Exception):
+        class D_(D):
+            pass
+
+    class E(C):
+        e: int
+
+    assert E(1, 3, 5).a == 1
+    assert E(1, 3, 5).c == 3
+    assert E(1, 3, 5).e == 5
+
+    with pytest.raises(Exception):
+        class E_(E):
+            pass
+
+    class F(C, abstract=True):
+        f: int
+
+    with pytest.raises(Exception):
+        F(1, 2, 7)
+
+    class G(F):
+        g: int
+
+    assert G(1, 3, 5, 8).a == 1
+    assert G(1, 3, 5, 8).c == 3
+    assert G(1, 3, 5, 8).f == 5
+    assert G(1, 3, 5, 8).g == 8
+
+    with pytest.raises(Exception):
+        class G_(G):
+            pass
