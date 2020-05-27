@@ -57,8 +57,9 @@ class _Meta(abc.ABCMeta):
         })
 
         original_extra_params = ExtraParams(**{
-            a: kwargs.pop(a, dc.MISSING)
-            for a in dc.fields(ExtraParams)
+            a: kwargs.pop(a)
+            for fld in dc.fields(ExtraParams)
+            for a in [fld.name]
             if a in kwargs
         })
 
