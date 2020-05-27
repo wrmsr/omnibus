@@ -1,3 +1,7 @@
+"""
+FIXME:
+ - __dict__ hits (not getattr) for params and metadata?
+"""
 import dataclasses as dc
 import sys
 import types

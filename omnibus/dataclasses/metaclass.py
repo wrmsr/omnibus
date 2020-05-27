@@ -101,7 +101,7 @@ class _Meta(abc.ABCMeta):
 
         # FIXME: inner
 
-        cls = dataclass(lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace), **kwargs)
+        cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace, **kwargs)
         ctx = process.Context(
             cls,
             original_params,
@@ -109,7 +109,8 @@ class _Meta(abc.ABCMeta):
             metaclass_params=original_metaclass_params,
         )
         drv = process.Driver(ctx)
-        return drv()
+        drv()
+        return cls
 
 
 class Data(metaclass=_Meta):
