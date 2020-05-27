@@ -42,10 +42,12 @@ class IntMod3(int):
 """
 import abc
 import threading
+import types
 import typing as ta
 
 from .restrict import make_abstract
 from .restrict import NotInstantiable
+from .restrict import Final
 
 
 Ty = ta.TypeVar('Ty', bound=type)
@@ -173,3 +175,19 @@ class _IntersectionMeta(abc.ABCMeta):
 
 class Intersection(NotInstantiable, metaclass=_IntersectionMeta):
     pass
+
+
+class Callable(NotInstantiable, Final):
+
+    @classmethod
+    def __instancecheck__(cls, instance):
+        return callable(instance)
+
+    @classmethod
+    def __subclasscheck__(cls, subclass):
+        if not hasattr(subclass, '__call__'):
+            return False
+        call = subclass.__call__
+        if isinstance(call, types.MethodWrapperType) and call.__self__ is subclass:
+            return False
+        return True

@@ -112,3 +112,30 @@ def test_intersection():
     with pytest.raises(TypeError):
         class AppendableClearableHashable2(AppendableClearable, Hashable):
             pass
+
+
+def test_callable():
+    with pytest.raises(Exception):
+        virtual_.Callable()
+
+    with pytest.raises(Exception):
+        class C(virtual_.Callable):  # noqa
+            pass
+
+    def f():
+        pass
+
+    assert isinstance(f, virtual_.Callable)
+    assert not isinstance(5, virtual_.Callable)
+
+    class C:
+        pass
+
+    class D:
+        def __call__(self):
+            pass
+
+    assert isinstance(C, virtual_.Callable)
+    assert isinstance(D, virtual_.Callable)
+    assert not isinstance(C(), virtual_.Callable)
+    assert isinstance(D(), virtual_.Callable)

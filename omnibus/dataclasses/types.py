@@ -12,6 +12,9 @@ T = ta.TypeVar('T')
 FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
+NONE_TYPE = type(None)
+MISSING_TYPE = type(dc.MISSING)
+
 
 class SUPER(lang.Marker):
     pass
@@ -70,6 +73,13 @@ class ExtraFieldParams(lang.Final):
     check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
 
+    def __post_init__(self) -> None:
+        check.isinstance(self.doc, (str, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.coerce, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.derive, (lang.Callable, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
+
 
 PARAMS_CONFER_DEFAULTS = dict(
     init=True,
@@ -88,13 +98,24 @@ class ExtraParams(lang.Final):
     cache_hash: bool = False
     pickle: bool = False
     reorder: bool = False
-    aspects: ta.Optional[ta.Sequence[ta.Any]] = None
-    confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any]] = None
+    aspects: ta.Optional[ta.Collection[ta.Any]] = None
+    confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
     original_params: ta.Optional[DataclassParams] = None
     original_extra_params: ta.Optional['ExtraParams'] = None
 
     def __post_init__(self) -> None:
+        check.isinstance(self.validate, (bool, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
+        check.isinstance(self.cache_hash, (bool, MISSING_TYPE))
+        check.isinstance(self.pickle, (bool, MISSING_TYPE))
+        check.isinstance(self.reorder, (bool, MISSING_TYPE))
+        check.isinstance(self.aspects, (ta.Collection, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.confer, (ta.Collection, ta.Mapping, NONE_TYPE, MISSING_TYPE))
+
+        check.isinstance(self.original_params, (DataclassParams, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.original_extra_params, (ExtraParams, NONE_TYPE, MISSING_TYPE))
+
         if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))
             check.empty(set(self.confer) - CONFERS)
@@ -113,6 +134,12 @@ class MetaclassParams(lang.Final):
     abstract: bool = False
     final: bool = False
     sealed: bool = False
+
+    def __post_init__(self) -> None:
+        check.isinstance(self.slots, (bool, MISSING_TYPE))
+        check.isinstance(self.abstract, (bool, MISSING_TYPE))
+        check.isinstance(self.final, (bool, MISSING_TYPE))
+        check.isinstance(self.sealed, (bool, MISSING_TYPE))
 
 
 METACLASS_PARAMS_CONFER_DEFAULTS = {

@@ -10,6 +10,7 @@ from .classes import abstract  # noqa
 from .classes import access_forbidden  # noqa
 from .classes import AccessForbiddenDescriptor  # noqa
 from .classes import AttrAccessForbiddenException  # noqa
+from .classes import Callable  # noqa
 from .classes import Descriptor  # noqa
 from .classes import Extension  # noqa
 from .classes import Final  # noqa

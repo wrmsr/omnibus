@@ -71,6 +71,7 @@ from .types import ExtraFieldParams
 from .types import ExtraParams
 from .types import Extras
 from .types import METADATA_ATTR
+from .types import MISSING_TYPE
 from .types import PostInit
 from .types import SelfChecker
 from .types import SelfValidator
@@ -85,7 +86,6 @@ FrozenInstanceError = dc.FrozenInstanceError
 InitVar = dc.InitVar
 is_dataclass = dc.is_dataclass
 MISSING = dc.MISSING
-MISSING_TYPE = dc._MISSING_TYPE  # noqa
 replace = dc.replace
 
 

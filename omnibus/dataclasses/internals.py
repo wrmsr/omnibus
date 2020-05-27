@@ -4,7 +4,7 @@ from .. import lang
 
 
 def _patch_missing_ctor():
-    # dc.asdict uses copy.deepcopy which instantiates new _MMISSING_TYPE objects which do not pass the 'foo is MISSING'
+    # dc.asdict uses copy.deepcopy which instantiates new _MISSING_TYPE objects which do not pass the 'foo is MISSING'
     # checks used throughout dataclasses code. Code should not depend on this behavior but it is a debugging landmine.
     def _MISSING_TYPE_new(cls):
         return dc.MISSING
