@@ -260,7 +260,7 @@ def dataclass(
     if aspects is not MISSING and aspects is not None:
         aspects = list(aspects)
     if confer is not MISSING and confer is not None:
-        confer = set(confer)
+        confer = dict(confer) if isinstance(confer, ta.Mapping) else set(confer)
 
     params = DataclassParams(
         init=init,

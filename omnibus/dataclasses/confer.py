@@ -34,29 +34,32 @@ def confer_params(
     for base in bases:
         if not dc.is_dataclass(base):
             continue
-        confer = get_cls_spec(base).extra_params.confer
+        base_spec = get_cls_spec(base)
+        confer = base_spec.extra_params.confer
         if not confer:
             continue
 
-        def update(p, d, c):
-            for a, v in d.items():
-                if getattr(p, a) is not dc.MISSING or a not in confer:
+        def update(given_params, base_params, confer_defaults, conferred):
+            for a, v in confer_defaults.items():
+                if getattr(given_params, a) is not dc.MISSING or a not in confer:
                     continue
                 if isinstance(confer, ta.Mapping):
                     if confer[a] is not SUPER:
                         v = confer[a]
+                elif base_params is not None:
+                    v = getattr(base_params, a)
                 if v is dc.MISSING:
                     continue
-                if a in c:
-                    if c[a] != v:
+                if a in conferred:
+                    if conferred[a] != v:
                         raise ValueError(f'Incompatible conferred params: base={base} a={a}')
                 else:
-                    c[a] = v
+                    conferred[a] = v
 
-        update(params, PARAMS_CONFER_DEFAULTS, pc)
-        update(extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, epc)
+        update(params, base_spec.params, PARAMS_CONFER_DEFAULTS, pc)
+        update(extra_params, base_spec.extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, epc)
         if metaclass_params is not None:
-            update(metaclass_params, METACLASS_PARAMS_CONFER_DEFAULTS, mcpc)
+            update(metaclass_params, base_spec.metaclass_params, METACLASS_PARAMS_CONFER_DEFAULTS, mcpc)
 
     params = DataclassParams(**{
         **PARAMS_CONFER_DEFAULTS,

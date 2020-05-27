@@ -19,6 +19,9 @@ from .api import replace  # noqa
 from .api import validate  # noqa
 from .api import validate_self  # noqa
 from .metaclass import Data  # noqa
+from .metaclass import Enum  # noqa
+from .metaclass import Frozen  # noqa
+from .metaclass import Pure  # noqa
 from .pickling import SimplePickle  # noqa
 from .reflect import DataSpec  # noqa
 from .reflect import get_cls_spec  # noqa

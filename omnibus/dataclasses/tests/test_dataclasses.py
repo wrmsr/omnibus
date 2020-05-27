@@ -1,4 +1,3 @@
-import abc
 import collections
 import dataclasses as dc
 import pickle  # noqa
@@ -7,7 +6,6 @@ import typing as ta
 import pytest
 
 from .. import api as api_
-from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
 from .. import process as process_
 from .. import reflect as reflect_
@@ -50,115 +48,6 @@ def test_defaultdict():
     d = api_.asdict(c)
     assert isinstance(d['d'], collections.defaultdict)
     assert d['d']['a'] == 3
-
-
-def test_meta():
-    class Point(metaclass_.Data):
-        x: int
-        y: int
-
-    pt = Point(1, 2)
-    assert pt.x == 1
-    pt.z = 2
-    assert pt.z == 2
-
-    class Abs(metaclass_.Data, abstract=True):
-        x: int
-
-    with pytest.raises(TypeError):
-        Abs(1)
-
-    class NAbs(Abs):
-        pass
-
-    assert NAbs(2).x == 2
-
-    class AbsV(metaclass_.Data, abstract=True):
-        @abc.abstractproperty
-        def value(self) -> int:
-            raise NotImplementedError
-
-        @abc.abstractmethod
-        def f(self):
-            raise NotImplementedError
-
-    class ImplV(AbsV):
-        value: int
-
-        def f(self):
-            return 2
-
-    assert ImplV(3).value == 3
-
-    class ImplVNoF(AbsV):
-        value: int
-
-    with pytest.raises(TypeError):
-        ImplVNoF(4)
-
-    class Iface(metaclass_.Data, abstract=True, sealed=True, pickle=True):
-        x: int
-
-    with pytest.raises(TypeError):
-        Iface(1)
-
-    class Impl(Iface, final=True):
-        y: int
-
-    pt = Impl(1, 2)
-    assert pt.x == 1
-    pt.y = 2
-    assert pt.y == 2
-    pt.z = 3
-    assert pt.z == 3
-
-    class FrozenIface(metaclass_.Data, abstract=True, sealed=True, pickle=True, frozen=True):
-        x: int
-
-    class FrozenImpl(FrozenIface, final=True, frozen=True):
-        y: int
-
-    pt = FrozenImpl(1, 2)
-    assert pt.x == 1
-    with pytest.raises(dc.FrozenInstanceError):
-        pt.y = 2
-
-    with pytest.raises(TypeError):
-        class Iface(Impl):
-            pass
-
-    with pytest.raises(TypeError):
-        class Impl2(Impl):
-            pass
-
-    class Abs(metaclass_.Data, abstract=True):
-        x: int
-
-        @abc.abstractproperty
-        def y(self) -> int:
-            raise NotImplementedError
-
-    with pytest.raises(TypeError):
-        Abs(1)
-
-    class AbsImpl(Iface, final=True):
-        y: int
-
-    pt = AbsImpl(1, 2)
-    assert pt.x == 1
-    pt.z = 2
-    assert pt.z == 2
-
-    class AbsImpl2(Abs, final=True):
-        pass
-
-    with pytest.raises(TypeError):
-        AbsImpl2(1)
-
-    class Gen(metaclass_.Data, ta.Generic[T]):
-        val: T
-
-    assert Gen(1).val == 1
 
 
 # @build_.dataclass(reorder=True)
@@ -340,19 +229,6 @@ def test_spec():
         C(0)
 
 
-def test_post_init():
-    class Point(metaclass_.Data):
-        x: int
-        y: int
-
-        api_.post_init(lambda pt: l.append(pt))
-
-    l = []
-    Point(1, 2)
-    Point(3, 4)
-    assert len(l) == 2
-
-
 def test_defdecls():
     @dc.dataclass()
     class Point:
@@ -524,24 +400,6 @@ def test_derive2():
     assert C('a', 'b', 'c').spp == 'c'
     # FIXME:
     # assert C('c').spp == 'c!!'
-
-
-def test_generic():
-    class Box(metaclass_.Data, ta.Generic[T]):
-        value: T
-
-    assert isinstance(Box(1), Box)
-    # assert issubclass(Box[int], Box)
-
-    class SubBox(Box):
-        pass
-
-    assert SubBox(1).value == 1
-
-    class SubIntBox(Box[int]):
-        pass
-
-    assert SubIntBox(1).value == 1
 
 
 def test_cache_hash():

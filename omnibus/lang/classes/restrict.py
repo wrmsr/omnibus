@@ -47,9 +47,9 @@ abstract = abc.abstractmethod
 
 def is_abstract(obj: ta.Any) -> bool:
     return bool(getattr(obj, '__abstractmethods__', [])) or (
-            isinstance(obj, type) and
-            issubclass(obj, Abstract) and
-            getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
+        isinstance(obj, type) and
+        issubclass(obj, Abstract) and
+        getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
     )
 
 
@@ -132,10 +132,26 @@ class FinalException(TypeError):
 class Final(Abstract):
 
     def __init_subclass__(cls, **kwargs) -> None:
-        for base in cls.__bases__:
-            if base is not Abstract and base is not Final and issubclass(base, Final):
-                raise FinalException(base)
         super().__init_subclass__(**kwargs)
+
+        abstracts = set()
+        for base in cls.__bases__:
+            if base is Abstract:
+                raise FinalException(base)
+            elif base is Final:
+                continue
+            elif issubclass(base, Final):
+                raise FinalException(base)
+            else:
+                abstracts.update(getattr(base, '__abstractmethods__', []))
+
+        for a in abstracts:
+            try:
+                v = cls.__dict__[a]
+            except KeyError:
+                raise FinalException(a)
+            if is_abstract(v):
+                raise FinalException(a)
 
 
 class SealedException(TypeError):

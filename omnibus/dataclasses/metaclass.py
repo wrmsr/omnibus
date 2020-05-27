@@ -1,8 +1,6 @@
 """
 TODO:
  - inner=False ** InnerMeta
- - EnumData - frozen+abstract (but not sealed by default, but can be) + confer={'frozen', 'final'}
- - PureData - frozen+final
 """
 import abc
 import dataclasses as dc
@@ -17,6 +15,7 @@ from .fields import build_cls_fields
 from .types import DataclassParams
 from .types import ExtraParams
 from .types import MetaclassParams
+from .types import SUPER
 
 
 T = ta.TypeVar('T')
@@ -45,7 +44,8 @@ class _Meta(abc.ABCMeta):
         if 'aspects' in kwargs:
             kwargs['aspects'] = list(kwargs['aspects'])
         if 'confer' in kwargs:
-            kwargs['confer'] = set(kwargs['confer'])
+            kwargs['confer'] = dict(kwargs['confer']) \
+                if isinstance(kwargs['confer'], ta.Mapping) else set(kwargs['confer'])
 
         original_params = DataclassParams(**{
             a: kwargs.pop(a, dc.MISSING)
@@ -53,10 +53,9 @@ class _Meta(abc.ABCMeta):
         })
 
         original_extra_params = ExtraParams(**{
-            a: kwargs.pop(a)
+            a: kwargs.pop(a, dc.MISSING)
             for fld in dc.fields(ExtraParams)
             for a in [fld.name]
-            if a in kwargs
         })
 
         original_metaclass_params = MetaclassParams(
@@ -72,6 +71,11 @@ class _Meta(abc.ABCMeta):
         check.arg(not (metaclass_params.abstract and metaclass_params.final))
 
         bases = tuple(b for b in bases if b is not Data)
+
+        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace)
+        proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
+        proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
+
         if metaclass_params.final and lang.Final not in bases:
             bases += (lang.Final,)
         if metaclass_params.sealed and lang.Sealed not in bases:
@@ -79,11 +83,7 @@ class _Meta(abc.ABCMeta):
         if metaclass_params.abstract and lang.Abstract not in bases:
             bases += (lang.Abstract,)
 
-        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace)
-        proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
-        proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
-
-        if not metaclass_params .abstract:
+        if not metaclass_params.abstract:
             for a in set(proto_flds.by_name) & proto_abs:
                 if a not in namespace:
                     namespace[a] = _abstract_field_stub
@@ -119,9 +119,42 @@ class Data(metaclass=_Meta):
             spi(*args, **kwargs)
 
 
-class PureData(Data):
+class Frozen(
+    Data,
+    abstract=True,
+    frozen=True,
+    confer={
+        'frozen',
+        'confer',
+    },
+):
     pass
 
 
-class EnumData(Data):
+class Pure(
+    Data,
+    abstract=True,
+    frozen=True,
+    confer={
+        'final': True,
+        'frozen': True,
+        'confer': SUPER,
+    },
+):
+    pass
+
+
+class Enum(
+    Data,
+    abstract=True,
+    frozen=True,
+    confer={
+        'abstract': True,
+        'frozen': True,
+        'confer': {
+            'final': True,
+            'frozen': True,
+        },
+    },
+):
     pass
