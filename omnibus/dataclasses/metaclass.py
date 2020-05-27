@@ -1,6 +1,9 @@
 """
 TODO:
  - inner=False ** InnerMeta
+ - 'Enum' with abstracts - AbstractEnum?
+  - class Stmt(Node, abstract=True, final=False, confer={'final': True, 'frozen': True, ...
+   - see jmespath nodes
 """
 import abc
 import dataclasses as dc
@@ -15,7 +18,6 @@ from .fields import build_cls_fields
 from .types import DataclassParams
 from .types import ExtraParams
 from .types import MetaclassParams
-from .types import SUPER
 
 
 T = ta.TypeVar('T')
@@ -138,7 +140,6 @@ class Pure(
     confer={
         'final': True,
         'frozen': True,
-        'confer': SUPER,
     },
 ):
     pass

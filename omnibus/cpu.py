@@ -223,7 +223,7 @@ class Bits(lang.Namespace):
     CLZERO = 0x00000001
 
 
-class Arch(dc.Data, frozen=True, final=True):
+class Arch(dc.Pure):
     family: int
     model_low: ta.Optional[int]
     model_high: ta.Optional[int]

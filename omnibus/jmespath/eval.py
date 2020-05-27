@@ -51,11 +51,11 @@ class Arg(ta.Generic[T], lang.Sealed, lang.Interface):
     def value(self) -> T: ...
 
 
-class ValueArg(dc.Data, Arg[T], frozen=True, final=True):
+class ValueArg(dc.Pure, Arg[T]):
     value: T
 
 
-class NodeArg(dc.Data, Arg[n.Node], frozen=True, final=True):
+class NodeArg(dc.Pure, Arg[n.Node]):
     value: n.Node
 
 

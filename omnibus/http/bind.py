@@ -28,8 +28,7 @@ ADDRESS_FAMILY_NAMES = {
 
 class Binder(lang.Abstract):
 
-    @dc.dataclass(frozen=True)
-    class Config:
+    class Config(dc.Frozen):
         pass
 
     @abc.abstractproperty
@@ -165,7 +164,6 @@ class BindBinder(Binder):
 
 class TcpBinder(BindBinder):
 
-    @dc.dataclass(frozen=True)
     class Config(Binder.Config):
         host: str
         port: int
@@ -192,7 +190,6 @@ class TcpBinder(BindBinder):
 
 class UnixBinder(BindBinder):
 
-    @dc.dataclass(frozen=True)
     class Config(Binder.Config):
         address: str
 

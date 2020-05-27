@@ -22,8 +22,7 @@ log = logging.getLogger(__name__)
 
 class LifecycleManager(AbstractLifecycle):
 
-    @dc.dataclass(frozen=True)
-    class Entry:
+    class Entry(dc.Pure):
         controller: LifecycleController
         dependencies: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)
         dependents: ta.Set['LifecycleManager.Entry'] = dc.field(default_factory=ocol.IdentitySet)

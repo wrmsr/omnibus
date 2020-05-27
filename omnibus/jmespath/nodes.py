@@ -4,24 +4,24 @@ from .. import dataclasses as dc
 from .. import lang
 
 
-class Node(dc.Data, abstract=True, frozen=True, sealed=True):
+class Node(dc.Frozen, abstract=True, sealed=True):
     pass
 
 
-class Operator(Node, abstract=True, frozen=True):
+class Operator(Node, abstract=True, sealed=True):
     pass
 
 
-class Leaf(Node, abstract=True, frozen=True):
+class Leaf(Node, abstract=True, sealed=True):
     pass
 
 
-class And(Operator, frozen=True, final=True):
+class And(Operator, final=True):
     left: Node
     right: Node
 
 
-class Compare(Operator, frozen=True, final=True):
+class Compare(Operator, final=True):
     class Op(lang.ValueEnum):
         EQ = '=='
         NE = '!='
@@ -37,86 +37,86 @@ class Compare(Operator, frozen=True, final=True):
     right: Node
 
 
-class CreateArray(Node, frozen=True, final=True):
+class CreateArray(Node, final=True):
     items: ta.Sequence[Node]
 
 
-class CreateObject(Node, frozen=True, final=True):
+class CreateObject(Node, final=True):
     fields: ta.Mapping[str, Node]
 
 
-class Current(Leaf, frozen=True, final=True):
+class Current(Leaf, final=True):
     pass
 
 
-class ExpressionRef(Node, frozen=True, final=True):
+class ExpressionRef(Node, final=True):
     expr: Node
 
 
-class FlattenArray(Leaf, frozen=True, final=True):
+class FlattenArray(Leaf, final=True):
     pass
 
 
-class FlattenObject(Leaf, frozen=True, final=True):
+class FlattenObject(Leaf, final=True):
     pass
 
 
-class FunctionCall(Node, frozen=True, final=True):
+class FunctionCall(Node, final=True):
     name: str
     args: ta.Sequence[Node]
 
 
-class Index(Leaf, frozen=True, final=True):
+class Index(Leaf, final=True):
     value: int
 
 
-class JsonLiteral(Leaf, frozen=True, final=True):
+class JsonLiteral(Leaf, final=True):
     text: str
 
 
-class Negate(Node, frozen=True, final=True):
+class Negate(Node, final=True):
     item: Node
 
 
-class Or(Operator, frozen=True, final=True):
+class Or(Operator, final=True):
     left: Node
     right: Node
 
 
-class Parameter(Leaf, frozen=True, final=True):
-    class Target(dc.Data, frozen=True, abstract=True, sealed=True):
+class Parameter(Leaf, final=True):
+    class Target(dc.Enum, sealed=True):
         pass
 
-    class NumberTarget(Target, frozen=True, final=True):
+    class NumberTarget(Target):
         value: int
 
-    class NameTarget(Target, frozen=True, final=True):
+    class NameTarget(Target):
         value: str
 
     target: Target
 
 
-class Project(Node, frozen=True, final=True):
+class Project(Node, final=True):
     child: Node
 
 
-class Property(Leaf, frozen=True, final=True):
+class Property(Leaf, final=True):
     name: str
 
 
-class Selection(Node, frozen=True, final=True):
+class Selection(Node, final=True):
     child: Node
 
 
-class Sequence(Node, frozen=True, final=True):
+class Sequence(Node, final=True):
     items: ta.Sequence[Node]
 
 
-class Slice(Leaf, frozen=True, final=True):
+class Slice(Leaf, final=True):
     start: ta.Optional[int]
     stop: ta.Optional[int]
     step: ta.Optional[int]
 
 
-class String(Leaf, frozen=True, final=True):
+class String(Leaf, final=True):
     value: Node

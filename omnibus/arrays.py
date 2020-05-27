@@ -1,7 +1,6 @@
 import typing as ta
 
 from . import dataclasses as dc
-from . import lang
 
 
 T = ta.TypeVar('T')
@@ -17,8 +16,7 @@ def _build_glyph_dict(*objs: ta.Sequence[T]) -> ta.Mapping[str, T]:
     return d
 
 
-@dc.dataclass(frozen=True)
-class TypeCode(lang.Final):
+class TypeCode(dc.Pure):
     glyph: str
     name: str
     type: ta.Type[Value]

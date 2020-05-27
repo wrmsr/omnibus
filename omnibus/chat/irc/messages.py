@@ -1,15 +1,14 @@
-import dataclasses as dc
 import typing as ta
 
 from ... import check
-from ... import lang
+from ... import dataclasses as dc
+
 
 MESSAGES: ta.Sequence['Message'] = []
 MESSAGES_BY_NAME: ta.Mapping[str, 'Message'] = {}
 
 
-@dc.dataclass(frozen=True)
-class Message(lang.Final):
+class Message(dc.Pure):
     name: str
     parameters: str
     replies: ta.Iterable[str]
