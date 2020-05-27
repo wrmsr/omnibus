@@ -149,7 +149,7 @@ class SealedException(TypeError):
         return f'{type(self).__name__}({self._type})'
 
 
-class Sealed(Abstract):
+class Sealed:
 
     def __init_subclass__(cls, **kwargs) -> None:
         for base in cls.__bases__:

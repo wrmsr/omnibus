@@ -113,7 +113,6 @@ class MetaclassParams(lang.Final):
     abstract: bool = False
     final: bool = False
     sealed: bool = False
-    inner: bool = False
 
 
 METACLASS_PARAMS_CONFER_DEFAULTS = {

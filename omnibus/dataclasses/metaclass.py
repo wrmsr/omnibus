@@ -22,13 +22,6 @@ from .types import MetaclassParams
 T = ta.TypeVar('T')
 
 
-def _build_stub_init():
-    def __init__(self):
-        raise NotImplementedError
-
-    return __init__
-
-
 class _Meta(abc.ABCMeta):
 
     def __new__(
@@ -81,6 +74,8 @@ class _Meta(abc.ABCMeta):
             bases += (lang.Final,)
         if metaclass_params.sealed and lang.Sealed not in bases:
             bases += (lang.Sealed,)
+        if metaclass_params.abstract and lang.Abstract not in bases:
+            bases += (lang.Abstract,)
 
         # FIXME: slots
         # fields = build_cls_fields()
@@ -92,13 +87,6 @@ class _Meta(abc.ABCMeta):
         #     for fld in dc.fields(cls):
         #         if fld.name not in namespace and fld.name in getattr(cls, '__abstractmethods__', []):
         #             namespace[fld.name] = dc.MISSING
-
-        # FIXME: abstract
-        # if metaclass_params.abstract and '__init__' not in cls.__abstractmethods__:
-        #     kwargs['init'] = False
-        #     namespace['__init__'] = abc.abstractmethod(_build_stub_init)
-        # elif not metaclass_params.abstract and '__init__' in cls.__abstractmethods__:
-        #     bases = (lang.new_type('$Dataclass', (Data,), {'__init__': _build_stub_init()}, init=False),) + bases
 
         # FIXME: inner
 

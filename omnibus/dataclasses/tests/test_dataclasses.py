@@ -62,6 +62,27 @@ def test_meta():
     pt.z = 2
     assert pt.z == 2
 
+    class Abs(metaclass_.Data, abstract=True):
+        x: int
+
+    with pytest.raises(TypeError):
+        Abs(1)
+
+    class NAbs(Abs):
+        pass
+
+    assert NAbs(2).x == 2
+
+    class AbsV(metaclass_.Data, abstract=True):
+        @abc.abstractproperty
+        def value(self) -> int:
+            raise NotImplementedError
+
+    class ImplV(AbsV):
+        value: int
+
+    assert ImplV(3).value == 3
+
     class Iface(metaclass_.Data, abstract=True, sealed=True, pickle=True):
         x: int
 
