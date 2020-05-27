@@ -116,7 +116,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             ret.setdefault(a.phase, []).append(a)
         return ret
 
-    @properties.cached
+    @properties.stateful_cached
     @property
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)

@@ -257,6 +257,11 @@ def dataclass(
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
         confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
+    if aspects is not MISSING and aspects is not None:
+        aspects = list(aspects)
+    if confer is not MISSING and confer is not None:
+        confer = set(confer)
+
     params = DataclassParams(
         init=init,
         repr=repr,
@@ -265,11 +270,6 @@ def dataclass(
         unsafe_hash=unsafe_hash,
         frozen=frozen,
     )
-
-    if aspects is not MISSING and aspects is not None:
-        aspects = list(aspects)
-    if confer is not MISSING and confer is not None:
-        confer = set(confer)
 
     extra_params = ExtraParams(
         validate=validate,
