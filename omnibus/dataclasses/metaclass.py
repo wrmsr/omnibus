@@ -12,8 +12,8 @@ from .. import lang
 from .api import MISSING_TYPE
 from .confer import confer_params
 from .fields import build_cls_fields
+from .internals import DataclassParams
 from .types import Conferrer
-from .types import DataclassParams
 from .types import ExtraParams
 from .types import MetaclassParams
 from .types import SUPER

@@ -43,9 +43,9 @@ def confer_params(
 
     sub = _build_ctx(params, extra_params, metaclass_params)
 
-    pc = {}
-    epc = {}
-    mcpc = {}
+    params_confers = {}
+    extra_params_confers = {}
+    metaclass_params_confers = {}
 
     for base in bases:
         if not dc.is_dataclass(base):
@@ -76,22 +76,24 @@ def confer_params(
                 else:
                     conferred[att] = val
 
-        update(params, base_spec.params, PARAMS_CONFER_DEFAULTS, pc)
-        update(extra_params, base_spec.extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, epc)
+        update(params, base_spec.params, PARAMS_CONFER_DEFAULTS, params_confers)
+        update(extra_params, base_spec.extra_params, EXTRA_PARAMS_CONFER_DEFAULTS, extra_params_confers)
         if metaclass_params is not None:
-            update(metaclass_params, base_spec.metaclass_params, METACLASS_PARAMS_CONFER_DEFAULTS, mcpc)
+            update(metaclass_params, base_spec.metaclass_params, METACLASS_PARAMS_CONFER_DEFAULTS, metaclass_params_confers)  # noqa
 
-    params = DataclassParams(**{
+    params_dict = {
         **PARAMS_CONFER_DEFAULTS,
         **{
             a: v for a in DataclassParams.__slots__
             for v in [getattr(params, a)]
             if a not in PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
         },
-        **pc,
-    })
+        **params_confers,
+    }
+    check.not_in(dc.MISSING, params_dict.values())
+    params = DataclassParams(**params_dict)
 
-    extra_params = ExtraParams(**{
+    extra_params_dict = {
         **EXTRA_PARAMS_CONFER_DEFAULTS,
         **{
             a: v
@@ -100,11 +102,13 @@ def confer_params(
             for v in [getattr(extra_params, a)]
             if a not in EXTRA_PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
         },
-        **epc,
-    })
+        **extra_params_confers,
+    }
+    check.not_in(dc.MISSING, extra_params_dict.values())
+    extra_params = ExtraParams(**extra_params_dict)
 
     if metaclass_params is not None:
-        metaclass_params = MetaclassParams(**{
+        metaclass_params_dict = {
             **METACLASS_PARAMS_CONFER_DEFAULTS,
             **{
                 a: v
@@ -113,7 +117,9 @@ def confer_params(
                 for v in [getattr(metaclass_params, a)]
                 if a not in METACLASS_PARAMS_CONFER_DEFAULTS or v is not dc.MISSING
             },
-            **mcpc,
-        })
+            **metaclass_params_confers,
+        }
+        check.not_in(dc.MISSING, metaclass_params_dict.values())
+        metaclass_params = MetaclassParams(**metaclass_params_dict)
 
     return params, extra_params, metaclass_params

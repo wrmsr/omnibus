@@ -6,6 +6,7 @@ from ... import check
 from ... import properties
 from ..fields import build_cls_fields
 from ..internals import cmp_fn
+from ..internals import DataclassParams
 from ..internals import FieldType
 from ..internals import frozen_get_del_attr
 from ..internals import hash_action
@@ -14,7 +15,6 @@ from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
 from ..pickling import SimplePickle
-from ..types import DataclassParams
 from ..types import ExtraParams
 from ..types import MetaclassParams
 from ..types import METADATA_ATTR

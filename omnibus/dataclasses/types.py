@@ -3,7 +3,6 @@ import typing as ta
 
 from .. import check
 from .. import lang
-from .internals import DataclassParams
 from .internals import FIELDS
 
 
@@ -105,9 +104,6 @@ class ExtraParams(lang.Final):
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
-    original_params: ta.Optional[DataclassParams] = None
-    original_extra_params: ta.Optional['ExtraParams'] = None
-
     def __post_init__(self) -> None:
         check.isinstance(self.validate, (bool, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
@@ -117,9 +113,6 @@ class ExtraParams(lang.Final):
         check.isinstance(self.aspects, (ta.Collection, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.confer, (ta.Collection, ta.Mapping, NONE_TYPE, MISSING_TYPE))
 
-        check.isinstance(self.original_params, (DataclassParams, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.original_extra_params, (ExtraParams, NONE_TYPE, MISSING_TYPE))
-
         if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))
             check.empty(set(self.confer) - CONFERS)
@@ -128,7 +121,6 @@ class ExtraParams(lang.Final):
 EXTRA_PARAMS_CONFER_DEFAULTS = {
     fld.name: fld.default
     for fld in getattr(ExtraParams, FIELDS).values()
-    if fld.name not in {'original_params', 'original_extra_params'}
 }
 
 
