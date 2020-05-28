@@ -4,7 +4,7 @@ from .. import dataclasses as dc
 from .. import lang
 
 
-class Node(dc.Enum, abstract=True, sealed=True):
+class Node(dc.Enum, sealed=True):
     pass
 
 

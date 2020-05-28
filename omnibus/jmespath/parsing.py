@@ -107,13 +107,13 @@ class _ParseVisitor(JmespathVisitor):
         start = None
         stop = None
         step = None
-        sliceCtx = ctx.slice()
+        sliceCtx = ctx.sliceNode()
         if sliceCtx.start is not None:
-            start = int(sliceCtx.start.getText())
+            start = int(sliceCtx.start.text)
         if sliceCtx.stop is not None:
-            stop = int(sliceCtx.stop.getText())
+            stop = int(sliceCtx.stop.text)
         if sliceCtx.step is not None:
-            step = int(sliceCtx.step.getText())
+            step = int(sliceCtx.step.text)
             if step == 0:
                 raise ValueError
         self._chainedNode = self._createProjectionIfChained(n.Slice(start, stop, step))
