@@ -86,7 +86,7 @@ keyvalExpr
     ;
 
 sliceNode
-    : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)?
+    : sliceStart=SIGNED_INT? ':' sliceStop=SIGNED_INT? (':' sliceStep=SIGNED_INT?)?
     ;
 
 parameterNode

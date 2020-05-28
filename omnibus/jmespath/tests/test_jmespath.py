@@ -1,6 +1,8 @@
+import copy
 import json
 import os.path
 
+from .. import eval as eval_
 from .. import parsing as parsing_
 
 
@@ -23,12 +25,15 @@ def test_cases():
                 try:
                     node = parsing_.parse(case['expression'])
                 except Exception as e:  # noqa
-                    if case.get('error') == 'syntax':
-                        continue
-                    print(name)
-                    print(case['expression'])
-                    print(e)
-                    print()
-                else:
-                    # print(node)
-                    pass
+                    assert case.get('error') == 'syntax'
+                    continue
+
+                print(node)
+
+                runtime = eval_.RuntimeImpl()
+                evaluator = eval_.Evaluator(runtime)
+
+                given = copy.deepcopy(suite['given'])
+                result = evaluator(node, given)
+
+                print(result)

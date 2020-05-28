@@ -1495,9 +1495,9 @@ class JmespathParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.start = None # Token
-            self.stop = None # Token
-            self.step = None # Token
+            self.sliceStart = None # Token
+            self.sliceStop = None # Token
+            self.sliceStep = None # Token
 
         def SIGNED_INT(self, i:int=None):
             if i is None:
@@ -1537,7 +1537,7 @@ class JmespathParser ( Parser ):
             _la = self._input.LA(1)
             if _la==JmespathParser.SIGNED_INT:
                 self.state = 137
-                localctx.start = self.match(JmespathParser.SIGNED_INT)
+                localctx.sliceStart = self.match(JmespathParser.SIGNED_INT)
 
 
             self.state = 140
@@ -1547,7 +1547,7 @@ class JmespathParser ( Parser ):
             _la = self._input.LA(1)
             if _la==JmespathParser.SIGNED_INT:
                 self.state = 141
-                localctx.stop = self.match(JmespathParser.SIGNED_INT)
+                localctx.sliceStop = self.match(JmespathParser.SIGNED_INT)
 
 
             self.state = 148
@@ -1561,7 +1561,7 @@ class JmespathParser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==JmespathParser.SIGNED_INT:
                     self.state = 145
-                    localctx.step = self.match(JmespathParser.SIGNED_INT)
+                    localctx.sliceStep = self.match(JmespathParser.SIGNED_INT)
 
 
 

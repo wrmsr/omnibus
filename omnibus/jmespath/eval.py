@@ -30,6 +30,7 @@ Funcs:
 import typing as ta
 
 from . import nodes as n
+from .. import check
 from .. import dataclasses as dc
 from .. import dispatch
 from .. import lang
@@ -163,6 +164,8 @@ class RuntimeImpl(Runtime[ta.Any]):
             return []
 
     def invoke_function(self, name: str, args: ta.Iterable[Arg]) -> ta.Any:
+        if name == 'sum':
+            return sum(check.isinstance(check.single(args), ValueArg).value)
         raise NotImplementedError
 
     def create_bool(self, value: bool) -> bool:
@@ -187,7 +190,7 @@ class RuntimeImpl(Runtime[ta.Any]):
         raise NotImplementedError
 
 
-class Evaluator(ta.Generic[T]):
+class Evaluator(ta.Generic[T], dispatch.Class):
 
     def __init__(self, runtime: Runtime[T]) -> None:
         super().__init__()

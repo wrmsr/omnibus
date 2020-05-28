@@ -1,4 +1,5 @@
 from . import nodes as n
+from .. import antlr
 from .. import check
 from .._vendor import antlr4
 from ._antlr.JmespathLexer import JmespathLexer
@@ -108,12 +109,12 @@ class _ParseVisitor(JmespathVisitor):
         stop = None
         step = None
         sliceCtx = ctx.sliceNode()
-        if sliceCtx.start is not None:
-            start = int(sliceCtx.start.text)
-        if sliceCtx.stop is not None:
-            stop = int(sliceCtx.stop.text)
-        if sliceCtx.step is not None:
-            step = int(sliceCtx.step.text)
+        if sliceCtx.sliceStart is not None:
+            start = int(sliceCtx.sliceStart.text)
+        if sliceCtx.sliceStop is not None:
+            stop = int(sliceCtx.sliceStop.text)
+        if sliceCtx.sliceStep is not None:
+            step = int(sliceCtx.sliceStep.text)
             if step == 0:
                 raise ValueError
         self._chainedNode = self._createProjectionIfChained(n.Slice(start, stop, step))
@@ -178,27 +179,17 @@ class _ParseVisitor(JmespathVisitor):
         return self._createSequenceIfChained(n.Property(ctx.getText()))
 
 
-class ParseException(Exception):
-    pass
-
-
-class SilentRaisingErrorListener(antlr4.error.ErrorListener.ErrorListener):
-
-    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        raise ParseException(recognizer, offendingSymbol, line, column, msg, e)
-
-
 def parse(buf: str) -> n.Node:
     lexer = JmespathLexer(antlr4.InputStream(buf))
     lexer.removeErrorListeners()
-    lexer.addErrorListener(SilentRaisingErrorListener())
+    lexer.addErrorListener(antlr.SilentRaisingErrorListener())
 
     stream = antlr4.CommonTokenStream(lexer)
     stream.fill()
 
     parser = JmespathParser(stream)
     parser.removeErrorListeners()
-    parser.addErrorListener(SilentRaisingErrorListener())
+    parser.addErrorListener(antlr.SilentRaisingErrorListener())
 
     visitor = _ParseVisitor()
     return visitor.visit(parser.singleExpression())
