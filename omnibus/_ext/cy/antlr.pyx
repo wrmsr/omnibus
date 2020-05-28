@@ -68,25 +68,31 @@
 """
 from libcpp cimport bool
 
+from functools import reduce
 import io
 
 from ..._vendor.antlr4 import InputStream
 from ..._vendor.antlr4 import Lexer
 from ..._vendor.antlr4 import LexerATNSimulator
 from ..._vendor.antlr4 import Token
+from ..._vendor.antlr4.atn.ATN import ATN
 from ..._vendor.antlr4.atn.ATNConfig import ATNConfig
 from ..._vendor.antlr4.atn.ATNConfig import LexerATNConfig
 from ..._vendor.antlr4.atn.ATNConfigSet import ATNConfigSet
 from ..._vendor.antlr4.atn.ATNConfigSet import OrderedATNConfigSet
+from ..._vendor.antlr4.atn.ATNSimulator import ATNSimulator
 from ..._vendor.antlr4.atn.ATNState import ATNState
 from ..._vendor.antlr4.atn.ATNState import DecisionState
 from ..._vendor.antlr4.atn.ATNState import RuleStopState
 from ..._vendor.antlr4.atn.LexerActionExecutor import LexerActionExecutor
 from ..._vendor.antlr4.atn.SemanticContext import SemanticContext
 from ..._vendor.antlr4.atn.Transition import Transition
+from ..._vendor.antlr4.error.Errors import IllegalStateException
 from ..._vendor.antlr4.error.Errors import UnsupportedOperationException
+from ..._vendor.antlr4.PredictionContext import merge
 from ..._vendor.antlr4.PredictionContext import PredictionContext
 from ..._vendor.antlr4.PredictionContext import SingletonPredictionContext
+from ..._vendor.antlr4.Utils import str_list
 
 
 # ATNConfigSet
@@ -104,14 +110,6 @@ cpdef object LexerATNSimulator__computeStartState(
     return configs
 
 
-# Since the alternatives within any lexer decision are ordered by
-# preference, this method stops pursuing the closure as soon as an accept
-# state is reached. After the first accept state is reached by depth-first
-# search from {@code config}, all other (potentially reachable) states for
-# this rule would have a lower priority.
-#
-# @return {@code true} if an accept state is reached, otherwise
-# {@code false}.
 cpdef bool LexerATNSimulator__closure(
         self: LexerATNSimulator,
         input: InputStream,
@@ -121,16 +119,7 @@ cpdef bool LexerATNSimulator__closure(
         speculative: bool,
         treatEofAsEpsilon: bool
 ):
-    if LexerATNSimulator.debug:
-        print("closure(" + str(config) + ")")
-
     if isinstance(config.state, RuleStopState):
-        if LexerATNSimulator.debug:
-            if self.recog is not None:
-                print("closure at", self.recog.symbolicNames[config.state.ruleIndex], "rule stop", str(config))
-            else:
-                print("closure at rule stop", str(config))
-
         if config.context is None or config.context.hasEmptyPath():
             if config.context is None or config.context.isEmpty():
                 configs.add(config)
@@ -196,8 +185,6 @@ cpdef bool LexerATNSimulator__closure(
     return currentAltReachedAcceptState
 
 
-# side-effect: can alter configs.hasSemanticContext
-# LexerATNConfig
 cpdef object LexerATNSimulator__getEpsilonTarget(
         self: LexerATNSimulator,
         input: InputStream,
@@ -221,44 +208,12 @@ cpdef object LexerATNSimulator__getEpsilonTarget(
         raise UnsupportedOperationException("Precedence predicates are not supported in lexers.")
 
     elif t.serializationType == Transition.PREDICATE:
-        #  Track traversing semantic predicates. If we traverse,
-        # we cannot add a DFA state for this "reach" computation
-        # because the DFA would not test the predicate again in the
-        # future. Rather than creating collections of semantic predicates
-        # like v3 and testing them on prediction, v4 will test them on the
-        # fly all the time using the ATN not the DFA. This is slower but
-        # semantically it's not used that often. One of the key elements to
-        # this predicate mechanism is not adding DFA states that see
-        # predicates immediately afterwards in the ATN. For example,
-
-        # a : ID {p1}? | ID {p2}? ;
-
-        # should create the start state for rule 'a' (to save start state
-        # competition), but should not create target of ID state. The
-        # collection of ATN states the following ID references includes
-        # states reached by traversing predicates. Since this is when we
-        # test them, we cannot cash the DFA state target of ID.
-
-        if LexerATNSimulator.debug:
-            print("EVAL rule " + str(t.ruleIndex) + ":" + str(t.predIndex))
         configs.hasSemanticContext = True
         if self.evaluatePredicate(input, t.ruleIndex, t.predIndex, speculative):
             c = LexerATNConfig(state=t.target, config=config)
 
     elif t.serializationType == Transition.ACTION:
         if config.context is None or config.context.hasEmptyPath():
-            # execute actions anywhere in the start rule for a token.
-            #
-            # TODO: if the entry rule is invoked recursively, some
-            # actions may be executed during the recursive call. The
-            # problem can appear when hasEmptyPath() is true but
-            # isEmpty() is false. In this case, the config needs to be
-            # split into two contexts - one with just the empty path
-            # and another with everything but the empty path.
-            # Unfortunately, the current algorithm does not allow
-            # getEpsilonTarget to return two configurations, so
-            # additional modifications are needed before we can support
-            # the split operation.
             lexerActionExecutor = LexerActionExecutor.append(
                 config.lexerActionExecutor,
                 self.atn.lexerActions[t.actionIndex],
@@ -308,28 +263,16 @@ cdef class CyATNConfig:
         if semantic is None:
             semantic = SemanticContext.NONE
 
-        # The ATN state associated with this configuration#/
         self.state = state
 
-        # What alt (or lexer rule) is predicted by this configuration#/
         self.alt = alt
 
-        # The stack of invoking states leading to the rule/states associated with this config.  We track only those
-        # contexts pushed during execution of the ATN simulator.
         self.context = context
         self.semanticContext = semantic
 
-        # We cannot execute predicates dependent upon local context unless we know for sure we are in the correct
-        # context. Because there is no way to do this efficiently, we simply cannot evaluate dependent predicates unless
-        # we are in the rule that initially invokes the ATN simulator.
-
-        # closure() tracks the depth of how far we dip into the outer context: depth > 0. Note that it may not be
-        # totally accurate depth since I don't ever decrement. TODO: make it a boolean then
         self.reachesIntoOuterContext = 0 if config is None else config.reachesIntoOuterContext
         self.precedenceFilterSuppressed = False if config is None else config.precedenceFilterSuppressed
 
-    # An ATN configuration is equal to another if both have the same state, they predict the same alternative, and
-    # syntactic/semantic contexts are the same.
     def __eq__(self, other):
         if self is other:
             return True
@@ -432,3 +375,165 @@ cdef class CyLexerATNConfig(CyATNConfig):
 
     cpdef checkNonGreedyDecision(self, source: LexerATNConfig, target: ATNState):
         return source.passedThroughNonGreedyDecision or isinstance(target, DecisionState) and target.nonGreedy
+
+
+cdef class CyATNConfigSet:
+
+    def __init__(self, fullCtx: bool = True):
+        self.configLookup = dict()
+        self.fullCtx = fullCtx
+        self.readonly = False
+        self.configs = []
+
+        self.uniqueAlt = 0
+        self.conflictingAlts = None
+
+        self.hasSemanticContext = False
+        self.dipsIntoOuterContext = False
+
+        self.cachedHashCode = -1
+
+    def __iter__(self):
+        return self.configs.__iter__()
+
+    def add(self, config: ATNConfig, mergeCache=None):
+        if self.readonly:
+            raise Exception("This set is readonly")
+
+        if config.semanticContext is not SemanticContext.NONE:
+            self.hasSemanticContext = True
+
+        if config.reachesIntoOuterContext > 0:
+            self.dipsIntoOuterContext = True
+
+        existing = self.getOrAdd(config)
+        if existing is config:
+            self.cachedHashCode = -1
+            self.configs.append(config)
+            return True
+
+        rootIsWildcard = not self.fullCtx
+        merged = merge(existing.context, config.context, rootIsWildcard, mergeCache)
+
+        existing.reachesIntoOuterContext = max(existing.reachesIntoOuterContext, config.reachesIntoOuterContext)
+
+        if config.precedenceFilterSuppressed:
+            existing.precedenceFilterSuppressed = True
+
+        existing.context = merged
+
+        return True
+
+    def getOrAdd(self, config: ATNConfig):
+        h = config.hashCodeForConfigSet()
+        l = self.configLookup.get(h, None)
+        if l is not None:
+            r = next((cfg for cfg in l if config.equalsForConfigSet(cfg)), None)
+            if r is not None:
+                return r
+        if l is None:
+            l = [config]
+            self.configLookup[h] = l
+        else:
+            l.append(config)
+        return config
+
+    def getStates(self):
+        return set(c.state for c in self.configs)
+
+    def getPredicates(self):
+        return list(cfg.semanticContext for cfg in self.configs if cfg.semanticContext != SemanticContext.NONE)
+
+    def get(self, i: int):
+        return self.configs[i]
+
+    def optimizeConfigs(self, interpreter: ATNSimulator):
+        if self.readonly:
+            raise IllegalStateException("This set is readonly")
+        if len(self.configs) == 0:
+            return
+        for config in self.configs:
+            config.context = interpreter.getCachedContext(config.context)
+
+    def addAll(self, coll: list):
+        for c in coll:
+            self.add(c)
+        return False
+
+    def __eq__(self, other):
+        if self is other:
+            return True
+        elif not isinstance(other, ATNConfigSet):
+            return False
+
+        same = (
+                self.configs is not None and
+                self.configs == other.configs and
+                self.fullCtx == other.fullCtx and
+                self.uniqueAlt == other.uniqueAlt and
+                self.conflictingAlts == other.conflictingAlts and
+                self.hasSemanticContext == other.hasSemanticContext and
+                self.dipsIntoOuterContext == other.dipsIntoOuterContext
+        )
+
+        return same
+
+    def __hash__(self):
+        if self.readonly:
+            if self.cachedHashCode == -1:
+                self.cachedHashCode = self.hashConfigs()
+            return self.cachedHashCode
+        return self.hashConfigs()
+
+    def hashConfigs(self):
+        return reduce(lambda h, cfg: hash((h, cfg)), self.configs, 0)
+
+    def __len__(self):
+        return len(self.configs)
+
+    def isEmpty(self):
+        return len(self.configs) == 0
+
+    def __contains__(self, config):
+        if self.configLookup is None:
+            raise UnsupportedOperationException("This method is not implemented for readonly sets.")
+        h = config.hashCodeForConfigSet()
+        l = self.configLookup.get(h, None)
+        if l is not None:
+            for c in l:
+                if config.equalsForConfigSet(c):
+                    return True
+        return False
+
+    def clear(self):
+        if self.readonly:
+            raise IllegalStateException("This set is readonly")
+        self.configs.clear()
+        self.cachedHashCode = -1
+        self.configLookup.clear()
+
+    def setReadonly(self, readonly: bool):
+        self.readonly = readonly
+        self.configLookup = None  # can't mod, no need for lookup cache
+
+    def __str__(self):
+        with io.StringIO() as buf:
+            buf.write(str_list(self.configs))
+            if self.hasSemanticContext:
+                buf.write(",hasSemanticContext=")
+                buf.write(str(self.hasSemanticContext))
+            if self.uniqueAlt != ATN.INVALID_ALT_NUMBER:
+                buf.write(",uniqueAlt=")
+                buf.write(str(self.uniqueAlt))
+            if self.conflictingAlts is not None:
+                buf.write(",conflictingAlts=")
+                buf.write(str(self.conflictingAlts))
+            if self.dipsIntoOuterContext:
+                buf.write(",dipsIntoOuterContext")
+            return buf.getvalue()
+
+
+cdef class CyOrderedATNConfigSet(CyATNConfigSet):
+
+    def __init__(self):
+        super().__init__()
