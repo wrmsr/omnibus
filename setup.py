@@ -56,7 +56,8 @@ EXTRAS_REQUIRE = {
 }
 
 
-DEBUG = 'DEBUG' in os.environ
+DEBUG = os.environ.get('DEBUG')
+TRACE = os.environ.get('TRACE')
 
 
 EXT_MODULES = [
@@ -89,6 +90,9 @@ else:
                     language='c++',
                     extra_compile_args=['-std=c++14'],
                     optional=True,
+                    define_macros=[
+                        *([('CYTHON_TRACE', '1')] if TRACE else []),
+                    ],
                 )
                 for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
             ],
@@ -96,6 +100,7 @@ else:
             gdb_debug=DEBUG,
             compiler_directives={
                 **Cython.Compiler.Options.get_directive_defaults(),
+                'linetrace': TRACE,
                 'embedsignature': True,
                 'binding': True,
             },
