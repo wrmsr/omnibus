@@ -1,5 +1,6 @@
 import glob
 import os.path
+import time
 import typing as ta
 
 from ..._vendor import antlr4
@@ -42,9 +43,14 @@ def test_internal():
         walker = antlr4.ParseTreeWalker()
         walker.walk(printer, tree)
 
-    dp = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    print()
+    dp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../caches'))
     for fp in sorted(glob.glob(f'{dp}/**/*.py', recursive=True)):
         with open(fp, 'r') as f:
             buf = f.read()
-        print(fp)
+
+        start = time.time()
         run(buf)
+        end = time.time()
+        print('%-80s: %0.2f' % (fp, end - start,))
+
