@@ -45,17 +45,6 @@ LexerT = ta.TypeVar('LexerT', bound=antlr4.Lexer, covariant=True)
 ParserT = ta.TypeVar('ParserT', bound=antlr4.Parser, covariant=True)
 
 
-@lang.cached_nullary
-def patch_speedeups():
-    try:
-        from .._ext.cy import antlr as cy
-    except ImportError:
-        log.exception('Exception importing antlr cython ext4ensions')
-        return
-
-    antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
-
-
 class Mark(dc.Pure):
     line: int
     column: int

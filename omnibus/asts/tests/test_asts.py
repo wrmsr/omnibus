@@ -30,8 +30,8 @@ def var_fn(a: int, *b: ta.Dict[str, ta.Tuple[int, float]], **c: ta.Callable[...,
 
 
 def test_internal():
-    from ...antlr.antlr import patch_speedeups
-    # patch_speedeups()
+    from ...antlr.patch import patch_speedeups
+    patch_speedeups()
 
     def run(buf):
         lexer = Python3Lexer(antlr4.InputStream(buf))
@@ -53,3 +53,5 @@ def test_internal():
         run(buf)
         end = time.time()
         print('%-80s: %0.2f' % (fp, end - start,))
+
+
