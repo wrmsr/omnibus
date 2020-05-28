@@ -23,6 +23,12 @@ def test_cases():
                 try:
                     node = parsing_.parse(case['expression'])
                 except Exception as e:  # noqa
-                    assert case.get('error') == 'syntax'
+                    if case.get('error') == 'syntax':
+                        continue
+                    print(name)
+                    print(case['expression'])
+                    print(e)
+                    print()
                 else:
-                    print(node)
+                    # print(node)
+                    pass

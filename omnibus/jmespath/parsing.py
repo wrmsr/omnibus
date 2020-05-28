@@ -178,12 +178,27 @@ class _ParseVisitor(JmespathVisitor):
         return self._createSequenceIfChained(n.Property(ctx.getText()))
 
 
+class ParseException(Exception):
+    pass
+
+
+class SilentRaisingErrorListener(antlr4.error.ErrorListener.ErrorListener):
+
+    def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+        raise ParseException(recognizer, offendingSymbol, line, column, msg, e)
+
+
 def parse(buf: str) -> n.Node:
     lexer = JmespathLexer(antlr4.InputStream(buf))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(SilentRaisingErrorListener())
+
     stream = antlr4.CommonTokenStream(lexer)
     stream.fill()
 
     parser = JmespathParser(stream)
+    parser.removeErrorListeners()
+    parser.addErrorListener(SilentRaisingErrorListener())
 
     visitor = _ParseVisitor()
     return visitor.visit(parser.singleExpression())
