@@ -3,7 +3,9 @@ WATCH:
  - https://github.com/python/typing/issues/213 :|||
 
 FIXME:
- - overhaul Protocol - https://www.python.org/dev/peps/pep-0544/
+ - overhaul Protocol
+  - make like Interface
+  - https://www.python.org/dev/peps/pep-0544/
   - 3.8 only :|
   - kill @Protocol usage
 
@@ -107,6 +109,16 @@ class _ProtocolMeta(abc.ABCMeta):
 
 class Protocol(metaclass=_ProtocolMeta):
     pass
+
+
+def protocol_check(proto: type) -> ta.Callable[[Ty], Ty]:
+    def inner(cls):
+        if not issubclass(cls, proto):
+            raise TypeError(cls)
+        return cls
+    # if not issubclass(type(proto), _ProtocolMeta):
+    #     raise TypeError(proto)
+    return inner
 
 
 class Descriptor(Protocol):

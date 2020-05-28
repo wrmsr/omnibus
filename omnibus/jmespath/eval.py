@@ -27,6 +27,7 @@ Funcs:
  - Type
  - Values
 """
+import json
 import typing as ta
 
 from . import nodes as n
@@ -178,7 +179,10 @@ class RuntimeImpl(Runtime[ta.Any]):
             return None
 
     def parse_str(self, s: str) -> ta.Any:
-        raise NotImplementedError
+        try:
+            return json.loads(s)
+        except Exception as e:  # noqa
+            raise
 
     def create_str(self, val: str) -> str:
         return str(val)

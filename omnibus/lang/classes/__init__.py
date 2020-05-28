@@ -28,3 +28,4 @@ from .virtual import Descriptor  # noqa
 from .virtual import Intersection  # noqa
 from .virtual import Picklable  # noqa
 from .virtual import Protocol  # noqa
+from .virtual import protocol_check  # noqa

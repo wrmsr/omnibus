@@ -40,8 +40,9 @@ def test_protocol():
 
         D()
 
-    class PI(P):
-        pass
+    virtual_.protocol_check(P)(A)
+    with pytest.raises(TypeError):
+        virtual_.protocol_check(P)(B)
 
 
 def test_intersection():
