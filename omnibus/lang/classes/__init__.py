@@ -14,6 +14,7 @@ from .restrict import make_abstract  # noqa
 from .restrict import Marker  # noqa
 from .restrict import Namespace  # noqa
 from .restrict import NotInstantiable  # noqa
+from .restrict import NotPicklable  # noqa
 from .restrict import Override  # noqa
 from .restrict import override  # noqa
 from .restrict import Sealed  # noqa
@@ -25,6 +26,5 @@ from .simple import staticfunction  # noqa
 from .virtual import Callable  # noqa
 from .virtual import Descriptor  # noqa
 from .virtual import Intersection  # noqa
-from .virtual import NotPicklable  # noqa
 from .virtual import Picklable  # noqa
 from .virtual import Protocol  # noqa

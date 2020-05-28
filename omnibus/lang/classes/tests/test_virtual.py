@@ -40,6 +40,9 @@ def test_protocol():
 
         D()
 
+    class PI(P):
+        pass
+
 
 def test_intersection():
     class Appendable(restrict_.Abstract):

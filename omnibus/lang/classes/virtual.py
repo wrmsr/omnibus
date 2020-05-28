@@ -3,11 +3,9 @@ WATCH:
  - https://github.com/python/typing/issues/213 :|||
 
 FIXME:
- - overhaul Protcol - https://www.python.org/dev/peps/pep-0544/
+ - overhaul Protocol - https://www.python.org/dev/peps/pep-0544/
   - 3.8 only :|
   - kill @Protocol usage
- - lol, it's __subclasshook__ not __subclasscheck__
- - also threadlocal default? but can hopefully die after hook fix
 
 TODO:
  - common _VirtualMeta, Protocol mandatory in bases, flatten like Intersection
@@ -53,6 +51,19 @@ from .restrict import Final
 Ty = ta.TypeVar('Ty', bound=type)
 
 
+def _make_not_instantiable():
+    def __new__(cls, *args, **kwargs):
+        raise TypeError(cls)
+
+    def __init__(self, *args, **kwargs):
+        raise TypeError(self)
+
+    return {
+        '__new__': __new__,
+        '__initT__': __init__,
+    }
+
+
 class _ProtocolMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace):
@@ -88,17 +99,14 @@ class _ProtocolMeta(abc.ABCMeta):
 
         namespace['__subclasshook__'] = classmethod(__subclasshook__)
 
+        namespace.update(_make_not_instantiable())
+
         kls = super().__new__(abc.ABCMeta, name, tuple(b for b in bases if b is not Protocol), namespace)
         return kls
 
 
 class Protocol(metaclass=_ProtocolMeta):
-
-    def __new__(cls, impl: Ty) -> Ty:
-        raise TypeError
-
-    def __init__(self, *args, **kwarg) -> None:
-        raise TypeError
+    pass
 
 
 class Descriptor(Protocol):
@@ -116,35 +124,7 @@ class Picklable(Protocol):
         raise NotImplementedError
 
 
-class NotPicklable:
-
-    def __getstate__(self) -> ta.NoReturn:
-        raise TypeError
-
-    def __setstate__(self, state) -> ta.NoReturn:
-        raise TypeError
-
-
-_INTERSECTION_CHECKING = threading.local()
-_INTERSECTION_CHECKING._value = False
-
-
 class _IntersectionMeta(abc.ABCMeta):
-
-    # FIXME: USE __SUBCLASSHOOK__ NOT THIS.
-    def __subclasscheck__(self, subclass):
-        if _INTERSECTION_CHECKING._value:
-            return False
-        try:
-            _INTERSECTION_CHECKING._value = True
-            for base in self.__bases__:
-                if base is Intersection:
-                    continue
-                if not issubclass(subclass, base):
-                    return False
-            return True
-        finally:
-            _INTERSECTION_CHECKING._value = False
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         if 'Intersection' not in globals():
@@ -170,10 +150,34 @@ class _IntersectionMeta(abc.ABCMeta):
                 seen.add(base)
         new_bases.append(Intersection)
 
+        is_checking = threading.local()
+
+        def __subclasshook__(self, subclass):
+            try:
+                value = is_checking.value
+            except AttributeError:
+                value = is_checking.value = False
+            if value:
+                return False
+            try:
+                is_checking.value = True
+                for base in self.__bases__:
+                    if base is Intersection:
+                        continue
+                    if not issubclass(subclass, base):
+                        return False
+                return True
+            finally:
+                is_checking.value = False
+
+        namespace['__subclasshook__'] = classmethod(__subclasshook__)
+
+        namespace.update(_make_not_instantiable())
+
         return super().__new__(mcls, name, tuple(new_bases), namespace, **kwargs)
 
 
-class Intersection(NotInstantiable, metaclass=_IntersectionMeta):
+class Intersection(metaclass=_IntersectionMeta):
     pass
 
 

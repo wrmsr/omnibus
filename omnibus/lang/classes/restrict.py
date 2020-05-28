@@ -181,6 +181,15 @@ class NotInstantiable(Abstract):
         raise TypeError
 
 
+class NotPicklable:
+
+    def __getstate__(self) -> ta.NoReturn:
+        raise TypeError
+
+    def __setstate__(self, state) -> ta.NoReturn:
+        raise TypeError
+
+
 _MARKER_NAMESPACE_KEYS: ta.Set[str] = None
 
 
