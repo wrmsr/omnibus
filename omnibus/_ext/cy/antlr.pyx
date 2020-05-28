@@ -118,6 +118,8 @@ for _check in [
     f'{Transition__NOT_SET}     == Transition.NOT_SET',
     f'{Transition__WILDCARD}    == Transition.WILDCARD',
     f'{Transition__PRECEDENCE}  == Transition.PRECEDENCE',
+    'ATNConfig.__subclasses__() == [LexerATNConfig]',
+    'not LexerATNConfig.__subclasses__()',
 ]:
     if not eval(_check):
         raise ImportError(_check)
@@ -239,6 +241,15 @@ cpdef bool LexerATNSimulator__closure(
 
 cdef class CyATNConfig:
 
+    cdef object state  # type: ATNStat
+    cdef int alt
+
+    cdef object context  # type: PredictionContext
+    cdef object semantic  # type: SemanticContext
+
+    cdef int reachesIntoOuterContext
+    cdef bool precedenceFilterSuppressed
+
     def __init__(
             self,
             state: ATNState = None,
@@ -261,7 +272,6 @@ cdef class CyATNConfig:
             semantic = SemanticContext.NONE
 
         self.state = state
-
         self.alt = alt
 
         self.context = context
@@ -273,7 +283,7 @@ cdef class CyATNConfig:
     def __eq__(self, other):
         if self is other:
             return True
-        elif not isinstance(other, ATNConfig):
+        elif not isinstance(other, CyATNConfig):
             return False
         else:
             return (
@@ -324,6 +334,9 @@ cdef class CyATNConfig:
 
 cdef class CyLexerATNConfig(CyATNConfig):
 
+    cdef object lexerActionExecutor  # type: LexerActionExecutor
+    cdef bool passedThroughNonGreedyDecision
+
     def __init__(
             self,
             state: ATNState,
@@ -333,7 +346,7 @@ cdef class CyLexerATNConfig(CyATNConfig):
             lexerActionExecutor: LexerActionExecutor = None,
             config: LexerATNConfig = None,
     ):
-        super().__init__(state=state, alt=alt, context=context, semantic=semantic, config=config)
+        CyATNConfig.__init__(state=state, alt=alt, context=context, semantic=semantic, config=config)
 
         if config is not None:
             if lexerActionExecutor is None:
@@ -362,7 +375,7 @@ cdef class CyLexerATNConfig(CyATNConfig):
             return False
         if not (self.lexerActionExecutor == other.lexerActionExecutor):
             return False
-        return super().__eq__(other)
+        return CyATNConfig.__eq__(other)
 
     cpdef hashCodeForConfigSet(self):
         return hash(self)

@@ -30,11 +30,15 @@ MINE:
 
 https://tomassetti.me/antlr-mega-tutorial/
 """
+import logging
 import typing as ta
 
 from .. import dataclasses as dc
 from .. import lang
 from .._vendor import antlr4
+
+
+log = logging.getLogger(__name__)
 
 
 LexerT = ta.TypeVar('LexerT', bound=antlr4.Lexer, covariant=True)
@@ -46,6 +50,7 @@ def patch_speedeups():
     try:
         from .._ext.cy import antlr as cy
     except ImportError:
+        log.exception('Exception importing antlr cython ext4ensions')
         return
 
     antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
