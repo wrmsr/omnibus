@@ -79,7 +79,6 @@ from ..._vendor.antlr4.atn.ATN import ATN
 from ..._vendor.antlr4.atn.ATNConfig import ATNConfig
 from ..._vendor.antlr4.atn.ATNConfig import LexerATNConfig
 from ..._vendor.antlr4.atn.ATNConfigSet import ATNConfigSet
-from ..._vendor.antlr4.atn.ATNConfigSet import OrderedATNConfigSet
 from ..._vendor.antlr4.atn.ATNSimulator import ATNSimulator
 from ..._vendor.antlr4.atn.ATNState import ATNState
 from ..._vendor.antlr4.atn.ATNState import DecisionState
@@ -93,21 +92,6 @@ from ..._vendor.antlr4.PredictionContext import merge
 from ..._vendor.antlr4.PredictionContext import PredictionContext
 from ..._vendor.antlr4.PredictionContext import SingletonPredictionContext
 from ..._vendor.antlr4.Utils import str_list
-
-
-# ATNConfigSet
-cpdef object LexerATNSimulator__computeStartState(
-        self: LexerATNSimulator,
-        input: InputStream,
-        p: ATNState,
-):
-    initialContext = PredictionContext.EMPTY
-    configs = OrderedATNConfigSet()
-    for i in range(0, len(p.transitions)):
-        target = p.transitions[i].target
-        c = LexerATNConfig(state=target, alt=i + 1, context=initialContext)
-        LexerATNSimulator__closure(self, input, c, configs, False, False, False)
-    return configs
 
 
 cpdef bool LexerATNSimulator__closure(

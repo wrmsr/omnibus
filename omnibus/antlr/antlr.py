@@ -48,7 +48,6 @@ def patch_speedeups():
     except ImportError:
         return
 
-    antlr4.LexerATNSimulator.computeStartState = cy.LexerATNSimulator__computeStartState
     antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
 
 
