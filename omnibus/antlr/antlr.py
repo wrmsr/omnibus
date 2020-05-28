@@ -50,7 +50,6 @@ def patch_speedeups():
 
     antlr4.LexerATNSimulator.computeStartState = cy.LexerATNSimulator__computeStartState
     antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
-    antlr4.LexerATNSimulator.getEpsilonTarget = cy.LexerATNSimulator__getEpsilonTarget
 
 
 class Mark(dc.Pure):
