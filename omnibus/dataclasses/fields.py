@@ -7,6 +7,7 @@ from .internals import FIELDS
 from .internals import FieldType
 from .internals import get_field
 from .internals import get_field_type
+from .types import ExtraFieldParams
 
 
 class Fields(ta.Sequence[dc.Field]):
@@ -121,7 +122,19 @@ def build_cls_fields(
             raise TypeError(f'{name!r} is a field but has no type annotation')
 
     if reorder:
-        fields = {k: v for d in [False, True] for k, v in fields.items() if _has_default(v) == d}
+        reordered = {}
+        for hd in [False, True]:
+            for kwo in [False, True]:
+                for k, v in fields.items():
+                    if _has_default(v) != hd:
+                        continue
+                    efp = v.metadata.get(ExtraFieldParams)
+                    if (efp.kwonly if efp is not None else False) != kwo:
+                        continue
+                    reordered[k] = v
+        if set(fields) != set(reordered):
+            raise KeyError(fields, reordered)
+        fields = reordered
 
     if install:
         setattr(cls, FIELDS, dict(fields))

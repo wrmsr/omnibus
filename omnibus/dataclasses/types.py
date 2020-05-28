@@ -63,17 +63,19 @@ class CheckException(Exception):
 class ExtraFieldParams(lang.Final):
     doc: ta.Optional[str] = None
     size: ta.Optional[ta.Any] = None
+    kwonly: bool = False
     coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None
     derive: ta.Optional[ta.Callable[..., ta.Any]] = None
     check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
 
     def __post_init__(self) -> None:
-        check.isinstance(self.doc, (str, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.coerce, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.derive, (lang.Callable, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.doc, (str, NONE_TYPE))
+        check.isinstance(self.kwonly, bool)
+        check.isinstance(self.coerce, (bool, lang.Callable, NONE_TYPE))
+        check.isinstance(self.derive, (lang.Callable, NONE_TYPE))
+        check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE))
+        check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE))
 
 
 @dc.dataclass(frozen=True)

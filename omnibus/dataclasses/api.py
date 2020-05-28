@@ -6,7 +6,6 @@ DECREE:
 
 TODO:
  - Field options:
-  - kwonly
   - transient (+cache_hash)
   - *default_factory with lambda args* - toposort again
   - redaction - RedactedStr type?
@@ -204,6 +203,7 @@ def field(
 
         doc: ta.Optional[str] = None,
         size: ta.Optional[ta.Any] = None,
+        kwonly: bool = False,
         coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None,
         derive: ta.Optional[ta.Callable[..., ta.Any]] = None,
         check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None,
@@ -212,6 +212,7 @@ def field(
     extra_field_params = ExtraFieldParams(
         doc=doc,
         size=size,
+        kwonly=kwonly,
         coerce=coerce,
         derive=derive,
         check=check,

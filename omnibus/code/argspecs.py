@@ -96,10 +96,13 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
     elif arg_spec.kwonlyargs:
         args.append('*')
 
-    for kw, d in zip(arg_spec.kwonlyargs, arg_spec.kwonlydefaults):
-        args.append(
-            f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}"
-            f"{ns_builder.put(d, '_' + kw + '_default')}")
+    for kw in arg_spec.kwonlyargs:
+        if kw in arg_spec.kwonlydefaults:
+            args.append(
+                f"{kw}{ann(kw)}{' = ' if kw in arg_spec.annotations else '='}"
+                f"{ns_builder.put(arg_spec.kwonlydefaults[kw], '_' + kw + '_default')}")
+        else:
+            args.append(f"{kw}{ann(kw)}")
 
     if arg_spec.varkw:
         args.append(f'**{arg_spec.varkw}' + ann(arg_spec.varkw))

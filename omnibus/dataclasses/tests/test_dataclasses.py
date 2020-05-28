@@ -531,3 +531,17 @@ def test_tuples():
     c = C(1, 2)
     assert c.x == 1
     assert c.y == 2
+
+
+def test_kwonly():
+    @api_.dataclass(frozen=True)
+    class C:
+        a: int
+        b: int = api_.field(kwonly=True)
+
+    with pytest.raises(Exception):
+        C(0, 1)  # noqa
+
+    c = C(0, b=1)
+    assert c.a == 0
+    assert c.b == 1

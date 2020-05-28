@@ -4,6 +4,7 @@ import typing as ta
 from ... import code
 from ... import lang
 from ... import properties
+from ..types import ExtraFieldParams
 from .defaulting import Defaulting
 from .defaulting import HasFactory
 from .types import Aspect
@@ -17,13 +18,25 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) -> code.ArgSpec:
     args = []
     defaults = []
+    kwonlyargs = []
+    kwonlydefaults = {}
     annotations = {}
 
     for fld in fields:
         if not fld.init:
             continue
 
-        if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+        efp = fld.metadata.get(ExtraFieldParams)
+        if efp is not None and efp.kwonly:
+            if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+                kwonlyargs.append(fld.name)
+            elif fld.default is not dc.MISSING:
+                kwonlydefaults[fld.name] = fld.default
+            elif fld.default_factory is not dc.MISSING:
+                kwonlydefaults[fld.name] = HasFactory
+            else:
+                raise TypeError
+        elif fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
             args.append(fld.name)
         elif fld.default is not dc.MISSING:
             args.append(fld.name)
@@ -41,6 +54,8 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
         argspec,
         args=list(argspec.args) + args,
         defaults=list(argspec.defaults) + defaults,
+        kwonlyargs=kwonlyargs,
+        kwonlydefaults=kwonlydefaults,
         annotations={**argspec.annotations, **annotations},
     )
 
