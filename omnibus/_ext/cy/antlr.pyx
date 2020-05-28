@@ -85,13 +85,42 @@ from ..._vendor.antlr4.atn.ATNState import DecisionState
 from ..._vendor.antlr4.atn.ATNState import RuleStopState
 from ..._vendor.antlr4.atn.LexerActionExecutor import LexerActionExecutor
 from ..._vendor.antlr4.atn.SemanticContext import SemanticContext
-from ..._vendor.antlr4.atn.Transition import Transition
+from ..._vendor.antlr4.atn.Transition import Transition  # noqa
 from ..._vendor.antlr4.error.Errors import IllegalStateException
 from ..._vendor.antlr4.error.Errors import UnsupportedOperationException
 from ..._vendor.antlr4.PredictionContext import merge
 from ..._vendor.antlr4.PredictionContext import PredictionContext
 from ..._vendor.antlr4.PredictionContext import SingletonPredictionContext
 from ..._vendor.antlr4.Utils import str_list
+
+
+DEF Transition__EPSILON     = 1
+DEF Transition__RANGE       = 2
+DEF Transition__RULE        = 3
+DEF Transition__PREDICATE   = 4 # e.g., {isType(input.LT(1))}?
+DEF Transition__ATOM        = 5
+DEF Transition__ACTION      = 6
+DEF Transition__SET         = 7 # ~(A|B) or ~atom, wildcard, which convert to next 2
+DEF Transition__NOT_SET     = 8
+DEF Transition__WILDCARD    = 9
+DEF Transition__PRECEDENCE  = 10
+
+
+for _check in [
+    'not RuleStopState.__subclasses__()',
+    f'{Transition__EPSILON}     == Transition.EPSILON',
+    f'{Transition__RANGE}       == Transition.RANGE',
+    f'{Transition__RULE}        == Transition.RULE',
+    f'{Transition__PREDICATE}   == Transition.PREDICATE',
+    f'{Transition__ATOM}        == Transition.ATOM',
+    f'{Transition__ACTION}      == Transition.ACTION',
+    f'{Transition__SET}         == Transition.SET',
+    f'{Transition__NOT_SET}     == Transition.NOT_SET',
+    f'{Transition__WILDCARD}    == Transition.WILDCARD',
+    f'{Transition__PRECEDENCE}  == Transition.PRECEDENCE',
+]:
+    if not eval(_check):
+        raise ImportError(_check)
 
 
 cpdef bool LexerATNSimulator__closure(
@@ -103,7 +132,7 @@ cpdef bool LexerATNSimulator__closure(
         speculative: bool,
         treatEofAsEpsilon: bool
 ):
-    if isinstance(config.state, RuleStopState):
+    if config.state.__class__ is RuleStopState:
         if config.context is None or config.context.hasEmptyPath():
             if config.context is None or config.context.isEmpty():
                 configs.add(config)
@@ -148,7 +177,7 @@ cpdef bool LexerATNSimulator__closure(
 
     for t in config.state.transitions:
         c = None
-        if t.serializationType == Transition.RULE:
+        if t.serializationType == Transition__RULE:
             newContext = SingletonPredictionContext.create(config.context, t.followState.stateNumber)
 
             c = LexerATNConfig(
@@ -157,15 +186,15 @@ cpdef bool LexerATNSimulator__closure(
                 context=newContext,
             )
 
-        elif t.serializationType == Transition.PRECEDENCE:
+        elif t.serializationType == Transition__PRECEDENCE:
             raise UnsupportedOperationException("Precedence predicates are not supported in lexers.")
 
-        elif t.serializationType == Transition.PREDICATE:
+        elif t.serializationType == Transition__PREDICATE:
             configs.hasSemanticContext = True
             if self.evaluatePredicate(input, t.ruleIndex, t.predIndex, speculative):
                 c = LexerATNConfig(state=t.target, config=config)
 
-        elif t.serializationType == Transition.ACTION:
+        elif t.serializationType == Transition__ACTION:
             if config.context is None or config.context.hasEmptyPath():
                 lexerActionExecutor = LexerActionExecutor.append(
                     config.lexerActionExecutor,
@@ -182,10 +211,14 @@ cpdef bool LexerATNSimulator__closure(
                 # ignore actions in referenced rules
                 c = LexerATNConfig(state=t.target, config=config)
 
-        elif t.serializationType == Transition.EPSILON:
+        elif t.serializationType == Transition__EPSILON:
             c = LexerATNConfig(state=t.target, config=config)
 
-        elif t.serializationType in [Transition.ATOM, Transition.RANGE, Transition.SET]:
+        elif (
+                t.serializationType == Transition__ATOM or
+                t.serializationType == Transition__RANGE or
+                t.serializationType == Transition__SET
+        ):
             if treatEofAsEpsilon:
                 if t.matches(Token.EOF, 0, Lexer.MAX_CHAR_VALUE):
                     c = LexerATNConfig(state=t.target, config=config)

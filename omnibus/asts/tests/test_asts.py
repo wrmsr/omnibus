@@ -53,4 +53,3 @@ def test_internal():
         run(buf)
         end = time.time()
         print('%-80s: %0.2f' % (fp, end - start,))
-
