@@ -1,5 +1,6 @@
 """  # noqa
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+
 4440645/863938    5.173    0.000   24.374    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:317(closure)
   4993206    4.551    0.000   13.223    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:361(getEpsilonTarget)
   4440646    3.578    0.000    7.626    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:114(__init__)
@@ -30,7 +31,43 @@
    790624    0.168    0.000    0.168    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/PredictionContext.py:52(__init__)
     78417    0.166    0.000    0.322    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:293(getReachableTarget)
   1522265    0.162    0.000    0.162    0.000 {method 'append' of 'list' objects}
+
+        3    0.000    0.000   34.668   11.556 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/BufferedTokenStream.py:298(fill)
+       13    0.013    0.001   34.668    2.667 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/BufferedTokenStream.py:119(fetch)
+     7292    0.021    0.000   34.653    0.005 /Users/spinlock/src/wrmsr/omnibus/omnibus/asts/_antlr/Python3Lexer.py:765(nextToken)
+     7292    0.041    0.000   34.620    0.005 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/Lexer.py:105(nextToken)
+     8577    0.187    0.000   34.498    0.004 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:88(match)
+     8577    0.022    0.000   34.305    0.004 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:111(matchATN)
+     8577    0.876    0.000   24.974    0.003 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:300(computeStartState)
+4440645/863938    5.173    0.000   24.374    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:317(closure)
+  4993206    4.551    0.000   13.223    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:361(getEpsilonTarget)
+  4440646    3.578    0.000    7.626    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:114(__init__)
+    16785    0.051    0.000    7.053    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:519(addDFAState)
+  1462292    0.193    0.000    6.834    0.000 {method 'get' of 'dict' objects}
+10004289/3007740    2.878    0.000    5.898    0.000 {built-in method builtins.hash}
+  1397105    1.150    0.000    5.438    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:71(add)
+  1397105    1.016    0.000    4.135    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:96(getOrAdd)
+  2790697    1.190    0.000    4.100    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:124(__hash__)
+    87719    0.050    0.000    3.907    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/dfa/DFAState.py:100(__eq__)
+    79143    0.307    0.000    3.850    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:132(__eq__)
+  1393552    0.931    0.000    3.533    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:129(__eq__)
+  1394771    0.324    0.000    2.944    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:142(hashCodeForConfigSet)
+    17085    0.005    0.000    2.811    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/dfa/DFAState.py:86(__hash__)
+    17085    0.009    0.000    2.799    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:148(__hash__)
+    17085    0.010    0.000    2.790    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:155(hashConfigs)
+    17090    0.225    0.000    2.780    0.000 {built-in method _functools.reduce}
+     8576    0.127    0.000    2.717    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:133(execATN)
+  4451670    2.615    0.000    2.615    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:25(__init__)
+  1399180    0.277    0.000    2.555    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfigSet.py:156(<lambda>)
+  1394624    1.310    0.000    2.503    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/ATNConfig.py:62(__eq__)
+     8486    0.018    0.000    2.205    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:222(computeTargetState)
+   790612    0.367    0.000    1.899    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/PredictionContext.py:111(create)
+     8486    0.092    0.000    1.696    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/atn/LexerATNSimulator.py:255(getReachableConfigSet)
+ 14442146    1.596    0.000    1.596    0.000 {built-in method builtins.isinstance}
+   790613    0.593    0.000    1.532    0.000 /Users/spinlock/src/wrmsr/omnibus/omnibus/_vendor/antlr4/PredictionContext.py:119(__init__)
 """
+from libcpp cimport bool
+
 import io
 
 from ..._vendor.antlr4 import InputStream
@@ -49,6 +86,22 @@ from ..._vendor.antlr4.atn.ATNState import RuleStopState
 from ..._vendor.antlr4.atn.SemanticContext import SemanticContext
 from ..._vendor.antlr4.error.Errors import UnsupportedOperationException
 from ..._vendor.antlr4.PredictionContext import SingletonPredictionContext
+from ..._vendor.antlr4.atn.ATNConfigSet import OrderedATNConfigSet
+
+
+# ATNConfigSet
+cpdef object LexerATNSimulator__computeStartState(
+        self: LexerATNSimulator,
+        input: InputStream,
+        p: ATNState,
+):
+    initialContext = PredictionContext.EMPTY
+    configs = OrderedATNConfigSet()
+    for i in range(0, len(p.transitions)):
+        target = p.transitions[i].target
+        c = LexerATNConfig(state=target, alt=i + 1, context=initialContext)
+        LexerATNSimulator__closure(self, input, c, configs, False, False, False)
+    return configs
 
 
 # Since the alternatives within any lexer decision are ordered by
@@ -59,15 +112,15 @@ from ..._vendor.antlr4.PredictionContext import SingletonPredictionContext
 #
 # @return {@code true} if an accept state is reached, otherwise
 # {@code false}.
-def LexerATNSimulator__closure(
-        self,
+cpdef bool LexerATNSimulator__closure(
+        self: LexerATNSimulator,
         input: InputStream,
         config: LexerATNConfig,
         configs: ATNConfigSet,
         currentAltReachedAcceptState: bool,
         speculative: bool,
         treatEofAsEpsilon: bool
-) -> bool:
+):
     if LexerATNSimulator.debug:
         print("closure(" + str(config) + ")")
 
@@ -120,7 +173,8 @@ def LexerATNSimulator__closure(
             configs.add(config)
 
     for t in config.state.transitions:
-        c = self.getEpsilonTarget(
+        c = LexerATNSimulator__getEpsilonTarget(
+            self,
             input,
             config,
             t,
@@ -141,16 +195,18 @@ def LexerATNSimulator__closure(
 
     return currentAltReachedAcceptState
 
+
 # side-effect: can alter configs.hasSemanticContext
-def LexerATNSimulator__getEpsilonTarget(
-        self,
+# LexerATNConfig
+cpdef object LexerATNSimulator__getEpsilonTarget(
+        self: LexerATNSimulator,
         input: InputStream,
         config: LexerATNConfig,
         t: Transition,
         configs: ATNConfigSet,
         speculative: bool,
         treatEofAsEpsilon: bool
-) -> LexerATNConfig:
+):
     c = None
     if t.serializationType == Transition.RULE:
         newContext = SingletonPredictionContext.create(config.context, t.followState.stateNumber)
@@ -229,7 +285,7 @@ def LexerATNSimulator__getEpsilonTarget(
     return c
 
 
-class ATNConfig:
+cdef class CyATNConfig:
 
     def __init__(
             self,
@@ -280,27 +336,31 @@ class ATNConfig:
         elif not isinstance(other, ATNConfig):
             return False
         else:
-            return self.state.stateNumber == other.state.stateNumber \
-                   and self.alt == other.alt \
-                   and ((self.context is other.context) or (self.context == other.context)) \
-                   and self.semanticContext == other.semanticContext \
-                   and self.precedenceFilterSuppressed == other.precedenceFilterSuppressed
+            return (
+                    self.state.stateNumber == other.state.stateNumber and
+                    self.alt == other.alt and
+                    ((self.context is other.context) or (self.context == other.context)) and
+                    self.semanticContext == other.semanticContext and
+                    self.precedenceFilterSuppressed == other.precedenceFilterSuppressed
+            )
 
     def __hash__(self):
         return hash((self.state.stateNumber, self.alt, self.context, self.semanticContext))
 
-    def hashCodeForConfigSet(self):
+    cpdef hashCodeForConfigSet(self):
         return hash((self.state.stateNumber, self.alt, hash(self.semanticContext)))
 
-    def equalsForConfigSet(self, other):
+    cpdef equalsForConfigSet(self, other):
         if self is other:
             return True
         elif not isinstance(other, ATNConfig):
             return False
         else:
-            return self.state.stateNumber == other.state.stateNumber \
-                   and self.alt == other.alt \
-                   and self.semanticContext == other.semanticContext
+            return (
+                    self.state.stateNumber == other.state.stateNumber and
+                    self.alt == other.alt and
+                    self.semanticContext == other.semanticContext
+            )
 
     def __str__(self):
         with io.StringIO() as buf:
@@ -322,7 +382,7 @@ class ATNConfig:
             return buf.getvalue()
 
 
-class LexerATNConfig(ATNConfig):
+cdef class CyLexerATNConfig(CyATNConfig):
 
     def __init__(
             self,
@@ -344,9 +404,14 @@ class LexerATNConfig(ATNConfig):
         self.passedThroughNonGreedyDecision = False if config is None else self.checkNonGreedyDecision(config, state)
 
     def __hash__(self):
-        return hash((self.state.stateNumber, self.alt, self.context,
-                     self.semanticContext, self.passedThroughNonGreedyDecision,
-                     self.lexerActionExecutor))
+        return hash((
+            self.state.stateNumber,
+            self.alt,
+            self.context,
+            self.semanticContext,
+            self.passedThroughNonGreedyDecision,
+            self.lexerActionExecutor,
+        ))
 
     def __eq__(self, other):
         if self is other:
@@ -359,11 +424,11 @@ class LexerATNConfig(ATNConfig):
             return False
         return super().__eq__(other)
 
-    def hashCodeForConfigSet(self):
+    cpdef hashCodeForConfigSet(self):
         return hash(self)
 
-    def equalsForConfigSet(self, other):
+    cpdef equalsForConfigSet(self, other):
         return self == other
 
-    def checkNonGreedyDecision(self, source: LexerATNConfig, target: ATNState):
+    cpdef checkNonGreedyDecision(self, source: LexerATNConfig, target: ATNState):
         return source.passedThroughNonGreedyDecision or isinstance(target, DecisionState) and target.nonGreedy

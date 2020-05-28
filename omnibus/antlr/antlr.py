@@ -41,6 +41,18 @@ LexerT = ta.TypeVar('LexerT', bound=antlr4.Lexer, covariant=True)
 ParserT = ta.TypeVar('ParserT', bound=antlr4.Parser, covariant=True)
 
 
+@lang.cached_nullary
+def patch_speedeups():
+    try:
+        from .._ext.cy import antlr as cy
+    except ImportError:
+        return
+
+    antlr4.LexerATNSimulator.computeStartState = cy.LexerATNSimulator__computeStartState
+    antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
+    antlr4.LexerATNSimulator.getEpsilonTarget = cy.LexerATNSimulator__getEpsilonTarget
+
+
 class Mark(dc.Pure):
     line: int
     column: int
