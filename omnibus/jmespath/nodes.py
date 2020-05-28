@@ -4,24 +4,24 @@ from .. import dataclasses as dc
 from .. import lang
 
 
-class Node(dc.Frozen, abstract=True, sealed=True):
+class Node(dc.Enum, abstract=True, sealed=True):
     pass
 
 
-class Operator(Node, abstract=True, sealed=True):
+class Operator(Node, abstract=True):
     pass
 
 
-class Leaf(Node, abstract=True, sealed=True):
+class Leaf(Node, abstract=True):
     pass
 
 
-class And(Operator, final=True):
+class And(Operator):
     left: Node
     right: Node
 
 
-class Compare(Operator, final=True):
+class Compare(Operator):
     class Op(lang.ValueEnum):
         EQ = '=='
         NE = '!='
@@ -37,53 +37,53 @@ class Compare(Operator, final=True):
     right: Node
 
 
-class CreateArray(Node, final=True):
+class CreateArray(Node):
     items: ta.Sequence[Node]
 
 
-class CreateObject(Node, final=True):
+class CreateObject(Node):
     fields: ta.Mapping[str, Node]
 
 
-class Current(Leaf, final=True):
+class Current(Leaf):
     pass
 
 
-class ExpressionRef(Node, final=True):
+class ExpressionRef(Node):
     expr: Node
 
 
-class FlattenArray(Leaf, final=True):
+class FlattenArray(Leaf):
     pass
 
 
-class FlattenObject(Leaf, final=True):
+class FlattenObject(Leaf):
     pass
 
 
-class FunctionCall(Node, final=True):
+class FunctionCall(Node):
     name: str
     args: ta.Sequence[Node]
 
 
-class Index(Leaf, final=True):
+class Index(Leaf):
     value: int
 
 
-class JsonLiteral(Leaf, final=True):
+class JsonLiteral(Leaf):
     text: str
 
 
-class Negate(Node, final=True):
+class Negate(Node):
     item: Node
 
 
-class Or(Operator, final=True):
+class Or(Operator):
     left: Node
     right: Node
 
 
-class Parameter(Leaf, final=True):
+class Parameter(Leaf):
     class Target(dc.Enum, sealed=True):
         pass
 
@@ -96,27 +96,27 @@ class Parameter(Leaf, final=True):
     target: Target
 
 
-class Project(Node, final=True):
+class Project(Node):
     child: Node
 
 
-class Property(Leaf, final=True):
+class Property(Leaf):
     name: str
 
 
-class Selection(Node, final=True):
+class Selection(Node):
     child: Node
 
 
-class Sequence(Node, final=True):
+class Sequence(Node):
     items: ta.Sequence[Node]
 
 
-class Slice(Leaf, final=True):
+class Slice(Leaf):
     start: ta.Optional[int]
     stop: ta.Optional[int]
     step: ta.Optional[int]
 
 
-class String(Leaf, final=True):
+class String(Leaf):
     value: Node
