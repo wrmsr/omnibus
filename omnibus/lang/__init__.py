@@ -52,6 +52,7 @@ from .contextmanagers import Lockable  # noqa
 from .contextmanagers import manage_maybe_iterator  # noqa
 from .contextmanagers import maybe_managing  # noqa
 from .contextmanagers import nop_context_manager  # noqa
+from .contextmanagers import setattr_context  # noqa
 from .datetimes import months_ago  # noqa
 from .datetimes import parse_date  # noqa
 from .datetimes import parse_timedelta  # noqa
@@ -96,6 +97,7 @@ from .lang import raise_  # noqa
 from .lang import recurse  # noqa
 from .lang import register_on  # noqa
 from .lang import Self  # noqa
+from .lang import SimpleProxy  # noqa
 from .lang import super_meta  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import void  # noqa

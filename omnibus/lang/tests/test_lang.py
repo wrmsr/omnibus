@@ -57,3 +57,17 @@ def test_cmp():
 
 def test_recurse():
     assert lang_.recurse(lambda rec, i: i + (rec(i - 1) if i else 0), 5) == 5 + 4 + 3 + 2 + 1
+
+
+def test_simple_proxy():
+    class WrappedInt(lang_.SimpleProxy):
+        __wrapped_attrs__ = {'__add__'}
+
+    assert WrappedInt(4) + 2 == 6
+
+    class IncInt(lang_.SimpleProxy):
+
+        def __add__(self, other):
+            return self.__wrapped__.__add__(other + 1)
+
+    assert IncInt(4) + 2 == 7

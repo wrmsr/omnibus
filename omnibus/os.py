@@ -183,7 +183,8 @@ class SubprocessLike(lang.Protocol):
         raise NotImplementedError
 
 
-class TempSubprocess(SubprocessLike):
+@lang.protocol_check(SubprocessLike)
+class TempSubprocess:
 
     def __init__(
             self,

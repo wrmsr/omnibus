@@ -42,7 +42,8 @@ class WsgiRefProtocol(lang.Protocol):
         raise NotImplementedError
 
 
-class WsgiRefWsgiServer(WsgiServer, WsgiRefProtocol):
+@lang.protocol_check(WsgiRefProtocol)
+class WsgiRefWsgiServer(WsgiServer):
 
     Handler = ta.Callable[[sock.socket, ClientAddress, 'WsgiRefWsgiServer'], None]
 

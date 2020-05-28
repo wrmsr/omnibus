@@ -264,7 +264,7 @@ cdef class CyATNConfig:
             return buf.getvalue()
 
 
-cdef class (CyATNConfig):
+cdef class CyLexerATNConfig(CyATNConfig):
 
     cdef object lexerActionExecutor  # type: LexerActionExecutor
     cdef bool passedThroughNonGreedyDecision

@@ -88,6 +88,7 @@ from ..._vendor.antlr4.LL1Analyzer import ATNConfig
   1821081    0.244    0.000    0.244    PredictionContext.py:169(__hash__)
 
 """
+import contextlib
 import functools
 import logging
 import textwrap
@@ -105,7 +106,7 @@ log = logging.getLogger(__name__)
 
 def _patch_cache_hash(cls: type, fn_name: str = '__hash__') -> type:
     orig_fn = getattr(cls, fn_name)
-    if orig_fn is getattr(object, fn_name, None)
+    if orig_fn is getattr(object, fn_name, None):
         raise TypeError(cls)
 
     cache_attr = f'__hash_cached__{fn_name}'
@@ -121,14 +122,13 @@ def _patch_cache_hash(cls: type, fn_name: str = '__hash__') -> type:
     """), ns)
     cache_fn = functools.wraps(orig_fn)(ns[fn_name])
 
-    setattr(cls, fn_name,  cache_fn)
-    return cls
+    return lang.setattr_context(cls, fn_name,  cache_fn)
 
 
 def _patch_const_hash(obj: T, fn_name: str = '__hash__') -> T:
     cls = type(obj)
     orig_fn = getattr(cls, fn_name)
-    if orig_fn is getattr(object, fn_name, None)
+    if orig_fn is getattr(object, fn_name, None):
         raise TypeError(cls)
 
     val = hash(obj)
@@ -140,31 +140,38 @@ def _patch_const_hash(obj: T, fn_name: str = '__hash__') -> T:
     """), ns)
     cache_fn = functools.wraps(orig_fn)(ns[fn_name])
 
-    setattr(cls, fn_name, cache_fn)
-    return cls
+    return lang.setattr_context(cls, fn_name, cache_fn)
 
 
-from .._vendor.antlr4.atn.ATNConfig import ATNConfig
-_patch_cache_hash(ATNConfig)
-_patch_cache_hash(ATNConfig, 'hashCodeForConfigSet')
+@contextlib.contextmanager
+def patch_hash_context():
+    with contextlib.ExitStack() as es:
+        from .._vendor.antlr4.atn.ATNConfig import ATNConfig
+        es.enter_context(_patch_cache_hash(ATNConfig))
+        es.enter_context(_patch_cache_hash(ATNConfig, 'hashCodeForConfigSet'))
 
-from .._vendor.antlr4.atn.SemanticContext import Predicate
-_patch_cache_hash(Predicate)
+        from .._vendor.antlr4.atn.SemanticContext import Predicate
+        es.enter_context(_patch_cache_hash(Predicate))
 
-from .._vendor.antlr4.PredictionContext import SingletonPredictionContext
-_patch_cache_hash(SingletonPredictionContext)
+        from .._vendor.antlr4.PredictionContext import SingletonPredictionContext
+        es.enter_context(_patch_cache_hash(SingletonPredictionContext))
 
-from .._vendor.antlr4.PredictionContext import EmptyPredictionContext
-_patch_cache_hash(EmptyPredictionContext)
+        from .._vendor.antlr4.PredictionContext import EmptyPredictionContext
+        es.enter_context(_patch_cache_hash(EmptyPredictionContext))
+
+        yield
 
 
-
-@lang.cached_nullary
-def patch():
+@contextlib.contextmanager
+def patch_simulator_context():
     try:
         from .._ext.cy import antlr as cy
     except ImportError:
         log.exception('Exception importing antlr cython ext4ensions')
+        yield
         return
 
-    antlr4.LexerATNSimulator.closure = cy.LexerATNSimulator__closure
+    with contextlib.ExitStack() as es:
+        es.enter_context(lang.setattr_context(antlr4.LexerATNSimulator, 'closure', cy.LexerATNSimulator__closure))
+
+        yield

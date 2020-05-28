@@ -232,3 +232,17 @@ def breakpoint_on_exception():
     except Exception as e:  # noqa
         breakpoint()
         raise
+
+
+@contextlib.contextmanager
+def setattr_context(obj, attr, val):
+    not_set = object()
+    orig = getattr(obj, attr, not_set)
+    try:
+        setattr(obj, attr, val)
+        yield
+    finally:
+        if orig is not_set:
+            delattr(obj, attr)
+        else:
+            setattr(obj, attr, orig)

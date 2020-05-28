@@ -1,3 +1,4 @@
+import contextlib
 import glob
 import os.path
 import time
@@ -30,28 +31,28 @@ def var_fn(a: int, *b: ta.Dict[str, ta.Tuple[int, float]], **c: ta.Callable[...,
 
 
 def test_internal():
-    from ...antlr.patch import patch_speedeups
-    patch_speedeups()
+    from ...antlr import accel
+    with contextlib.ExitStack() as es:
+        es.enter_context(accel.patch_simulator_context())
+        es.enter_context(accel.patch_hash_context())
 
-    def run(buf):
-        lexer = Python3Lexer(antlr4.InputStream(buf))
-        stream = antlr4.CommonTokenStream(lexer)
-        stream.fill()
-        parser = Python3Parser(stream)
-        tree = parser.fileInput()
-        printer = Python3PrintListener(stream, parser)
-        walker = antlr4.ParseTreeWalker()
-        walker.walk(printer, tree)
+        def run(buf):
+            lexer = Python3Lexer(antlr4.InputStream(buf))
+            stream = antlr4.CommonTokenStream(lexer)
+            stream.fill()
+            parser = Python3Parser(stream)
+            tree = parser.fileInput()
+            printer = Python3PrintListener(stream, parser)
+            walker = antlr4.ParseTreeWalker()
+            walker.walk(printer, tree)
 
-    print()
-    dp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../caches'))
-    for fp in sorted(glob.glob(f'{dp}/**/*.py', recursive=True)):
-        with open(fp, 'r') as f:
-            buf = f.read()
+        print()
+        dp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../caches'))
+        for fp in sorted(glob.glob(f'{dp}/**/*.py', recursive=True)):
+            with open(fp, 'r') as f:
+                buf = f.read()
 
-        start = time.time()
-        run(buf)
-        end = time.time()
-        print('%-80s: %0.2f' % (fp, end - start,))
-
-
+            start = time.time()
+            run(buf)
+            end = time.time()
+            print('%-80s: %0.2f' % (fp, end - start,))

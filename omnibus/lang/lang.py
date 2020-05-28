@@ -343,3 +343,48 @@ def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
     def rec(*args, **kwargs):
         return fn(rec, *args, **kwargs)
     return rec(*args, **kwargs)
+
+
+class SimpleProxy(ta.Generic[T]):
+
+    class Descriptor(ta.Generic[T]):
+
+        def __init__(self, attr: str) -> None:
+            super().__init__()
+            self._attr = attr
+
+        def __get__(self, instance, owner):
+            if instance is None:
+                return self
+            return getattr(object.__getattribute__(instance, '__wrapped__'), self._attr)
+
+        def __set__(self, instance, value):
+            if instance is None:
+                return self
+            setattr(object.__getattribute__(instance, '__wrapped__'), self._attr)
+
+        def __delete__(self, instance):
+            if instance is None:
+                return self
+            delattr(object.__getattribute__(instance, '__wrapped__'), self._attr)
+
+    __wrapped_attrs__: ta.Iterable[str] = set()
+
+    def __init__(self, wrapped: T) -> None:
+        super().__init__()
+        object.__setattr__(self, '__wrapped__', wrapped)
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        for attr in cls.__wrapped_attrs__:
+            setattr(cls, attr, SimpleProxy.Descriptor(attr))
+
+    def __getattr__(self, item):
+        return getattr(object.__getattribute__(self, '__wrapped__'), item)
+
+    def __setattr__(self, name, value):
+        setattr(object.__getattribute__(self, '__wrapped__'), name, value)
+
+    def __delattr__(self, item):
+        delattr(object.__getattribute__(self, '__wrapped__'), item)
