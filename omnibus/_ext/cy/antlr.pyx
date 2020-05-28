@@ -129,7 +129,8 @@ cpdef bool LexerATNSimulator__closure(
                         context=newContext,
                     )
 
-                    currentAltReachedAcceptState = self.closure(
+                    currentAltReachedAcceptState = LexerATNSimulator__closure(
+                        self,
                         input,
                         c,
                         configs,
@@ -190,7 +191,8 @@ cpdef bool LexerATNSimulator__closure(
                     c = LexerATNConfig(state=t.target, config=config)
 
         if c is not None:
-            currentAltReachedAcceptState = self.closure(
+            currentAltReachedAcceptState = LexerATNSimulator__closure(
+                self,
                 input,
                 c,
                 configs,
