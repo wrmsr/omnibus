@@ -3,8 +3,10 @@ from .iterators import PrefetchIterator  # noqa
 from .iterators import ProxyIterator  # noqa
 from .iterators import RetainIterator  # noqa
 from .iterators import unzip  # noqa
+from .simple import chain  # noqa
 from .simple import len  # noqa
 from .simple import read  # noqa
+from .simple import unique_list  # noqa
 from .simple import void  # noqa
 from .simple import with_  # noqa
 from .transforms import alias  # noqa

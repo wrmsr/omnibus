@@ -1,7 +1,14 @@
+import itertools
 import typing as ta
 
 
+T = ta.TypeVar('T')
+
+
 len_ = len
+
+
+chain = itertools.chain.from_iterable
 
 
 def void(it, exception=lambda item: RuntimeError('Unreachable', item)):
@@ -30,3 +37,13 @@ def read(readable: Readable, size=65536):
         if not obj:
             break
         yield obj
+
+
+def unique_list(it: ta.Iterable[T]) -> ta.List[T]:
+    seen = set()
+    lst = []
+    for e in it:
+        if e not in seen:
+            lst.append(e)
+            seen.add(e)
+    return lst
