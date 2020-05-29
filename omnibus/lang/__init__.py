@@ -102,10 +102,14 @@ from .lang import super_meta  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import void  # noqa
 from .lang import VoidException  # noqa
+from .math import FixedWidthInt  # noqa
 from .math import get_bit  # noqa
 from .math import get_bits  # noqa
 from .math import Infinity  # noqa
 from .math import INFINITY  # noqa
+from .math import Int128  # noqa
+from .math import Int32  # noqa
+from .math import Int64  # noqa
 from .math import NEGATIVE_INFINITY  # noqa
 from .math import NegativeInfinity  # noqa
 from .math import set_bit  # noqa

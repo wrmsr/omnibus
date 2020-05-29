@@ -148,3 +148,12 @@ class ProxyInputStream:
 
     def __str__(self) -> str:
         return str(self._targeet)
+
+
+class CaseInsensitiveInputStream(ProxyInputStream):
+
+    def LA(self, offset: int) -> int:
+        ret = super().LA(offset)
+        if ret != -1:
+            ret = ord(chr(ret).upper())
+        return ret
