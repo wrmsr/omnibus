@@ -235,12 +235,15 @@ def breakpoint_on_exception():
 
 
 @contextlib.contextmanager
-def setattr_context(obj, attr, val):
+def setattr_context(obj, attr, val, *, default=None):
     not_set = object()
     orig = getattr(obj, attr, not_set)
     try:
         setattr(obj, attr, val)
-        yield
+        if orig is not not_set:
+            yield orig
+        else:
+            yield default
     finally:
         if orig is not_set:
             delattr(obj, attr)
