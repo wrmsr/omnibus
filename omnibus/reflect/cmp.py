@@ -38,7 +38,16 @@ class IsSubclassVisitor(BaseIsSubclassVisitor):
 
     class ParametrizedGenericSubVisitor(SubVisitor[specs.ParameterizedGenericTypeSpec]):
 
+        def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> bool:
+            if not issubclass(sub.cls, self._sup.erased_cls):
+                return False
+            if not all(isinstance(a, specs.AnySpec) for a in self._sup.args):
+                return False
+            return True
+
         def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> bool:
+            if not issubclass(sub.erased_cls, self._sup.erased_cls):
+                return False
             raise NotImplementedError
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> bool:
