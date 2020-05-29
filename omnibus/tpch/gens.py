@@ -1,6 +1,6 @@
 import typing as ta
 
-from ... import check
+from .. import check
 from .ents import Customer
 from .rand import RandomAlphaNumeric
 from .rand import RandomBoundedInt

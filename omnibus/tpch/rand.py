@@ -1,7 +1,7 @@
 import io
 
-from ... import check
-from ... import lang
+from .. import check
+from .. import lang
 
 
 class ByRow(lang.Interface):
@@ -105,8 +105,8 @@ class PyLongGen(Gen):
 
 
 try:
-    from ..._ext.cy.dev.tpch import IntGen as CyIntGen
-    from ..._ext.cy.dev.tpch import LongGen as CyLongGen
+    from .._ext.cy.tpch import IntGen as CyIntGen
+    from .._ext.cy.tpch import LongGen as CyLongGen
 
     IntGen = CyIntGen
     LongGen = CyLongGen

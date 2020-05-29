@@ -2,9 +2,9 @@ import typing as ta
 
 import pkg_resources
 
-from ... import check
-from ... import defs
-from ... import properties
+from .. import check
+from .. import defs
+from .. import properties
 from .rand import Gen
 from .rand import GenRandom
 from .rand import IntGen
@@ -334,9 +334,9 @@ def py_gen_text_pool(size: int, max_sentence_length: int, dists: TextDists) -> b
 
 
 try:
-    from ..._ext.cy.dev.tpch import gen_text_pool as _cy_gen_text_pool
-    from ..._ext.cy.dev.tpch import TextDist as CyTextDist
-    from ..._ext.cy.dev.tpch import TextDists as CyTextDists
+    from .._ext.cy.tpch import gen_text_pool as _cy_gen_text_pool
+    from .._ext.cy.tpch import TextDist as CyTextDist
+    from .._ext.cy.tpch import TextDists as CyTextDists
 
     def cy_gen_text_pool(size: int, max_sentence_length: int, dists: TextDists) -> bytearray:
         cy_dists = CyTextDists()

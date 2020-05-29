@@ -1,7 +1,13 @@
+"""
+TODO:
+ - move to dev? currently only srcdist dev, no _ext :|
+
+https://github.com/databricks/tpch-dbgen
+"""
 import typing as ta
 
-from ... import dataclasses as dc
-from ... import lang
+from .. import dataclasses as dc
+from .. import lang
 
 
 class Column(dc.Data, frozen=True, final=True):
