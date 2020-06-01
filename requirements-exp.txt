@@ -1,12 +1,23 @@
 -r requirements-dev.txt
 
 
+## potential vendorings
+
+wcwidth==0.2.2
+
+
+## transitives
+
+importlib-resources==1.5.0
+scramp==1.2.0
+
+
 ## pending optional integrations
 
 bsddb3==6.2.7
 chardet==3.0.4
 datadog==0.36.0
-ddtrace==0.38.0
+ddtrace==0.38.1
 dnspython==1.16.0
 hyperscan==0.1.5
 idna==2.9
@@ -20,7 +31,7 @@ matplotlib==3.2.1
 notebook==6.0.3
 numpy==1.18.4
 oauthlib==3.1.0
-plotly==4.8.0
+plotly==4.8.1
 plyvel==1.2.0
 py4j==0.10.9
 pyglet==1.5.5
@@ -34,7 +45,7 @@ python-snappy==0.5.4
 pyzmq==19.0.1
 regex==2020.5.14
 rocksdb==0.7.0
-slackclient==2.6.1
+slackclient==2.6.2
 uvloop==0.14.0
 
 

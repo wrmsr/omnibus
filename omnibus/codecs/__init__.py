@@ -1,10 +1,10 @@
 from .. import lang
-from .compression import bz2  # noqa
-from .compression import Bz2Codec  # noqa
-from .compression import gzip  # noqa
-from .compression import GzipCodec  # noqa
-from .compression import lzma  # noqa
-from .compression import LzmaCodec  # noqa
+from .compress import bz2  # noqa
+from .compress import Bz2Codec  # noqa
+from .compress import gzip  # noqa
+from .compress import GzipCodec  # noqa
+from .compress import lzma  # noqa
+from .compress import LzmaCodec  # noqa
 from .misc import lines  # noqa
 from .misc import LinesCodec  # noqa
 from .objects import cbor  # noqa

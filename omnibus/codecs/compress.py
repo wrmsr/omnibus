@@ -89,3 +89,19 @@ class LzmaCodec(Codec[F, bytes], lang.Final):
 
 
 lzma = LzmaCodec
+
+
+@EXTENSION_REGISTRY.registering('zstd')
+class ZstdCodec(Codec[F, bytes], lang.Final):
+    _MODULE = lang.lazy_import('zstd')
+
+    defs.repr()
+
+    def encode(self, o: F) -> bytes:
+        return self._MODULE().compress(o)
+
+    def decode(self, o: bytes) -> F:
+        return self._MODULE().decompress(o)
+
+
+zstd = ZstdCodec

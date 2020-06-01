@@ -114,7 +114,7 @@ define do-venv
 endef
 
 define do-deps
-	$(1)/bin/pip install $(PIP_ARGS) -r requirements-dev.txt ; \
+	$(1)/bin/pip install $(PIP_ARGS) -r requirements-exp.txt ; \
 	\
 	if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
 		if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
