@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 
 PYTHON_VERSION:=3.8.3
 PYTHON_37_VERSION:=3.7.7
+PYTHON_39_VERSION:=3.9.0a6
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
 PYENV_BIN:=$(shell if [ -f "$${HOME}/.pyenv/bin/pyenv" ] ; then echo "$${HOME}/.pyenv/bin/pyenv" ; else echo pyenv ; fi)
@@ -16,6 +17,8 @@ PYENV_BREW_DEPS:= \
 
 
 ANTLR_VERSION=4.8
+
+REQUIREMENTS_TXT=requirements-exp.txt
 
 
 ### Toplevel
@@ -114,7 +117,7 @@ define do-venv
 endef
 
 define do-deps
-	$(1)/bin/pip install $(PIP_ARGS) -r requirements-exp.txt ; \
+	$(1)/bin/pip install $(PIP_ARGS) -r $(2) ; \
 	\
 	if [ -d "/Applications/PyCharm.app/Contents/helpers/pydev/" ] ; then \
 		if $(1)/bin/python -c 'import sys; exit(0 if sys.version_info < (3, 7) else 1)' ; then \
@@ -127,14 +130,21 @@ endef
 venv:
 	if [ ! -d .venv ] ; then \
 		$(call do-venv,.venv,$(PYTHON_VERSION)) ; \
-		$(call do-deps,.venv) ; \
+		$(call do-deps,.venv,$(REQUIREMENTS_TXT)) ; \
 	fi
 
 .PHONY: venv-37
 venv-37:
 	if [ ! -d .venv-37 ] ; then \
 		$(call do-venv,.venv-37,$(PYTHON_37_VERSION)) ; \
-		$(call do-deps,.venv-37) ; \
+		$(call do-deps,.venv-37,$(REQUIREMENTS_TXT)) ; \
+	fi
+
+.PHONY: venv-39
+venv-39:
+	if [ ! -d .venv-39 ] ; then \
+		$(call do-venv,.venv-39,$(PYTHON_39_VERSION)) ; \
+		$(call do-deps,.venv,requirements.txt) ; \
 	fi
 
 
@@ -350,11 +360,15 @@ test-pypi:
 
 .PHONY: deps
 deps: venv
-	$(call do-deps,.venv)
+	$(call do-deps,.venv,$(REQUIREMENTS_TXT))
 
 .PHONY: deps-37
 deps-37: venv
-	$(call do-deps,.venv-37)
+	$(call do-deps,.venv-37,$(REQUIREMENTS_TXT))
+
+.PHONY: deps-39
+deps-39: venv
+	$(call do-deps,.venv-39,requirements.txt)
 
 .PHONY: dep-tree
 dep-tree: venv
@@ -409,14 +423,14 @@ docker-venv-37:
 _docker-venv:
 	if [ ! -d .venv-docker ] ; then \
 		$(call do-venv,.venv-docker,$(PYTHON_VERSION)) ; \
-		$(call do-deps,.venv-docker) ; \
+		$(call do-deps,.venv-docker,$(REQUIREMENTS_TXT)) ; \
 	fi
 
 .PHONY: _docker-venv-37
 _docker-venv-37:
 	if [ ! -d .venv-docker-37 ] ; then \
 		$(call do-venv,.venv-docker-37,$(PYTHON_37_VERSION)) ; \
-		$(call do-deps,.venv-docker-37) ; \
+		$(call do-deps,.venv-docker-37,$(REQUIREMENTS_TXT)) ; \
 	fi
 
 ### Deps
@@ -431,11 +445,11 @@ docker-deps-37:
 
 .PHONY: _docker-deps
 _docker-deps: _docker-venv
-	$(call do-deps,.venv-docker)
+	$(call do-deps,.venv-docker,$(REQUIREMENTS_TXT))
 
 .PHONY: _docker-deps-37
 _docker-deps-37: _docker-venv-37
-	$(call do-deps,.venv-docker-37)
+	$(call do-deps,.venv-docker-37,$(REQUIREMENTS_TXT))
 
 ## Build
 

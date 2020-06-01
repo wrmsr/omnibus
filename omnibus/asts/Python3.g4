@@ -154,7 +154,7 @@ fileInput
     ;
 
 evalInput
-    : testlist NEWLINE* EOF
+    : testList NEWLINE* EOF
     ;
 
 decorator
@@ -166,44 +166,44 @@ decorators
     ;
 
 decorated
-    : decorators (classdef | funcdef | asyncFuncdef)
+    : decorators (classDef | funcDef | asyncFuncDef)
     ;
 
-asyncFuncdef
-    : ASYNC funcdef
+asyncFuncDef
+    : ASYNC funcDef
     ;
 
-funcdef
+funcDef
     : 'def' NAME parameters ('->' test)? ':' suite
     ;
 
 parameters
-    : '(' typedargslist? ')'
+    : '(' typedArgsList? ')'
     ;
 
-typedargslist
-    : tfpdef
+typedArgsList
+    : tpDef
       ('=' test)?
-      (',' tfpdef ('=' test)?)*
-      (',' ('*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)? | '**' tfpdef ','?)?)?
-    | '*' tfpdef? (',' tfpdef ('=' test)?)* (',' ('**' tfpdef ','?)?)?
-    | '**' tfpdef ','?
+      (',' tpDef ('=' test)?)*
+      (',' ('*' tpDef? (',' tpDef ('=' test)?)* (',' ('**' tpDef ','?)?)? | '**' tpDef ','?)?)?
+    | '*' tpDef? (',' tpDef ('=' test)?)* (',' ('**' tpDef ','?)?)?
+    | '**' tpDef ','?
     ;
 
-tfpdef
+tpDef
     : NAME (':' test)?
     ;
 
-varargslist
-    : vfpdef
+varargsList
+    : vfpDef
       ('=' test)?
-      (',' vfpdef ('=' test)?)*
-      (',' ('*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)? | '**' vfpdef ','?)?)?
-    | '*' vfpdef? (',' vfpdef ('=' test)?)* (',' ('**' vfpdef ','?)?)?
-    | '**' vfpdef ','?
+      (',' vfpDef ('=' test)?)*
+      (',' ('*' vfpDef? (',' vfpDef ('=' test)?)* (',' ('**' vfpDef ','?)?)? | '**' vfpDef ','?)?)?
+    | '*' vfpDef? (',' vfpDef ('=' test)?)* (',' ('**' vfpDef ','?)?)?
+    | '**' vfpDef ','?
     ;
 
-vfpdef
+vfpDef
     : NAME
     ;
 
@@ -228,10 +228,10 @@ smallStmt
     ;
 
 exprStmt
-    : testlistStarExpr (annassign | augassign (yieldExpr | testlist) | ('=' (yieldExpr | testlistStarExpr))*)
+    : testlistStarExpr (annAssign | augAssign (yieldExpr | testList) | ('=' (yieldExpr | testlistStarExpr))*)
     ;
 
-annassign
+annAssign
     : ':' test ('=' test)?
     ;
 
@@ -239,7 +239,7 @@ testlistStarExpr
     : (test | starExpr) (',' (test | starExpr))* ','?
     ;
 
-augassign
+augAssign
     : '+='
     | '-='
     | '*='
@@ -256,7 +256,7 @@ augassign
     ;
 
 delStmt
-    : 'del' exprlist
+    : 'del' exprList
     ;
 
 passStmt
@@ -265,7 +265,7 @@ passStmt
 
 flowStmt
     : breakStmt
-    | continue_stmt
+    | continueStmt
     | returnStmt
     | raiseStmt
     | yieldStmt
@@ -275,12 +275,12 @@ breakStmt
     : 'break'
     ;
 
-continue_stmt
+continueStmt
     : 'continue'
     ;
 
 returnStmt
-    : 'return' testlist?
+    : 'return' testList?
     ;
 
 yieldStmt
@@ -343,14 +343,14 @@ compoundStmt
     | forStmt
     | tryStmt
     | withStmt
-    | funcdef
-    | classdef
+    | funcDef
+    | classDef
     | decorated
     | asyncStmt
     ;
 
 asyncStmt
-    : ASYNC (funcdef | withStmt | forStmt)
+    : ASYNC (funcDef | withStmt | forStmt)
     ;
 
 ifStmt
@@ -362,7 +362,7 @@ whileStmt
     ;
 
 forStmt
-    : 'for' exprlist 'in' testlist ':' suite ('else' ':' suite)?
+    : 'for' exprList 'in' testList ':' suite ('else' ':' suite)?
     ;
 
 tryStmt
@@ -388,20 +388,20 @@ suite
 
 test
     : orTest ('if' orTest 'else' test)?
-    | lambdef
+    | lambaDef
     ;
 
 testNocond
     : orTest
-    | lambdefNocond
+    | lambaDefNoCond
     ;
 
-lambdef
-    : 'lambda' varargslist? ':' test
+lambaDef
+    : 'lambda' varargsList? ':' test
     ;
 
-lambdefNocond
-    : 'lambda' varargslist? ':' testNocond
+lambaDefNoCond
+    : 'lambda' varargsList? ':' testNocond
     ;
 
 orTest
@@ -479,7 +479,7 @@ atomExpr
 atom
     : '(' (yieldExpr | testlistComp)? ')'
     | '[' testlistComp? ']'
-    | '{' dictorsetmaker? '}'
+    | '{' dictOrSetMaker? '}'
     | NAME
     | NUMBER
     | STRING+
@@ -505,27 +505,27 @@ subscriptlist
 
 subscript
     : test
-    | test? ':' test? sliceop?
+    | test? ':' test? sliceOp?
     ;
 
-sliceop
+sliceOp
     : ':' test?
     ;
 
-exprlist
+exprList
     : (expr | starExpr) (',' (expr | starExpr))* ','?
     ;
 
-testlist
+testList
     : test (',' test)* ','?
     ;
 
-dictorsetmaker
+dictOrSetMaker
     : (test ':' test | '**' expr) (compFor | (',' (test ':' test | '**' expr))* ','?)
     | (test | starExpr) (compFor | (',' (test | starExpr))* ','?)
     ;
 
-classdef
+classDef
     : 'class' NAME ('(' arglist? ')')? ':' suite
     ;
 
@@ -552,7 +552,7 @@ compIter
     ;
 
 compFor
-    : ASYNC? 'for' exprlist 'in' orTest compIter?
+    : ASYNC? 'for' exprList 'in' orTest compIter?
     ;
 
 compIf
@@ -570,7 +570,7 @@ yieldExpr
 
 yieldArg
     : 'from' test
-    | testlist
+    | testList
     ;
 
 STRING

@@ -2,6 +2,7 @@
 TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
  - inheritance>
+ - IntEnum/Flag from base
 """
 import enum
 import typing as ta

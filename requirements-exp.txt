@@ -6,19 +6,20 @@
 wcwidth==0.2.2
 
 
-## transitives
+## transitive dependencies
 
 importlib-resources==1.5.0
 scramp==1.2.0
 
 
-## pending optional integrations
+## potential optional integrations
 
 bsddb3==6.2.7
 chardet==3.0.4
 datadog==0.36.0
 ddtrace==0.38.1
 dnspython==1.16.0
+grpcio==1.29.0
 hyperscan==0.1.5
 idna==2.9
 jupyter-client==6.1.3
