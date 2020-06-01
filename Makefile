@@ -140,6 +140,11 @@ venv-37:
 
 ### Gen
 
+.PHONY: gen
+gen: antlr stl
+gen: antlr
+	true
+
 .PHONY: antlr
 antlr:
 	if [ ! -f "antlr-$(ANTLR_VERSION)-complete.jar" ] ; then \
@@ -191,9 +196,9 @@ antlr:
 		done ; \
 	done
 
-.PHONY: gen
-gen: antlr
-	true
+.PHONY: stl
+stl: venv
+	(. .venv/bin/activate && cd omnibus/_ext/cy/stl && $(MAKE) render)
 
 
 ### Build
