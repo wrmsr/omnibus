@@ -24,6 +24,7 @@ RUN ( \
         jq \
         less \
         libpq-dev \
+        libsnappy-dev \
         make \
         man \
         moreutils \
