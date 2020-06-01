@@ -191,12 +191,8 @@ antlr:
 		done ; \
 	done
 
-.PHONY: stl
-stl: venv
-	(. .venv/bin/activate && cd omnibus/_ext/cy/stl && $(MAKE) render)
-
 .PHONY: gen
-gen: antlr stl
+gen: antlr
 	true
 
 
@@ -398,11 +394,11 @@ docker-clean-venv:
 
 .PHONY: docker-venv
 docker-venv:
-	./docker-dev $(MAKE) _docker-venv
+	./docker-dev make _docker-venv
 
 .PHONY: docker-venv-37
 docker-venv-37:
-	./docker-dev $(MAKE) _docker-venv-37
+	./docker-dev make _docker-venv-37
 
 .PHONY: _docker-venv
 _docker-venv:
@@ -422,11 +418,11 @@ _docker-venv-37:
 
 .PHONY: docker-deps
 docker-deps:
-	./docker-dev $(MAKE) _docker-deps
+	./docker-dev make _docker-deps
 
 .PHONY: docker-deps-37
 docker-deps-37:
-	./docker-dev $(MAKE) _docker-deps-37
+	./docker-dev make _docker-deps-37
 
 .PHONY: _docker-deps
 _docker-deps: _docker-venv
@@ -440,11 +436,11 @@ _docker-deps-37: _docker-venv-37
 
 .PHONY: docker-build
 docker-build: docker-venv
-	./docker-dev $(MAKE) _docker-build
+	./docker-dev make _docker-build
 
 .PHONY: docker-build-37
 docker-build-37: docker-venv-37
-	./docker-dev $(MAKE) _docker-build-37
+	./docker-dev make _docker-build-37
 
 .PHONY: _docker-build
 _docker-build: _docker-venv
@@ -468,11 +464,11 @@ docker-test-37: docker-build-37
 
 .PHONY: docker-dist
 docker-dist: docker-venv
-	./docker-dev $(MAKE) _docker-dist
+	./docker-dev make _docker-dist
 
 .PHONY: docker-dist-37
 docker-dist-37: docker-venv-37
-	./docker-dev $(MAKE) _docker-dist-37
+	./docker-dev make _docker-dist-37
 
 .PHONY: _docker-dist
 _docker-dist: _docker-venv
