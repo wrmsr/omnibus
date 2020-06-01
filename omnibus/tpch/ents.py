@@ -10,7 +10,7 @@ from .. import dataclasses as dc
 from .. import lang
 
 
-class Column(dc.Data, frozen=True, final=True):
+class Column(dc.Pure):
     class Type(lang.AutoEnum):
         INTEGER = ...
         IDENTIFIER = ...
@@ -24,11 +24,11 @@ class Column(dc.Data, frozen=True, final=True):
     scale: ta.Optional[int] = 0
 
 
-class Entity(dc.Data, frozen=True, abstract=True):
+class Entity(dc.Enum):
     row_number: int
 
 
-class Customer(Entity, frozen=True, final=True):
+class Customer(Entity):
     customer_key: int = dc.field(metadata={Column: Column('c_custkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('c_name', Column.Type.VARCHAR, 25)})
     address: str = dc.field(metadata={Column: Column('c_address', Column.Type.VARCHAR, 40)})
@@ -39,7 +39,7 @@ class Customer(Entity, frozen=True, final=True):
     comment: str = dc.field(metadata={Column: Column('c_comment', Column.Type.VARCHAR, 117)})
 
 
-class LineItem(Entity, frozen=True, final=True):
+class LineItem(Entity):
     order_key: int = dc.field(metadata={Column: Column('l_orderkey', Column.Type.IDENTIFIER)})
     part_key: int = dc.field(metadata={Column: Column('l_partkey', Column.Type.IDENTIFIER)})
     supplier_key: int = dc.field(metadata={Column: Column('l_suppkey', Column.Type.IDENTIFIER)})
@@ -58,14 +58,14 @@ class LineItem(Entity, frozen=True, final=True):
     comment: str = dc.field(metadata={Column: Column('l_comment', Column.Type.VARCHAR, 44)})
 
 
-class Nation(Entity, frozen=True, final=True):
+class Nation(Entity):
     nation_key: int = dc.field(metadata={Column: Column('n_nationkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('n_name', Column.Type.VARCHAR, 25)})
     region_key: int = dc.field(metadata={Column: Column('n_regionkey', Column.Type.IDENTIFIER)})
     comment: str = dc.field(metadata={Column: Column('n_comment', Column.Type.VARCHAR, 152)})
 
 
-class Order(Entity, frozen=True, final=True):
+class Order(Entity):
     order_key: int = dc.field(metadata={Column: Column('o_orderkey', Column.Type.IDENTIFIER)})
     customer_key: int = dc.field(metadata={Column: Column('o_custkey', Column.Type.IDENTIFIER)})
     order_status: str = dc.field(metadata={Column: Column('o_orderstatus', Column.Type.VARCHAR, 1)})
@@ -77,7 +77,7 @@ class Order(Entity, frozen=True, final=True):
     comment: str = dc.field(metadata={Column: Column('o_comment', Column.Type.VARCHAR, 79)})
 
 
-class Part(Entity, frozen=True, final=True):
+class Part(Entity):
     part_key: int = dc.field(metadata={Column: Column('p_partkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('p_name', Column.Type.VARCHAR, 55)})
     manufacturer: str = dc.field(metadata={Column: Column('p_mfgr', Column.Type.VARCHAR, 25)})
@@ -89,7 +89,7 @@ class Part(Entity, frozen=True, final=True):
     comment: str = dc.field(metadata={Column: Column('p_comment', Column.Type.VARCHAR, 23)})
 
 
-class PartSupplier(Entity, frozen=True, final=True):
+class PartSupplier(Entity):
     part_key: int = dc.field(metadata={Column: Column('ps_partkey', Column.Type.IDENTIFIER)})
     supplier_key: int = dc.field(metadata={Column: Column('ps_suppkey', Column.Type.IDENTIFIER)})
     available_quantity: int = dc.field(metadata={Column: Column('ps_availqty', Column.Type.INTEGER)})
@@ -97,13 +97,13 @@ class PartSupplier(Entity, frozen=True, final=True):
     comment: str = dc.field(metadata={Column: Column('ps_comment', Column.Type.VARCHAR, 199)})
 
 
-class Region(Entity, frozen=True, final=True):
+class Region(Entity):
     region_key: int = dc.field(metadata={Column: Column('r_regionkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('r_name', Column.Type.VARCHAR, 25)})
     comment: str = dc.field(metadata={Column: Column('r_comment', Column.Type.VARCHAR, 152)})
 
 
-class Supplier(Entity, frozen=True, final=True):
+class Supplier(Entity):
     supplier_key: int = dc.field(metadata={Column: Column('s_suppkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('s_name', Column.Type.VARCHAR, 25)})
     address: str = dc.field(metadata={Column: Column('s_address', Column.Type.VARCHAR, 40)})
