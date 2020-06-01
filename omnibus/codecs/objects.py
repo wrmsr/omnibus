@@ -3,7 +3,6 @@ TODO:
  - ** move into ../serde ? **
  - msgpack
   - https://github.com/vsergeev/u-msgpack-python ?
- - bson
  - cloudpickle
  - https://github.com/agronholm/cbor2 ?
 """
@@ -94,10 +93,10 @@ class BsonCodec(Codec[F, bytes], lang.Final):
     defs.repr()
 
     def encode(self, o: F) -> bytes:
-        return self._MODULE().dumps(o)
+        return self._MODULE().encode(o)
 
     def decode(self, o: bytes) -> F:
-        return self._MODULE().loads(o)
+        return self._MODULE().decode(o)
 
 
 bson = BsonCodec
