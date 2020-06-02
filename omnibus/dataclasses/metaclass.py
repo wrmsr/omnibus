@@ -36,6 +36,7 @@ class _Meta(abc.ABCMeta):
             *,
 
             slots: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+            no_weakref: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             abstract: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             final: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             sealed: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
@@ -61,6 +62,7 @@ class _Meta(abc.ABCMeta):
 
         original_metaclass_params = MetaclassParams(
             slots=slots,
+            no_weakref=no_weakref,
             abstract=abstract,
             final=final,
             sealed=sealed,
@@ -73,6 +75,7 @@ class _Meta(abc.ABCMeta):
 
         bases = tuple(b for b in bases if b is not Data)
 
+        # FIXME: compose fields without instantiating proto_cls, so __init_subclass__ registrations and such can work
         proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace)
         proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
         proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
@@ -90,7 +93,10 @@ class _Meta(abc.ABCMeta):
                     namespace[a] = _abstract_field_stub
 
         if metaclass_params.slots and '__slots__' not in namespace:
-            namespace['__slots__'] = tuple(proto_flds.by_name)
+            slots = tuple(proto_flds.by_name)
+            if not metaclass_params.no_weakref and '__weakref__' not in slots:
+                slots += ('__weakref__',)
+            namespace['__slots__'] = slots
         if '__slots__' not in namespace:
             for fld in proto_flds:
                 if fld.name not in namespace and fld.name in proto_abs:

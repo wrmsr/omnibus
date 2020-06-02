@@ -129,12 +129,14 @@ EXTRA_PARAMS_CONFER_DEFAULTS = {
 @dc.dataclass(frozen=True)
 class MetaclassParams(lang.Final):
     slots: bool = False
+    no_weakref: bool = False
     abstract: bool = False
     final: bool = False
     sealed: bool = False
 
     def __post_init__(self) -> None:
         check.isinstance(self.slots, (bool, MISSING_TYPE))
+        check.isinstance(self.no_weakref, (bool, MISSING_TYPE))
         check.isinstance(self.abstract, (bool, MISSING_TYPE))
         check.isinstance(self.final, (bool, MISSING_TYPE))
         check.isinstance(self.sealed, (bool, MISSING_TYPE))
