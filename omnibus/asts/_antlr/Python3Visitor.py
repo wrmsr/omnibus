@@ -40,13 +40,13 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#asyncFuncdef.
-    def visitAsyncFuncdef(self, ctx:Python3Parser.AsyncFuncdefContext):
+    # Visit a parse tree produced by Python3Parser#asyncFuncDef.
+    def visitAsyncFuncDef(self, ctx:Python3Parser.AsyncFuncDefContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#funcdef.
-    def visitFuncdef(self, ctx:Python3Parser.FuncdefContext):
+    # Visit a parse tree produced by Python3Parser#funcDef.
+    def visitFuncDef(self, ctx:Python3Parser.FuncDefContext):
         return self.visitChildren(ctx)
 
 
@@ -55,23 +55,23 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#typedargslist.
-    def visitTypedargslist(self, ctx:Python3Parser.TypedargslistContext):
+    # Visit a parse tree produced by Python3Parser#typedArgsList.
+    def visitTypedArgsList(self, ctx:Python3Parser.TypedArgsListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#tfpdef.
-    def visitTfpdef(self, ctx:Python3Parser.TfpdefContext):
+    # Visit a parse tree produced by Python3Parser#tpDef.
+    def visitTpDef(self, ctx:Python3Parser.TpDefContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#varargslist.
-    def visitVarargslist(self, ctx:Python3Parser.VarargslistContext):
+    # Visit a parse tree produced by Python3Parser#varargsList.
+    def visitVarargsList(self, ctx:Python3Parser.VarargsListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#vfpdef.
-    def visitVfpdef(self, ctx:Python3Parser.VfpdefContext):
+    # Visit a parse tree produced by Python3Parser#vfpDef.
+    def visitVfpDef(self, ctx:Python3Parser.VfpDefContext):
         return self.visitChildren(ctx)
 
 
@@ -95,8 +95,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#annassign.
-    def visitAnnassign(self, ctx:Python3Parser.AnnassignContext):
+    # Visit a parse tree produced by Python3Parser#annAssign.
+    def visitAnnAssign(self, ctx:Python3Parser.AnnAssignContext):
         return self.visitChildren(ctx)
 
 
@@ -105,8 +105,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#augassign.
-    def visitAugassign(self, ctx:Python3Parser.AugassignContext):
+    # Visit a parse tree produced by Python3Parser#augAssign.
+    def visitAugAssign(self, ctx:Python3Parser.AugAssignContext):
         return self.visitChildren(ctx)
 
 
@@ -130,8 +130,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#continue_stmt.
-    def visitContinue_stmt(self, ctx:Python3Parser.Continue_stmtContext):
+    # Visit a parse tree produced by Python3Parser#continueStmt.
+    def visitContinueStmt(self, ctx:Python3Parser.ContinueStmtContext):
         return self.visitChildren(ctx)
 
 
@@ -265,13 +265,13 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#lambdef.
-    def visitLambdef(self, ctx:Python3Parser.LambdefContext):
+    # Visit a parse tree produced by Python3Parser#lambaDef.
+    def visitLambaDef(self, ctx:Python3Parser.LambaDefContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#lambdefNocond.
-    def visitLambdefNocond(self, ctx:Python3Parser.LambdefNocondContext):
+    # Visit a parse tree produced by Python3Parser#lambaDefNoCond.
+    def visitLambaDefNoCond(self, ctx:Python3Parser.LambaDefNoCondContext):
         return self.visitChildren(ctx)
 
 
@@ -375,28 +375,28 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#sliceop.
-    def visitSliceop(self, ctx:Python3Parser.SliceopContext):
+    # Visit a parse tree produced by Python3Parser#sliceOp.
+    def visitSliceOp(self, ctx:Python3Parser.SliceOpContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#exprlist.
-    def visitExprlist(self, ctx:Python3Parser.ExprlistContext):
+    # Visit a parse tree produced by Python3Parser#exprList.
+    def visitExprList(self, ctx:Python3Parser.ExprListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#testlist.
-    def visitTestlist(self, ctx:Python3Parser.TestlistContext):
+    # Visit a parse tree produced by Python3Parser#testList.
+    def visitTestList(self, ctx:Python3Parser.TestListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#dictorsetmaker.
-    def visitDictorsetmaker(self, ctx:Python3Parser.DictorsetmakerContext):
+    # Visit a parse tree produced by Python3Parser#dictOrSetMaker.
+    def visitDictOrSetMaker(self, ctx:Python3Parser.DictOrSetMakerContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#classdef.
-    def visitClassdef(self, ctx:Python3Parser.ClassdefContext):
+    # Visit a parse tree produced by Python3Parser#classDef.
+    def visitClassDef(self, ctx:Python3Parser.ClassDefContext):
         return self.visitChildren(ctx)
 
 
