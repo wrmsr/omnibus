@@ -637,25 +637,25 @@ class Python3Parser ( Parser ):
     RULE_decorator = 3
     RULE_decorators = 4
     RULE_decorated = 5
-    RULE_asyncFuncdef = 6
-    RULE_funcdef = 7
+    RULE_asyncFuncDef = 6
+    RULE_funcDef = 7
     RULE_parameters = 8
-    RULE_typedargslist = 9
-    RULE_tfpdef = 10
-    RULE_varargslist = 11
-    RULE_vfpdef = 12
+    RULE_typedArgsList = 9
+    RULE_tpDef = 10
+    RULE_varargsList = 11
+    RULE_vfpDef = 12
     RULE_stmt = 13
     RULE_simpleStmt = 14
     RULE_smallStmt = 15
     RULE_exprStmt = 16
-    RULE_annassign = 17
+    RULE_annAssign = 17
     RULE_testlistStarExpr = 18
-    RULE_augassign = 19
+    RULE_augAssign = 19
     RULE_delStmt = 20
     RULE_passStmt = 21
     RULE_flowStmt = 22
     RULE_breakStmt = 23
-    RULE_continue_stmt = 24
+    RULE_continueStmt = 24
     RULE_returnStmt = 25
     RULE_yieldStmt = 26
     RULE_raiseStmt = 27
@@ -682,8 +682,8 @@ class Python3Parser ( Parser ):
     RULE_suite = 48
     RULE_test = 49
     RULE_testNocond = 50
-    RULE_lambdef = 51
-    RULE_lambdefNocond = 52
+    RULE_lambaDef = 51
+    RULE_lambaDefNoCond = 52
     RULE_orTest = 53
     RULE_andTest = 54
     RULE_notTest = 55
@@ -704,11 +704,11 @@ class Python3Parser ( Parser ):
     RULE_trailer = 70
     RULE_subscriptlist = 71
     RULE_subscript = 72
-    RULE_sliceop = 73
-    RULE_exprlist = 74
-    RULE_testlist = 75
-    RULE_dictorsetmaker = 76
-    RULE_classdef = 77
+    RULE_sliceOp = 73
+    RULE_exprList = 74
+    RULE_testList = 75
+    RULE_dictOrSetMaker = 76
+    RULE_classDef = 77
     RULE_arglist = 78
     RULE_argument = 79
     RULE_compIter = 80
@@ -719,23 +719,23 @@ class Python3Parser ( Parser ):
     RULE_yieldArg = 85
 
     ruleNames =  [ "singleInput", "fileInput", "evalInput", "decorator", 
-                   "decorators", "decorated", "asyncFuncdef", "funcdef", 
-                   "parameters", "typedargslist", "tfpdef", "varargslist", 
-                   "vfpdef", "stmt", "simpleStmt", "smallStmt", "exprStmt", 
-                   "annassign", "testlistStarExpr", "augassign", "delStmt", 
-                   "passStmt", "flowStmt", "breakStmt", "continue_stmt", 
+                   "decorators", "decorated", "asyncFuncDef", "funcDef", 
+                   "parameters", "typedArgsList", "tpDef", "varargsList", 
+                   "vfpDef", "stmt", "simpleStmt", "smallStmt", "exprStmt", 
+                   "annAssign", "testlistStarExpr", "augAssign", "delStmt", 
+                   "passStmt", "flowStmt", "breakStmt", "continueStmt", 
                    "returnStmt", "yieldStmt", "raiseStmt", "importStmt", 
                    "importName", "importFrom", "importAsName", "dottedAsName", 
                    "importAsNames", "dottedAsNames", "dottedName", "globalStmt", 
                    "nonlocalStmt", "assertStmt", "compoundStmt", "asyncStmt", 
                    "ifStmt", "whileStmt", "forStmt", "tryStmt", "withStmt", 
                    "withItem", "exceptClause", "suite", "test", "testNocond", 
-                   "lambdef", "lambdefNocond", "orTest", "andTest", "notTest", 
+                   "lambaDef", "lambaDefNoCond", "orTest", "andTest", "notTest", 
                    "comparison", "compOp", "starExpr", "expr", "xorExpr", 
                    "andExpr", "shiftExpr", "arithExpr", "term", "factor", 
                    "power", "atomExpr", "atom", "testlistComp", "trailer", 
-                   "subscriptlist", "subscript", "sliceop", "exprlist", 
-                   "testlist", "dictorsetmaker", "classdef", "arglist", 
+                   "subscriptlist", "subscript", "sliceOp", "exprList", 
+                   "testList", "dictOrSetMaker", "classDef", "arglist", 
                    "argument", "compIter", "compFor", "compIf", "encodingDecl", 
                    "yieldExpr", "yieldArg" ]
 
@@ -1011,8 +1011,8 @@ class Python3Parser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def testlist(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistContext,0)
+        def testList(self):
+            return self.getTypedRuleContext(Python3Parser.TestListContext,0)
 
 
         def EOF(self):
@@ -1052,7 +1052,7 @@ class Python3Parser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 188
-            self.testlist()
+            self.testList()
             self.state = 192
             self._errHandler.sync(self)
             _la = self._input.LA(1)
@@ -1231,16 +1231,16 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.DecoratorsContext,0)
 
 
-        def classdef(self):
-            return self.getTypedRuleContext(Python3Parser.ClassdefContext,0)
+        def classDef(self):
+            return self.getTypedRuleContext(Python3Parser.ClassDefContext,0)
 
 
-        def funcdef(self):
-            return self.getTypedRuleContext(Python3Parser.FuncdefContext,0)
+        def funcDef(self):
+            return self.getTypedRuleContext(Python3Parser.FuncDefContext,0)
 
 
-        def asyncFuncdef(self):
-            return self.getTypedRuleContext(Python3Parser.AsyncFuncdefContext,0)
+        def asyncFuncDef(self):
+            return self.getTypedRuleContext(Python3Parser.AsyncFuncDefContext,0)
 
 
         def getRuleIndex(self):
@@ -1276,15 +1276,15 @@ class Python3Parser ( Parser ):
             token = self._input.LA(1)
             if token in [Python3Parser.CLASS]:
                 self.state = 214
-                self.classdef()
+                self.classDef()
                 pass
             elif token in [Python3Parser.DEF]:
                 self.state = 215
-                self.funcdef()
+                self.funcDef()
                 pass
             elif token in [Python3Parser.ASYNC]:
                 self.state = 216
-                self.asyncFuncdef()
+                self.asyncFuncDef()
                 pass
             else:
                 raise NoViableAltException(self)
@@ -1298,7 +1298,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class AsyncFuncdefContext(ParserRuleContext):
+    class AsyncFuncDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1307,40 +1307,40 @@ class Python3Parser ( Parser ):
         def ASYNC(self):
             return self.getToken(Python3Parser.ASYNC, 0)
 
-        def funcdef(self):
-            return self.getTypedRuleContext(Python3Parser.FuncdefContext,0)
+        def funcDef(self):
+            return self.getTypedRuleContext(Python3Parser.FuncDefContext,0)
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_asyncFuncdef
+            return Python3Parser.RULE_asyncFuncDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAsyncFuncdef" ):
-                listener.enterAsyncFuncdef(self)
+            if hasattr( listener, "enterAsyncFuncDef" ):
+                listener.enterAsyncFuncDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAsyncFuncdef" ):
-                listener.exitAsyncFuncdef(self)
+            if hasattr( listener, "exitAsyncFuncDef" ):
+                listener.exitAsyncFuncDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAsyncFuncdef" ):
-                return visitor.visitAsyncFuncdef(self)
+            if hasattr( visitor, "visitAsyncFuncDef" ):
+                return visitor.visitAsyncFuncDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def asyncFuncdef(self):
+    def asyncFuncDef(self):
 
-        localctx = Python3Parser.AsyncFuncdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_asyncFuncdef)
+        localctx = Python3Parser.AsyncFuncDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 12, self.RULE_asyncFuncDef)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 219
             self.match(Python3Parser.ASYNC)
             self.state = 220
-            self.funcdef()
+            self.funcDef()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1350,7 +1350,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class FuncdefContext(ParserRuleContext):
+    class FuncDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1381,29 +1381,29 @@ class Python3Parser ( Parser ):
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_funcdef
+            return Python3Parser.RULE_funcDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFuncdef" ):
-                listener.enterFuncdef(self)
+            if hasattr( listener, "enterFuncDef" ):
+                listener.enterFuncDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFuncdef" ):
-                listener.exitFuncdef(self)
+            if hasattr( listener, "exitFuncDef" ):
+                listener.exitFuncDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFuncdef" ):
-                return visitor.visitFuncdef(self)
+            if hasattr( visitor, "visitFuncDef" ):
+                return visitor.visitFuncDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def funcdef(self):
+    def funcDef(self):
 
-        localctx = Python3Parser.FuncdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 14, self.RULE_funcdef)
+        localctx = Python3Parser.FuncDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 14, self.RULE_funcDef)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1448,8 +1448,8 @@ class Python3Parser ( Parser ):
         def CLOSE_PAREN(self):
             return self.getToken(Python3Parser.CLOSE_PAREN, 0)
 
-        def typedargslist(self):
-            return self.getTypedRuleContext(Python3Parser.TypedargslistContext,0)
+        def typedArgsList(self):
+            return self.getTypedRuleContext(Python3Parser.TypedArgsListContext,0)
 
 
         def getRuleIndex(self):
@@ -1486,7 +1486,7 @@ class Python3Parser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Python3Parser.NAME) | (1 << Python3Parser.STAR) | (1 << Python3Parser.POWER))) != 0):
                 self.state = 233
-                self.typedargslist()
+                self.typedArgsList()
 
 
             self.state = 236
@@ -1500,17 +1500,17 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class TypedargslistContext(ParserRuleContext):
+    class TypedArgsListContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def tfpdef(self, i:int=None):
+        def tpDef(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(Python3Parser.TfpdefContext)
+                return self.getTypedRuleContexts(Python3Parser.TpDefContext)
             else:
-                return self.getTypedRuleContext(Python3Parser.TfpdefContext,i)
+                return self.getTypedRuleContext(Python3Parser.TpDefContext,i)
 
 
         def ASSIGN(self, i:int=None):
@@ -1539,29 +1539,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.POWER, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_typedargslist
+            return Python3Parser.RULE_typedArgsList
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTypedargslist" ):
-                listener.enterTypedargslist(self)
+            if hasattr( listener, "enterTypedArgsList" ):
+                listener.enterTypedArgsList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTypedargslist" ):
-                listener.exitTypedargslist(self)
+            if hasattr( listener, "exitTypedArgsList" ):
+                listener.exitTypedArgsList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTypedargslist" ):
-                return visitor.visitTypedargslist(self)
+            if hasattr( visitor, "visitTypedArgsList" ):
+                return visitor.visitTypedArgsList(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def typedargslist(self):
+    def typedArgsList(self):
 
-        localctx = Python3Parser.TypedargslistContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_typedargslist)
+        localctx = Python3Parser.TypedArgsListContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 18, self.RULE_typedArgsList)
         self._la = 0 # Token type
         try:
             self.state = 319
@@ -1570,7 +1570,7 @@ class Python3Parser ( Parser ):
             if token in [Python3Parser.NAME]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 238
-                self.tfpdef()
+                self.tpDef()
                 self.state = 241
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -1589,7 +1589,7 @@ class Python3Parser ( Parser ):
                         self.state = 243
                         self.match(Python3Parser.COMMA)
                         self.state = 244
-                        self.tfpdef()
+                        self.tpDef()
                         self.state = 247
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -1621,7 +1621,7 @@ class Python3Parser ( Parser ):
                         _la = self._input.LA(1)
                         if _la==Python3Parser.NAME:
                             self.state = 256
-                            self.tfpdef()
+                            self.tpDef()
 
 
                         self.state = 267
@@ -1632,7 +1632,7 @@ class Python3Parser ( Parser ):
                                 self.state = 259
                                 self.match(Python3Parser.COMMA)
                                 self.state = 260
-                                self.tfpdef()
+                                self.tpDef()
                                 self.state = 263
                                 self._errHandler.sync(self)
                                 _la = self._input.LA(1)
@@ -1660,7 +1660,7 @@ class Python3Parser ( Parser ):
                                 self.state = 271
                                 self.match(Python3Parser.POWER)
                                 self.state = 272
-                                self.tfpdef()
+                                self.tpDef()
                                 self.state = 274
                                 self._errHandler.sync(self)
                                 _la = self._input.LA(1)
@@ -1678,7 +1678,7 @@ class Python3Parser ( Parser ):
                         self.state = 280
                         self.match(Python3Parser.POWER)
                         self.state = 281
-                        self.tfpdef()
+                        self.tpDef()
                         self.state = 283
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -1704,7 +1704,7 @@ class Python3Parser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==Python3Parser.NAME:
                     self.state = 290
-                    self.tfpdef()
+                    self.tpDef()
 
 
                 self.state = 301
@@ -1715,7 +1715,7 @@ class Python3Parser ( Parser ):
                         self.state = 293
                         self.match(Python3Parser.COMMA)
                         self.state = 294
-                        self.tfpdef()
+                        self.tpDef()
                         self.state = 297
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -1743,7 +1743,7 @@ class Python3Parser ( Parser ):
                         self.state = 305
                         self.match(Python3Parser.POWER)
                         self.state = 306
-                        self.tfpdef()
+                        self.tpDef()
                         self.state = 308
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -1762,7 +1762,7 @@ class Python3Parser ( Parser ):
                 self.state = 314
                 self.match(Python3Parser.POWER)
                 self.state = 315
-                self.tfpdef()
+                self.tpDef()
                 self.state = 317
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -1784,7 +1784,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class TfpdefContext(ParserRuleContext):
+    class TpDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -1801,29 +1801,29 @@ class Python3Parser ( Parser ):
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_tfpdef
+            return Python3Parser.RULE_tpDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTfpdef" ):
-                listener.enterTfpdef(self)
+            if hasattr( listener, "enterTpDef" ):
+                listener.enterTpDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTfpdef" ):
-                listener.exitTfpdef(self)
+            if hasattr( listener, "exitTpDef" ):
+                listener.exitTpDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTfpdef" ):
-                return visitor.visitTfpdef(self)
+            if hasattr( visitor, "visitTpDef" ):
+                return visitor.visitTpDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def tfpdef(self):
+    def tpDef(self):
 
-        localctx = Python3Parser.TfpdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 20, self.RULE_tfpdef)
+        localctx = Python3Parser.TpDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 20, self.RULE_tpDef)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1848,17 +1848,17 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class VarargslistContext(ParserRuleContext):
+    class VarargsListContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def vfpdef(self, i:int=None):
+        def vfpDef(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(Python3Parser.VfpdefContext)
+                return self.getTypedRuleContexts(Python3Parser.VfpDefContext)
             else:
-                return self.getTypedRuleContext(Python3Parser.VfpdefContext,i)
+                return self.getTypedRuleContext(Python3Parser.VfpDefContext,i)
 
 
         def ASSIGN(self, i:int=None):
@@ -1887,29 +1887,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.POWER, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_varargslist
+            return Python3Parser.RULE_varargsList
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterVarargslist" ):
-                listener.enterVarargslist(self)
+            if hasattr( listener, "enterVarargsList" ):
+                listener.enterVarargsList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitVarargslist" ):
-                listener.exitVarargslist(self)
+            if hasattr( listener, "exitVarargsList" ):
+                listener.exitVarargsList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitVarargslist" ):
-                return visitor.visitVarargslist(self)
+            if hasattr( visitor, "visitVarargsList" ):
+                return visitor.visitVarargsList(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def varargslist(self):
+    def varargsList(self):
 
-        localctx = Python3Parser.VarargslistContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 22, self.RULE_varargslist)
+        localctx = Python3Parser.VarargsListContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 22, self.RULE_varargsList)
         self._la = 0 # Token type
         try:
             self.state = 407
@@ -1918,7 +1918,7 @@ class Python3Parser ( Parser ):
             if token in [Python3Parser.NAME]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 326
-                self.vfpdef()
+                self.vfpDef()
                 self.state = 329
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -1937,7 +1937,7 @@ class Python3Parser ( Parser ):
                         self.state = 331
                         self.match(Python3Parser.COMMA)
                         self.state = 332
-                        self.vfpdef()
+                        self.vfpDef()
                         self.state = 335
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -1969,7 +1969,7 @@ class Python3Parser ( Parser ):
                         _la = self._input.LA(1)
                         if _la==Python3Parser.NAME:
                             self.state = 344
-                            self.vfpdef()
+                            self.vfpDef()
 
 
                         self.state = 355
@@ -1980,7 +1980,7 @@ class Python3Parser ( Parser ):
                                 self.state = 347
                                 self.match(Python3Parser.COMMA)
                                 self.state = 348
-                                self.vfpdef()
+                                self.vfpDef()
                                 self.state = 351
                                 self._errHandler.sync(self)
                                 _la = self._input.LA(1)
@@ -2008,7 +2008,7 @@ class Python3Parser ( Parser ):
                                 self.state = 359
                                 self.match(Python3Parser.POWER)
                                 self.state = 360
-                                self.vfpdef()
+                                self.vfpDef()
                                 self.state = 362
                                 self._errHandler.sync(self)
                                 _la = self._input.LA(1)
@@ -2026,7 +2026,7 @@ class Python3Parser ( Parser ):
                         self.state = 368
                         self.match(Python3Parser.POWER)
                         self.state = 369
-                        self.vfpdef()
+                        self.vfpDef()
                         self.state = 371
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -2052,7 +2052,7 @@ class Python3Parser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==Python3Parser.NAME:
                     self.state = 378
-                    self.vfpdef()
+                    self.vfpDef()
 
 
                 self.state = 389
@@ -2063,7 +2063,7 @@ class Python3Parser ( Parser ):
                         self.state = 381
                         self.match(Python3Parser.COMMA)
                         self.state = 382
-                        self.vfpdef()
+                        self.vfpDef()
                         self.state = 385
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -2091,7 +2091,7 @@ class Python3Parser ( Parser ):
                         self.state = 393
                         self.match(Python3Parser.POWER)
                         self.state = 394
-                        self.vfpdef()
+                        self.vfpDef()
                         self.state = 396
                         self._errHandler.sync(self)
                         _la = self._input.LA(1)
@@ -2110,7 +2110,7 @@ class Python3Parser ( Parser ):
                 self.state = 402
                 self.match(Python3Parser.POWER)
                 self.state = 403
-                self.vfpdef()
+                self.vfpDef()
                 self.state = 405
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
@@ -2132,7 +2132,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class VfpdefContext(ParserRuleContext):
+    class VfpDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2142,29 +2142,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.NAME, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_vfpdef
+            return Python3Parser.RULE_vfpDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterVfpdef" ):
-                listener.enterVfpdef(self)
+            if hasattr( listener, "enterVfpDef" ):
+                listener.enterVfpDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitVfpdef" ):
-                listener.exitVfpdef(self)
+            if hasattr( listener, "exitVfpDef" ):
+                listener.exitVfpDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitVfpdef" ):
-                return visitor.visitVfpdef(self)
+            if hasattr( visitor, "visitVfpDef" ):
+                return visitor.visitVfpDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def vfpdef(self):
+    def vfpDef(self):
 
-        localctx = Python3Parser.VfpdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_vfpdef)
+        localctx = Python3Parser.VfpDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 24, self.RULE_vfpDef)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 409
@@ -2456,12 +2456,12 @@ class Python3Parser ( Parser ):
                 return self.getTypedRuleContext(Python3Parser.TestlistStarExprContext,i)
 
 
-        def annassign(self):
-            return self.getTypedRuleContext(Python3Parser.AnnassignContext,0)
+        def annAssign(self):
+            return self.getTypedRuleContext(Python3Parser.AnnAssignContext,0)
 
 
-        def augassign(self):
-            return self.getTypedRuleContext(Python3Parser.AugassignContext,0)
+        def augAssign(self):
+            return self.getTypedRuleContext(Python3Parser.AugAssignContext,0)
 
 
         def yieldExpr(self, i:int=None):
@@ -2471,8 +2471,8 @@ class Python3Parser ( Parser ):
                 return self.getTypedRuleContext(Python3Parser.YieldExprContext,i)
 
 
-        def testlist(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistContext,0)
+        def testList(self):
+            return self.getTypedRuleContext(Python3Parser.TestListContext,0)
 
 
         def ASSIGN(self, i:int=None):
@@ -2515,11 +2515,11 @@ class Python3Parser ( Parser ):
             token = self._input.LA(1)
             if token in [Python3Parser.COLON]:
                 self.state = 439
-                self.annassign()
+                self.annAssign()
                 pass
             elif token in [Python3Parser.ADD_ASSIGN, Python3Parser.SUB_ASSIGN, Python3Parser.MULT_ASSIGN, Python3Parser.AT_ASSIGN, Python3Parser.DIV_ASSIGN, Python3Parser.MOD_ASSIGN, Python3Parser.AND_ASSIGN, Python3Parser.OR_ASSIGN, Python3Parser.XOR_ASSIGN, Python3Parser.LEFT_SHIFT_ASSIGN, Python3Parser.RIGHT_SHIFT_ASSIGN, Python3Parser.POWER_ASSIGN, Python3Parser.IDIV_ASSIGN]:
                 self.state = 440
-                self.augassign()
+                self.augAssign()
                 self.state = 443
                 self._errHandler.sync(self)
                 token = self._input.LA(1)
@@ -2529,7 +2529,7 @@ class Python3Parser ( Parser ):
                     pass
                 elif token in [Python3Parser.STRING, Python3Parser.NUMBER, Python3Parser.LAMBDA, Python3Parser.NOT, Python3Parser.NONE, Python3Parser.TRUE, Python3Parser.FALSE, Python3Parser.AWAIT, Python3Parser.NAME, Python3Parser.ELLIPSIS, Python3Parser.OPEN_PAREN, Python3Parser.OPEN_BRACK, Python3Parser.ADD, Python3Parser.MINUS, Python3Parser.NOT_OP, Python3Parser.OPEN_BRACE]:
                     self.state = 442
-                    self.testlist()
+                    self.testList()
                     pass
                 else:
                     raise NoViableAltException(self)
@@ -2573,7 +2573,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class AnnassignContext(ParserRuleContext):
+    class AnnAssignContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2593,29 +2593,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.ASSIGN, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_annassign
+            return Python3Parser.RULE_annAssign
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAnnassign" ):
-                listener.enterAnnassign(self)
+            if hasattr( listener, "enterAnnAssign" ):
+                listener.enterAnnAssign(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAnnassign" ):
-                listener.exitAnnassign(self)
+            if hasattr( listener, "exitAnnAssign" ):
+                listener.exitAnnAssign(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAnnassign" ):
-                return visitor.visitAnnassign(self)
+            if hasattr( visitor, "visitAnnAssign" ):
+                return visitor.visitAnnAssign(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def annassign(self):
+    def annAssign(self):
 
-        localctx = Python3Parser.AnnassignContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_annassign)
+        localctx = Python3Parser.AnnAssignContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 34, self.RULE_annAssign)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -2751,7 +2751,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class AugassignContext(ParserRuleContext):
+    class AugAssignContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -2797,29 +2797,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.IDIV_ASSIGN, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_augassign
+            return Python3Parser.RULE_augAssign
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAugassign" ):
-                listener.enterAugassign(self)
+            if hasattr( listener, "enterAugAssign" ):
+                listener.enterAugAssign(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAugassign" ):
-                listener.exitAugassign(self)
+            if hasattr( listener, "exitAugAssign" ):
+                listener.exitAugAssign(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAugassign" ):
-                return visitor.visitAugassign(self)
+            if hasattr( visitor, "visitAugAssign" ):
+                return visitor.visitAugAssign(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def augassign(self):
+    def augAssign(self):
 
-        localctx = Python3Parser.AugassignContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_augassign)
+        localctx = Python3Parser.AugAssignContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 38, self.RULE_augAssign)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -2848,8 +2848,8 @@ class Python3Parser ( Parser ):
         def DEL(self):
             return self.getToken(Python3Parser.DEL, 0)
 
-        def exprlist(self):
-            return self.getTypedRuleContext(Python3Parser.ExprlistContext,0)
+        def exprList(self):
+            return self.getTypedRuleContext(Python3Parser.ExprListContext,0)
 
 
         def getRuleIndex(self):
@@ -2881,7 +2881,7 @@ class Python3Parser ( Parser ):
             self.state = 482
             self.match(Python3Parser.DEL)
             self.state = 483
-            self.exprlist()
+            self.exprList()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2947,8 +2947,8 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.BreakStmtContext,0)
 
 
-        def continue_stmt(self):
-            return self.getTypedRuleContext(Python3Parser.Continue_stmtContext,0)
+        def continueStmt(self):
+            return self.getTypedRuleContext(Python3Parser.ContinueStmtContext,0)
 
 
         def returnStmt(self):
@@ -2999,7 +2999,7 @@ class Python3Parser ( Parser ):
             elif token in [Python3Parser.CONTINUE]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 488
-                self.continue_stmt()
+                self.continueStmt()
                 pass
             elif token in [Python3Parser.RETURN]:
                 self.enterOuterAlt(localctx, 3)
@@ -3074,7 +3074,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class Continue_stmtContext(ParserRuleContext):
+    class ContinueStmtContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -3084,29 +3084,29 @@ class Python3Parser ( Parser ):
             return self.getToken(Python3Parser.CONTINUE, 0)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_continue_stmt
+            return Python3Parser.RULE_continueStmt
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterContinue_stmt" ):
-                listener.enterContinue_stmt(self)
+            if hasattr( listener, "enterContinueStmt" ):
+                listener.enterContinueStmt(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitContinue_stmt" ):
-                listener.exitContinue_stmt(self)
+            if hasattr( listener, "exitContinueStmt" ):
+                listener.exitContinueStmt(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitContinue_stmt" ):
-                return visitor.visitContinue_stmt(self)
+            if hasattr( visitor, "visitContinueStmt" ):
+                return visitor.visitContinueStmt(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def continue_stmt(self):
+    def continueStmt(self):
 
-        localctx = Python3Parser.Continue_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 48, self.RULE_continue_stmt)
+        localctx = Python3Parser.ContinueStmtContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 48, self.RULE_continueStmt)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 496
@@ -3129,8 +3129,8 @@ class Python3Parser ( Parser ):
         def RETURN(self):
             return self.getToken(Python3Parser.RETURN, 0)
 
-        def testlist(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistContext,0)
+        def testList(self):
+            return self.getTypedRuleContext(Python3Parser.TestListContext,0)
 
 
         def getRuleIndex(self):
@@ -3167,7 +3167,7 @@ class Python3Parser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Python3Parser.STRING) | (1 << Python3Parser.NUMBER) | (1 << Python3Parser.LAMBDA) | (1 << Python3Parser.NOT) | (1 << Python3Parser.NONE) | (1 << Python3Parser.TRUE) | (1 << Python3Parser.FALSE) | (1 << Python3Parser.AWAIT) | (1 << Python3Parser.NAME) | (1 << Python3Parser.ELLIPSIS) | (1 << Python3Parser.OPEN_PAREN) | (1 << Python3Parser.OPEN_BRACK))) != 0) or ((((_la - 66)) & ~0x3f) == 0 and ((1 << (_la - 66)) & ((1 << (Python3Parser.ADD - 66)) | (1 << (Python3Parser.MINUS - 66)) | (1 << (Python3Parser.NOT_OP - 66)) | (1 << (Python3Parser.OPEN_BRACE - 66)))) != 0):
                 self.state = 499
-                self.testlist()
+                self.testList()
 
 
         except RecognitionException as re:
@@ -4147,12 +4147,12 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.WithStmtContext,0)
 
 
-        def funcdef(self):
-            return self.getTypedRuleContext(Python3Parser.FuncdefContext,0)
+        def funcDef(self):
+            return self.getTypedRuleContext(Python3Parser.FuncDefContext,0)
 
 
-        def classdef(self):
-            return self.getTypedRuleContext(Python3Parser.ClassdefContext,0)
+        def classDef(self):
+            return self.getTypedRuleContext(Python3Parser.ClassDefContext,0)
 
 
         def decorated(self):
@@ -4219,12 +4219,12 @@ class Python3Parser ( Parser ):
             elif token in [Python3Parser.DEF]:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 609
-                self.funcdef()
+                self.funcDef()
                 pass
             elif token in [Python3Parser.CLASS]:
                 self.enterOuterAlt(localctx, 7)
                 self.state = 610
-                self.classdef()
+                self.classDef()
                 pass
             elif token in [Python3Parser.AT]:
                 self.enterOuterAlt(localctx, 8)
@@ -4257,8 +4257,8 @@ class Python3Parser ( Parser ):
         def ASYNC(self):
             return self.getToken(Python3Parser.ASYNC, 0)
 
-        def funcdef(self):
-            return self.getTypedRuleContext(Python3Parser.FuncdefContext,0)
+        def funcDef(self):
+            return self.getTypedRuleContext(Python3Parser.FuncDefContext,0)
 
 
         def withStmt(self):
@@ -4302,7 +4302,7 @@ class Python3Parser ( Parser ):
             token = self._input.LA(1)
             if token in [Python3Parser.DEF]:
                 self.state = 616
-                self.funcdef()
+                self.funcDef()
                 pass
             elif token in [Python3Parser.WITH]:
                 self.state = 617
@@ -4528,15 +4528,15 @@ class Python3Parser ( Parser ):
         def FOR(self):
             return self.getToken(Python3Parser.FOR, 0)
 
-        def exprlist(self):
-            return self.getTypedRuleContext(Python3Parser.ExprlistContext,0)
+        def exprList(self):
+            return self.getTypedRuleContext(Python3Parser.ExprListContext,0)
 
 
         def IN(self):
             return self.getToken(Python3Parser.IN, 0)
 
-        def testlist(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistContext,0)
+        def testList(self):
+            return self.getTypedRuleContext(Python3Parser.TestListContext,0)
 
 
         def COLON(self, i:int=None):
@@ -4585,11 +4585,11 @@ class Python3Parser ( Parser ):
             self.state = 649
             self.match(Python3Parser.FOR)
             self.state = 650
-            self.exprlist()
+            self.exprList()
             self.state = 651
             self.match(Python3Parser.IN)
             self.state = 652
-            self.testlist()
+            self.testList()
             self.state = 653
             self.match(Python3Parser.COLON)
             self.state = 654
@@ -5089,8 +5089,8 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.TestContext,0)
 
 
-        def lambdef(self):
-            return self.getTypedRuleContext(Python3Parser.LambdefContext,0)
+        def lambaDef(self):
+            return self.getTypedRuleContext(Python3Parser.LambaDefContext,0)
 
 
         def getRuleIndex(self):
@@ -5144,7 +5144,7 @@ class Python3Parser ( Parser ):
             elif token in [Python3Parser.LAMBDA]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 731
-                self.lambdef()
+                self.lambaDef()
                 pass
             else:
                 raise NoViableAltException(self)
@@ -5168,8 +5168,8 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.OrTestContext,0)
 
 
-        def lambdefNocond(self):
-            return self.getTypedRuleContext(Python3Parser.LambdefNocondContext,0)
+        def lambaDefNoCond(self):
+            return self.getTypedRuleContext(Python3Parser.LambaDefNoCondContext,0)
 
 
         def getRuleIndex(self):
@@ -5208,7 +5208,7 @@ class Python3Parser ( Parser ):
             elif token in [Python3Parser.LAMBDA]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 735
-                self.lambdefNocond()
+                self.lambaDefNoCond()
                 pass
             else:
                 raise NoViableAltException(self)
@@ -5222,7 +5222,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class LambdefContext(ParserRuleContext):
+    class LambaDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -5238,34 +5238,34 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.TestContext,0)
 
 
-        def varargslist(self):
-            return self.getTypedRuleContext(Python3Parser.VarargslistContext,0)
+        def varargsList(self):
+            return self.getTypedRuleContext(Python3Parser.VarargsListContext,0)
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_lambdef
+            return Python3Parser.RULE_lambaDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLambdef" ):
-                listener.enterLambdef(self)
+            if hasattr( listener, "enterLambaDef" ):
+                listener.enterLambaDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLambdef" ):
-                listener.exitLambdef(self)
+            if hasattr( listener, "exitLambaDef" ):
+                listener.exitLambaDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitLambdef" ):
-                return visitor.visitLambdef(self)
+            if hasattr( visitor, "visitLambaDef" ):
+                return visitor.visitLambaDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def lambdef(self):
+    def lambaDef(self):
 
-        localctx = Python3Parser.LambdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 102, self.RULE_lambdef)
+        localctx = Python3Parser.LambaDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 102, self.RULE_lambaDef)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -5276,7 +5276,7 @@ class Python3Parser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Python3Parser.NAME) | (1 << Python3Parser.STAR) | (1 << Python3Parser.POWER))) != 0):
                 self.state = 739
-                self.varargslist()
+                self.varargsList()
 
 
             self.state = 742
@@ -5292,7 +5292,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class LambdefNocondContext(ParserRuleContext):
+    class LambaDefNoCondContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -5308,34 +5308,34 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.TestNocondContext,0)
 
 
-        def varargslist(self):
-            return self.getTypedRuleContext(Python3Parser.VarargslistContext,0)
+        def varargsList(self):
+            return self.getTypedRuleContext(Python3Parser.VarargsListContext,0)
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_lambdefNocond
+            return Python3Parser.RULE_lambaDefNoCond
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLambdefNocond" ):
-                listener.enterLambdefNocond(self)
+            if hasattr( listener, "enterLambaDefNoCond" ):
+                listener.enterLambaDefNoCond(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLambdefNocond" ):
-                listener.exitLambdefNocond(self)
+            if hasattr( listener, "exitLambaDefNoCond" ):
+                listener.exitLambaDefNoCond(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitLambdefNocond" ):
-                return visitor.visitLambdefNocond(self)
+            if hasattr( visitor, "visitLambaDefNoCond" ):
+                return visitor.visitLambaDefNoCond(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def lambdefNocond(self):
+    def lambaDefNoCond(self):
 
-        localctx = Python3Parser.LambdefNocondContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 104, self.RULE_lambdefNocond)
+        localctx = Python3Parser.LambaDefNoCondContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 104, self.RULE_lambaDefNoCond)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -5346,7 +5346,7 @@ class Python3Parser ( Parser ):
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Python3Parser.NAME) | (1 << Python3Parser.STAR) | (1 << Python3Parser.POWER))) != 0):
                 self.state = 746
-                self.varargslist()
+                self.varargsList()
 
 
             self.state = 749
@@ -6554,8 +6554,8 @@ class Python3Parser ( Parser ):
         def CLOSE_BRACE(self):
             return self.getToken(Python3Parser.CLOSE_BRACE, 0)
 
-        def dictorsetmaker(self):
-            return self.getTypedRuleContext(Python3Parser.DictorsetmakerContext,0)
+        def dictOrSetMaker(self):
+            return self.getTypedRuleContext(Python3Parser.DictOrSetMakerContext,0)
 
 
         def NAME(self):
@@ -6657,7 +6657,7 @@ class Python3Parser ( Parser ):
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << Python3Parser.STRING) | (1 << Python3Parser.NUMBER) | (1 << Python3Parser.LAMBDA) | (1 << Python3Parser.NOT) | (1 << Python3Parser.NONE) | (1 << Python3Parser.TRUE) | (1 << Python3Parser.FALSE) | (1 << Python3Parser.AWAIT) | (1 << Python3Parser.NAME) | (1 << Python3Parser.ELLIPSIS) | (1 << Python3Parser.STAR) | (1 << Python3Parser.OPEN_PAREN) | (1 << Python3Parser.POWER) | (1 << Python3Parser.OPEN_BRACK))) != 0) or ((((_la - 66)) & ~0x3f) == 0 and ((1 << (_la - 66)) & ((1 << (Python3Parser.ADD - 66)) | (1 << (Python3Parser.MINUS - 66)) | (1 << (Python3Parser.NOT_OP - 66)) | (1 << (Python3Parser.OPEN_BRACE - 66)))) != 0):
                     self.state = 880
-                    self.dictorsetmaker()
+                    self.dictOrSetMaker()
 
 
                 self.state = 883
@@ -7043,8 +7043,8 @@ class Python3Parser ( Parser ):
         def COLON(self):
             return self.getToken(Python3Parser.COLON, 0)
 
-        def sliceop(self):
-            return self.getTypedRuleContext(Python3Parser.SliceopContext,0)
+        def sliceOp(self):
+            return self.getTypedRuleContext(Python3Parser.SliceOpContext,0)
 
 
         def getRuleIndex(self):
@@ -7107,7 +7107,7 @@ class Python3Parser ( Parser ):
                 _la = self._input.LA(1)
                 if _la==Python3Parser.COLON:
                     self.state = 949
-                    self.sliceop()
+                    self.sliceOp()
 
 
                 pass
@@ -7122,7 +7122,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class SliceopContext(ParserRuleContext):
+    class SliceOpContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -7136,29 +7136,29 @@ class Python3Parser ( Parser ):
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_sliceop
+            return Python3Parser.RULE_sliceOp
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSliceop" ):
-                listener.enterSliceop(self)
+            if hasattr( listener, "enterSliceOp" ):
+                listener.enterSliceOp(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSliceop" ):
-                listener.exitSliceop(self)
+            if hasattr( listener, "exitSliceOp" ):
+                listener.exitSliceOp(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSliceop" ):
-                return visitor.visitSliceop(self)
+            if hasattr( visitor, "visitSliceOp" ):
+                return visitor.visitSliceOp(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def sliceop(self):
+    def sliceOp(self):
 
-        localctx = Python3Parser.SliceopContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 146, self.RULE_sliceop)
+        localctx = Python3Parser.SliceOpContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 146, self.RULE_sliceOp)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -7181,7 +7181,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class ExprlistContext(ParserRuleContext):
+    class ExprListContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -7208,29 +7208,29 @@ class Python3Parser ( Parser ):
                 return self.getToken(Python3Parser.COMMA, i)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_exprlist
+            return Python3Parser.RULE_exprList
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExprlist" ):
-                listener.enterExprlist(self)
+            if hasattr( listener, "enterExprList" ):
+                listener.enterExprList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExprlist" ):
-                listener.exitExprlist(self)
+            if hasattr( listener, "exitExprList" ):
+                listener.exitExprList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitExprlist" ):
-                return visitor.visitExprlist(self)
+            if hasattr( visitor, "visitExprList" ):
+                return visitor.visitExprList(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def exprlist(self):
+    def exprList(self):
 
-        localctx = Python3Parser.ExprlistContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 148, self.RULE_exprlist)
+        localctx = Python3Parser.ExprListContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 148, self.RULE_exprList)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -7290,7 +7290,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class TestlistContext(ParserRuleContext):
+    class TestListContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -7310,29 +7310,29 @@ class Python3Parser ( Parser ):
                 return self.getToken(Python3Parser.COMMA, i)
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_testlist
+            return Python3Parser.RULE_testList
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTestlist" ):
-                listener.enterTestlist(self)
+            if hasattr( listener, "enterTestList" ):
+                listener.enterTestList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTestlist" ):
-                listener.exitTestlist(self)
+            if hasattr( listener, "exitTestList" ):
+                listener.exitTestList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTestlist" ):
-                return visitor.visitTestlist(self)
+            if hasattr( visitor, "visitTestList" ):
+                return visitor.visitTestList(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def testlist(self):
+    def testList(self):
 
-        localctx = Python3Parser.TestlistContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 150, self.RULE_testlist)
+        localctx = Python3Parser.TestListContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 150, self.RULE_testList)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -7368,7 +7368,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class DictorsetmakerContext(ParserRuleContext):
+    class DictOrSetMakerContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -7418,29 +7418,29 @@ class Python3Parser ( Parser ):
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_dictorsetmaker
+            return Python3Parser.RULE_dictOrSetMaker
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDictorsetmaker" ):
-                listener.enterDictorsetmaker(self)
+            if hasattr( listener, "enterDictOrSetMaker" ):
+                listener.enterDictOrSetMaker(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDictorsetmaker" ):
-                listener.exitDictorsetmaker(self)
+            if hasattr( listener, "exitDictOrSetMaker" ):
+                listener.exitDictOrSetMaker(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDictorsetmaker" ):
-                return visitor.visitDictorsetmaker(self)
+            if hasattr( visitor, "visitDictOrSetMaker" ):
+                return visitor.visitDictOrSetMaker(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def dictorsetmaker(self):
+    def dictOrSetMaker(self):
 
-        localctx = Python3Parser.DictorsetmakerContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 152, self.RULE_dictorsetmaker)
+        localctx = Python3Parser.DictOrSetMakerContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 152, self.RULE_dictOrSetMaker)
         self._la = 0 # Token type
         try:
             self.state = 1034
@@ -7594,7 +7594,7 @@ class Python3Parser ( Parser ):
         return localctx
 
 
-    class ClassdefContext(ParserRuleContext):
+    class ClassDefContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
@@ -7624,29 +7624,29 @@ class Python3Parser ( Parser ):
 
 
         def getRuleIndex(self):
-            return Python3Parser.RULE_classdef
+            return Python3Parser.RULE_classDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterClassdef" ):
-                listener.enterClassdef(self)
+            if hasattr( listener, "enterClassDef" ):
+                listener.enterClassDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitClassdef" ):
-                listener.exitClassdef(self)
+            if hasattr( listener, "exitClassDef" ):
+                listener.exitClassDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitClassdef" ):
-                return visitor.visitClassdef(self)
+            if hasattr( visitor, "visitClassDef" ):
+                return visitor.visitClassDef(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def classdef(self):
+    def classDef(self):
 
-        localctx = Python3Parser.ClassdefContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 154, self.RULE_classdef)
+        localctx = Python3Parser.ClassDefContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 154, self.RULE_classDef)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -7941,8 +7941,8 @@ class Python3Parser ( Parser ):
         def FOR(self):
             return self.getToken(Python3Parser.FOR, 0)
 
-        def exprlist(self):
-            return self.getTypedRuleContext(Python3Parser.ExprlistContext,0)
+        def exprList(self):
+            return self.getTypedRuleContext(Python3Parser.ExprListContext,0)
 
 
         def IN(self):
@@ -7997,7 +7997,7 @@ class Python3Parser ( Parser ):
             self.state = 1080
             self.match(Python3Parser.FOR)
             self.state = 1081
-            self.exprlist()
+            self.exprList()
             self.state = 1082
             self.match(Python3Parser.IN)
             self.state = 1083
@@ -8202,8 +8202,8 @@ class Python3Parser ( Parser ):
             return self.getTypedRuleContext(Python3Parser.TestContext,0)
 
 
-        def testlist(self):
-            return self.getTypedRuleContext(Python3Parser.TestlistContext,0)
+        def testList(self):
+            return self.getTypedRuleContext(Python3Parser.TestListContext,0)
 
 
         def getRuleIndex(self):
@@ -8244,7 +8244,7 @@ class Python3Parser ( Parser ):
             elif token in [Python3Parser.STRING, Python3Parser.NUMBER, Python3Parser.LAMBDA, Python3Parser.NOT, Python3Parser.NONE, Python3Parser.TRUE, Python3Parser.FALSE, Python3Parser.AWAIT, Python3Parser.NAME, Python3Parser.ELLIPSIS, Python3Parser.OPEN_PAREN, Python3Parser.OPEN_BRACK, Python3Parser.ADD, Python3Parser.MINUS, Python3Parser.NOT_OP, Python3Parser.OPEN_BRACE]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 1100
-                self.testlist()
+                self.testList()
                 pass
             else:
                 raise NoViableAltException(self)

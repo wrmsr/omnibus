@@ -63,21 +63,21 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#asyncFuncdef.
-    def enterAsyncFuncdef(self, ctx:Python3Parser.AsyncFuncdefContext):
+    # Enter a parse tree produced by Python3Parser#asyncFuncDef.
+    def enterAsyncFuncDef(self, ctx:Python3Parser.AsyncFuncDefContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#asyncFuncdef.
-    def exitAsyncFuncdef(self, ctx:Python3Parser.AsyncFuncdefContext):
+    # Exit a parse tree produced by Python3Parser#asyncFuncDef.
+    def exitAsyncFuncDef(self, ctx:Python3Parser.AsyncFuncDefContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#funcdef.
-    def enterFuncdef(self, ctx:Python3Parser.FuncdefContext):
+    # Enter a parse tree produced by Python3Parser#funcDef.
+    def enterFuncDef(self, ctx:Python3Parser.FuncDefContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#funcdef.
-    def exitFuncdef(self, ctx:Python3Parser.FuncdefContext):
+    # Exit a parse tree produced by Python3Parser#funcDef.
+    def exitFuncDef(self, ctx:Python3Parser.FuncDefContext):
         pass
 
 
@@ -90,39 +90,39 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#typedargslist.
-    def enterTypedargslist(self, ctx:Python3Parser.TypedargslistContext):
+    # Enter a parse tree produced by Python3Parser#typedArgsList.
+    def enterTypedArgsList(self, ctx:Python3Parser.TypedArgsListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#typedargslist.
-    def exitTypedargslist(self, ctx:Python3Parser.TypedargslistContext):
-        pass
-
-
-    # Enter a parse tree produced by Python3Parser#tfpdef.
-    def enterTfpdef(self, ctx:Python3Parser.TfpdefContext):
-        pass
-
-    # Exit a parse tree produced by Python3Parser#tfpdef.
-    def exitTfpdef(self, ctx:Python3Parser.TfpdefContext):
+    # Exit a parse tree produced by Python3Parser#typedArgsList.
+    def exitTypedArgsList(self, ctx:Python3Parser.TypedArgsListContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#varargslist.
-    def enterVarargslist(self, ctx:Python3Parser.VarargslistContext):
+    # Enter a parse tree produced by Python3Parser#tpDef.
+    def enterTpDef(self, ctx:Python3Parser.TpDefContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#varargslist.
-    def exitVarargslist(self, ctx:Python3Parser.VarargslistContext):
+    # Exit a parse tree produced by Python3Parser#tpDef.
+    def exitTpDef(self, ctx:Python3Parser.TpDefContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#vfpdef.
-    def enterVfpdef(self, ctx:Python3Parser.VfpdefContext):
+    # Enter a parse tree produced by Python3Parser#varargsList.
+    def enterVarargsList(self, ctx:Python3Parser.VarargsListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#vfpdef.
-    def exitVfpdef(self, ctx:Python3Parser.VfpdefContext):
+    # Exit a parse tree produced by Python3Parser#varargsList.
+    def exitVarargsList(self, ctx:Python3Parser.VarargsListContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#vfpDef.
+    def enterVfpDef(self, ctx:Python3Parser.VfpDefContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#vfpDef.
+    def exitVfpDef(self, ctx:Python3Parser.VfpDefContext):
         pass
 
 
@@ -162,12 +162,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#annassign.
-    def enterAnnassign(self, ctx:Python3Parser.AnnassignContext):
+    # Enter a parse tree produced by Python3Parser#annAssign.
+    def enterAnnAssign(self, ctx:Python3Parser.AnnAssignContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#annassign.
-    def exitAnnassign(self, ctx:Python3Parser.AnnassignContext):
+    # Exit a parse tree produced by Python3Parser#annAssign.
+    def exitAnnAssign(self, ctx:Python3Parser.AnnAssignContext):
         pass
 
 
@@ -180,12 +180,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#augassign.
-    def enterAugassign(self, ctx:Python3Parser.AugassignContext):
+    # Enter a parse tree produced by Python3Parser#augAssign.
+    def enterAugAssign(self, ctx:Python3Parser.AugAssignContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#augassign.
-    def exitAugassign(self, ctx:Python3Parser.AugassignContext):
+    # Exit a parse tree produced by Python3Parser#augAssign.
+    def exitAugAssign(self, ctx:Python3Parser.AugAssignContext):
         pass
 
 
@@ -225,12 +225,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#continue_stmt.
-    def enterContinue_stmt(self, ctx:Python3Parser.Continue_stmtContext):
+    # Enter a parse tree produced by Python3Parser#continueStmt.
+    def enterContinueStmt(self, ctx:Python3Parser.ContinueStmtContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#continue_stmt.
-    def exitContinue_stmt(self, ctx:Python3Parser.Continue_stmtContext):
+    # Exit a parse tree produced by Python3Parser#continueStmt.
+    def exitContinueStmt(self, ctx:Python3Parser.ContinueStmtContext):
         pass
 
 
@@ -468,21 +468,21 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#lambdef.
-    def enterLambdef(self, ctx:Python3Parser.LambdefContext):
+    # Enter a parse tree produced by Python3Parser#lambaDef.
+    def enterLambaDef(self, ctx:Python3Parser.LambaDefContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#lambdef.
-    def exitLambdef(self, ctx:Python3Parser.LambdefContext):
+    # Exit a parse tree produced by Python3Parser#lambaDef.
+    def exitLambaDef(self, ctx:Python3Parser.LambaDefContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#lambdefNocond.
-    def enterLambdefNocond(self, ctx:Python3Parser.LambdefNocondContext):
+    # Enter a parse tree produced by Python3Parser#lambaDefNoCond.
+    def enterLambaDefNoCond(self, ctx:Python3Parser.LambaDefNoCondContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#lambdefNocond.
-    def exitLambdefNocond(self, ctx:Python3Parser.LambdefNocondContext):
+    # Exit a parse tree produced by Python3Parser#lambaDefNoCond.
+    def exitLambaDefNoCond(self, ctx:Python3Parser.LambaDefNoCondContext):
         pass
 
 
@@ -666,48 +666,48 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#sliceop.
-    def enterSliceop(self, ctx:Python3Parser.SliceopContext):
+    # Enter a parse tree produced by Python3Parser#sliceOp.
+    def enterSliceOp(self, ctx:Python3Parser.SliceOpContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#sliceop.
-    def exitSliceop(self, ctx:Python3Parser.SliceopContext):
-        pass
-
-
-    # Enter a parse tree produced by Python3Parser#exprlist.
-    def enterExprlist(self, ctx:Python3Parser.ExprlistContext):
-        pass
-
-    # Exit a parse tree produced by Python3Parser#exprlist.
-    def exitExprlist(self, ctx:Python3Parser.ExprlistContext):
+    # Exit a parse tree produced by Python3Parser#sliceOp.
+    def exitSliceOp(self, ctx:Python3Parser.SliceOpContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#testlist.
-    def enterTestlist(self, ctx:Python3Parser.TestlistContext):
+    # Enter a parse tree produced by Python3Parser#exprList.
+    def enterExprList(self, ctx:Python3Parser.ExprListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#testlist.
-    def exitTestlist(self, ctx:Python3Parser.TestlistContext):
-        pass
-
-
-    # Enter a parse tree produced by Python3Parser#dictorsetmaker.
-    def enterDictorsetmaker(self, ctx:Python3Parser.DictorsetmakerContext):
-        pass
-
-    # Exit a parse tree produced by Python3Parser#dictorsetmaker.
-    def exitDictorsetmaker(self, ctx:Python3Parser.DictorsetmakerContext):
+    # Exit a parse tree produced by Python3Parser#exprList.
+    def exitExprList(self, ctx:Python3Parser.ExprListContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#classdef.
-    def enterClassdef(self, ctx:Python3Parser.ClassdefContext):
+    # Enter a parse tree produced by Python3Parser#testList.
+    def enterTestList(self, ctx:Python3Parser.TestListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#classdef.
-    def exitClassdef(self, ctx:Python3Parser.ClassdefContext):
+    # Exit a parse tree produced by Python3Parser#testList.
+    def exitTestList(self, ctx:Python3Parser.TestListContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#dictOrSetMaker.
+    def enterDictOrSetMaker(self, ctx:Python3Parser.DictOrSetMakerContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#dictOrSetMaker.
+    def exitDictOrSetMaker(self, ctx:Python3Parser.DictOrSetMakerContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#classDef.
+    def enterClassDef(self, ctx:Python3Parser.ClassDefContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#classDef.
+    def exitClassDef(self, ctx:Python3Parser.ClassDefContext):
         pass
 
 
