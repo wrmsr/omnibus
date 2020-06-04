@@ -8,6 +8,7 @@ from ..._vendor import antlr4
 from .._antlr.Python3Lexer import Python3Lexer
 from .._antlr.Python3Listener import Python3Listener
 from .._antlr.Python3Parser import Python3Parser
+from .. import parsing
 
 
 class Python3PrintListener(Python3Listener):
@@ -15,7 +16,7 @@ class Python3PrintListener(Python3Listener):
     def __init__(
             self,
             stream: antlr4.BufferedTokenStream.BufferedTokenStream,
-            parser: Python3Parser
+            parser: Python3Parser,
     ) -> None:
         super().__init__()
         self._stream = stream
@@ -26,7 +27,11 @@ class Python3PrintListener(Python3Listener):
             print(t.text)
 
 
-def var_fn(a: int, *b: ta.Dict[str, ta.Tuple[int, float]], **c: ta.Callable[..., float]) -> ta.List[int]:  # noqa
+def var_fn(
+        a: int,
+        *b: ta.Dict[str, ta.Tuple[int, float]],
+        **c: ta.Callable[..., float],
+) -> ta.List[int]:  # noqa
     pass
 
 
@@ -38,11 +43,16 @@ def test_internal():
 
         def run(buf):
             lexer = Python3Lexer(antlr4.InputStream(buf))
+
             stream = antlr4.CommonTokenStream(lexer)
             stream.fill()
+
             parser = Python3Parser(stream)
+
             tree = parser.fileInput()
+
             printer = Python3PrintListener(stream, parser)
+
             walker = antlr4.ParseTreeWalker()
             walker.walk(printer, tree)
 
@@ -56,3 +66,7 @@ def test_internal():
             run(buf)
             end = time.time()
             print('%-80s: %0.2f' % (fp, end - start,))
+
+
+def test_exprs():
+    parsing.parse('x = 2\n')
