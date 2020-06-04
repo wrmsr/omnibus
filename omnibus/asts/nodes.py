@@ -98,7 +98,9 @@ class Expr(Node, abstract=True):
 
 
 class AnnAssign(Stmt):
-    pass
+    target: Expr
+    value: Expr
+    annotation: Expr
 
 
 class Assert(Stmt):
