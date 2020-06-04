@@ -4,11 +4,11 @@ import os.path
 import time
 import typing as ta
 
+from .. import parsing
 from ..._vendor import antlr4
 from .._antlr.Python3Lexer import Python3Lexer
 from .._antlr.Python3Listener import Python3Listener
 from .._antlr.Python3Parser import Python3Parser
-from .. import parsing
 
 
 class Python3PrintListener(Python3Listener):
