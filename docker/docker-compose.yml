@@ -6,7 +6,7 @@ services:
   omnibus-dynamodb:
     build: '.'
     image: 'wrmsr/omnibus-dynamodb:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     expose:
       - '8000'
     ports:
@@ -15,7 +15,7 @@ services:
   omnibus-elasticmq:
     build: '.'
     image: 'wrmsr/omnibus-elasticmq:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     expose:
       - '9324'
     ports:
@@ -24,7 +24,7 @@ services:
   omnibus-elasticsearch:
     build: '.'
     image: 'wrmsr/omnibus-elasticsearch:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       ES_JAVA_OPTS: '-Xms750m -Xmx750m'
       discovery.type: 'single-node'
@@ -55,7 +55,7 @@ services:
   omnibus-memcached:
     build: '.'
     image: 'wrmsr/omnibus-memcached:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     expose:
       - '11211'
     ports:
@@ -64,7 +64,7 @@ services:
   omnibus-minio:
     build: '.'
     image: 'wrmsr/omnibus-minio:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       MINIO_ACCESS_KEY: 'AKIAIOSFODNN7EXAMPLE'
       MINIO_SECRET_KEY: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
@@ -76,7 +76,7 @@ services:
   omnibus-mongo:
     build: '.'
     image: 'wrmsr/omnibus-mongo:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       MONGO_INITDB_ROOT_USERNAME: 'root'
       MONGO_INITDB_ROOT_PASSWORD: 'omnibus'
@@ -88,7 +88,7 @@ services:
   omnibus-mysql-master:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       MYSQL_USER: 'omnibus'
       MYSQL_PASSWORD: 'omnibus'
@@ -101,7 +101,7 @@ services:
   omnibus-mysql-slave:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       MYSQL_USER: 'omnibus'
       MYSQL_PASSWORD: 'omnibus'
@@ -119,7 +119,7 @@ services:
   omnibus-postgres-master:
     build: '.'
     image: 'wrmsr/omnibus-postgres:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       POSTGRES_USER: 'omnibus'
       POSTGRES_PASSWORD: 'omnibus'
@@ -132,7 +132,7 @@ services:
   omnibus-postgres-slave:
     build: '.'
     image: 'wrmsr/omnibus-postgres:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       POSTGRES_USER: 'omnibus'
       POSTGRES_PASSWORD: 'omnibus'
@@ -150,7 +150,7 @@ services:
   omnibus-redis:
     build: '.'
     image: 'wrmsr/omnibus-redis:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     expose:
       - '6379'
     ports:
@@ -159,7 +159,7 @@ services:
   omnibus-spark-master:
     build: '.'
     image: 'wrmsr/omnibus-spark-master:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       - 'INIT_DAEMON_STEP=setup_spark'
       - 'constraint:node==omnibus-spark-master'
@@ -170,7 +170,7 @@ services:
   omnibus-spark-worker:
     build: '.'
     image: 'wrmsr/omnibus-spark-worker:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     environment:
       - 'SPARK_MASTER=spark://omnibus-spark-master:7077'
       - 'constraint:node==omnibus-spark-worker'
@@ -196,7 +196,7 @@ services:
   omnibus-dev:
     build: '.'
     image: 'wrmsr/omnibus-dev:latest'
-    restart: 'always'
+    restart: 'unless-stopped'
     cap_add:
       - 'SYS_PTRACE'
     security_opt:
