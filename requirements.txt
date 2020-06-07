@@ -10,7 +10,6 @@ boto3==1.13.24
 botocore==1.16.24
 bson==0.5.10
 cbor==1.0.0
-certifi==2020.4.5.2
 cytoolz==0.10.1
 docker==4.2.1
 google-api-core==1.19.1
@@ -19,7 +18,6 @@ google-auth-httplib2==0.0.3
 google-auth==1.16.1
 greenlet==0.4.16
 httptools==0.1.1
-jmespath==0.10.0
 kazoo==2.7.0
 lz4==3.0.2
 msgpack==1.0.0
