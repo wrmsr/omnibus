@@ -1,6 +1,9 @@
+import pytest
+
 from .. import stl as stl_
 
 
+@pytest.mark.xfail()
 def test_vector():
     v = stl_.Int32Vector()
     v.append(2)
@@ -10,6 +13,7 @@ def test_vector():
         print(i)
 
 
+@pytest.mark.xfail()
 def test_map():
     m = stl_.Int32Int32Map()
     m[2] = 20
@@ -19,6 +23,7 @@ def test_map():
         print((k, v))
 
 
+@pytest.mark.xfail()
 def test_bytes_vector():
     v = stl_.BytesVector()
     v.append(b'abc')

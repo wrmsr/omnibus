@@ -30,13 +30,15 @@ TODO:
   - unordered_multimap
   - bitset
 
-https://github.com/sagemath/sage/blob/cf9673bc59b43f791747b8ff31c5f072eeab88eb/src/sage/structure/coerce_dict.pyx
-https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#wrapping-cplusplus
-https://www.nexedi.com/blog/NXD-Document.Blog.Cypclass
 https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html
+https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#wrapping-cplusplus
 https://github.com/cython/cython/wiki/WrappingSetOfCppClasses
-https://tillahoffmann.github.io/2016/04/18/Cpp-containers-in-cython.html
 https://stackoverflow.com/questions/6684573/floating-point-keys-in-stdmap - ordered/lower_bound only?
+https://tillahoffmann.github.io/2016/04/18/Cpp-containers-in-cython.html
+https://www.nexedi.com/blog/NXD-Document.Blog.Cypclass
+
+https://github.com/sagemath/sage/blob/860e4dc9881966a36ef8808a0d1fae0c6b54f741/src/sage/structure/coerce_dict.pyx#L849
+https://github.com/mdavidsaver/cython-c--demo/blob/ba086ad56696c492bbf0d375a4f45cfc81568eff/demo/ext.pyx
 </%doc>
 from libc.stdint cimport int32_t
 from libc.stdint cimport int64_t
