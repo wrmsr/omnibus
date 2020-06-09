@@ -132,6 +132,7 @@ class Frozen(
     frozen=True,
     confer={
         'frozen',
+        'reorder',
         'confer',
     },
 ):
@@ -164,6 +165,7 @@ class Enum(
         'confer': {
             'final': Conferrer(_confer_enum_final),
             'frozen': True,
+            'reorder': SUPER,
             'confer': SUPER,
         },
     },

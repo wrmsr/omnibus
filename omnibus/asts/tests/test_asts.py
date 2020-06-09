@@ -4,6 +4,7 @@ import os.path
 import time
 import typing as ta
 
+from .. import nodes
 from .. import parsing
 from ..._vendor import antlr4
 from .._antlr.Python3Lexer import Python3Lexer
@@ -70,3 +71,7 @@ def test_internal():
 
 def test_exprs():
     parsing.parse('x = 2\n')
+
+
+def test_nodes():
+    print(nodes.Assign('a', 'b', type_comment='c'))

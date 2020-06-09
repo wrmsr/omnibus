@@ -26,9 +26,15 @@ type_ignore(AST)
 withitem(AST)
 """
 import enum
+import typing as ta
 
 from .. import dataclasses as dc
 from .. import lang
+
+
+Nodes = ta.Sequence['Node']
+Stmts = ta.Sequence['Stmt']
+Exprs = ta.Sequence['Expr']
 
 
 class BinOp(enum.Enum):
@@ -81,7 +87,7 @@ class UnaryOp(enum.Enum):
     SUB = '-'
 
 
-class Node(dc.Enum, abstract=True, sealed=True):
+class Node(dc.Enum, abstract=True, sealed=True, reorder=True):
     pass
 
 
@@ -97,34 +103,51 @@ class Expr(Node, abstract=True):
     pass
 
 
+class TypeCommented(dc.Data, frozen=True, abstract=True, sealed=True, reorder=True):
+    type_comment: ta.Optional[str] = None
+
+
 class AnnAssign(Stmt):
     target: Expr
+    annotation: ta.Optional[Expr]
     value: Expr
-    annotation: Expr
+    simple: bool
 
 
 class Assert(Stmt):
-    pass
+    test: Expr
+    msg: ta.Optional[Expr] = None
 
 
-class Assign(Stmt):
-    pass
+class Assign(Stmt, TypeCommented):
+    targets: Exprs
+    value: Expr
 
 
-class AsyncFor(Stmt):
-    pass
+class AsyncFor(Stmt, TypeCommented):
+    target: Expr
+    iter: Expr
+    body: Stmts
+    orelse: Stmts = ()
 
 
-class AsyncFunctionDef(Stmt):
-    pass
+class AsyncFunctionDef(Stmt, TypeCommented):
+    name: str
+    # FIXME: args: Arguments
+    body: Stmts
+    decorators: Exprs = ()
+    returns: ta.Optional[Expr] = None
 
 
-class AsyncWith(Stmt):
-    pass
+class AsyncWith(Stmt, TypeCommented):
+    # FIXME: items: ta.Sequence[WithItem]
+    body: Stmts
 
 
 class AugAssign(Stmt):
-    pass
+    target: Expr
+    op: BinOp
+    value: Expr
 
 
 class Break(Stmt):
@@ -132,7 +155,11 @@ class Break(Stmt):
 
 
 class ClassDef(Stmt):
-    pass
+    name: str
+    bases: Exprs
+    # FIXME: keywords: ta.Sequence[Keyword] = ()
+    body: Stmts
+    decorators: Exprs = ()
 
 
 class Continue(Stmt):
@@ -140,35 +167,46 @@ class Continue(Stmt):
 
 
 class Delete(Stmt):
-    pass
+    targets: Exprs
 
 
-class For(Stmt):
-    pass
+class For(Stmt, TypeCommented):
+    target: Expr
+    iter: Expr
+    body: Stmts
+    orelse: Stmts = ()
 
 
-class FunctionDef(Stmt):
-    pass
+class FunctionDef(Stmt, TypeCommented):
+    name: str
+    # FIXME: args: Arguments
+    body: Stmts
+    decorators: Exprs = ()
+    returns: ta.Optional[Expr] = None
 
 
 class Global(Stmt):
-    pass
+    names: ta.Sequence[str]
 
 
 class If(Stmt):
-    pass
+    test: Expr
+    body: Stmts
+    orelse: Stmts = ()
 
 
 class Import(Stmt):
-    pass
+    names: ta.Sequence[str]
 
 
 class ImportFrom(Stmt):
-    pass
+    module: str
+    names: str
+    level: ta.Optional[int] = None
 
 
 class Nonlocal(Stmt):
-    pass
+    names: ta.Sequence[str]
 
 
 class Pass(Stmt):
@@ -176,43 +214,54 @@ class Pass(Stmt):
 
 
 class Raise(Stmt):
-    pass
+    exc: Expr
+    cause: ta.Optional[Expr] = None
 
 
 class Return(Stmt):
-    pass
+    value: ta.Optional[Expr] = None
 
 
 class Try(Stmt):
-    pass
+    body: ta.Sequence[Stmt]
+    # FIXME: handlers: ta.Sequence[ExceptHandler]
+    orelse: Stmts = ()
+    finalbody: Stmts = ()
 
 
 class While(Stmt):
-    pass
+    test: Expr
+    body: Stmts
+    orelse: Stmts = ()
 
 
-class With(Stmt):
-    pass
+class With(Stmt, TypeCommented):
+    items: Exprs
+    body: Stmts
 
 
 class Attribute(Expr):
-    pass
+    value: Expr
+    attr: str
 
 
 class Await(Expr):
-    pass
+    value: Expr
 
 
 class BinExpr(Expr):
-    pass
+    left: Expr
+    op: BinOp
+    right: Expr
 
 
 class BoolExpr(Expr):
-    pass
+    op: BoolOp
+    values: Expr
 
 
 class Bytes(Expr):
-    pass
+    value: str
 
 
 class Call(Expr):
