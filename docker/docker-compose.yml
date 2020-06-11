@@ -35,7 +35,9 @@ services:
       - '22213:9200'
 
   omnibus-kafka:
+    build: '.'
     image: 'wrmsr/omnibus-kafka:latest'
+    restart: 'unless-stopped'
     hostname: 'omnibus-kafka'
     environment:
       KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:22214'
