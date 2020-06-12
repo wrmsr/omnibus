@@ -11,8 +11,8 @@ wcwidth==0.2.4
 certifi==2020.4.5.2
 importlib-resources==2.0.0
 jmespath==0.10.0
-numba==0.49.1
-rsa==4.2
+numba==0.50.0
+rsa==4.4.1
 scramp==1.2.0
 
 
