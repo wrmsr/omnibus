@@ -47,3 +47,21 @@ def unique_list(it: ta.Iterable[T]) -> ta.List[T]:
             lst.append(e)
             seen.add(e)
     return lst
+
+
+TrueT = T
+FalseT = T
+
+
+def split_filter(
+        pred: ta.Callable[[T], bool],
+        it: ta.Iterable[T],
+) -> ta.Tuple[ta.Sequence[TrueT], ta.Sequence[FalseT]]:
+    true = []
+    false = []
+    for e in it:
+        if pred(e):
+            true.append(e)
+        else:
+            false.append(e)
+    return true, false

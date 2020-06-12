@@ -28,6 +28,7 @@ withitem(AST)
 import enum
 import typing as ta
 
+from .. import collections as ocol
 from .. import dataclasses as dc
 from .. import lang
 
@@ -265,19 +266,23 @@ class Bytes(Expr):
 
 
 class Call(Expr):
-    pass
+    func: Expr
+    args: Exprs = ()
+    kwargs: ta.Mapping[str, Expr] = ocol.frozendict()
 
 
 class Compare(Expr):
-    pass
+    left: Expr
+    cmps: ta.Sequence[ta.Tuple[CmpOp, Expr]]
 
 
 class Constant(Expr):
-    pass
+    value: ta.Any
+    # FIXME: kind: ta.Any = None
 
 
 class Dict(Expr):
-    pass
+    items: ta.Union[ta.Tuple[str, Expr], Expr]
 
 
 class DictComp(Expr):

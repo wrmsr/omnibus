@@ -2,7 +2,9 @@ from .collections import histogram  # noqa
 from .collections import toposort  # noqa
 from .frozen import Frozen  # noqa
 from .frozen import FrozenDict  # noqa
+from .frozen import frozendict  # noqa
 from .frozen import FrozenList  # noqa
+from .frozen import frozenlist  # noqa
 from .identity import IdentityHashableDict  # noqa
 from .identity import IdentityHashableList  # noqa
 from .identity import IdentityHashableSet  # noqa

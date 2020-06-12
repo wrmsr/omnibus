@@ -76,6 +76,9 @@ class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
         return type(self)(itertools.chain(self.items(), new.items()))
 
 
+frozendict = FrozenDict
+
+
 class FrozenList(ta.Sequence[T], Frozen, lang.Final):
 
     def __init__(self, it: ta.Iterable[T] = None) -> None:
@@ -139,3 +142,6 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
 
     def index(self, x: ta.Any, *args, **kwargs) -> int:
         return self._tup.index(x, *args, **kwargs)
+
+
+frozenlist = FrozenList

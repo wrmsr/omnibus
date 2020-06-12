@@ -14,6 +14,8 @@ TODO:
  - Class options:
   - coerce: True=just call w val, cls-lvl default on/off, unary void callable
   - validate: True=default, cls-lvl default on/off, unary void callable ...
+  - iterable: ta.Union[Iterability, str], enum Iterability: VALUES, KEYS, ITEMS
+   - VALUES = namedtuple compat, destructuring
  - typecheck defaults on def
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
