@@ -250,7 +250,6 @@ operationTypeDefinition
     : operationType ':' namedType
     ;
 
-
 // https://spec.graphql.org/June2018/#sec-Descriptions
 description
     : stringValue
