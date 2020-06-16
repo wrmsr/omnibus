@@ -1,6 +1,7 @@
 include README.md
 include LICENSE
 include LICENSE-*
+include **/.revision
 
 exclude omnibus
 include omnibus/__init__.py
