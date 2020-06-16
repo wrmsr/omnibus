@@ -45,7 +45,6 @@ def _get_static_files(path):
 
 
 PACKAGE_DATA = [
-    '.revision',
 ] + _get_static_files('omnibus')
 
 

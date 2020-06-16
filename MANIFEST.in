@@ -2,6 +2,8 @@ include README.md
 include LICENSE
 include LICENSE-*
 
+include omnibus/.revision
+
 exclude omnibus/_ext/cy/**/*.cpp
 include omnibus/_ext/cc/**/*.cc
 include omnibus/_ext/cc/**/*.h

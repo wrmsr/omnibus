@@ -281,9 +281,8 @@ define do-dist
 	find build -name '*.so' -delete
 	cd build && "$(DIST_BUILD_PYTHON)" setup.py clean
 
-	if [ ! -f "omnibus/.revision" ] ; then \
-		git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision" ; \
-	fi
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision"
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/dev/.revision"
 
 	if [ "$(1)" = ".venv" ] ; then \
 		cd build && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
