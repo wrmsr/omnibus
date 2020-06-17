@@ -152,7 +152,6 @@ venv-39:
 
 .PHONY: gen
 gen: antlr stl
-gen: antlr
 	true
 
 .PHONY: antlr

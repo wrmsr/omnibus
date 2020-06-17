@@ -345,6 +345,34 @@ def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
     return rec(*args, **kwargs)
 
 
+def is_not_none(obj: T) -> bool:
+    return obj is not None
+
+
+def xor(*items: T, **kwargs) -> T:
+    not_set = object()
+    default = kwargs.pop('default', not_set)
+    default_factory = kwargs.pop('default_factory', not_set)
+    test = kwargs.pop('test', bool)
+    if default is not not_set and default_factory is not not_set:
+        raise ValueError('Expected at most one of default and default_factory')
+    if kwargs:
+        raise ValueError(kwargs)
+    value = not_set
+    for item in items:
+        if test(item):
+            if value is not not_set:
+                raise ValueError(f'Expected exactly one of {items}, got {value} and {item}', items, value, item)
+            value = item
+    if value is not not_set:
+        return value
+    if default is not not_set:
+        return default
+    if default_factory is not not_set:
+        return default_factory()
+    raise ValueError(f'Expected exactly one of {items}, got none', items)
+
+
 class SimpleProxy(ta.Generic[T]):
 
     class Descriptor(ta.Generic[T]):
