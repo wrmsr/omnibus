@@ -6,6 +6,7 @@ import typing as ta
 from .. import local as local_
 from ... import lang
 from ... import properties
+from ...dev.testing.helpers import skip_if_cant_import
 
 if ta.TYPE_CHECKING:
     import pyspark as ps
@@ -53,6 +54,7 @@ class Driver:
             self.context.stop()
 
 
+@skip_if_cant_import('pyspark')
 def test_local_launcher():
     launcher = local_.LocalLauncher(textwrap.dedent(f"""
     from {__name__} import Driver
