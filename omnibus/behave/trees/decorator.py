@@ -21,6 +21,12 @@ class Include(Decorator[E]):
     def __init__(self):
         raise NotImplementedError
 
+    def start(self) -> None:
+        raise NotImplementedError
+
+    def reset(self) -> None:
+        raise NotImplementedError
+
 
 class Invert(Decorator[E]):
 
@@ -36,16 +42,59 @@ class Random(Decorator[E]):
     def __init__(self, child: Task[E] = None, chance: float = 0.5) -> None:
         raise NotImplementedError
 
+    def run(self) -> None:
+        raise NotImplementedError
 
-class Repeat(Decorator[E]):
+    def start(self) -> None:
+        raise NotImplementedError
+
+    def child_fail(self, task: 'Task[E]') -> None:
+        raise NotImplementedError
+
+    def child_success(self, task: 'Task[E]') -> None:
+        raise NotImplementedError
+
+    def reset(self) -> None:
+        raise NotImplementedError
+
+
+class Repeat(LoopDecorator[E]):
 
     def __init__(self, child: Task[E] = None) -> None:
+        raise NotImplementedError
+
+    @property
+    def condition(self) -> bool:
+        raise NotImplementedError
+
+    def start(self) -> None:
+        raise NotImplementedError
+
+    def child_fail(self, task: 'Task[E]') -> None:
+        raise NotImplementedError
+
+    def child_success(self, task: 'Task[E]') -> None:
+        raise NotImplementedError
+
+    def reset(self) -> None:
         raise NotImplementedError
 
 
 class SemaphoreGuard(Decorator[E]):
 
     def __init__(self, child: Task[E] = None) -> None:
+        raise NotImplementedError
+
+    def start(self) -> None:
+        raise NotImplementedError
+
+    def run(self) -> None:
+        raise NotImplementedError
+
+    def end(self) -> None:
+        raise NotImplementedError
+
+    def reset(self) -> None:
         raise NotImplementedError
 
 

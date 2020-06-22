@@ -17,6 +17,7 @@ numba==0.50.0
 py==1.8.2
 requests==2.24.0
 rsa==4.6
+scipy==1.5.0
 scramp==1.2.0
 
 
@@ -24,7 +25,7 @@ scramp==1.2.0
 
 bsddb3==6.2.7
 chardet==3.0.4
-datadog==0.36.0
+datadog==0.37.0
 ddtrace==0.39.0
 dnspython==1.16.0
 fastavro==0.23.4
@@ -40,13 +41,13 @@ kiwisolver==1.2.0
 llvmlite==0.33.0
 matplotlib==3.2.2
 notebook==6.0.3
-pandas==1.0.5
-numpy==1.18.5
+numpy==1.19.0
 oauthlib==3.1.0
+pandas==1.0.5
 plotly==4.8.1
 plyvel==1.2.0
 py4j==0.10.9
-pyglet==1.5.6
+pyglet==1.5.7
 pyjwt==1.7.1
 pykafka==2.8.0
 pymc3==3.9.1
