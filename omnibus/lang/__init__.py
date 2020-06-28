@@ -1,5 +1,8 @@
 from .asyncs import async_list  # noqa
+from .asyncs import AsyncTimeoutException  # noqa
+from .asyncs import await_dependent_futures  # noqa
 from .asyncs import await_futures  # noqa
+from .asyncs import FutureException  # noqa
 from .asyncs import ImmediateExecutor  # noqa
 from .asyncs import sync_await  # noqa
 from .asyncs import sync_list  # noqa
@@ -100,6 +103,7 @@ from .lang import register_on  # noqa
 from .lang import Self  # noqa
 from .lang import SimpleProxy  # noqa
 from .lang import super_meta  # noqa
+from .lang import unwrap_func  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import void  # noqa
 from .lang import VoidException  # noqa

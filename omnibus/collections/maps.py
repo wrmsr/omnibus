@@ -39,6 +39,30 @@ def guarded_map_update(
     return dst
 
 
+def traverse_links(data: ta.Mapping[T, ta.Iterable[T]], keys: ta.Iterable[T]) -> ta.Set[T]:
+    keys = set(keys)
+    todo = set(keys)
+    seen: ta.Set[T] = set()
+    while todo:
+        key = todo.pop()
+        seen.add(key)
+        cur = data.get(key, [])
+        todo.update(set(cur) - seen)
+    return seen - keys
+
+
+def invert_set_map(src: ta.Mapping[K, ta.Iterable[V]], *, symmetric: bool = False) -> ta.Dict[V, ta.Set[K]]:
+    dst: ta.Dict[V, ta.Set[K]]
+    if symmetric:
+        dst = {ta.cast(V, l): set() for l in src}
+    else:
+        dst = {}
+    for l, rs in src.items():
+        for r in rs:
+            dst.setdefault(r, set()).add(l)
+    return dst
+
+
 def yield_dict_init(*args, **kwargs) -> ta.Iterable[ta.Tuple[ta.Any, ta.Any]]:
     if len(args) > 1:
         raise TypeError

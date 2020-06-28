@@ -21,7 +21,7 @@ def make_abstract(obj: T) -> T:
             abc.abstractmethod(obj.fset) if obj.fset is not None else None,
             abc.abstractmethod(obj.fdel) if obj.fdel is not None else None,
         )
-    elif isinstance(obj, classmethod) or isinstance(obj, staticmethod):
+    elif isinstance(obj, (classmethod, staticmethod)):
         return type(obj)(abc.abstractmethod(obj.__func__))
     else:
         return obj

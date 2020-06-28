@@ -12,8 +12,10 @@ from .identity import IdentityKeyDict  # noqa
 from .identity import IdentitySet  # noqa
 from .identity import IdentityWrapper  # noqa
 from .maps import guarded_map_update  # noqa
+from .maps import invert_set_map  # noqa
 from .maps import ItemSeqTypeMap  # noqa
 from .maps import multikey_dict  # noqa
+from .maps import traverse_links  # noqa
 from .maps import yield_dict_init  # noqa
 from .ordered import OrderedFrozenSet  # noqa
 from .ordered import OrderedSet  # noqa

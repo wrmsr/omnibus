@@ -5,7 +5,7 @@ TODO:
   517 ns ± 13.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
   - + push/pull bridge?
 """
-import concurrent.futures
+import concurrent.futures as cf
 import contextlib
 import functools
 import time
@@ -69,35 +69,129 @@ def syncable_iterable(fn: ta.Callable[..., ta.AsyncIterator[T]]) -> ta.Callable[
     return inner
 
 
-def await_futures(
-        futures: ta.Sequence[concurrent.futures.Future],
-        *,
-        timeout_s: ta.Union[int, float] = 60,
-        timeout_exception: Exception = RuntimeError('Future timeout'),
-        tick_interval: ta.Union[int, float] = 0.1,
-        tick_fn: ta.Callable[..., bool] = lambda: True,
-) -> bool:
-    start = time.time()
-    pos = 0
-    while tick_fn():
-        for pos in range(pos, len(futures)):
-            if not futures[pos].done():
-                break
-        else:
-            return True
-        if time.time() >= (start + timeout_s):
-            raise timeout_exception
-        time.sleep(tick_interval)
-    return False
-
-
-class ImmediateExecutor(concurrent.futures.Executor):
+class ImmediateExecutor(cf.Executor):
 
     def submit(self, fn, *args, **kwargs):
-        future = concurrent.futures.Future()
+        future = cf.Future()
         try:
             result = fn(*args, **kwargs)
             future.set_result(result)
         except Exception as e:
             future.set_exception(e)
         return future
+
+
+class AsyncTimeoutException(Exception):
+    pass
+
+
+class FutureException(Exception):
+
+    def __init__(self, future: cf.Future) -> None:
+        super().__init__()
+
+        self._future = future
+
+    @property
+    def future(self) -> cf.Future:
+        return self._future
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__qualname__}(exception={self.future.exception()!r}, future={self.future!r})"
+
+    __str__ = __repr__
+
+
+def await_futures(
+        futures: ta.Sequence[cf.Future],
+        *,
+        timeout_s: ta.Union[int, float] = 60,
+        tick_interval_s: ta.Union[int, float] = 0.5,
+        tick_fn: ta.Callable[..., bool] = lambda: True,
+        raise_exceptions: bool = False,
+        cancel_on_exception: bool = False,
+) -> bool:
+    start = time.time()
+
+    not_done = set(futures)
+    while tick_fn():
+        done = {f for f in not_done if f.done()}
+        if raise_exceptions:
+            for fut in done:
+                if fut.exception():
+                    if cancel_on_exception:
+                        for cancel_fut in not_done:
+                            cancel_fut.cancel()
+                    raise FutureException(fut) from fut.exception()
+
+        not_done -= done
+        if not not_done:
+            return True
+
+        if time.time() >= (start + timeout_s):
+            raise AsyncTimeoutException
+        time.sleep(tick_interval_s)
+
+    return False
+
+
+def await_dependent_futures(
+        executor: cf.Executor,
+        dependency_sets_by_fn: ta.Mapping[ta.Callable, ta.AbstractSet[ta.Callable]],
+        *,
+        timeout_s: ta.Union[int, float] = 60,
+        tick_interval_s: ta.Union[int, float] = 0.5,
+        tick_fn: ta.Callable[..., bool] = lambda: True,
+) -> ta.Mapping[ta.Callable, cf.Future]:
+    for fn, deps in dependency_sets_by_fn.items():
+        for dep in deps:
+            if dep == fn:
+                raise ValueError(fn)
+            if dep not in dependency_sets_by_fn:
+                raise KeyError(dep)
+
+    dependent_sets_by_fn = {fn: set() for fn in dependency_sets_by_fn}
+    for fn, deps in dependency_sets_by_fn.items():
+        for dep in deps:
+            dependent_sets_by_fn[dep].add(fn)
+    remaining_dep_sets_by_fn = {
+        fn: set(dependencies) for fn, dependencies in dependency_sets_by_fn.items()
+    }
+    root_fns = {fn for fn, deps in remaining_dep_sets_by_fn.items() if not deps}
+    fns_by_fut = {fut: fn for fn in root_fns for fut in [executor.submit(fn)] if fut is not None}
+
+    def cancel():
+        for cancel_fut in fns_by_fut:
+            cancel_fut.cancel()
+
+    start = time.time()
+    not_done = set(fns_by_fut.keys())
+    while not_done and tick_fn():
+        done, not_done = cf.wait(not_done, timeout=tick_interval_s, return_when=cf.FIRST_COMPLETED)
+        not_done = set(not_done)
+
+        for fut in done:
+            if fut.exception():
+                cancel()
+                raise FutureException(fut) from fut.exception()
+
+            fn = fns_by_fut[fut]
+            for dependent_fn in dependent_sets_by_fn.get(fn, set()):
+                remaining_deps = remaining_dep_sets_by_fn[dependent_fn]
+                remaining_deps.remove(fn)
+                if not remaining_deps:
+                    downstream_fut = executor.submit(dependent_fn)
+                    if downstream_fut is not None:
+                        fns_by_fut[downstream_fut] = dependent_fn
+                        not_done.add(downstream_fut)
+
+        if time.time() >= (start + timeout_s):
+            cancel()
+            raise AsyncTimeoutException
+
+    remaining_fns = {fn: deps for fn, deps in remaining_dep_sets_by_fn.items() if deps}
+    if remaining_fns:
+        raise Exception(f"Unfinished fns: {remaining_fns}", remaining_fns)
+
+    futs_by_fn = {fn: fut for fut, fn in fns_by_fut.items()}
+    return futs_by_fn
