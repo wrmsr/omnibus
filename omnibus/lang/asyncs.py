@@ -87,17 +87,27 @@ class AsyncTimeoutException(Exception):
 
 class FutureException(Exception):
 
-    def __init__(self, future: cf.Future) -> None:
+    def __init__(self, future: cf.Future, target: ta.Optional[T] = None) -> None:
         super().__init__()
 
         self._future = future
+        self._target = target
 
     @property
     def future(self) -> cf.Future:
         return self._future
 
+    @property
+    def target(self) -> ta.Optional[T]:
+        return self._target
+
     def __repr__(self) -> str:
-        return f"{self.__class__.__qualname__}(exception={self.future.exception()!r}, future={self.future!r})"
+        return (
+            f'{self.__class__.__qualname__}('
+            f'exception={self._future.exception()!r}, '
+            f'future={self._future!r}, '
+            f'target={self._target})'
+        )
 
     __str__ = __repr__
 
