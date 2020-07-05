@@ -30,6 +30,9 @@ class _ParseVisitor(Python3Visitor):
             expr = n.BinExpr(expr, op, right)
         return expr
 
+    def visitAndExpr(self, ctx: Python3Parser.AndExprContext):
+        return self.visitBinOpExprCont(ctx.shiftExpr(), ctx.andExprCont(), lambda c: c.shiftExpr())
+
     def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Expr:
         return self.visitBinOpExprCont(ctx.term(), ctx.arithExprCont(), lambda c: c.term())
 
@@ -94,6 +97,12 @@ class _ParseVisitor(Python3Visitor):
             return self.visit(ctx.power())
         else:
             raise ValueError(ctx)
+
+    def visitShiftExpr(self, ctx: Python3Parser.ShiftExprContext):
+        return self.visitBinOpExprCont(ctx.arithExpr(), ctx.shiftExprCont(), lambda c: c.arithExpr())
+
+    def visitXorExpr(self, ctx: Python3Parser.XorExprContext):
+        return self.visitBinOpExprCont(ctx.andExpr(), ctx.xorExprCont(), lambda c: c.andExpr())
 
 
 def parse(buf: str) -> n.Node:
