@@ -11,6 +11,9 @@ class _ParseVisitor(Python3Visitor):
     def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Node:
         return super().visitArithExpr(ctx)
 
+    def visitExprStmt(self, ctx: Python3Parser.ExprStmtContext):
+        return super().visitExprStmt(ctx)
+
 
 def parse(buf: str) -> n.Node:
     lexer = Python3Lexer(antlr4.InputStream(buf))
@@ -25,4 +28,5 @@ def parse(buf: str) -> n.Node:
     parser.addErrorListener(antlr.SilentRaisingErrorListener())
 
     visitor = _ParseVisitor()
-    return visitor.visit(parser.singleInput())
+    root = parser.singleInput()
+    return visitor.visit(root)

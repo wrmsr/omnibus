@@ -30,6 +30,7 @@ MINE:
 
 https://tomassetti.me/antlr-mega-tutorial/
 """
+import io
 import logging
 import typing as ta
 
@@ -157,3 +158,16 @@ class CaseInsensitiveInputStream(ProxyInputStream):
         if ret != -1:
             ret = ord(chr(ret).upper())
         return ret
+
+
+def pformat(node, *, buf: ta.IO = None, indent: str = '', child_indent: str = '  ') -> ta.IO:
+    if buf is None:
+        buf = io.StringIO()
+    buf.write(indent)
+    buf.write(node.__class__.__name__)
+    if hasattr(node, 'start') and hasattr(node, 'stop'):
+        buf.write(f' ({node.start} -> {node.stop})')
+    buf.write('\n')
+    for child in getattr(node, 'children', []):
+        pformat(child, buf=buf, indent=indent + child_indent, child_indent=child_indent)
+    return buf
