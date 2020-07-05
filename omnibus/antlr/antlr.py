@@ -168,6 +168,6 @@ def pformat(node, *, buf: ta.IO = None, indent: str = '', child_indent: str = ' 
     if hasattr(node, 'start') and hasattr(node, 'stop'):
         buf.write(f' ({node.start} -> {node.stop})')
     buf.write('\n')
-    for child in getattr(node, 'children', []):
+    for child in getattr(node, 'children', []) or []:
         pformat(child, buf=buf, indent=indent + child_indent, child_indent=child_indent)
     return buf

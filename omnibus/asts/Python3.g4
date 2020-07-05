@@ -228,8 +228,14 @@ smallStmt
     ;
 
 exprStmt
-    : testListStarExpr (annAssign | augAssign (yieldExpr | testList) | ('=' (yieldExpr | testListStarExpr))*)
+    : testListStarExpr exprStmtCont
     ;
+
+exprStmtCont
+   : annAssign                              #annAssignExprStmtCont
+   | augAssign (yieldExpr | testList)       #augAssignExprStmtCont
+   | ('=' (yieldExpr | testListStarExpr))*  #assignExprStmtCont
+   ;
 
 annAssign
     : ':' test ('=' test)?

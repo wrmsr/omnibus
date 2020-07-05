@@ -95,6 +95,21 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Python3Parser#annAssignExprStmtCont.
+    def visitAnnAssignExprStmtCont(self, ctx:Python3Parser.AnnAssignExprStmtContContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#augAssignExprStmtCont.
+    def visitAugAssignExprStmtCont(self, ctx:Python3Parser.AugAssignExprStmtContContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#assignExprStmtCont.
+    def visitAssignExprStmtCont(self, ctx:Python3Parser.AssignExprStmtContContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Python3Parser#annAssign.
     def visitAnnAssign(self, ctx:Python3Parser.AnnAssignContext):
         return self.visitChildren(ctx)

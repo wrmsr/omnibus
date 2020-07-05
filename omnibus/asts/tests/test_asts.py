@@ -30,10 +30,14 @@ def test_internal():
 
 
 def test_exprs():
-    parsing.parse('1 + 2\n')
-    parsing.parse('1+2-3+4-5\n')
-    parsing.parse('1+++++2\n')
-    parsing.parse('x = 2\n')
+    for src in [
+        '1 + 2\n',
+        '1+2-3+4-5\n',
+        '1+++++2\n',
+        'x = 2\n',
+    ]:
+        print(src)
+        print(parsing.parse(src))
 
 
 def test_nodes():

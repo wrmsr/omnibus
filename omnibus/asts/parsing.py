@@ -60,6 +60,16 @@ class _ParseVisitor(Python3Visitor):
     def visitExprStmt(self, ctx: Python3Parser.ExprStmtContext):
         return super().visitExprStmt(ctx)
 
+    def visitFactor(self, ctx: Python3Parser.FactorContext):
+        if ctx.factor() is not None:
+            op = _get_enum_value(ctx.op.text, n.UnaryOp)
+            value = self.visit(ctx.factor())
+            return n.UnaryExpr(op, value)
+        elif ctx.power() is not None:
+            return self.visit(ctx.power())
+        else:
+            raise ValueError(ctx)
+
 
 def parse(buf: str) -> n.Node:
     lexer = Python3Lexer(antlr4.InputStream(buf))
@@ -75,4 +85,5 @@ def parse(buf: str) -> n.Node:
 
     visitor = _ParseVisitor()
     root = parser.singleInput()
+    print(antlr.pformat(root).getvalue())
     return visitor.visit(root)

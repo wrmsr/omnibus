@@ -162,6 +162,33 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Python3Parser#annAssignExprStmtCont.
+    def enterAnnAssignExprStmtCont(self, ctx:Python3Parser.AnnAssignExprStmtContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#annAssignExprStmtCont.
+    def exitAnnAssignExprStmtCont(self, ctx:Python3Parser.AnnAssignExprStmtContContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#augAssignExprStmtCont.
+    def enterAugAssignExprStmtCont(self, ctx:Python3Parser.AugAssignExprStmtContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#augAssignExprStmtCont.
+    def exitAugAssignExprStmtCont(self, ctx:Python3Parser.AugAssignExprStmtContContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#assignExprStmtCont.
+    def enterAssignExprStmtCont(self, ctx:Python3Parser.AssignExprStmtContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#assignExprStmtCont.
+    def exitAssignExprStmtCont(self, ctx:Python3Parser.AssignExprStmtContContext):
+        pass
+
+
     # Enter a parse tree produced by Python3Parser#annAssign.
     def enterAnnAssign(self, ctx:Python3Parser.AnnAssignContext):
         pass
