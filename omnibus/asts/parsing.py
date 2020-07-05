@@ -57,8 +57,27 @@ class _ParseVisitor(Python3Visitor):
         else:
             raise ValueError(ctx)
 
-    def visitExprStmt(self, ctx: Python3Parser.ExprStmtContext):
-        return super().visitExprStmt(ctx)
+    def visitExprStmt(self, ctx: Python3Parser.ExprStmtContext) -> n.Stmt:
+        expr = check.isinstance(self.visit(ctx.testListStarExpr()), n.Expr)
+        cont = ctx.exprStmtCont()
+        if isinstance(cont, Python3Parser.AnnAssignExprStmtContContext):
+            pass
+        elif isinstance(cont, Python3Parser.AugAssignExprStmtContContext):
+            pass
+        elif isinstance(cont, Python3Parser.AssignExprStmtContContext):
+            if cont.children:
+                check.state(len(cont.children) % 2 == 0)
+                exprs = [expr]
+                for eq, child in zip(cont.children[::2], cont.children[1::2]):
+                    check.state(check.isinstance(eq, antlr4.TerminalNode).getText() == '=')
+                    child_expr = check.isinstance(self.visit(child), n.Expr)
+                    exprs.append(child_expr)
+                stmt = n.Assign(exprs[:-1], exprs[-1])
+            else:
+                stmt = n.ExprStmt(expr)
+        else:
+            raise TypeError(cont)
+        return stmt
 
     def visitFactor(self, ctx: Python3Parser.FactorContext):
         if ctx.factor() is not None:
