@@ -1,29 +1,5 @@
 """
 https://github.com/python/cpython/blob/c73914a562580ae72048876cb42ed8e76e2c83f9/Lib/ast.py#L651
-
-class Comprehension(dc.Pure):
-
-excepthandler(AST)
- ExceptHandler(excepthandler)
-
-mod(AST)
- FunctionType(mod)
- Expr(mod)
- Suite(mod)
- Interactive(mod)
- Module(mod)
-
-slice(AST)
- ExtSlice(slice)
- Index(slice)
- Slice(slice)
-
-keyword(AST)
-
-type_ignore(AST)
- TypeIgnore(type_ignore)
-
-withitem(AST)
 """
 import enum
 import typing as ta
@@ -33,6 +9,7 @@ from .. import dataclasses as dc
 from .. import lang
 
 
+Strs = ta.Sequence[str]
 Nodes = ta.Sequence['Node']
 Stmts = ta.Sequence['Stmt']
 Exprs = ta.Sequence['Expr']
@@ -88,6 +65,13 @@ class UnaryOp(enum.Enum):
     SUB = '-'
 
 
+class FormatConversion(lang.ValueEnum):
+    NONE = 0
+    STR = 1
+    REPR = 2
+    ASCII = 3
+
+
 class Node(dc.Enum, abstract=True, sealed=True, reorder=True):
     pass
 
@@ -104,13 +88,47 @@ class Expr(Node, abstract=True):
     pass
 
 
+class Annotated(dc.Data, frozen=True, abstract=True, sealed=True, reorder=True):
+    annotation: ta.Optional[Expr] = None
+
+
 class TypeCommented(dc.Data, frozen=True, abstract=True, sealed=True, reorder=True):
     type_comment: ta.Optional[str] = None
 
 
-class AnnAssign(Stmt):
+class Arg(Node, Annotated, TypeCommented):
+    name: str
+
+
+class Args(Node):
+    args: ta.Sequence[Arg] = ()
+    vararg: ta.Optional[Arg] = None
+    kw_only_args: ta.Sequence[Arg] = ()
+    kw_defaults: Exprs = ()
+    kwarg: ta.Optional[Arg] = None
+    defaults: Exprs = ()
+
+
+class Comp(Node):
+    target: 'Expr'
+    iter: 'Expr'
+    ifs: ta.Optional[Exprs] = None
+    is_async: bool = False
+
+
+class ExceptHandler(Node):
+    type: Expr
+    name: str
+    body: Stmts
+
+
+class WithItem(Node):
+    value: Expr
+    name: ta.Optional[str] = None
+
+
+class AnnAssign(Stmt, Annotated):
     target: Expr
-    annotation: ta.Optional[Expr]
     value: Expr
     simple: bool
 
@@ -129,19 +147,19 @@ class AsyncFor(Stmt, TypeCommented):
     target: Expr
     iter: Expr
     body: Stmts
-    orelse: Stmts = ()
+    or_else: Stmts = ()
 
 
 class AsyncFunctionDef(Stmt, TypeCommented):
     name: str
-    # FIXME: args: Arguments
+    args: Args
     body: Stmts
     decorators: Exprs = ()
     returns: ta.Optional[Expr] = None
 
 
 class AsyncWith(Stmt, TypeCommented):
-    # FIXME: items: ta.Sequence[WithItem]
+    items: ta.Sequence[WithItem]
     body: Stmts
 
 
@@ -158,8 +176,8 @@ class Break(Stmt):
 class ClassDef(Stmt):
     name: str
     bases: Exprs
-    # FIXME: keywords: ta.Sequence[Keyword] = ()
     body: Stmts
+    kwargs: ta.Mapping[str, Expr] = ocol.frozendict()
     decorators: Exprs = ()
 
 
@@ -175,29 +193,29 @@ class For(Stmt, TypeCommented):
     target: Expr
     iter: Expr
     body: Stmts
-    orelse: Stmts = ()
+    or_else: Stmts = ()
 
 
 class FunctionDef(Stmt, TypeCommented):
     name: str
-    # FIXME: args: Arguments
+    args: Args
     body: Stmts
     decorators: Exprs = ()
     returns: ta.Optional[Expr] = None
 
 
 class Global(Stmt):
-    names: ta.Sequence[str]
+    names: Strs
 
 
 class If(Stmt):
     test: Expr
     body: Stmts
-    orelse: Stmts = ()
+    or_else: Stmts = ()
 
 
 class Import(Stmt):
-    names: ta.Sequence[str]
+    names: Strs
 
 
 class ImportFrom(Stmt):
@@ -207,7 +225,7 @@ class ImportFrom(Stmt):
 
 
 class Nonlocal(Stmt):
-    names: ta.Sequence[str]
+    names: Strs
 
 
 class Pass(Stmt):
@@ -224,20 +242,20 @@ class Return(Stmt):
 
 
 class Try(Stmt):
-    body: ta.Sequence[Stmt]
-    # FIXME: handlers: ta.Sequence[ExceptHandler]
-    orelse: Stmts = ()
-    finalbody: Stmts = ()
+    body: Stmts
+    handlers: ta.Sequence[ExceptHandler]
+    or_elsek: Stmts = ()
+    final_body: Stmts = ()
 
 
 class While(Stmt):
     test: Expr
     body: Stmts
-    orelse: Stmts = ()
+    or_else: Stmts = ()
 
 
 class With(Stmt, TypeCommented):
-    items: Exprs
+    items: ta.Sequence[WithItem]
     body: Stmts
 
 
@@ -278,7 +296,7 @@ class Compare(Expr):
 
 class Constant(Expr):
     value: ta.Any
-    # FIXME: kind: ta.Any = None
+    kind: ta.Any = None
 
 
 class Dict(Expr):
@@ -286,7 +304,9 @@ class Dict(Expr):
 
 
 class DictComp(Expr):
-    pass
+    key: Expr
+    value: Expr
+    comps: ta.Sequence[Comp]
 
 
 class EllipsisExpr(Expr):
@@ -294,80 +314,79 @@ class EllipsisExpr(Expr):
 
 
 class FormattedValue(Expr):
-    pass
+    value: Expr
+    conversion: int
+    spec: ta.Optional[str] = None
 
 
 class GeneratorExp(Expr):
-    pass
+    value: Expr
+    comps: ta.Sequence[Comp]
 
 
 class IfExp(Expr):
-    pass
+    test: Expr
+    body: Expr
+    or_else: Expr
 
 
 class JoinedStr(Expr):
-    pass
+    values: Exprs
 
 
 class Lambda(Expr):
-    pass
+    args: Args
+    body: Expr
 
 
 class List(Expr):
-    pass
+    items: Exprs
 
 
 class ListComp(Expr):
-    pass
+    value: Expr
+    comps: ta.Sequence[Comp]
 
 
 class Name(Expr):
-    pass
-
-
-class NameConstant(Expr):
-    pass
+    name: str
 
 
 class NamedExpr(Expr):
-    pass
-
-
-class Num(Expr):
-    pass
+    target: Name
+    value: Expr
 
 
 class Set(Expr):
-    pass
+    items: Exprs
 
 
 class SetComp(Expr):
-    pass
+    value: Expr
+    comps: ta.Sequence[Comp]
 
 
 class Starred(Expr):
-    pass
-
-
-class Str(Expr):
-    pass
+    value: Expr
 
 
 class Subscript(Expr):
-    pass
+    value: Expr
+    slice: Expr
 
 
 class Tuple(Expr):
-    pass
+    items: Exprs
 
 
 class UnaryExpr(Expr):
-    pass
+    op: UnaryOp
+    value: Expr
 
 
 class Yield(Expr):
-    pass
+    value: Expr
 
 
 class YieldFrom(Expr):
-    pass
+    value: Expr

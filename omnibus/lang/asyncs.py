@@ -85,7 +85,7 @@ class AsyncTimeoutException(Exception):
     pass
 
 
-class FutureException(Exception):
+class FutureException(Exception, ta.Generic[T]):
 
     def __init__(self, future: cf.Future, target: ta.Optional[T] = None) -> None:
         super().__init__()

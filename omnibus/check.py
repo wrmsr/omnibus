@@ -68,6 +68,12 @@ def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messag
     return obj
 
 
+def cast(obj: ta.Any, cls: ta.Type[T], message: Messageable = None) -> T:
+    if not _isinstance(obj, cls):
+        _raise(TypeError, 'Must be instance', message, cls)
+    return ta.cast(cls, obj)
+
+
 def not_none(obj: T, message: Messageable = None) -> T:
     if obj is None:
         _raise(TypeError, 'May not be None', message)
