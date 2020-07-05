@@ -35,6 +35,7 @@ def test_exprs():
         '1+2-3+4-5\n',
         '1+++++2\n',
         'x = 2\n',
+        '1|2|3\n',
     ]:
         print(src)
         print(parsing.parse(src))

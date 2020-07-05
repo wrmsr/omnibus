@@ -450,7 +450,7 @@ expr
     ;
 
 exprCont
-    : op='|' xorExpr*
+    : op='|' xorExpr
     ;
 
 xorExpr
@@ -703,7 +703,6 @@ else:
             self.indents.pop()
     }
     ;
-
 
 NAME
     : ID_START ID_CONTINUE*

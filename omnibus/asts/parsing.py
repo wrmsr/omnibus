@@ -22,13 +22,16 @@ class _ParseVisitor(Python3Visitor):
     def aggregateResult(self, aggregate, nextResult):
         return lang.xor(aggregate, nextResult, test=lang.is_not_none)
 
-    def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Expr:
-        expr = check.isinstance(self.visit(ctx.term()), n.Expr)
-        for cont in ctx.arithExprCont():
+    def visitBinOpExprCont(self, left, conts, contfn):
+        expr = check.isinstance(self.visit(left), n.Expr)
+        for cont in conts:
             op = _get_enum_value(cont.op.text, n.BinOp)
-            right = check.isinstance(self.visit(cont.term()), n.Expr)
+            right = check.isinstance(self.visit(contfn(cont)), n.Expr)
             expr = n.BinExpr(expr, op, right)
         return expr
+
+    def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Expr:
+        return self.visitBinOpExprCont(ctx.term(), ctx.arithExprCont(), lambda c: c.term())
 
     def visitConst(self, ctx: Python3Parser.ConstContext):
         if ctx.NAME() is not None:
@@ -56,6 +59,9 @@ class _ParseVisitor(Python3Visitor):
             return n.Constant(False)
         else:
             raise ValueError(ctx)
+
+    def visitExpr(self, ctx: Python3Parser.ExprContext):
+        return self.visitBinOpExprCont(ctx.xorExpr(), ctx.exprCont(), lambda c: c.xorExpr())
 
     def visitExprStmt(self, ctx: Python3Parser.ExprStmtContext) -> n.Stmt:
         expr = check.isinstance(self.visit(ctx.testListStarExpr()), n.Expr)
