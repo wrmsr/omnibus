@@ -3,6 +3,7 @@ import typing as ta
 from . import nodes as n
 from .. import antlr
 from .. import check
+from .. import lang
 from .._vendor import antlr4
 from ._antlr.Python3Lexer import Python3Lexer
 from ._antlr.Python3Parser import Python3Parser
@@ -17,6 +18,9 @@ def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
 
 
 class _ParseVisitor(Python3Visitor):
+
+    def aggregateResult(self, aggregate, nextResult):
+        return lang.xor(aggregate, nextResult, test=lang.is_not_none)
 
     def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Expr:
         expr = check.isinstance(self.visit(ctx.term()), n.Expr)
