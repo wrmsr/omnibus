@@ -171,12 +171,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#testlistStarExpr.
-    def enterTestlistStarExpr(self, ctx:Python3Parser.TestlistStarExprContext):
+    # Enter a parse tree produced by Python3Parser#testListStarExpr.
+    def enterTestListStarExpr(self, ctx:Python3Parser.TestListStarExprContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#testlistStarExpr.
-    def exitTestlistStarExpr(self, ctx:Python3Parser.TestlistStarExprContext):
+    # Exit a parse tree produced by Python3Parser#testListStarExpr.
+    def exitTestListStarExpr(self, ctx:Python3Parser.TestListStarExprContext):
         pass
 
 
@@ -459,12 +459,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#testNocond.
-    def enterTestNocond(self, ctx:Python3Parser.TestNocondContext):
+    # Enter a parse tree produced by Python3Parser#testNoCond.
+    def enterTestNoCond(self, ctx:Python3Parser.TestNoCondContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#testNocond.
-    def exitTestNocond(self, ctx:Python3Parser.TestNocondContext):
+    # Exit a parse tree produced by Python3Parser#testNoCond.
+    def exitTestNoCond(self, ctx:Python3Parser.TestNoCondContext):
         pass
 
 
@@ -549,12 +549,30 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Python3Parser#exprCont.
+    def enterExprCont(self, ctx:Python3Parser.ExprContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#exprCont.
+    def exitExprCont(self, ctx:Python3Parser.ExprContContext):
+        pass
+
+
     # Enter a parse tree produced by Python3Parser#xorExpr.
     def enterXorExpr(self, ctx:Python3Parser.XorExprContext):
         pass
 
     # Exit a parse tree produced by Python3Parser#xorExpr.
     def exitXorExpr(self, ctx:Python3Parser.XorExprContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#xorExprCont.
+    def enterXorExprCont(self, ctx:Python3Parser.XorExprContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#xorExprCont.
+    def exitXorExprCont(self, ctx:Python3Parser.XorExprContContext):
         pass
 
 
@@ -567,12 +585,30 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Python3Parser#andExprCont.
+    def enterAndExprCont(self, ctx:Python3Parser.AndExprContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#andExprCont.
+    def exitAndExprCont(self, ctx:Python3Parser.AndExprContContext):
+        pass
+
+
     # Enter a parse tree produced by Python3Parser#shiftExpr.
     def enterShiftExpr(self, ctx:Python3Parser.ShiftExprContext):
         pass
 
     # Exit a parse tree produced by Python3Parser#shiftExpr.
     def exitShiftExpr(self, ctx:Python3Parser.ShiftExprContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#shiftExprCont.
+    def enterShiftExprCont(self, ctx:Python3Parser.ShiftExprContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#shiftExprCont.
+    def exitShiftExprCont(self, ctx:Python3Parser.ShiftExprContContext):
         pass
 
 
@@ -585,12 +621,30 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Python3Parser#arithExprCont.
+    def enterArithExprCont(self, ctx:Python3Parser.ArithExprContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#arithExprCont.
+    def exitArithExprCont(self, ctx:Python3Parser.ArithExprContContext):
+        pass
+
+
     # Enter a parse tree produced by Python3Parser#term.
     def enterTerm(self, ctx:Python3Parser.TermContext):
         pass
 
     # Exit a parse tree produced by Python3Parser#term.
     def exitTerm(self, ctx:Python3Parser.TermContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#termCont.
+    def enterTermCont(self, ctx:Python3Parser.TermContContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#termCont.
+    def exitTermCont(self, ctx:Python3Parser.TermContContext):
         pass
 
 
@@ -621,21 +675,57 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#atom.
-    def enterAtom(self, ctx:Python3Parser.AtomContext):
+    # Enter a parse tree produced by Python3Parser#parenAtom.
+    def enterParenAtom(self, ctx:Python3Parser.ParenAtomContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#atom.
-    def exitAtom(self, ctx:Python3Parser.AtomContext):
+    # Exit a parse tree produced by Python3Parser#parenAtom.
+    def exitParenAtom(self, ctx:Python3Parser.ParenAtomContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#testlistComp.
-    def enterTestlistComp(self, ctx:Python3Parser.TestlistCompContext):
+    # Enter a parse tree produced by Python3Parser#braacketAtom.
+    def enterBraacketAtom(self, ctx:Python3Parser.BraacketAtomContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#testlistComp.
-    def exitTestlistComp(self, ctx:Python3Parser.TestlistCompContext):
+    # Exit a parse tree produced by Python3Parser#braacketAtom.
+    def exitBraacketAtom(self, ctx:Python3Parser.BraacketAtomContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#dictOrSetAtom.
+    def enterDictOrSetAtom(self, ctx:Python3Parser.DictOrSetAtomContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#dictOrSetAtom.
+    def exitDictOrSetAtom(self, ctx:Python3Parser.DictOrSetAtomContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#constAtom.
+    def enterConstAtom(self, ctx:Python3Parser.ConstAtomContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#constAtom.
+    def exitConstAtom(self, ctx:Python3Parser.ConstAtomContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#const.
+    def enterConst(self, ctx:Python3Parser.ConstContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#const.
+    def exitConst(self, ctx:Python3Parser.ConstContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#testListComp.
+    def enterTestListComp(self, ctx:Python3Parser.TestListCompContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#testListComp.
+    def exitTestListComp(self, ctx:Python3Parser.TestListCompContext):
         pass
 
 
@@ -648,12 +738,12 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#subscriptlist.
-    def enterSubscriptlist(self, ctx:Python3Parser.SubscriptlistContext):
+    # Enter a parse tree produced by Python3Parser#subscriptList.
+    def enterSubscriptList(self, ctx:Python3Parser.SubscriptListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#subscriptlist.
-    def exitSubscriptlist(self, ctx:Python3Parser.SubscriptlistContext):
+    # Exit a parse tree produced by Python3Parser#subscriptList.
+    def exitSubscriptList(self, ctx:Python3Parser.SubscriptListContext):
         pass
 
 
@@ -711,21 +801,57 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#arglist.
-    def enterArglist(self, ctx:Python3Parser.ArglistContext):
+    # Enter a parse tree produced by Python3Parser#argList.
+    def enterArgList(self, ctx:Python3Parser.ArgListContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#arglist.
-    def exitArglist(self, ctx:Python3Parser.ArglistContext):
+    # Exit a parse tree produced by Python3Parser#argList.
+    def exitArgList(self, ctx:Python3Parser.ArgListContext):
         pass
 
 
-    # Enter a parse tree produced by Python3Parser#argument.
-    def enterArgument(self, ctx:Python3Parser.ArgumentContext):
+    # Enter a parse tree produced by Python3Parser#simpleArg.
+    def enterSimpleArg(self, ctx:Python3Parser.SimpleArgContext):
         pass
 
-    # Exit a parse tree produced by Python3Parser#argument.
-    def exitArgument(self, ctx:Python3Parser.ArgumentContext):
+    # Exit a parse tree produced by Python3Parser#simpleArg.
+    def exitSimpleArg(self, ctx:Python3Parser.SimpleArgContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#compArg.
+    def enterCompArg(self, ctx:Python3Parser.CompArgContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#compArg.
+    def exitCompArg(self, ctx:Python3Parser.CompArgContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#valueArg.
+    def enterValueArg(self, ctx:Python3Parser.ValueArgContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#valueArg.
+    def exitValueArg(self, ctx:Python3Parser.ValueArgContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#starsArg.
+    def enterStarsArg(self, ctx:Python3Parser.StarsArgContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#starsArg.
+    def exitStarsArg(self, ctx:Python3Parser.StarsArgContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#starArg.
+    def enterStarArg(self, ctx:Python3Parser.StarArgContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#starArg.
+    def exitStarArg(self, ctx:Python3Parser.StarArgContext):
         pass
 
 

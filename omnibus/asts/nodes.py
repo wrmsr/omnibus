@@ -309,10 +309,6 @@ class DictComp(Expr):
     comps: ta.Sequence[Comp]
 
 
-class EllipsisExpr(Expr):
-    pass
-
-
 class FormattedValue(Expr):
     value: Expr
     conversion: int

@@ -158,7 +158,7 @@ evalInput
     ;
 
 decorator
-    : '@' dottedName ('(' arglist? ')')? NEWLINE
+    : '@' dottedName ('(' argList? ')')? NEWLINE
     ;
 
 decorators
@@ -174,7 +174,7 @@ asyncFuncDef
     ;
 
 funcDef
-    : 'def' NAME parameters ('->' test)? ':' suite
+    : DEF NAME parameters ('->' test)? ':' suite
     ;
 
 parameters
@@ -228,14 +228,14 @@ smallStmt
     ;
 
 exprStmt
-    : testlistStarExpr (annAssign | augAssign (yieldExpr | testList) | ('=' (yieldExpr | testlistStarExpr))*)
+    : testListStarExpr (annAssign | augAssign (yieldExpr | testList) | ('=' (yieldExpr | testListStarExpr))*)
     ;
 
 annAssign
     : ':' test ('=' test)?
     ;
 
-testlistStarExpr
+testListStarExpr
     : (test | starExpr) (',' (test | starExpr))* ','?
     ;
 
@@ -272,15 +272,15 @@ flowStmt
     ;
 
 breakStmt
-    : 'break'
+    : BREAK
     ;
 
 continueStmt
-    : 'continue'
+    : CONTINUE
     ;
 
 returnStmt
-    : 'return' testList?
+    : RETURN testList?
     ;
 
 yieldStmt
@@ -288,7 +288,7 @@ yieldStmt
     ;
 
 raiseStmt
-    : 'raise' (test ('from' test)?)?
+    : RAISE (test (FROM test)?)?
     ;
 
 importStmt
@@ -297,16 +297,16 @@ importStmt
     ;
 
 importName
-    : 'import' dottedAsNames
+    : IMPORT dottedAsNames
     ;
 
 // note below: the ('.' | '...') is necessary because '...' is tokenized as ELLIPSIS
 importFrom
-    : 'from' (('.' | '...')* dottedName | ('.' | '...')+) 'import' ('*' | '(' importAsNames ')' | importAsNames)
+    : FROM (('.' | '...')* dottedName | ('.' | '...')+) IMPORT ('*' | '(' importAsNames ')' | importAsNames)
     ;
 
 importAsName
-    : NAME ('as' NAME)?
+    : NAME (AS NAME)?
     ;
 
 dottedAsName
@@ -326,15 +326,15 @@ dottedName
     ;
 
 globalStmt
-    : 'global' NAME (',' NAME)*
+    : GLOBAL NAME (',' NAME)*
     ;
 
 nonlocalStmt
-    : 'nonlocal' NAME (',' NAME)*
+    : NONLOCAL NAME (',' NAME)*
     ;
 
 assertStmt
-    : 'assert' test (',' test)?
+    : ASSERT test (',' test)?
     ;
 
 compoundStmt
@@ -354,32 +354,32 @@ asyncStmt
     ;
 
 ifStmt
-    : 'if' test ':' suite ('elif' test ':' suite)* ('else' ':' suite)?
+    : IF test ':' suite (ELIF test ':' suite)* (ELSE ':' suite)?
     ;
 
 whileStmt
-    : 'while' test ':' suite ('else' ':' suite)?
+    : WHILE test ':' suite (ELSE ':' suite)?
     ;
 
 forStmt
-    : 'for' exprList 'in' testList ':' suite ('else' ':' suite)?
+    : FOR exprList IN testList ':' suite (ELSE ':' suite)?
     ;
 
 tryStmt
-    : 'try' ':' suite ((exceptClause ':' suite)+ ('else' ':' suite)? ('finally' ':' suite)? | 'finally' ':' suite)
+    : TRY ':' suite ((exceptClause ':' suite)+ (ELSE ':' suite)? (FINALLY ':' suite)? | FINALLY ':' suite)
     ;
 
 withStmt
-    : 'with' withItem (',' withItem)*  ':' suite
+    : WITH withItem (',' withItem)*  ':' suite
     ;
 
 withItem
-    : test ('as' expr)?
+    : test (AS expr)?
     ;
 
 // NB compile.c makes sure that the default except clause is last
 exceptClause
-    : 'except' (test ('as' NAME)?)?
+    : EXCEPT (test (AS NAME)?)?
     ;
 
 suite
@@ -387,33 +387,33 @@ suite
     ;
 
 test
-    : orTest ('if' orTest 'else' test)?
+    : orTest (IF orTest ELSE test)?
     | lambaDef
     ;
 
-testNocond
+testNoCond
     : orTest
     | lambaDefNoCond
     ;
 
 lambaDef
-    : 'lambda' varargsList? ':' test
+    : LAMBDA varargsList? ':' test
     ;
 
 lambaDefNoCond
-    : 'lambda' varargsList? ':' testNocond
+    : LAMBDA varargsList? ':' testNoCond
     ;
 
 orTest
-    : andTest ('or' andTest)*
+    : andTest (OR andTest)*
     ;
 
 andTest
-    : notTest ('and' notTest)*
+    : notTest (AND notTest)*
     ;
 
 notTest
-    : 'not' notTest
+    : NOT notTest
     | comparison
     ;
 
@@ -429,10 +429,10 @@ compOp
     | '<='
     | '<>'
     | '!='
-    | 'in'
-    | 'not' 'in'
-    | 'is'
-    | 'is' 'not'
+    | IN
+    | NOT IN
+    | IS
+    | IS NOT
     ;
 
 starExpr
@@ -440,36 +440,60 @@ starExpr
     ;
 
 expr
-    : xorExpr ('|' xorExpr)*
+    : xorExpr exprCont*
+    ;
+
+exprCont
+    : op='|' xorExpr*
     ;
 
 xorExpr
-    : andExpr ('^' andExpr)*
+    : andExpr xorExprCont*
+    ;
+
+xorExprCont
+    : op='^' andExpr
     ;
 
 andExpr
-    : shiftExpr ('&' shiftExpr)*
+    : shiftExpr andExprCont*
+    ;
+
+andExprCont
+    : op='&' shiftExpr
     ;
 
 shiftExpr
-    : arithExpr (('<<' | '>>') arithExpr)*
+    : arithExpr shiftExprCont*
+    ;
+
+shiftExprCont
+    : op=('<<' | '>>') arithExpr
     ;
 
 arithExpr
-    : term (('+' | '-') term)*
+    : term arithExprCont*
+    ;
+
+arithExprCont
+    : op=('+' | '-') term
     ;
 
 term
-    : factor (('*' | '@' | '/' | '%' | '//') factor)*
+    : factor termCont*
+    ;
+
+termCont
+    : op=('*' | '@' | '/' | '%' | '//') factor
     ;
 
 factor
-    : ('+' | '-' | '~') factor
+    : op=('+' | '-' | '~') factor
     | power
     ;
 
 power
-    : atomExpr ('**' factor)?
+    : atomExpr (op='**' factor)?
     ;
 
 atomExpr
@@ -477,29 +501,33 @@ atomExpr
     ;
 
 atom
-    : '(' (yieldExpr | testlistComp)? ')'
-    | '[' testlistComp? ']'
-    | '{' dictOrSetMaker? '}'
-    | NAME
+    : '(' (yieldExpr | testListComp)? ')'  #parenAtom
+    | '[' testListComp? ']'                #braacketAtom
+    | '{' dictOrSetMaker? '}'              #dictOrSetAtom
+    | const                                #constAtom
+    ;
+
+const
+    : NAME
     | NUMBER
     | STRING+
     | '...'
-    | 'None'
-    | 'True'
-    | 'False'
+    | NONE
+    | TRUE
+    | FALSE
     ;
 
-testlistComp
+testListComp
     : (test | starExpr) (compFor | (',' (test | starExpr))* ','?)
     ;
 
 trailer
-    : '(' arglist? ')'
-    | '[' subscriptlist ']'
+    : '(' argList? ')'
+    | '[' subscriptList ']'
     | '.' NAME
     ;
 
-subscriptlist
+subscriptList
     : subscript (',' subscript)* ','?
     ;
 
@@ -526,11 +554,11 @@ dictOrSetMaker
     ;
 
 classDef
-    : 'class' NAME ('(' arglist? ')')? ':' suite
+    : CLASS NAME ('(' argList? ')')? ':' suite
     ;
 
-arglist
-    : argument (',' argument)*  ','?
+argList
+    : arg (',' arg)*  ','?
     ;
 
 // The reason that keywords are test nodes instead of NAME is that using NAME results in an ambiguity. ast.c makes sure
@@ -539,11 +567,12 @@ arglist
 // explicitly match '*' here, too, to give it proper precedence. Illegal combinations and orderings are blocked in
 // ast.c: multiple (test compFor) arguments are blocked; keyword unpackings that precede iterable unpackings are
 // blocked; etc.
-argument
-    : test compFor?
-    | test '=' test
-    | '**' test
-    | '*' test
+arg
+    : test           #simpleArg
+    | test compFor   #compArg
+    | test '=' test  #valueArg
+    | '**' test      #starsArg
+    | '*' test       #starArg
     ;
 
 compIter
@@ -552,11 +581,11 @@ compIter
     ;
 
 compFor
-    : ASYNC? 'for' exprList 'in' orTest compIter?
+    : ASYNC? FOR exprList IN orTest compIter?
     ;
 
 compIf
-    : 'if' testNocond compIter?
+    : IF testNoCond compIter?
     ;
 
 // not used in grammar, but may appear in "node" passed from Parser to Compiler
@@ -565,11 +594,11 @@ encodingDecl
     ;
 
 yieldExpr
-    : 'yield' yieldArg?
+    : YIELD yieldArg?
     ;
 
 yieldArg
-    : 'from' test
+    : FROM test
     | testList
     ;
 
@@ -591,41 +620,41 @@ INTEGER
     | BIN_INTEGER
     ;
 
-DEF : 'def';
-RETURN : 'return';
-RAISE : 'raise';
-FROM : 'from';
-IMPORT : 'import';
-AS : 'as';
-GLOBAL : 'global';
-NONLOCAL : 'nonlocal';
-ASSERT : 'assert';
-IF : 'if';
-ELIF : 'elif';
-ELSE : 'else';
-WHILE : 'while';
-FOR : 'for';
-IN : 'in';
-TRY : 'try';
-FINALLY : 'finally';
-WITH : 'with';
-EXCEPT : 'except';
-LAMBDA : 'lambda';
-OR : 'or';
 AND : 'and';
-NOT : 'not';
-IS : 'is';
-NONE : 'None';
-TRUE : 'True';
-FALSE : 'False';
-CLASS : 'class';
-YIELD : 'yield';
-DEL : 'del';
-PASS : 'pass';
-CONTINUE : 'continue';
-BREAK : 'break';
+AS : 'as';
+ASSERT : 'assert';
 ASYNC : 'async';
 AWAIT : 'await';
+BREAK : 'break';
+CLASS : 'class';
+CONTINUE : 'continue';
+DEF : 'def';
+DEL : 'del';
+ELIF : 'elif';
+ELSE : 'else';
+EXCEPT : 'except';
+FALSE : 'False';
+FINALLY : 'finally';
+FOR : 'for';
+FROM : 'from';
+GLOBAL : 'global';
+IF : 'if';
+IMPORT : 'import';
+IN : 'in';
+IS : 'is';
+LAMBDA : 'lambda';
+NONE : 'None';
+NONLOCAL : 'nonlocal';
+NOT : 'not';
+OR : 'or';
+PASS : 'pass';
+RAISE : 'raise';
+RETURN : 'return';
+TRUE : 'True';
+TRY : 'try';
+WHILE : 'while';
+WITH : 'with';
+YIELD : 'yield';
 
 NEWLINE
  : ( {self.atStartOfInput()}? SPACES
@@ -708,53 +737,53 @@ IMAG_NUMBER
     : (FLOAT_NUMBER | INT_PART) [jJ]
     ;
 
+ADD : '+';
+ADD_ASSIGN : '+=';
+AND_ASSIGN : '&=';
+AND_OP : '&';
+ARROW : '->';
+ASSIGN : '=';
+AT : '@';
+AT_ASSIGN : '@=';
+CLOSE_BRACE : '}' {self.opened -= 1};
+CLOSE_BRACK : ']' {self.opened -= 1};
+CLOSE_PAREN : ')' {self.opened -= 1};
+COLON : ':';
+COMMA : ',';
+DIV : '/';
+DIV_ASSIGN : '/=';
 DOT : '.';
 ELLIPSIS : '...';
-STAR : '*';
-OPEN_PAREN : '(' {self.opened += 1};
-CLOSE_PAREN : ')' {self.opened -= 1};
-COMMA : ',';
-COLON : ':';
-SEMI_COLON : ';';
-POWER : '**';
-ASSIGN : '=';
-OPEN_BRACK : '[' {self.opened += 1};
-CLOSE_BRACK : ']' {self.opened -= 1};
-OR_OP : '|';
-XOR : '^';
-AND_OP : '&';
-LEFT_SHIFT : '<<';
-RIGHT_SHIFT : '>>';
-ADD : '+';
-MINUS : '-';
-DIV : '/';
-MOD : '%';
-IDIV : '//';
-NOT_OP : '~';
-OPEN_BRACE : '{' {self.opened += 1};
-CLOSE_BRACE : '}' {self.opened -= 1};
-LESS_THAN : '<';
-GREATER_THAN : '>';
 EQUALS : '==';
+GREATER_THAN : '>';
 GT_EQ : '>=';
+IDIV : '//';
+IDIV_ASSIGN : '//=';
+LEFT_SHIFT : '<<';
+LEFT_SHIFT_ASSIGN : '<<=';
+LESS_THAN : '<';
 LT_EQ : '<=';
+MINUS : '-';
+MOD : '%';
+MOD_ASSIGN : '%=';
+MULT_ASSIGN : '*=';
 NOT_EQ_1 : '<>';
 NOT_EQ_2 : '!=';
-AT : '@';
-ARROW : '->';
-ADD_ASSIGN : '+=';
-SUB_ASSIGN : '-=';
-MULT_ASSIGN : '*=';
-AT_ASSIGN : '@=';
-DIV_ASSIGN : '/=';
-MOD_ASSIGN : '%=';
-AND_ASSIGN : '&=';
+NOT_OP : '~';
+OPEN_BRACE : '{' {self.opened += 1};
+OPEN_BRACK : '[' {self.opened += 1};
+OPEN_PAREN : '(' {self.opened += 1};
 OR_ASSIGN : '|=';
-XOR_ASSIGN : '^=';
-LEFT_SHIFT_ASSIGN : '<<=';
-RIGHT_SHIFT_ASSIGN : '>>=';
+OR_OP : '|';
+POWER : '**';
 POWER_ASSIGN : '**=';
-IDIV_ASSIGN : '//=';
+RIGHT_SHIFT : '>>';
+RIGHT_SHIFT_ASSIGN : '>>=';
+SEMI_COLON : ';';
+STAR : '*';
+SUB_ASSIGN : '-=';
+XOR : '^';
+XOR_ASSIGN : '^=';
 
 SKIP_
     : (SPACES | COMMENT | LINE_JOINING) -> skip

@@ -100,8 +100,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#testlistStarExpr.
-    def visitTestlistStarExpr(self, ctx:Python3Parser.TestlistStarExprContext):
+    # Visit a parse tree produced by Python3Parser#testListStarExpr.
+    def visitTestListStarExpr(self, ctx:Python3Parser.TestListStarExprContext):
         return self.visitChildren(ctx)
 
 
@@ -260,8 +260,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#testNocond.
-    def visitTestNocond(self, ctx:Python3Parser.TestNocondContext):
+    # Visit a parse tree produced by Python3Parser#testNoCond.
+    def visitTestNoCond(self, ctx:Python3Parser.TestNoCondContext):
         return self.visitChildren(ctx)
 
 
@@ -310,8 +310,18 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Python3Parser#exprCont.
+    def visitExprCont(self, ctx:Python3Parser.ExprContContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Python3Parser#xorExpr.
     def visitXorExpr(self, ctx:Python3Parser.XorExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#xorExprCont.
+    def visitXorExprCont(self, ctx:Python3Parser.XorExprContContext):
         return self.visitChildren(ctx)
 
 
@@ -320,8 +330,18 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Python3Parser#andExprCont.
+    def visitAndExprCont(self, ctx:Python3Parser.AndExprContContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Python3Parser#shiftExpr.
     def visitShiftExpr(self, ctx:Python3Parser.ShiftExprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#shiftExprCont.
+    def visitShiftExprCont(self, ctx:Python3Parser.ShiftExprContContext):
         return self.visitChildren(ctx)
 
 
@@ -330,8 +350,18 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Python3Parser#arithExprCont.
+    def visitArithExprCont(self, ctx:Python3Parser.ArithExprContContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Python3Parser#term.
     def visitTerm(self, ctx:Python3Parser.TermContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#termCont.
+    def visitTermCont(self, ctx:Python3Parser.TermContContext):
         return self.visitChildren(ctx)
 
 
@@ -350,13 +380,33 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#atom.
-    def visitAtom(self, ctx:Python3Parser.AtomContext):
+    # Visit a parse tree produced by Python3Parser#parenAtom.
+    def visitParenAtom(self, ctx:Python3Parser.ParenAtomContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#testlistComp.
-    def visitTestlistComp(self, ctx:Python3Parser.TestlistCompContext):
+    # Visit a parse tree produced by Python3Parser#braacketAtom.
+    def visitBraacketAtom(self, ctx:Python3Parser.BraacketAtomContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#dictOrSetAtom.
+    def visitDictOrSetAtom(self, ctx:Python3Parser.DictOrSetAtomContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#constAtom.
+    def visitConstAtom(self, ctx:Python3Parser.ConstAtomContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#const.
+    def visitConst(self, ctx:Python3Parser.ConstContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#testListComp.
+    def visitTestListComp(self, ctx:Python3Parser.TestListCompContext):
         return self.visitChildren(ctx)
 
 
@@ -365,8 +415,8 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#subscriptlist.
-    def visitSubscriptlist(self, ctx:Python3Parser.SubscriptlistContext):
+    # Visit a parse tree produced by Python3Parser#subscriptList.
+    def visitSubscriptList(self, ctx:Python3Parser.SubscriptListContext):
         return self.visitChildren(ctx)
 
 
@@ -400,13 +450,33 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#arglist.
-    def visitArglist(self, ctx:Python3Parser.ArglistContext):
+    # Visit a parse tree produced by Python3Parser#argList.
+    def visitArgList(self, ctx:Python3Parser.ArgListContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Python3Parser#argument.
-    def visitArgument(self, ctx:Python3Parser.ArgumentContext):
+    # Visit a parse tree produced by Python3Parser#simpleArg.
+    def visitSimpleArg(self, ctx:Python3Parser.SimpleArgContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#compArg.
+    def visitCompArg(self, ctx:Python3Parser.CompArgContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#valueArg.
+    def visitValueArg(self, ctx:Python3Parser.ValueArgContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#starsArg.
+    def visitStarsArg(self, ctx:Python3Parser.StarsArgContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#starArg.
+    def visitStarArg(self, ctx:Python3Parser.StarArgContext):
         return self.visitChildren(ctx)
 
 
