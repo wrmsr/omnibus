@@ -1,17 +1,17 @@
 import typing as ta
 
-from ... import antlr
-from ... import lang  # noqa
-from ..._vendor import antlr4
-from ._antlr.Java8Lexer import Java8Lexer
-from ._antlr.Java8Parser import Java8Parser
-from ._antlr.Java8Visitor import Java8Visitor
+from .. import antlr
+from .. import lang  # noqa
+from .._vendor import antlr4
+from ._antlr.GoLexer import GoLexer
+from ._antlr.GoParser import GoParser
+from ._antlr.GoVisitor import GoVisitor
 
 
 T = ta.TypeVar('T')
 
 
-class _ParseVisitor(Java8Visitor):
+class _ParseVisitor(GoVisitor):
 
     def aggregateResult(self, aggregate, nextResult):
         # return lang.xor(aggregate, nextResult, test=lang.is_not_none)
@@ -19,18 +19,18 @@ class _ParseVisitor(Java8Visitor):
 
 
 def parse(buf: str) -> ta.Any:
-    lexer = Java8Lexer(antlr4.InputStream(buf))
+    lexer = GoLexer(antlr4.InputStream(buf))
     lexer.removeErrorListeners()
     lexer.addErrorListener(antlr.SilentRaisingErrorListener())
 
     stream = antlr4.CommonTokenStream(lexer)
     stream.fill()
 
-    parser = Java8Parser(stream)
+    parser = GoParser(stream)
     parser.removeErrorListeners()
     parser.addErrorListener(antlr.SilentRaisingErrorListener())
 
     visitor = _ParseVisitor()
-    root = parser.compilationUnit()
+    root = parser.sourceFile()
     print(antlr.pformat(root).getvalue())
     return visitor.visit(root)
