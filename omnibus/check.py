@@ -168,7 +168,40 @@ def exhausted(it: ta.Iterator[T], message: Messageable = None) -> None:
         _raise(ValueError, 'Iterator should be exhausted', message)
 
 
-def one_of(*conditions: bool, message: Messageable = None) -> None:
-    num_true = len([b for b in conditions if b])
-    if num_true != 1:
-        _raise(ValueError, f'Exactly one condition must be true, got {num_true}', message)
+def one_of(*items: T, **kwargs) -> T:
+    not_set = object()
+
+    default = kwargs.pop('default', not_set)
+    default_factory = kwargs.pop('default_factory', not_set)
+    if default is not not_set and default_factory is not not_set:
+        raise ValueError('Expected at most one of default and default_factory')
+
+    test = kwargs.pop('test', not_set)
+    not_none = kwargs.pop('not_none', not_set)
+    if test is not not_set and not_none is not not_set:
+        raise ValueError('Expected at most one of test and not_none')
+    if not_none is not not_set:
+        if not not_none:
+            raise ValueError('Expected truthy value for not_none')
+        test = lambda v: v is not None
+    elif test is not_none:
+        test = bool
+
+    message: Messageable = kwargs.pop('message', None)
+    if kwargs:
+        raise ValueError(kwargs)
+
+    value = not_set
+    for item in items:
+        if test(item):
+            if value is not not_set:
+                raise ValueError(f'Expected exactly one of {items}, got {value} and {item}', items, value, item)
+            value = item
+    if value is not not_set:
+        return value
+    if default is not not_set:
+        return default
+    if default_factory is not not_set:
+        return default_factory()
+
+    _raise(ValueError, f'Expected exactly one of {items}, got none', message, items)

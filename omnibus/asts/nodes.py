@@ -1,6 +1,7 @@
 """
 https://github.com/python/cpython/blob/c73914a562580ae72048876cb42ed8e76e2c83f9/Lib/ast.py#L651
 """
+import ast  # noqa
 import enum
 import typing as ta
 

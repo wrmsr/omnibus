@@ -73,26 +73,6 @@ def test_simple_proxy():
     assert IncInt(4) + 2 == 7
 
 
-def test_xor():
-    assert lang_.xor(1, None) == 1
-    assert lang_.xor(None, 1) == 1
-
-    with pytest.raises(ValueError):
-        lang_.xor()
-    with pytest.raises(ValueError):
-        lang_.xor(1, 1)
-    with pytest.raises(ValueError):
-        lang_.xor(None, None)
-
-    assert lang_.xor(None, default=1) == 1
-    assert lang_.xor(None, default_factory=lambda: 1) == 1
-
-    assert lang_.xor(1, 0) == 1
-    with pytest.raises(ValueError):
-        lang_.xor(0)
-    assert lang_.xor(0, test=lang_.is_not_none) == 0
-
-
 def test_cached_nullary():
     c = 0
 

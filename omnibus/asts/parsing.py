@@ -3,7 +3,6 @@ import typing as ta
 from . import nodes as n
 from .. import antlr
 from .. import check
-from .. import lang
 from .._vendor import antlr4
 from ._antlr.Python3Lexer import Python3Lexer
 from ._antlr.Python3Parser import Python3Parser
@@ -17,10 +16,14 @@ def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
     return check.single([v for v in cls.__members__.values() if v.value == value])
 
 
+class ArgList(ta.NamedTuple):
+    args: ta.List[ta.Any]
+
+
 class _ParseVisitor(Python3Visitor):
 
     def aggregateResult(self, aggregate, nextResult):
-        return lang.xor(aggregate, nextResult, test=lang.is_not_none)
+        return check.one_of(aggregate, nextResult, not_none=True, default=None)
 
     def visitBinOpExprCont(self, left, conts, contfn):
         expr = check.isinstance(self.visit(left), n.Expr)
@@ -33,8 +36,25 @@ class _ParseVisitor(Python3Visitor):
     def visitAndExpr(self, ctx: Python3Parser.AndExprContext):
         return self.visitBinOpExprCont(ctx.shiftExpr(), ctx.andExprCont(), lambda c: c.shiftExpr())
 
+    def visitArgList(self, ctx: Python3Parser.ArgListContext):
+        args = [check.isinstance(self.visit(arg), n.Expr) for arg in ctx.arg()]
+        return ArgList(args)
+
     def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> n.Expr:
         return self.visitBinOpExprCont(ctx.term(), ctx.arithExprCont(), lambda c: c.term())
+
+    def visitAtomExpr(self, ctx: Python3Parser.AtomExprContext):
+        if ctx.AWAIT() is not None:
+            raise NotImplementedError
+        expr = check.isinstance(self.visit(ctx.atom()), n.Expr)
+        trailers = [self.visit(t) for t in ctx.trailer()]
+        for trailer in trailers:
+            if isinstance(trailer, ArgList):
+                args = [check.isinstance(a, n.Expr) for a in trailer.args]
+                expr = n.Call(expr, args)
+            else:
+                raise TypeError(trailer)
+        return expr
 
     def visitConst(self, ctx: Python3Parser.ConstContext):
         if ctx.NAME() is not None:
@@ -70,9 +90,9 @@ class _ParseVisitor(Python3Visitor):
         expr = check.isinstance(self.visit(ctx.testListStarExpr()), n.Expr)
         cont = ctx.exprStmtCont()
         if isinstance(cont, Python3Parser.AnnAssignExprStmtContContext):
-            pass
+            raise NotImplementedError
         elif isinstance(cont, Python3Parser.AugAssignExprStmtContContext):
-            pass
+            raise NotImplementedError
         elif isinstance(cont, Python3Parser.AssignExprStmtContContext):
             if cont.children:
                 check.state(len(cont.children) % 2 == 0)
@@ -119,5 +139,8 @@ def parse(buf: str) -> n.Node:
 
     visitor = _ParseVisitor()
     root = parser.singleInput()
-    print(antlr.pformat(root).getvalue())
-    return visitor.visit(root)
+    try:
+        return visitor.visit(root)
+    except Exception:
+        print(antlr.pformat(root).getvalue())
+        raise

@@ -3,10 +3,13 @@ import glob
 import os.path
 import time
 
+import pytest
+
 from .. import nodes
 from .. import parsing
 
 
+@pytest.mark.xfail()
 def test_internal():
     from ...antlr import accel
     with contextlib.ExitStack() as es:
@@ -39,7 +42,7 @@ def test_exprs():
         '1^2^3\n',
         '1&2&3\n',
         '1<<2>>3\n',
-        # 'f(1)\n',
+        'f(1)\n',
     ]:
         print(src)
         print(parsing.parse(src))

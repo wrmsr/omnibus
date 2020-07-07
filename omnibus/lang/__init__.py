@@ -107,7 +107,6 @@ from .lang import unwrap_func  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import void  # noqa
 from .lang import VoidException  # noqa
-from .lang import xor  # noqa
 from .math import FixedWidthInt  # noqa
 from .math import get_bit  # noqa
 from .math import get_bits  # noqa
