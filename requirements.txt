@@ -6,8 +6,8 @@ Cython==0.29.20
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.14.16
-botocore==1.17.16
+boto3==1.14.17
+botocore==1.17.17
 bson==0.5.10
 cbor==1.0.0
 cytoolz==0.10.1

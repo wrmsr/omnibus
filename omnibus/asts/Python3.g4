@@ -262,11 +262,11 @@ augAssign
     ;
 
 delStmt
-    : 'del' exprList
+    : DEL exprList
     ;
 
 passStmt
-    : 'pass'
+    : PASS
     ;
 
 flowStmt

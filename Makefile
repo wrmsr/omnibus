@@ -359,6 +359,7 @@ test-pypi:
 .PHONY: deps
 deps: venv
 	$(call do-deps,.venv,$(REQUIREMENTS_TXT))
+	.venv/bin/pip freeze > requirements-frz.txt
 
 .PHONY: deps-37
 deps-37: venv
