@@ -50,7 +50,7 @@ RUN chmod +x /docker-entrypoint-initdb.d/setup-replication.sh /docker-entrypoint
 
 ENV \
   PLV8_VERSION=v2.1.0 \
-  PLV8_SHASUM="207d712e919ab666936f42b29ff3eae413736b70745f5bfeb2d0910f0c017a5c  v2.1.0.tar.gz"
+  PLV8_SHASUM="8a05f9d609bb79e47b91ebc03ea63b3f7826fa421a0ee8221ee21581d68cb5ba  v2.3.5.tar.gz"
 
 RUN ( \
   mkdir -p /tmp/build && \
