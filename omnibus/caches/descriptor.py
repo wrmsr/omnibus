@@ -130,7 +130,7 @@ class _CacheDescriptor:
 
         return inner
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if self._scope == Scope.STATIC:
             cache = self._static
 

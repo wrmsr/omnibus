@@ -22,7 +22,7 @@ class SetOnceProperty(Property[T]):
 
         self._attr_name = attr_name or '__%s_%x_value' % (type(self).__name__, id(self))
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is None:
             return self
         try:

@@ -18,4 +18,8 @@ TODO:
  - mycli, pgcli, innotop
  - apsw
  - driver specifics
+ - *simple* ansi parser
+  - thus simple ast
+  - 'prequel'?
+  - transmutation from internal ast to sqla
 """

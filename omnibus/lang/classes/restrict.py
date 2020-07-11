@@ -2,6 +2,8 @@
 TODO:
  - resurrect Interface is_abstract - ellipsis, raise, return
  - Markers become ta.Literals after dropping 3.7? or same just diff anns
+ - eagerly abstract - if Abstract not explicitly in baseclass list of new subclasses enforce concreteness eagerlly
+  - .. **make this default**?
 """
 import abc
 import functools
@@ -248,7 +250,7 @@ class AccessForbiddenDescriptor:
         elif name != self._name:
             raise NameError(name)
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         raise AttrAccessForbiddenException(self._name)
 
 
@@ -272,7 +274,7 @@ class Override:
         if not any(hasattr(b, name) for b in owner.__bases__):
             raise TypeError(name)
 
-    def __get__(self, instance: ta.Any, owner: ta.Optional[ta.Type]) -> ta.Callable:
+    def __get__(self, instance: ta.Any, owner: ta.Optional[ta.Type] = None) -> ta.Callable:
         return self._fn.__get__(instance, owner)
 
     def __call__(self, *args, **kwargs):

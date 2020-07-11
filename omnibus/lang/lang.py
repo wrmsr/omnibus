@@ -53,7 +53,7 @@ class ClassDctFn:
 
         functools.update_wrapper(self, fn)
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         return type(self)(self._fn.__get__(instance, owner), self._offset)
 
     def __call__(self, *args, **kwargs):
@@ -198,7 +198,7 @@ class Accessor(ta.Generic[T]):
         except self.__translated_exceptions:
             raise AttributeError(name)
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is None:
             return self
         else:
@@ -298,7 +298,7 @@ class _CachedNullaryDescriptor(_CachedNullary[T]):
         self._owner = owner
         self._name = name if name is not None else unwrap_func(fn).__name__
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         scope = self._scope
         if owner is self._owner and (instance is self._instance or scope is classmethod):
             return self
@@ -433,7 +433,7 @@ class SimpleProxy(ta.Generic[T]):
             super().__init__()
             self._attr = attr
 
-        def __get__(self, instance, owner):
+        def __get__(self, instance, owner=None):
             if instance is None:
                 return self
             return getattr(object.__getattribute__(instance, '__wrapped__'), self._attr)

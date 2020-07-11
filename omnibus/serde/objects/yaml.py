@@ -1,12 +1,13 @@
 """
 TODO:
+ - yaml.g4? yeesh
+  - just a simplified one?
  - !! shared 'object format' node hierarchy
   - fuse yaml and hocon - marks, *COMMENTS*, etc
  - goal: perfect rewrites (comments, whitespace)
   - or at least comments
  - rename 'objects'? codecs/serde interplay still unresolved
  - just fuckin vendor?
- - !! going antlr internal for most parsers, worth the investment now?
 """
 import datetime
 import types

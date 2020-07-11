@@ -50,3 +50,9 @@ def test_exprs():
 
 def test_nodes():
     print(nodes.Assign('a', 'b', type_comment='c'))
+
+
+@pytest.mark.xfail()
+def test_future():
+    print(parsing._parse("(x := 1)\n").singleInput())
+    print(parsing._parse("def f(x, /, y): pass\n").singleInput())

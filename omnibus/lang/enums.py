@@ -71,7 +71,7 @@ class _ValueEnumMeta(type):
 
     class _ByValueDescriptor:
 
-        def __get__(self, instance, owner):
+        def __get__(self, instance, owner=None):
             if owner is None:
                 return self
             by_value = {}

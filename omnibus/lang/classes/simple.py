@@ -49,7 +49,7 @@ globals()['staticfunction'] = _staticfunction
 
 class _InnerMeta(abc.ABCMeta):
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is not None:
             def bound(*args, **kwargs):
                 obj = self.__new__(self, *args, **kwargs)

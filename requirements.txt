@@ -1,29 +1,29 @@
 setuptools>=38.0.0
 
-Cython==0.29.20
+Cython==0.29.21
 
 
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.14.17
-botocore==1.17.17
+boto3==1.14.20
+botocore==1.17.20
 bson==0.5.10
 cbor==1.0.0
 cytoolz==0.10.1
 docker==4.2.2
 google-api-core==1.21.0
 google-api-python-client==1.9.3
-google-auth-httplib2==0.0.3
+google-auth-httplib2==0.0.4
 google-auth==1.18.0
 greenlet==0.4.16
 httptools==0.1.1
-kazoo==2.7.0
+kazoo==2.8.0
 lz4==3.1.0
 msgpack==1.0.0
 mysql-connector-python==8.0.20
 orjson==3.2.1; python_version < '3.9'
-pg8000==1.15.3
+pg8000==1.16.0
 psutil==5.7.0
 psycopg2==2.8.5
 pymemcache==3.2.0

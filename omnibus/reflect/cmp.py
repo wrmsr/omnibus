@@ -1,3 +1,7 @@
+"""
+NOTES:
+ - https://clojure.org/reference/multimethods
+"""
 import typing as ta
 
 from . import specs

@@ -125,7 +125,7 @@ class _ParseVisitor(Python3Visitor):
         return self.visitBinOpExprCont(ctx.andExpr(), ctx.xorExprCont(), lambda c: c.andExpr())
 
 
-def parse(buf: str) -> n.Node:
+def _parse(buf: str) -> Python3Parser:
     lexer = Python3Lexer(antlr4.InputStream(buf))
     lexer.removeErrorListeners()
     lexer.addErrorListener(antlr.SilentRaisingErrorListener())
@@ -137,6 +137,11 @@ def parse(buf: str) -> n.Node:
     parser.removeErrorListeners()
     parser.addErrorListener(antlr.SilentRaisingErrorListener())
 
+    return parser
+
+
+def parse(buf: str) -> n.Node:
+    parser = _parse(buf)
     visitor = _ParseVisitor()
     root = parser.singleInput()
     try:

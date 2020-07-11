@@ -138,7 +138,7 @@ class _FieldDescriptor:
     def __set_name__(self, owner, name):
         check.state(name == self.name)
 
-    def __get__(self, instance: 'Config', owner: ta.Type['Config']):
+    def __get__(self, instance: 'Config', owner: ta.Optional[ta.Type['Config']] = None):
         if not isinstance(instance, Config):
             raise TypeError(instance)
         try:

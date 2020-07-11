@@ -3,7 +3,9 @@ TODO:
  - async<->sync greeenlet bridge
   In [5]: %timeit greenlet.greenlet(f).switch()
   517 ns ± 13.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
-  - + push/pull bridge?
+ - push/pull bridge?
+ - omnibus.asyncs?
+  - could use collect at this point (cycle detection)
 """
 import concurrent.futures as cf
 import contextlib
@@ -71,12 +73,18 @@ def syncable_iterable(fn: ta.Callable[..., ta.AsyncIterator[T]]) -> ta.Callable[
 
 class ImmediateExecutor(cf.Executor):
 
+    def __init__(self, *, immediate_exceptions: bool = False) -> None:
+        super().__init__()
+        self._immediate_exceptions = immediate_exceptions
+
     def submit(self, fn, *args, **kwargs):
         future = cf.Future()
         try:
             result = fn(*args, **kwargs)
             future.set_result(result)
         except Exception as e:
+            if self._immediate_exceptions:
+                raise
             future.set_exception(e)
         return future
 
@@ -159,6 +167,8 @@ def await_dependent_futures(
                 raise ValueError(fn)
             if dep not in dependency_sets_by_fn:
                 raise KeyError(dep)
+            if fn in dependency_sets_by_fn[dep]:
+                raise Exception(f'Cyclic dependencies: {fn} <-> {dep}', fn, dep)
 
     dependent_sets_by_fn = {fn: set() for fn in dependency_sets_by_fn}
     for fn, deps in dependency_sets_by_fn.items():

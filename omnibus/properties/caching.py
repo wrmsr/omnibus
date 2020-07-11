@@ -1,3 +1,8 @@
+"""
+TODO:
+ - properties.init? eager cached, ~ideally~ automatically on __init__
+  - not really possible without explicit help/call or baseclass
+"""
 import functools
 import typing as ta
 

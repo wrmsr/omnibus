@@ -22,6 +22,7 @@ TODO:
   - statement splitter
    - prob configurable
    - how tf is this diff from delimited lexer
+ - DRY aggregateResult - always have to copy - antlr.XorAggregator?
 
 MINE:
  - antlr, obviously

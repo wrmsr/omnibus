@@ -378,7 +378,7 @@ def test_descriptor():
             self._field = field
             self._attr_field = attr_field
 
-        def __get__(self, instance, owner):
+        def __get__(self, instance, owner=None):
             pass
 
         def __set__(self, instance, value):

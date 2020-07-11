@@ -1311,7 +1311,7 @@ cdef class Int8Int8Map:
 
 
 
-from .gen_unordered_map cimport unordered_map as cpp_unordered_map
+from libcpp.unordered_map cimport unordered_map as cpp_unordered_map
 
 from libcpp.utility cimport pair as cpp_pair
 
@@ -1484,7 +1484,7 @@ cdef class Int32Int32Map:
 
 
 
-from .gen_unordered_map cimport unordered_map as cpp_unordered_map
+from libcpp.unordered_map cimport unordered_map as cpp_unordered_map
 
 from libcpp.utility cimport pair as cpp_pair
 
@@ -1657,7 +1657,7 @@ cdef class Int64Int64Map:
 
 
 
-from .gen_unordered_map cimport unordered_map as cpp_unordered_map
+from libcpp.unordered_map cimport unordered_map as cpp_unordered_map
 
 from libcpp.utility cimport pair as cpp_pair
 
@@ -1830,7 +1830,7 @@ cdef class BytesBytesMap:
 
 
 
-from .gen_unordered_map cimport unordered_map as cpp_unordered_map
+from libcpp.unordered_map cimport unordered_map as cpp_unordered_map
 
 from libcpp.utility cimport pair as cpp_pair
 

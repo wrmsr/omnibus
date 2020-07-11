@@ -123,7 +123,7 @@ def protocol_check(proto: type) -> ta.Callable[[Ty], Ty]:
 
 class Descriptor(Protocol):
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         raise NotImplementedError
 
 

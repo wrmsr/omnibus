@@ -4,8 +4,10 @@ include LICENSE-*
 include **/.revision
 
 exclude omnibus
+
 include omnibus/__init__.py
 include omnibus/__about__.py
+
 global-include **/dev/**
 
 global-exclude *.py[cod]

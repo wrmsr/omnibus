@@ -1,0 +1,33 @@
+"""
+TODO:
+ - formatter
+  - whatever ij does mostly
+   - read .idea?
+  - imports
+  - two spaces after commas
+  - comment wrapping
+  - honor black blocks # fmt: off # fmt: on
+ - linter
+  - whatever i use from flake8/pyflakes
+  - __get__ requires owner=None
+  - no super().__init__
+  - honor # noqa
+  - unused imports
+  - light type checking via analysis?
+ - analysis
+  - type inf, sym resolution
+  - query language
+ - refactorer
+  - should basically be just user definable throwaway formatter rules
+  - https://ollef.github.io/blog/posts/query-based-compilers.html
+ - mypy.. ‘interop’..
+ - revisit hy ast compo
+
+REFS:
+ - https://www.python.org/dev/peps/pep-0008/
+ - https://github.com/psf/black/blob/master/docs/the_black_code_style.md
+ - https://github.com/timothycrosley/isort
+ - https://github.com/python/cpython/tree/master/Lib/lib2to3/fixes
+ - https://pylint.readthedocs.io/en/latest/technical_reference/features.html
+ - https://github.com/PyCQA/pyflakes/blob/master/pyflakes/checker.py
+"""

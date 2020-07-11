@@ -139,7 +139,7 @@ class ContextWrapped:
             else:
                 self._name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is None and owner is None:
             return self
         fn = self._fn.__get__(instance, owner)

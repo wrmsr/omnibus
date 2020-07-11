@@ -31,7 +31,7 @@ class DictDescriptor:
         self._frozen = frozen
         self._field_attrs = field_attrs
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is not None:
             dct = getattr(instance, self._dict_attr)
             try:

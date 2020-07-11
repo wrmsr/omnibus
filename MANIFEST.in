@@ -3,14 +3,18 @@ include LICENSE
 include LICENSE-*
 include **/.revision
 
-exclude omnibus/_ext/cy/**/*.cpp
-include omnibus/_ext/cc/**/*.cc
-include omnibus/_ext/cc/**/*.h
-include omnibus/_ext/cy/**/*.pxd
-include omnibus/_ext/cy/**/*.pyi
-include omnibus/_ext/cy/**/*.pyx
-include omnibus/_ext/m/**/*.h
-include omnibus/_ext/m/**/*.m
+exclude omnibus/_ext/cy/**.cpp
+
+include omnibus/**.g4
+include omnibus/**.interp
+include omnibus/**.tokens
+include omnibus/_ext/cc/**.cc
+include omnibus/_ext/cc/**.h
+include omnibus/_ext/cy/**.pxd
+include omnibus/_ext/cy/**.pyi
+include omnibus/_ext/cy/**.pyx
+include omnibus/_ext/m/**.h
+include omnibus/_ext/m/**.m
 
 global-exclude **/dev/**
 

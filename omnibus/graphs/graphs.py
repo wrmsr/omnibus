@@ -2,6 +2,8 @@
 TODO:
  - parser?
  - js? viz.js, d3, visjs
+ - cycle detection
+ - networkx adapter
 """
 import typing as ta
 

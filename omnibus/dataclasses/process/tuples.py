@@ -29,7 +29,7 @@ class TupleDescriptor:
         self._idx = idx
         self._field_attrs = field_attrs
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is not None:
             try:
                 return instance[self._idx]

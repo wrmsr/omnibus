@@ -10,9 +10,4 @@ clean:
 
 .PHONY: render
 render:
-	cat "$(shell python -c 'import Cython; print(Cython.__path__[0])')/Includes/libcpp/unordered_map.pxd" | \
-		sed 's/cdef cppclass unordered_map\[T, U\]/cdef cppclass unordered_map[T, U, HASH=*,PRED=*,ALLOCATOR=*]/' | \
-		sed "s/^from \./from libcpp./" \
-		> gen_unordered_map.pxd
-
 	python -m mako.cmd stl.pyx.mako > stl.pyx

@@ -1,6 +1,6 @@
 <%page args="kprefix, ktype, vprefix, vtype"/>
 
-from .gen_unordered_map cimport unordered_map as cpp_unordered_map
+from libcpp.unordered_map cimport unordered_map as cpp_unordered_map
 
 from libcpp.utility cimport pair as cpp_pair
 
