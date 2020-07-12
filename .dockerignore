@@ -1,5 +1,6 @@
 **__pycache__**
 *.sock
+.benchmarks
 .cache
 .env
 .git
@@ -10,6 +11,7 @@
 attic
 build
 dist
+omnibus
 omnibus.egg-info
 profiles
 target
