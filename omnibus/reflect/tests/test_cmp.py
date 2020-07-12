@@ -29,7 +29,7 @@ class E(D):
 @pytest.mark.xfail()
 def test_is_subclass():
     def isc(sub, sup):
-        return specs_.spec(sup).accept(cmp_.IsSubclassVisitor(specs_.spec(sub)))
+        return cmp_.issubclass_(specs_.spec(sub), specs_.spec(sup))
 
     assert isc(int, int)
     assert isc(int, object)

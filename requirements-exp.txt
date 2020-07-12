@@ -67,6 +67,7 @@ pyzmq==19.0.1
 regex==2020.6.8
 rocksdb==0.7.0
 slackclient==2.7.2
+sympy==1.6
 thrift==0.13.0
 uvloop==0.14.0
 
