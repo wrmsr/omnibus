@@ -3,6 +3,7 @@ NOTES:
  - https://clojure.org/reference/multimethods
 """
 import dataclasses as dc
+import itertools
 import typing as ta
 
 from . import specs
@@ -92,10 +93,10 @@ class SupVisitor(IsSubclassVisitor):
                 return
             if len(sub.args) != len(self._sup.args):
                 raise Incomparable(sub, self._sup)
-            ms = [list(_issubclass(l, r)) for l, r in zip(sub.args, self._sup.args)]
-            if not all(ms):
-                return
-            yield Match(sub, self._sup)
+            mls = [list(_issubclass(l, r)) for l, r in zip(sub.args, self._sup.args)]
+            for ml in itertools.product(*mls):
+                vs = ocol.frozendict((a, m) for a, m in zip(self._sup.args, ml) if isinstance(a, specs.VarSpec))
+                yield Match(sub, self._sup, vs)
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> MatchGen:
         yield from self._sub.accept(self.ParametrizedGenericSubVisitor(sup))
