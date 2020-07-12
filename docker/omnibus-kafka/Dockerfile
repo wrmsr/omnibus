@@ -1,2 +1,2 @@
-FROM confluentinc/cp-kafka:5.4.2
+FROM confluentinc/cp-kafka:5.5.1
 COPY .dockertimestamp /

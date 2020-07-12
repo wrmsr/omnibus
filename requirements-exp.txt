@@ -26,6 +26,7 @@ rsa==4.6
 scipy==1.5.1
 scramp==1.2.0
 tqdm==4.47.0
+xarray==0.16.0
 
 
 ## potential optional integrations
@@ -35,7 +36,7 @@ chardet==3.0.4
 datadog==0.38.0
 ddtrace==0.39.0
 dnspython==1.16.0
-fastavro==0.23.5
+fastavro==0.23.6
 fastparquet==0.4.0
 grpcio==1.30.0
 hyperscan==0.1.5

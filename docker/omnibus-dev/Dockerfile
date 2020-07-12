@@ -1,4 +1,4 @@
-FROM ubuntu:eoan-20200410
+FROM ubuntu:eoan-20200608
 COPY .dockertimestamp /
 
 
@@ -83,7 +83,7 @@ RUN ( \
 RUN ( \
   add-apt-repository ppa:openjdk-r/ppa && \
   apt-get update && \
-  apt-get install -y openjdk-8-jdk openjdk-13-jdk \
+  apt-get install -y openjdk-8-jdk openjdk-14-jdk \
 )
 
 RUN ( \

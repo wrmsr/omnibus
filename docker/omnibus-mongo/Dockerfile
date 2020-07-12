@@ -1,2 +1,2 @@
-FROM mongo:3.6.18
+FROM mongo:4.2.8
 COPY .dockertimestamp /
