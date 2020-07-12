@@ -2,39 +2,33 @@
 NOTES:
  - https://clojure.org/reference/multimethods
 """
+import dataclasses as dc
 import typing as ta
 
 from . import specs
-from .. import defs
+from .. import collections as ocol
 from .. import lang
 
 
 SpecT = ta.TypeVar('SpecT', bound=specs.Spec, covariant=True)
+MatchGen = ta.Generator['Match', None, None]
 
 
+@dc.dataclass(frozen=True)
+class Match(lang.Final):
+    sub: specs.Spec
+    sup: specs.Spec
+    vars: ta.Mapping[ta.TypeVar, 'Match'] = ocol.frozendict()
+
+
+@dc.dataclass(frozen=True)
 class Incomparable(Exception):
-
-    def __init__(self, sub: specs.Spec, sup: specs.Spec) -> None:
-        super().__init__(sub, sup)
-        self._sub = sub
-        self._sup = sup
-
-    defs.repr('sub', 'sup')
-    defs.hash_eq('sub', 'sup')
-
-    @property
-    def sub(self) -> specs.Spec:
-        return self._sub
-
-    @property
-    def sup(self) -> specs.Spec:
-        return self._sup
+    sub: specs.Spec
+    sup: specs.Spec
 
 
-class IsSubclassVisitor(specs.SpecVisitor[bool], lang.Abstract):
-
-    def visit_union_spec(self, spec: specs.UnionSpec) -> bool:
-        return any(arg.accept(self) for arg in spec.args)
+class IsSubclassVisitor(specs.SpecVisitor[MatchGen], lang.Abstract):
+    pass
 
 
 class SupVisitor(IsSubclassVisitor):
@@ -43,54 +37,78 @@ class SupVisitor(IsSubclassVisitor):
         super().__init__()
         self._sub = sub
 
+    def visit_any_spec(self, sup: specs.AnySpec) -> MatchGen:
+        yield Match(self._sub, sup)
+
+    def visit_union_spec(self, sup: specs.UnionSpec) -> MatchGen:
+        for arg in sup.args:
+            yield from _issubclass(self._sub, arg)
+
     class SubVisitor(IsSubclassVisitor, ta.Generic[SpecT], lang.Abstract):
 
         def __init__(self, sup: SpecT) -> None:
             super().__init__()
             self._sup = sup
 
-        def visit_any_spec(self, sub: specs.AnySpec) -> bool:
-            return isinstance(self._sup, specs.AnySpec)
+        def visit_any_spec(self, sub: specs.AnySpec) -> MatchGen:
+            if not isinstance(self._sup, specs.AnySpec):
+                return
+            yield Match(sub, self._sup)
 
-    def visit_any_spec(self, sup: specs.AnySpec) -> bool:
-        return True
+        def visit_union_spec(self, sub: specs.UnionSpec) -> MatchGen:
+            for arg in sub.args:
+                if not issubclass_(arg, self._sup):
+                    return
+            yield Match(sub, self._sup)
 
     class NonGenericSubVisitor(SubVisitor[specs.NonGenericTypeSpec]):
 
-        def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> bool:
-            return issubclass(sub.erased_cls, self._sup.erased_cls)
-
-        def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> bool:
+        def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):
-                return False
-            if not all(isinstance(a, specs.AnySpec) for a in sub.args):
-                return False
-            return True
+                return
+            yield Match(sub, self._sup)
 
-    def visit_non_generic_type_spec(self, sup: specs.NonGenericTypeSpec) -> bool:
-        return self._sub.accept(self.NonGenericSubVisitor(sup))
+        def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> MatchGen:
+            if not issubclass(sub.erased_cls, self._sup.erased_cls):
+                return
+            if not all(isinstance(a, specs.AnySpec) for a in sub.args):
+                return
+            yield Match(sub, self._sup)
+
+    def visit_non_generic_type_spec(self, sup: specs.NonGenericTypeSpec) -> MatchGen:
+        yield from self._sub.accept(self.NonGenericSubVisitor(sup))
 
     class ParametrizedGenericSubVisitor(SubVisitor[specs.ParameterizedGenericTypeSpec]):
 
-        def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> bool:
+        def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):
-                return False
+                return
             if not all(isinstance(a, specs.AnySpec) for a in self._sup.args):
                 raise Incomparable(sub, self._sup)
-            return True
+            yield Match(sub, self._sup)
 
-        def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> bool:
+        def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):
-                return False
+                return
             if len(sub.args) != len(self._sup.args):
                 raise Incomparable(sub, self._sup)
-            if not all(issubclass_(l, r) for l, r in zip(sub.args, self._sup.args)):
-                return False
-            return True
+            ms = [list(_issubclass(l, r)) for l, r in zip(sub.args, self._sup.args)]
+            if not all(ms):
+                return
+            yield Match(sub, self._sup)
 
-    def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> bool:
-        return self._sub.accept(self.ParametrizedGenericSubVisitor(sup))
+    def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> MatchGen:
+        yield from self._sub.accept(self.ParametrizedGenericSubVisitor(sup))
+
+
+def _issubclass(sub: specs.Spec, sup: specs.Spec) -> MatchGen:
+    return sup.accept(SupVisitor(sub))
 
 
 def issubclass_(sub: specs.Spec, sup: specs.Spec) -> bool:
-    return sup.accept(SupVisitor(sub))
+    try:
+        match = next(_issubclass(sub, sup))  # noqa
+    except StopIteration:
+        return False
+    else:
+        return True
