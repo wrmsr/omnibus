@@ -28,7 +28,7 @@ class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
     def __new__(cls, *args, **kwargs) -> 'FrozenDict[K, V]':
         if len(args) == 1 and Frozen in type(args[0]).__bases__:
             return args[0]
-        return super().__new__(cls, dict(*args, **kwargs))
+        return super().__new__(cls)
 
     def __init__(self, *args, **kwargs):
         super().__init__()

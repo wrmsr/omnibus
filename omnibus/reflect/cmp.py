@@ -41,6 +41,11 @@ class SupVisitor(IsSubclassVisitor):
     def visit_any_spec(self, sup: specs.AnySpec) -> MatchGen:
         yield Match(self._sub, sup)
 
+    def visit_var_spec(self, sup: specs.VarSpec) -> MatchGen:
+        if sup.bound is not None:
+            raise NotImplementedError
+        yield Match(self._sub, sup)
+
     def visit_union_spec(self, sup: specs.UnionSpec) -> MatchGen:
         for arg in sup.args:
             yield from _issubclass(self._sub, arg)
@@ -95,7 +100,11 @@ class SupVisitor(IsSubclassVisitor):
                 raise Incomparable(sub, self._sup)
             mls = [list(_issubclass(l, r)) for l, r in zip(sub.args, self._sup.args)]
             for ml in itertools.product(*mls):
-                vs = ocol.frozendict((a, m) for a, m in zip(self._sup.args, ml) if isinstance(a, specs.VarSpec))
+                vs = ocol.frozendict(
+                    (a.cls, m)
+                    for a, m in zip(self._sup.args, ml)
+                    if isinstance(a, specs.VarSpec)
+                )
                 yield Match(sub, self._sup, vs)
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> MatchGen:
