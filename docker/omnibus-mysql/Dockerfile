@@ -18,5 +18,6 @@ RUN ( \
     echo "mysql ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
 )
 
+
 COPY docker/omnibus-mysql/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

@@ -26,9 +26,6 @@ RUN ( \
     wget \
 )
 
-COPY docker/omnibus-postgres/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 
 RUN ( \
   export WAL2JSON_VERSION=2_2 && \
@@ -53,3 +50,7 @@ RUN ( \
   make && \
   make install \
 )
+
+
+COPY docker/omnibus-postgres/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
