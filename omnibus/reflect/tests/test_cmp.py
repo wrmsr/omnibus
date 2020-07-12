@@ -49,3 +49,8 @@ def test_is_subclass():
     assert isc(ta.List[ta.Any], list)
     assert isc(ta.List[int], ta.List[ta.Any])
     assert not isc(ta.List[ta.Any], ta.List[int])
+
+    assert isc(ta.Dict[int, object], ta.Dict[object, object])
+    assert isc(ta.Dict[object, int], ta.Dict[object, object])
+    assert not isc(ta.Dict[int, object], ta.Dict[object, int])
+    assert not isc(ta.Dict[object, int], ta.Dict[int, object])
