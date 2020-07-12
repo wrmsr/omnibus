@@ -1,3 +1,4 @@
+from . import cmp  # noqa
 from .specs import ANY  # noqa
 from .specs import AnySpec  # noqa
 from .specs import ExplicitParameterizedGenericTypeSpec  # noqa

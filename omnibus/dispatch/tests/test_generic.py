@@ -57,12 +57,27 @@ class GenericDispatcher(Dispatcher[Impl]):
             self._registry[cls] = impl
         return self
 
-    def _resolve(self, spec: rfl.Spec) -> ta.Optional[ta.Tuple[ta.Type, Impl]]:
+    def _resolve(self, spec: rfl.Spec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
+        # TODO: generic_compose_mro to weed out ineligible
         # mro = generic_compose_mro(cls, list(self._registry.keys()))
         # try:
         #     return match, self._registry[match]
         # except registries.NotRegisteredException:
         #     raise UnregisteredDispatchError(match)
+
+        ms = []
+        for k, v in self._registry.items():
+            for m in rfl.cmp._issubclass(spec, k):
+                ms.append((k, m))
+
+        if not ms:
+            return None, None
+
+        if len(ms) == 1:
+            [(k, m)] = ms
+            match, impl, = k, self._registry[k]
+            return impl, Manifest(spec, match)
+
         raise NotImplementedError
 
     def dispatch(self, key: TypeOrSpec) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:
@@ -70,8 +85,7 @@ class GenericDispatcher(Dispatcher[Impl]):
         try:
             impl = self._registry[spec]
         except registries.NotRegisteredException:
-            match, impl = self._resolve(spec)
-            return impl, Manifest(key, match)
+            return self._resolve(spec)
         else:
             return impl, Manifest(key, spec)
 
@@ -83,11 +97,15 @@ class GenericDispatcher(Dispatcher[Impl]):
 def test_generic():
     disp = GenericDispatcher()
 
-    disp[ta.Tuple[A, A]] = 'aa'
-    disp[ta.Tuple[A, B]] = 'ab'
+    disp[ta.Dict[A, A]] = 'aa'
+    disp[ta.Dict[A, B]] = 'ab'
 
-    impl, manifest = disp.dispatch(ta.Tuple[A, B])
-
-    assert manifest.spec.erased_cls is tuple
+    impl, manifest = disp.dispatch(ta.Dict[A, B])
+    assert manifest.spec.erased_cls is dict
     assert manifest.spec.args[0].cls is A
+    assert manifest.spec.args[1].cls is B
+
+    impl, manifest = disp.dispatch(ta.Dict[C, B])
+    assert manifest.spec.erased_cls is dict
+    assert manifest.spec.args[0].cls is C
     assert manifest.spec.args[1].cls is B
