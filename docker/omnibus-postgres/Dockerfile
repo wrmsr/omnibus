@@ -19,16 +19,6 @@ RUN ( \
     wget \
 )
 
-
-# RUN \
-#   sed -i 's/^#wal_level = minimal/wal_level = logical/' /usr/share/postgresql/postgresql.conf.sample && \
-#   sed -i 's/^#max_replication_slots = 0/max_replication_slots = 10/' /usr/share/postgresql/postgresql.conf.sample && \
-#   sed -i 's/^#max_wal_senders = 0/max_wal_senders = 10/' /usr/share/postgresql/postgresql.conf.sample && \
-#   echo 'echo "host replication all 0.0.0.0/0 $authMethod" >> "$PGDATA/pg_hba.conf"' > /docker-entrypoint-initdb.d/add-replication-hba.sh
-
-ENV PG_MAX_WAL_SENDERS 8
-ENV PG_WAL_KEEP_SEGMENTS 8
-
 COPY docker/omnibus-postgres/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 

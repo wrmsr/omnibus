@@ -313,8 +313,8 @@ _main() {
                 cat >> ${PGDATA}/postgresql.conf <<EOF
 wal_level = logical
 max_replication_slots = 4
-max_wal_senders = $PG_MAX_WAL_SENDERS
-wal_keep_segments = $PG_WAL_KEEP_SEGMENTS
+max_wal_senders = ${PG_MAX_WAL_SENDERS:-8}
+wal_keep_segments = ${PG_WAL_KEEP_SEGMENTS:-8}
 hot_standby = on
 EOF
             else
