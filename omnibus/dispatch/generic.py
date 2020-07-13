@@ -66,7 +66,7 @@ class GenericDispatcher(Dispatcher[Impl]):
                     raise AmbiguousDispatchError
             for cur in ms[1:]:
                 if cur is best:
-                    pass
+                    continue
                 cur_is_a_best = rfl.cmp.issubclass_(cur[0], best[0])
                 best_is_a_cur = rfl.cmp.issubclass_(best[0], cur[0])
                 if cur_is_a_best or not best_is_a_cur:
