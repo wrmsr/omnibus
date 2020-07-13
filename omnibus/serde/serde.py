@@ -132,8 +132,8 @@ Serializer = ta.Callable[[F], T]
 Deserializer = ta.Callable[[T], F]
 Serialization = ta.Callable[[], Serializer[F, T]]
 Deserialization = ta.Callable[[], Deserializer[T, F]]
-SERIALIZATION_DISPATCHER: dispatch.Dispatcher[Serialization] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())
-DESERIALIZATION_DISPATCHER: dispatch.Dispatcher[Deserialization] = dispatch.CachingDispatcher(dispatch.ErasingDispatcher())  # noqa
+SERIALIZATION_DISPATCHER: dispatch.Dispatcher[Serialization] = dispatch.CachingDispatcher(dispatch.GenericDispatcher())
+DESERIALIZATION_DISPATCHER: dispatch.Dispatcher[Deserialization] = dispatch.CachingDispatcher(dispatch.GenericDispatcher())  # noqa
 
 
 def build_serializer(cls) -> Serializer:

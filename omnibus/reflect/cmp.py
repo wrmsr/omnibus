@@ -120,8 +120,8 @@ class SupVisitor(IsSubclassVisitor):
         def visit_parameterized_generic_type_spec(self, sub: specs.ParameterizedGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):
                 return
-            if not all(isinstance(a, specs.AnySpec) for a in sub.args):
-                return
+            # if not all(isinstance(a, specs.AnySpec) for a in sub.args):
+            #     return
             yield Match(sub, self._sup)
 
     def visit_non_generic_type_spec(self, sup: specs.NonGenericTypeSpec) -> MatchGen:
