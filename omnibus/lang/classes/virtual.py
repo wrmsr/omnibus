@@ -17,6 +17,8 @@ TODO:
     - implying ta.Intersection still needs to exist not just class I(..., lang.classes.virtual.Intersection): ... :/
      - class HashableT(ta.Generic[T], Hashable, Intersection): ...
      - def check.hashable(obj: T) -> Hashable[T] .. no
+ - 'Predicated'? takes a lambda
+ - 'Not' ? lang.Intersection[ta.Iterable[str], lang.Not[str]]
 
 
 https://zio.dev/docs/howto/howto_use_layers

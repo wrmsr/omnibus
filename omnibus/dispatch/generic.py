@@ -1,3 +1,9 @@
+"""
+TODO:
+ - fmap
+  - asts - traverse, rewrite
+ - ensure virtual abc's work
+"""
 import typing as ta
 
 from .. import check
