@@ -3,6 +3,7 @@ TODO:
  - statics? once, every, and_every, ...
  - io - FileObj protocol
 """
+import collections.abc
 import functools
 import sys
 import types
@@ -423,6 +424,10 @@ def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
 
 def is_not_none(obj: T) -> bool:
     return obj is not None
+
+
+def iterable(obj: T) -> bool:
+    return isinstance(obj, collections.abc.Iterable)
 
 
 class SimpleProxy(ta.Generic[T]):

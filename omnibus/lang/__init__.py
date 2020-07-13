@@ -92,6 +92,7 @@ from .lang import is_descriptor  # noqa
 from .lang import is_lambda  # noqa
 from .lang import is_not_none  # noqa
 from .lang import is_possibly_cls_dct  # noqa
+from .lang import iterable  # noqa
 from .lang import make_cell  # noqa
 from .lang import maybe_call  # noqa
 from .lang import new_type  # noqa
