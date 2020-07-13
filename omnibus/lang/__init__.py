@@ -88,6 +88,7 @@ from .lang import dir_dict  # noqa
 from .lang import empty_map  # noqa
 from .lang import EmptyMap  # noqa
 from .lang import exhaust  # noqa
+from .lang import identitiy  # noqa
 from .lang import is_descriptor  # noqa
 from .lang import is_lambda  # noqa
 from .lang import is_not_none  # noqa
