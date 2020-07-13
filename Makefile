@@ -145,6 +145,7 @@ venv-39:
 	if [ ! -d .venv-39 ] ; then \
 		$(call do-venv,.venv-39,$(PYTHON_39_VERSION)) ; \
 		$(call do-deps,.venv,requirements.txt) ; \
+		.venv-39/bin/pip install ipython ; \
 	fi
 
 

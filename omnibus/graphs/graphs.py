@@ -4,6 +4,7 @@ TODO:
  - js? viz.js, d3, visjs
  - cycle detection
  - networkx adapter
+ - https://docs.python.org/3.9/library/graphlib.html#module-graphlib
 """
 import typing as ta
 

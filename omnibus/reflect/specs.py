@@ -11,6 +11,9 @@ TODO:
  - typingx: Intersect, Dependent, Raises
  - https://github.com/python/typing/issues/213
  - reflect/__init__.py? is this where subtyper lives? or is that dispatch-only? hinting required..
+ - 3.9:
+  - list[int].__args__ == (int,), should be fine
+  - ta.Annotation finally
 
 https://github.com/ilevkivskyi/typing_inspect
 """
