@@ -20,7 +20,10 @@ from .virtual import VirtualClass
 Field = dc.Field
 
 
-DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(dispatch.GenericDispatcher())  # noqa
+DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(
+    dispatch.ErasingDispatcher(),
+    # dispatch.GenericDispatcher(),
+)
 
 
 def build_default_field_validation(fld: Field, type=dc.MISSING) -> FieldValidator:

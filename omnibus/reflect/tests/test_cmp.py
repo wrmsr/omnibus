@@ -74,5 +74,8 @@ def test_is_subclass():
     assert isc(ta.Dict[int, int], ta.Dict[T, T])
     assert not isc(ta.Dict[int, object], ta.Dict[T, T])
 
+    assert isc(int, ta.Optional[int])
+    assert not isc(ta.Optional[int], int)
+
     assert isc(ta.Dict[int, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])
     assert not isc(ta.Dict[str, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])

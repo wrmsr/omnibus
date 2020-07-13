@@ -34,7 +34,6 @@ class E(D):
 @pytest.mark.xfail()
 def test_generic():
     disp = generic_.GenericDispatcher()
-
     disp[ta.Dict[A, A]] = 'aa'
     disp[ta.Dict[A, B]] = 'ab'
 
@@ -49,7 +48,6 @@ def test_generic():
     assert manifest.spec.args[1].cls is B
 
     disp = generic_.GenericDispatcher()
-
     disp[ta.Dict[K, V]] = 'kv'
 
     impl, manifest = disp.dispatch(ta.Dict[A, B])
@@ -58,3 +56,10 @@ def test_generic():
     assert manifest[V] is B
     assert manifest.spec.args[0].cls is A
     assert manifest.spec.args[1].cls is B
+
+    disp = generic_.GenericDispatcher()
+    disp[int] = 'int'
+    disp[ta.Optional[T]] = 'Optional[T}'
+
+    impl, manifest = disp.dispatch(int)  # noqa
+    impl, manifest = disp.dispatch(ta.Optional[int])  # noqa
