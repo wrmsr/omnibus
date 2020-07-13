@@ -79,7 +79,8 @@ class GenericDispatcher(Dispatcher[Impl]):
         if len(ms) == 1:
             [(k, m)] = ms
             match, impl, = k, self._registry[k]
-            return impl, Manifest(spec, match)
+            vs = {k: v.bind for k, v in m.vars.items()}
+            return impl, Manifest(spec, match, vars=vs)
 
         raise NotImplementedError
 

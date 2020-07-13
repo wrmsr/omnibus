@@ -35,31 +35,34 @@ class Match(lang.Final):
         self._sup = sup
         self._vars = vars
 
-        self._bound: ta.Optional[specs.TypeLike] = None
+        self._bind: ta.Optional[specs.TypeLike] = None
 
     defs.basic('sub', 'sup', 'vars')
 
     @property
-    def sub(self) ->  specs.Spec:
+    def sub(self) -> specs.Spec:
         return self._sub
 
     @property
-    def sup(self) ->  specs.Spec:
+    def sup(self) -> specs.Spec:
         return self._sup
 
     @property
-    def vars(self) ->  ta.Mapping[ta.TypeVar, 'Match']:
+    def vars(self) -> ta.Mapping[ta.TypeVar, 'Match']:
         return self._vars
 
     @property
-    def bound(self) -> specs.TypeLike:
-        if self._bound is None:
-            bound = self.sup
-            if self.vars is not None:
-                bound = ta.cast(specs.ParameterizedGenericTypeSpec, self.sup)
-                bound = bound.cls.__getitem__(*[self.vars[p] for p in bound.cls_parameters])
-            self._bound = bound
-        return self._bound
+    def bind(self) -> specs.TypeLike:
+        if self._bind is None:
+            if self.vars:
+                # FIXME: WRONG
+                bspec = ta.cast(specs.ParameterizedGenericTypeSpec, self.sup)
+                # FIXME: recursively replace params - recursive .bind?
+                bind = bspec.cls[tuple(self.vars[p].sub.cls for p in bspec.cls_args if isinstance(p, ta.TypeVar))]
+            else:
+                bind = self.sub.cls
+            self._bind = bind
+        return self._bind
 
 
 @dc.dataclass(frozen=True)
