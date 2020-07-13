@@ -8,6 +8,7 @@ import typing as ta
 
 from . import specs
 from .. import collections as ocol
+from .. import defs
 from .. import lang
 
 
@@ -15,11 +16,50 @@ SpecT = ta.TypeVar('SpecT', bound=specs.Spec, covariant=True)
 MatchGen = ta.Generator['Match', None, None]
 
 
-@dc.dataclass(frozen=True)
 class Match(lang.Final):
-    sub: specs.Spec
-    sup: specs.Spec
-    vars: ta.Mapping[ta.TypeVar, 'Match'] = ocol.frozendict()
+
+    def __init__(
+            self,
+            sub: specs.Spec,
+            sup: specs.Spec,
+            *,
+            vars: ta.Mapping[ta.TypeVar, 'Match'] = ocol.frozendict(),
+    ) -> None:
+        super().__init__()
+
+        if vars:
+            if not isinstance(sup, specs.ParameterizedGenericTypeSpec):
+                raise TypeError(sup)
+
+        self._sub = sub
+        self._sup = sup
+        self._vars = vars
+
+        self._bound: ta.Optional[specs.TypeLike] = None
+
+    defs.basic('sub', 'sup', 'vars')
+
+    @property
+    def sub(self) ->  specs.Spec:
+        return self._sub
+
+    @property
+    def sup(self) ->  specs.Spec:
+        return self._sup
+
+    @property
+    def vars(self) ->  ta.Mapping[ta.TypeVar, 'Match']:
+        return self._vars
+
+    @property
+    def bound(self) -> specs.TypeLike:
+        if self._bound is None:
+            bound = self.sup
+            if self.vars is not None:
+                bound = ta.cast(specs.ParameterizedGenericTypeSpec, self.sup)
+                bound = bound.cls.__getitem__(*[self.vars[p] for p in bound.cls_parameters])
+            self._bound = bound
+        return self._bound
 
 
 @dc.dataclass(frozen=True)
@@ -111,7 +151,7 @@ class SupVisitor(IsSubclassVisitor):
                         [vs[ac]] = vl
                         continue
                     raise NotImplementedError
-                yield Match(sub, self._sup, ocol.frozendict(vs))
+                yield Match(sub, self._sup, vars=ocol.frozendict(vs))
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> MatchGen:
         yield from self._sub.accept(self.ParametrizedGenericSubVisitor(sup))

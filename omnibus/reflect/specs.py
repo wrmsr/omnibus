@@ -331,11 +331,11 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
     def __init__(self, cls: GenericAlias) -> None:
         super().__init__(cls)
 
-        check.unique(self.parameters_cls)
+        check.unique(self.cls_parameters)
 
     def _check_arg_param_lens(self) -> None:
-        check.state(len(self.parameters_cls) > 0)
-        check.state(len(self.cls_args) == len(self.parameters_cls))
+        check.state(len(self.cls_parameters) > 0)
+        check.state(len(self.cls_args) == len(self.cls_parameters))
 
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
@@ -350,17 +350,17 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
 
     @property
     @abc.abstractmethod
-    def parameters_cls(self) -> ta.Sequence[Var]:
+    def cls_parameters(self) -> ta.Sequence[Var]:
         raise NotImplementedError
 
     @properties.cached
     def parameters(self) -> ta.Sequence[VarSpec]:
-        return [check.isinstance(spec(p), VarSpec) for p in self.parameters_cls]
+        return [check.isinstance(spec(p), VarSpec) for p in self.cls_parameters]
 
     @properties.cached
     def vars(self) -> ta.Mapping[Var, Spec]:
         self._check_arg_param_lens()
-        return dict(zip(self.parameters_cls, self.args))
+        return dict(zip(self.cls_parameters, self.args))
 
 
 class ExplicitParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Final):
@@ -372,7 +372,7 @@ class ExplicitParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fi
         self._check_arg_param_lens()
 
     @properties.cached
-    def parameters_cls(self) -> ta.Sequence[Var]:
+    def cls_parameters(self) -> ta.Sequence[Var]:
         return self.erased_cls.__parameters__
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
@@ -385,15 +385,15 @@ class SpecialParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fin
         check.arg(is_special_generic(cls))
         check.arg(not is_generic(cls.__origin__))
         check.arg(not hasattr(cls.__origin__, '__orig_bases__'))
-        parameters_cls: ta.Sequence[Var] = get_root_special(cls).__parameters__
-        check.arg(all(isinstance(p, Var) for p in parameters_cls))
-        self._parameters_cls = parameters_cls
+        cls_parameters: ta.Sequence[Var] = get_root_special(cls).__parameters__
+        check.arg(all(isinstance(p, Var) for p in cls_parameters))
+        self._cls_parameters = cls_parameters
 
         super().__init__(cls)
 
     @property
-    def parameters_cls(self) -> ta.Sequence[Var]:
-        return self._parameters_cls
+    def cls_parameters(self) -> ta.Sequence[Var]:
+        return self._cls_parameters
 
     @property
     def bases_cls(self) -> ta.Sequence[ta.Type]:
