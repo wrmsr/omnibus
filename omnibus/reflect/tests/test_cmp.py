@@ -70,3 +70,9 @@ def test_is_subclass():
     m = next(cmp_._issubclass(specs_.spec(ta.Dict[int, str]), specs_.spec(ta.Dict[K, V])))
     assert m.vars[K].sub.cls is int
     assert m.vars[V].sub.cls is str
+
+    assert isc(ta.Dict[int, int], ta.Dict[T, T])
+    assert not isc(ta.Dict[int, object], ta.Dict[T, T])
+
+    assert isc(ta.Dict[int, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])
+    assert not isc(ta.Dict[str, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])

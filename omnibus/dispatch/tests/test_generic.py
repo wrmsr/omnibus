@@ -12,6 +12,9 @@ from ..types import TypeOrSpec
 
 
 T = ta.TypeVar('T')
+U = ta.TypeVar('U')
+K = ta.TypeVar('K')
+V = ta.TypeVar('V')
 
 
 class A:
@@ -108,4 +111,15 @@ def test_generic():
     impl, manifest = disp.dispatch(ta.Dict[C, B])
     assert manifest.spec.erased_cls is dict
     assert manifest.spec.args[0].cls is C
+    assert manifest.spec.args[1].cls is B
+
+    disp = GenericDispatcher()
+
+    disp[ta.Dict[K, V]] = 'kv'
+
+    impl, manifest = disp.dispatch(ta.Dict[A, B])
+    assert manifest.spec.erased_cls is dict
+    assert manifest[K] is A
+    assert manifest[V] is B
+    assert manifest.spec.args[0].cls is A
     assert manifest.spec.args[1].cls is B

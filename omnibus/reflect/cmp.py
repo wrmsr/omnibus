@@ -100,12 +100,18 @@ class SupVisitor(IsSubclassVisitor):
                 raise Incomparable(sub, self._sup)
             mls = [list(_issubclass(l, r)) for l, r in zip(sub.args, self._sup.args)]
             for ml in itertools.product(*mls):
-                vs = ocol.frozendict(
-                    (a.cls, m)
-                    for a, m in zip(self._sup.args, ml)
-                    if isinstance(a, specs.VarSpec)
-                )
-                yield Match(sub, self._sup, vs)
+                vls = {}
+                for a, m in zip(self._sup.args, ml):
+                    if not isinstance(a, specs.VarSpec):
+                        continue
+                    vls.setdefault(a.cls, []).append(m)
+                vs = {}
+                for ac, vl in vls.items():
+                    if len(vl) < 2:
+                        [vs[ac]] = vl
+                        continue
+                    raise NotImplementedError
+                yield Match(sub, self._sup, ocol.frozendict(vs))
 
     def visit_parameterized_generic_type_spec(self, sup: specs.ParameterizedGenericTypeSpec) -> MatchGen:
         yield from self._sub.accept(self.ParametrizedGenericSubVisitor(sup))

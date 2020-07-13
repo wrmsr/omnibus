@@ -5,6 +5,7 @@ TODO:
  - dict operators (inc __or__ / __ror__ / __ior__)
  - list operators
  - views, slices
+ - cy
 """
 import collections.abc
 import itertools
