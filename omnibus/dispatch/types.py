@@ -37,16 +37,17 @@ class Manifest(lang.Final):
 
     def __init__(
             self,
-            _cls: TypeOrSpec,
-            _match: TypeOrSpec,
+            cls: TypeOrSpec,
+            match: TypeOrSpec,
             *,
-            _spec: rfl.Spec = None,
+            vars: ta.Optional[ta.Mapping[ta.TypeVar, rfl.Spec]] = None,
     ) -> None:
         super().__init__()
 
-        self._cls = _cls
-        self._match = _match
-        self._spec = _spec
+        self._cls = cls
+        self._match = match
+        self._vars = vars
+        self._spec: ta.Optional[rfl.Spec] = None
 
     @property
     def cls(self) -> TypeOrSpec:
@@ -65,11 +66,10 @@ class Manifest(lang.Final):
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._cls!r}, {self._match!r})'
 
-    def __iter__(self) -> ta.Iterator[ta.Type]:
-        if rfl.is_generic(self._cls):
-            return iter(self._cls.__args__)
-        else:
+    def __getitem__(self, var: ta.TypeVar) -> rfl.Spec:
+        if self._vars is None:
             raise TypeError
+        return self._vars[var]
 
     def __eq__(self, other):
         return (

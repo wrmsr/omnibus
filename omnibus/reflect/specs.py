@@ -187,12 +187,12 @@ class UnionSpec(Spec, lang.Final):
         check.arg(cls.__origin__ is ta.Union)
 
     @properties.cached
-    def args_cls(self) -> ta.Sequence[Specable]:
+    def cls_args(self) -> ta.Sequence[Specable]:
         return self._cls.__args__
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
-        return [spec(a) for a in self.args_cls]
+        return [spec(a) for a in self.cls_args]
 
     def __iter__(self) -> ta.Iterator[Spec]:
         yield from super().__iter__()
@@ -313,12 +313,12 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
         return type_spec(self.erased_cls)
 
     @property
-    def args_cls(self) -> ta.Sequence[Specable]:
+    def cls_args(self) -> ta.Sequence[Specable]:
         return self.cls.__args__
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
-        return [spec(c) for c in self.args_cls]
+        return [spec(c) for c in self.cls_args]
 
     def __iter__(self) -> ta.Iterator[Spec]:
         yield from super().__iter__()
@@ -335,7 +335,7 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
 
     def _check_arg_param_lens(self) -> None:
         check.state(len(self.parameters_cls) > 0)
-        check.state(len(self.args_cls) == len(self.parameters_cls))
+        check.state(len(self.cls_args) == len(self.parameters_cls))
 
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
