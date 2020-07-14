@@ -71,9 +71,6 @@ def test_is_subclass():
     assert m.vars[K].sub.cls is int
     assert m.vars[V].sub.cls is str
 
-    assert isc(ta.Dict[int, int], ta.Dict[T, T])
-    assert not isc(ta.Dict[int, object], ta.Dict[T, T])
-
     assert isc(int, ta.Optional[int])
     assert not isc(ta.Optional[int], int)
 
@@ -87,10 +84,14 @@ def test_is_subclass():
     assert isc(ta.Union, ta.Union)
     assert isc(ta.Union[int, str], ta.Union)
     assert isc(ta.Union[int, str], ta.Union[int, str])
+    assert not isc(ta.Union, ta.Union[int, str])
 
     assert not isc(ta.Union, ta.Union[int, str])
     assert isc(ta.Union[int, str], ta.Union[int, str, list])
     assert not isc(ta.Union[int, str, list], ta.Union[int, str])
+
+    assert isc(ta.Dict[int, int], ta.Dict[T, T])
+    assert not isc(ta.Dict[int, object], ta.Dict[T, T])
 
     assert isc(ta.Dict[int, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])
     assert not isc(ta.Dict[str, ta.Dict[int, int]], ta.Dict[T, ta.Dict[T, T]])

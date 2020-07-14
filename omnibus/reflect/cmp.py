@@ -96,8 +96,14 @@ class SupVisitor(IsSubclassVisitor):
         yield Match(self._sub, sup)
 
     def visit_union_spec(self, sup: specs.UnionSpec) -> MatchGen:
-        for arg in sup.args:
-            yield from _issubclass(self._sub, arg)
+        if isinstance(self._sub, specs.UnionSpec):
+            for a in self._sub.args:
+                if not issubclass_(a, sup):
+                    return
+            yield Match(self._sub, sup)
+        else:
+            for arg in sup.args:
+                yield from _issubclass(self._sub, arg)
 
     def visit_any_union_spec(self, sup: specs.AnyUnionSpec) -> MatchGen:
         if not isinstance(self._sub, (specs.UnionSpec, specs.AnyUnionSpec)):
@@ -107,15 +113,12 @@ class SupVisitor(IsSubclassVisitor):
     class TypeSubVisitor(SubVisitor[SpecT], lang.Abstract):
 
         def visit_any_spec(self, sub: specs.AnySpec) -> MatchGen:
-            if not isinstance(self._sup, specs.AnySpec):
-                return
-            yield Match(sub, self._sup)
+            return
+            yield
 
         def visit_union_spec(self, sub: specs.UnionSpec) -> MatchGen:
-            for arg in sub.args:
-                if not issubclass_(arg, self._sup):
-                    return
-            yield Match(sub, self._sup)
+            return
+            yield
 
         def visit_any_union_spec(self, sub: specs.AnyUnionSpec) -> MatchGen:
             return

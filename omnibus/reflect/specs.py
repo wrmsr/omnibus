@@ -29,7 +29,6 @@ from .. import properties
 from .types import GarbageCollectedException
 from .types import GenericAlias
 from .types import NoneType
-from .types import SpecialForm
 from .types import TypeLike
 from .types import TypeLikes
 from .types import Var
