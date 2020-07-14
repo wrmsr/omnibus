@@ -7,6 +7,7 @@ TODO:
 """
 import collections.abc
 import dataclasses as dc
+import typing as ta
 
 from .. import check
 from .. import dispatch
@@ -21,8 +22,8 @@ Field = dc.Field
 
 
 DEFAULT_FIELD_VALIDATION_DISPATCHER: dispatch.Dispatcher[FieldValidation] = dispatch.CachingDispatcher(
-    dispatch.ErasingDispatcher(),
-    # dispatch.GenericDispatcher(),
+    # dispatch.ErasingDispatcher(),
+    dispatch.GenericDispatcher(),
 )
 
 
@@ -42,7 +43,7 @@ def default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> Fiel
     return inner
 
 
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(reflect.UnionVirtual)
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(ta.Union)
 def union_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     uvs = [build_default_field_validation(fld, type=a) for a in manifest.spec.args]
 

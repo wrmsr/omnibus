@@ -5,6 +5,7 @@ TODO:
 """
 import collections.abc
 import functools
+import itertools
 import sys
 import types
 import typing as ta
@@ -332,6 +333,15 @@ class VoidException(Exception):
     pass
 
 
+class Void:
+
+    def __new__(cls, *args, **kwargs):
+        raise VoidException
+
+    def __init_subclass__(cls, **kwargs):
+        raise VoidException
+
+
 def void(*args, **kwargs) -> ta.NoReturn:
     raise VoidException
 
@@ -428,6 +438,12 @@ def is_not_none(obj: T) -> bool:
 
 def iterable(obj: T) -> bool:
     return isinstance(obj, collections.abc.Iterable)
+
+
+def peek(vs: ta.Iterable[T]) -> ta.Tuple[T, ta.Iterator[T]]:
+    it = iter(vs)
+    v = next(it)
+    return v, itertools.chain(iter((v,)), it)
 
 
 class SimpleProxy(ta.Generic[T]):

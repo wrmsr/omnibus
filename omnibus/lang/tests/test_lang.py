@@ -163,3 +163,10 @@ def test_cached_nullary():
     assert c == 3
     assert ci2.i() == 'C.i(c2)'
     assert c == 3
+
+
+def test_peek():
+    it = range(4)
+    v, it = lang_.peek(it)
+    assert v == 0
+    assert list(it) == [0, 1, 2, 3]

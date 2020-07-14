@@ -153,41 +153,41 @@ def test_default_validation():
         d: dict
         oi: ta.Optional[int]
 
-    xfld = api_.fields_dict(Point)['x']
-    xfv = validation_.build_default_field_validation(xfld)
-    xfv(420)
-    with pytest.raises(Exception):
-        xfv(420.)
-
-    xsfld = api_.fields_dict(Point)['xs']
-    xsfv = validation_.build_default_field_validation(xsfld)
-    xsfv([420])
-    xsfv({420})
-    xsfv(frozenset([420]))
-    for v in [420, [420.]]:
-        with pytest.raises(Exception):
-            xsfv(v)
-
-    ysbyxfld = api_.fields_dict(Point)['ys_by_x']
-    ysbyxfv = validation_.build_default_field_validation(ysbyxfld)
-    ysbyxfv({})
-    ysbyxfv({420: 421.})
-    for v in [{420: 420}, {420.: 420.}]:
-        with pytest.raises(Exception):
-            ysbyxfv(v)
-
-    sfld = api_.fields_dict(Point)['s']
-    sfv = validation_.build_default_field_validation(sfld)
-    sfv('420')
-    with pytest.raises(Exception):
-        sfv(420)
-
-    dfld = api_.fields_dict(Point)['d']
-    dfv = validation_.build_default_field_validation(dfld)
-    dfv({})
-    dfv({1: 2})
-    with pytest.raises(Exception):
-        sfv(())
+    # xfld = api_.fields_dict(Point)['x']
+    # xfv = validation_.build_default_field_validation(xfld)
+    # xfv(420)
+    # with pytest.raises(Exception):
+    #     xfv(420.)
+    #
+    # xsfld = api_.fields_dict(Point)['xs']
+    # xsfv = validation_.build_default_field_validation(xsfld)
+    # xsfv([420])
+    # xsfv({420})
+    # xsfv(frozenset([420]))
+    # for v in [420, [420.]]:
+    #     with pytest.raises(Exception):
+    #         xsfv(v)
+    #
+    # ysbyxfld = api_.fields_dict(Point)['ys_by_x']
+    # ysbyxfv = validation_.build_default_field_validation(ysbyxfld)
+    # ysbyxfv({})
+    # ysbyxfv({420: 421.})
+    # for v in [{420: 420}, {420.: 420.}]:
+    #     with pytest.raises(Exception):
+    #         ysbyxfv(v)
+    #
+    # sfld = api_.fields_dict(Point)['s']
+    # sfv = validation_.build_default_field_validation(sfld)
+    # sfv('420')
+    # with pytest.raises(Exception):
+    #     sfv(420)
+    #
+    # dfld = api_.fields_dict(Point)['d']
+    # dfv = validation_.build_default_field_validation(dfld)
+    # dfv({})
+    # dfv({1: 2})
+    # with pytest.raises(Exception):
+    #     sfv(())
 
     oifld = api_.fields_dict(Point)['oi']
     oifv = validation_.build_default_field_validation(oifld)

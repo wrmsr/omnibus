@@ -66,6 +66,9 @@ class SpecVisitor(ta.Generic[T]):
     def visit_union_spec(self, spec: 'UnionSpec') -> T:
         return self.visit_spec(spec)
 
+    def visit_any_union_spec(self, spec: 'AnyUnionSpec') -> T:
+        return self.visit_spec(spec)
+
     def visit_new_type_spec(self, spec: 'NewTypeSpec') -> T:
         return self.visit_spec(spec)
 
@@ -135,16 +138,14 @@ class PlaceholderSpec(Spec, lang.Sealed, lang.Abstract):
 
 class AnySpec(PlaceholderSpec, lang.Final):
 
-    def __init__(self, cls: SpecialForm) -> None:
-        super().__init__(cls)
-
-        check.arg(cls is ta.Any)
+    def __init__(self) -> None:
+        super().__init__(ta.Any)
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_any_spec(self)
 
 
-ANY = AnySpec(ta.Any)
+ANY = AnySpec()
 
 
 class VarSpec(PlaceholderSpec, lang.Final):
@@ -204,6 +205,18 @@ class UnionSpec(Spec, lang.Final):
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_union_spec(self)
+
+
+class AnyUnionSpec(Spec, lang.Final):
+
+    def __init__(self) -> None:
+        super().__init__(ta.Union)
+
+    def accept(self, visitor: SpecVisitor[T]) -> T:
+        return visitor.visit_any_union_spec(self)
+
+
+ANY_UNION = AnyUnionSpec()
 
 
 class NewTypeSpec(Spec, lang.Final):
@@ -447,6 +460,8 @@ def _spec(cls: Specable) -> Spec:
             return ExplicitParameterizedGenericTypeSpec(cls)
     elif is_new_type(cls):
         return NewTypeSpec(cls)
+    elif cls is ta.Union:
+        return ANY_UNION
     elif not isinstance(cls, type):
         raise TypeError(cls)
     elif is_generic(cls) and cls.__parameters__:

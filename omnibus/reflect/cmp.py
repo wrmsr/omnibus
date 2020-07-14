@@ -81,6 +81,12 @@ class SupVisitor(IsSubclassVisitor):
         super().__init__()
         self._sub = sub
 
+    class SubVisitor(IsSubclassVisitor, ta.Generic[SpecT], lang.Abstract):
+
+        def __init__(self, sup: SpecT) -> None:
+            super().__init__()
+            self._sup = sup
+
     def visit_any_spec(self, sup: specs.AnySpec) -> MatchGen:
         yield Match(self._sub, sup)
 
@@ -93,11 +99,12 @@ class SupVisitor(IsSubclassVisitor):
         for arg in sup.args:
             yield from _issubclass(self._sub, arg)
 
-    class SubVisitor(IsSubclassVisitor, ta.Generic[SpecT], lang.Abstract):
+    def visit_any_union_spec(self, sup: specs.AnyUnionSpec) -> MatchGen:
+        if not isinstance(self._sub, (specs.UnionSpec, specs.AnyUnionSpec)):
+            return
+        yield Match(self._sub, sup)
 
-        def __init__(self, sup: SpecT) -> None:
-            super().__init__()
-            self._sup = sup
+    class TypeSubVisitor(SubVisitor[SpecT], lang.Abstract):
 
         def visit_any_spec(self, sub: specs.AnySpec) -> MatchGen:
             if not isinstance(self._sup, specs.AnySpec):
@@ -110,7 +117,11 @@ class SupVisitor(IsSubclassVisitor):
                     return
             yield Match(sub, self._sup)
 
-    class NonGenericSubVisitor(SubVisitor[specs.NonGenericTypeSpec]):
+        def visit_any_union_spec(self, sub: specs.AnyUnionSpec) -> MatchGen:
+            return
+            yield
+
+    class NonGenericSubVisitor(TypeSubVisitor[specs.NonGenericTypeSpec]):
 
         def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):
@@ -127,7 +138,7 @@ class SupVisitor(IsSubclassVisitor):
     def visit_non_generic_type_spec(self, sup: specs.NonGenericTypeSpec) -> MatchGen:
         yield from self._sub.accept(self.NonGenericSubVisitor(sup))
 
-    class ParametrizedGenericSubVisitor(SubVisitor[specs.ParameterizedGenericTypeSpec]):
+    class ParametrizedGenericSubVisitor(TypeSubVisitor[specs.ParameterizedGenericTypeSpec]):
 
         def visit_non_generic_type_spec(self, sub: specs.NonGenericTypeSpec) -> MatchGen:
             if not issubclass(sub.erased_cls, self._sup.erased_cls):

@@ -97,6 +97,7 @@ from .lang import iterable  # noqa
 from .lang import make_cell  # noqa
 from .lang import maybe_call  # noqa
 from .lang import new_type  # noqa
+from .lang import peek  # noqa
 from .lang import public  # noqa
 from .lang import public_as  # noqa
 from .lang import raise_  # noqa
@@ -107,6 +108,7 @@ from .lang import SimpleProxy  # noqa
 from .lang import super_meta  # noqa
 from .lang import unwrap_func  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
+from .lang import Void  # noqa
 from .lang import void  # noqa
 from .lang import VoidException  # noqa
 from .math import FixedWidthInt  # noqa
