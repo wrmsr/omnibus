@@ -164,6 +164,8 @@ def patch_hash_context():
 
 @contextlib.contextmanager
 def patch_simulator_context():
+    """FIXME: write full self-contained impl in pure py, then cythonize"""
+
     try:
         from .._ext.cy import antlr as cy
     except ImportError:
