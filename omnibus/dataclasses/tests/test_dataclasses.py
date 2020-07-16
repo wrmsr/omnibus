@@ -545,3 +545,24 @@ def test_kwonly():
     c = C(0, b=1)
     assert c.a == 0
     assert c.b == 1
+
+
+def test_kwonly2():
+    @api_.dataclass(frozen=True)
+    class C:
+        a: int
+        b: int = api_.field(default=1000, kwonly=True)
+        c: int = 420
+
+    c = C(0, 100)
+    assert c.a == 0
+    assert c.b == 1000
+    assert c.c == 100
+
+    with pytest.raises(Exception):
+        C(0, 1, 2)  # noqa
+
+    c = C(0, 110, b=1)
+    assert c.a == 0
+    assert c.b == 1
+    assert c.c == 110

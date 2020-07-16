@@ -43,6 +43,9 @@ class ArgSpec(lang.Final):
             raise TypeError(self.args)
         if isinstance(self.kwonlyargs, str):
             raise TypeError(self.kwonlyargs)
+        kwonlyargs = set(self.kwonlyargs)
+        for k in self.kwonlydefaults:
+            check.in_(k, kwonlyargs)
 
     @property
     def names(self) -> ta.Sequence[str]:

@@ -31,8 +31,10 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
                 kwonlyargs.append(fld.name)
             elif fld.default is not dc.MISSING:
+                kwonlyargs.append(fld.name)
                 kwonlydefaults[fld.name] = fld.default
             elif fld.default_factory is not dc.MISSING:
+                kwonlyargs.append(fld.name)
                 kwonlydefaults[fld.name] = HasFactory
             else:
                 raise TypeError
