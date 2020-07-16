@@ -172,6 +172,15 @@ def patch_simulator_context():
         return
 
     with contextlib.ExitStack() as es:
-        es.enter_context(lang.setattr_context(antlr4.LexerATNSimulator, 'closure', cy.LexerATNSimulator__closure))
+        es.enter_context(lang.setattr_context(
+            antlr4.LexerATNSimulator,
+            'closure',
+            cy.LexerATNSimulator__closure,
+        ))
+        es.enter_context(lang.setattr_context(
+            antlr4.LexerATNSimulator,
+            'computeStartState',
+            cy.LexerATNSimulator__computeStartState,
+        ))
 
         yield

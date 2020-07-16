@@ -57,6 +57,16 @@ for _check in [
         raise ImportError(_check)
 
 
+def LexerATNSimulator__computeStartState(self, input: InputStream, p: ATNState):
+    initialContext = PredictionContext.EMPTY
+    configs = CyATNConfigSet()
+    for i in range(0,len(p.transitions)):
+        target = p.transitions[i].target
+        c = LexerATNConfig(state=target, alt=i+1, context=initialContext)
+        LexerATNSimulator__closure(self, input, c, configs, False, False, False)
+    return configs
+
+
 cpdef bool LexerATNSimulator__closure(
         self: LexerATNSimulator,
         input: InputStream,
@@ -321,10 +331,23 @@ cdef class CyLexerATNConfig(CyATNConfig):
 
 cdef class CyATNConfigSet:
 
+    cdef object configLookup
+    cdef object fullCtx
+    cdef object readonly_
+    cdef object configs
+
+    cdef object uniqueAlt
+    cdef object conflictingAlts
+
+    cdef public object hasSemanticContext
+    cdef object dipsIntoOuterContext
+
+    cdef object cachedHashCode
+
     def __init__(self, fullCtx: bool = True):
         self.configLookup = dict()
         self.fullCtx = fullCtx
-        self.readonly = False
+        self.readonly_ = False
         self.configs = []
 
         self.uniqueAlt = 0
@@ -339,7 +362,7 @@ cdef class CyATNConfigSet:
         return self.configs.__iter__()
 
     def add(self, config: ATNConfig, mergeCache=None):
-        if self.readonly:
+        if self.readonly_:
             raise Exception("This set is readonly")
 
         if config.semanticContext is not SemanticContext.NONE:
@@ -390,7 +413,7 @@ cdef class CyATNConfigSet:
         return self.configs[i]
 
     def optimizeConfigs(self, interpreter: ATNSimulator):
-        if self.readonly:
+        if self.readonly_:
             raise IllegalStateException("This set is readonly")
         if len(self.configs) == 0:
             return
@@ -421,7 +444,7 @@ cdef class CyATNConfigSet:
         return same
 
     def __hash__(self):
-        if self.readonly:
+        if self.readonly_:
             if self.cachedHashCode == -1:
                 self.cachedHashCode = self.hashConfigs()
             return self.cachedHashCode
@@ -448,14 +471,14 @@ cdef class CyATNConfigSet:
         return False
 
     def clear(self):
-        if self.readonly:
+        if self.readonly_:
             raise IllegalStateException("This set is readonly")
         self.configs.clear()
         self.cachedHashCode = -1
         self.configLookup.clear()
 
     def setReadonly(self, readonly: bool):
-        self.readonly = readonly
+        self.readonly_ = readonly
         self.configLookup = None  # can't mod, no need for lookup cache
 
     def __str__(self):
