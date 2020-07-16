@@ -614,9 +614,10 @@ def cut_lines(max_buf_size=10 * 1024 * 1024, Buf=io.StringIO):
                 else:
                     buf.seek(0, 0)
                     buf.truncate()
-                for i in range(1, len(line_chunks) - 1):
-                    yield line_chunks[i]
-                buf.write(line_chunks[-1])
+                if len(line_chunks) > 1:
+                    for i in range(1, len(line_chunks) - 1):
+                        yield line_chunks[i]
+                    buf.write(line_chunks[-1])
         if buf.tell() > 0:
             yield buf.getvalue()
     return inner
