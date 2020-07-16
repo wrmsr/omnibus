@@ -166,6 +166,7 @@ class Enum(
             'final': Conferrer(_confer_enum_final),
             'frozen': True,
             'reorder': SUPER,
+            'repr': SUPER,
             'confer': SUPER,
         },
     },
