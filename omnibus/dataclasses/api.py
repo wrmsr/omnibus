@@ -48,6 +48,7 @@ TODO:
  - make FunctionCtx use code.FunctionGen (need argspec earlier)
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - enforce immut metadata
+ - enforce not field.name.startswith('__')
 """
 import collections
 import collections.abc

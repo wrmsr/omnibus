@@ -75,8 +75,23 @@ class _Meta(abc.ABCMeta):
 
         bases = tuple(b for b in bases if b is not Data)
 
-        # FIXME: compose fields without instantiating proto_cls, so __init_subclass__ registrations and such can work
-        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace)
+        def clone_base(bcls):
+            if bcls is object:
+                return bcls
+            try:
+                return cloned_base_dct[bcls]
+            except KeyError:
+                ccls = cloned_base_dct[bcls] = abc.ABCMeta(
+                    bcls.__name__,
+                    tuple(clone_base(bbcls) for bbcls in bcls.__bases__),
+                    {k: v for k, v in bcls.__dict__.items() if not k.startswith('__')},
+                )
+                return ccls
+
+        cloned_base_dct = {}
+        cloned_bases = tuple(clone_base(bcls) for bcls in bases)
+
+        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, cloned_bases, namespace)
         proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
         proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
 
