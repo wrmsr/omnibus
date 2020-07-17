@@ -109,7 +109,7 @@ class Spec(lang.Sealed, lang.Abstract):
     def __init__(self, cls: Specable) -> None:
         super().__init__()
 
-        if _STRONG_CLS_REFS:
+        if not _STRONG_CLS_REFS:
             self._cls_ref = weakref.ref(cls)
         else:
             self._raw_cls = cls
