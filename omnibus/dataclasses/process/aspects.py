@@ -3,6 +3,7 @@ import inspect
 import typing as ta
 
 from ... import check
+from ... import code
 from ... import properties
 from ..fields import build_cls_fields
 from ..internals import cmp_fn
@@ -195,13 +196,37 @@ class Frozen(Aspect):
         if not self.ctx.params.frozen:
             return
 
-        for fn in frozen_get_del_attr(
-                self.ctx.cls,
-                self.ctx.spec.fields.instance,
-                self.ctx.spec.globals
-        ):
-            if self.ctx.set_new_attribute(fn.__name__, fn):
-                raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
+        if self.ctx.extra_params.allow_setattr:
+            locals = {
+                'cls': self.ctx.cls,
+                'FrozenInstanceError': dc.FrozenInstanceError,
+                'fields': frozenset(self.ctx.spec.fields.by_name),
+            }
+
+            for fnname in ['__setattr__', '__delattr__']:
+                args = ['name'] + (['value'] if fnname == '__setattr__' else [])
+                fn = code.create_function(
+                    fnname,
+                    code.ArgSpec(['self'] + args),
+                    '\n'.join([
+                        f'if type(self) is cls and name in fields:',
+                        f'    raise FrozenInstanceError(f"Cannot assign to field {{name!r}}")',
+                        f'super(cls, self).{fnname}({", ".join(args)})',
+                    ]),
+                    locals=locals,
+                    globals=self.ctx.spec.globals,
+                )
+                if self.ctx.set_new_attribute(fn.__name__, fn):
+                    raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
+
+        else:
+            for fn in frozen_get_del_attr(
+                    self.ctx.cls,
+                    self.ctx.spec.fields.instance,
+                    self.ctx.spec.globals
+            ):
+                if self.ctx.set_new_attribute(fn.__name__, fn):
+                    raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
 
 
 class FieldAttrs(Aspect):

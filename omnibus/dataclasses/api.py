@@ -253,6 +253,7 @@ def dataclass(
         cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         pickle: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         reorder: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
+        allow_setattr: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
         confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,  # None
 ) -> ta.Type[T]:
@@ -276,6 +277,7 @@ def dataclass(
         cache_hash=cache_hash,
         pickle=pickle,
         reorder=reorder,
+        allow_setattr=allow_setattr,
         aspects=aspects,
         confer=confer,
     )

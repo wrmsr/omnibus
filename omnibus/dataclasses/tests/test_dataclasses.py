@@ -566,3 +566,28 @@ def test_kwonly2():
     assert c.a == 0
     assert c.b == 1
     assert c.c == 110
+
+
+def test_allow_setattr():
+    @api_.dataclass(frozen=True, allow_setattr=True)
+    class C:
+        a: int
+
+    c = C(2)
+    assert c.a == 2
+    with pytest.raises(dc.FrozenInstanceError):
+        c.a = 3
+    with pytest.raises(dc.FrozenInstanceError):
+        del c.a
+    assert c.a == 2
+
+    with pytest.raises(AttributeError):
+        c.b  # noqa
+    c.b = 3
+    assert c.b == 3
+    assert c.a == 2
+    c.b = 4
+    assert c.b == 4
+    del c.b
+    with pytest.raises(AttributeError):
+        c.b  # noqa

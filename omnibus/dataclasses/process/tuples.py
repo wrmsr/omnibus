@@ -46,6 +46,7 @@ class TupleStorage(Storage):
     def check(self) -> None:
         check.state(issubclass(self.ctx.cls, tuple))
         check.state(self.ctx.spec.params.frozen)
+        check.state(not self.ctx.spec.extra_params.allow_setattr)
 
     def process(self) -> None:
         for idx, fld in enumerate(self.ctx.spec.fields.instance):

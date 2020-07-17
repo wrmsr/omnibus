@@ -103,6 +103,7 @@ class ExtraParams(lang.Final):
     cache_hash: bool = False
     pickle: bool = False
     reorder: bool = False
+    allow_setattr: bool = False
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
@@ -112,6 +113,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.cache_hash, (bool, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
+        check.isinstance(self.allow_setattr, (bool, MISSING_TYPE))
         check.isinstance(self.aspects, (ta.Collection, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.confer, (ta.Collection, ta.Mapping, NONE_TYPE, MISSING_TYPE))
 
