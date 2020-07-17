@@ -21,6 +21,7 @@ TODO:
 https://github.com/ilevkivskyi/typing_inspect
 """
 import abc
+import traceback
 import typing as ta
 import weakref
 
@@ -49,6 +50,10 @@ from .util import unerase_generic
 T = ta.TypeVar('T')
 
 Specable = ta.NewType('Specable', ta.Any)  # ta.Union[Spec, ta.Type, Var, None]
+
+
+_STRONG_CLS_REFS = False
+_STORE_TRACEBACKS = False
 
 
 class SpecVisitor(ta.Generic[T]):
@@ -104,14 +109,23 @@ class Spec(lang.Sealed, lang.Abstract):
     def __init__(self, cls: Specable) -> None:
         super().__init__()
 
-        self._cls_ref = weakref.ref(cls)
+        if _STRONG_CLS_REFS:
+            self._cls_ref = weakref.ref(cls)
+        else:
+            self._raw_cls = cls
+
+        if _STORE_TRACEBACKS:
+            self._traceback = traceback.extract_stack()
 
     @property
     def _cls(self) -> Specable:
-        cls = self._cls_ref()
-        if cls is None:
-            raise GarbageCollectedException
-        return cls
+        if not _STRONG_CLS_REFS:
+            cls = self._cls_ref()
+            if cls is None:
+                raise GarbageCollectedException
+            return cls
+        else:
+            return self._raw_cls
 
     defs.repr('cls')
     defs.hash_eq('cls')
