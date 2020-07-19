@@ -88,16 +88,20 @@ def test_weak_cache():
         cref = weakref.ref(C)
         ts = gts(C)  # noqa
         stats1 = specs_.spec._static.stats
+        del C
+        return cref
 
     gc.collect()
     specs_.spec._static.reap()
     stats0 = specs_.spec._static.stats
 
-    f()
+    cref = f()
 
     gc.collect()
     specs_.spec._static.reap()
     stats2 = specs_.spec._static.stats
+
+    # refs = list(gc.get_referrers(cref()))
 
     assert stats1.size == stats0.size + 1
     assert stats2.size == stats0.size

@@ -79,3 +79,12 @@ def test_class():
 
     assert B().fn(0) == 'int'
     assert B().fn('') == 'str'
+
+    class C(B):
+
+        def fn(self, o: str):
+            s = super()  # noqa
+            return super().fn(o) + '!'
+
+    assert C().fn(0) == 'int'
+    assert C().fn('') == 'str!'

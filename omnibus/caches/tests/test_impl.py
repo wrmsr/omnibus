@@ -1,4 +1,5 @@
 import gc
+import weakref
 
 import pytest
 
@@ -45,7 +46,22 @@ def test_weak_keys():
     c[k] = 1
     assert c[k] == 1
     assert len(c) == 1
+    kref = weakref.ref(K)  # noqa
     del k
+    gc.collect()
+    assert len(c) == 0
+
+
+def test_weak_values():
+    class V:
+        pass
+    c = impl_.new_cache(weak_values=True)
+    v = V()
+    c[0] = v
+    assert c[0] is v
+    assert len(c) == 1
+    vref = weakref.ref(v)  # noqa
+    del v
     gc.collect()
     assert len(c) == 0
 

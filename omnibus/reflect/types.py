@@ -23,7 +23,3 @@ class Variance(enum.Enum):
     INVARIANT = 'INVARIANT'
     COVARIANT = 'COVARIANT'
     CONTRAVARIANT = 'CONTRAVARIANT'
-
-
-class GarbageCollectedException(Exception):
-    pass

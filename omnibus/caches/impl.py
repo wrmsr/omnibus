@@ -209,7 +209,8 @@ class CacheImpl(Cache[K, V]):
 
         key = link.key
         if self._weak_keys:
-            key = key()
+            if key is not None:
+                key = key()
             if key is None:
                 key = SKIP
 
@@ -228,7 +229,7 @@ class CacheImpl(Cache[K, V]):
                     link = self._weak_dead.popleft()
                 except IndexError:
                     break
-                self._unlink(link)
+                self._kill(link)
 
         clock = None
 
@@ -261,6 +262,8 @@ class CacheImpl(Cache[K, V]):
         cache_key = id(key) if self._identity_keys else key
 
         link = self._cache[cache_key]
+        if link.unlinked:
+            raise Exception
 
         def fail():
             try:
@@ -281,7 +284,8 @@ class CacheImpl(Cache[K, V]):
 
         value = link.value
         if self._weak_values:
-            value = value()
+            if value is not None:
+                value = value()
             if value is None:
                 fail()
 

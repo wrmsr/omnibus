@@ -4,9 +4,6 @@ a more stable and friendly object hierarchy. Frees users from having to deal wit
 impl detail like __args__, __origin__, Generic's __mro_entries__, and such - ideally approximating something stable like
 java.lang.reflect.
 
-FIXME:
- - GarbageCollectedException interaction w/ cache and dispatch
-
 TODO:
  - 3.8: TypedDict, Literal, Final, Protocol, get_origin, get_args
  - forward refs / sugar for using god dam ta.get_type_hints
@@ -23,14 +20,12 @@ https://github.com/ilevkivskyi/typing_inspect
 import abc
 import traceback
 import typing as ta
-import weakref
 
 from .. import caches
 from .. import check
 from .. import defs
 from .. import lang
 from .. import properties
-from .types import GarbageCollectedException
 from .types import GenericAlias
 from .types import NoneType
 from .types import TypeLike
@@ -52,8 +47,7 @@ T = ta.TypeVar('T')
 Specable = ta.NewType('Specable', ta.Any)  # ta.Union[Spec, ta.Type, Var, None]
 
 
-_STRONG_CLS_REFS = False
-_STORE_TRACEBACKS = False
+_DEBUG = False
 
 
 class SpecVisitor(ta.Generic[T]):
@@ -109,23 +103,15 @@ class Spec(lang.Sealed, lang.Abstract):
     def __init__(self, cls: Specable) -> None:
         super().__init__()
 
-        if not _STRONG_CLS_REFS:
-            self._cls_ref = weakref.ref(cls)
-        else:
-            self._raw_cls = cls
+        self._raw_cls = cls
 
-        if _STORE_TRACEBACKS:
+        if _DEBUG:
+            self._cls_repr = repr(cls)
             self._traceback = traceback.extract_stack()
 
     @property
     def _cls(self) -> Specable:
-        if not _STRONG_CLS_REFS:
-            cls = self._cls_ref()
-            if cls is None:
-                raise GarbageCollectedException
-            return cls
-        else:
-            return self._raw_cls
+        return self._raw_cls
 
     defs.repr('cls')
     defs.hash_eq('cls')
@@ -486,7 +472,7 @@ def _spec(cls: Specable) -> Spec:
         return NonGenericTypeSpec(cls)
 
 
-@caches.cache(weak_keys=True)
+@caches.cache(weak_keys=True, weak_values=True)
 def spec(cls: Specable) -> Spec:
     return _spec(cls)
 

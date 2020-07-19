@@ -87,6 +87,7 @@ class _CacheDescriptor:
         self._typed = typed
         self._kwargs = kwargs
         self.__static: Cache = None
+        self.__static_built: ta.Callable = None
         self._by_class: ta.MutableMapping[ta.Type, Cache] = weakref.WeakKeyDictionary() if scope == Scope.CLASS else None  # noqa
         self._name = None
         self._unary = kwargs.get('identity_keys', False) or kwargs.get('weak_keys', False)
@@ -164,8 +165,9 @@ class _CacheDescriptor:
         return fn
 
     def __call__(self, *args, **kwargs):
-        self.__call__ = self._build(self._fn, self._static)
-        return self.__call__(*args, **kwargs)
+        if self.__static_built is None:
+            self.__static_built = self._build(self._fn, self._static)
+        return self.__static_built(*args, **kwargs)
 
 
 def cache(

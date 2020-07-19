@@ -23,7 +23,6 @@ from .specs import UnionSpec  # noqa
 from .specs import VariadicGenericTypeSpec  # noqa
 from .specs import Variance  # noqa
 from .specs import VarSpec  # noqa
-from .types import GarbageCollectedException  # noqa
 from .types import GenericAlias  # noqa
 from .types import NoneType  # noqa
 from .types import SpecialForm  # noqa
