@@ -85,10 +85,11 @@ class _ClassMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
 
-        def __init__(self, regs: ta.Mapping[str, Property]) -> None:
+        def __init__(self, props: ta.Mapping[str, Property]) -> None:
             super().__init__()
             self._dict = {}
-            self._regs = dict(regs)
+            self._props = dict(props)
+            self._used_props = set()
 
         def __contains__(self, item):
             return item in self._dict
@@ -98,17 +99,18 @@ class _ClassMeta(abc.ABCMeta):
 
         def __setitem__(self, key, value):
             try:
-                reg = self._regs[key]
+                reg = self._props[key]
 
             except KeyError:
                 self._dict[key] = value
                 if isinstance(value, Property):
-                    self._regs[key] = value
+                    self._props[key] = value
 
             else:
                 if isinstance(reg, Property):
                     reg.register(value, cls_dct=self._dict)
                     self._dict[f'__{hex(id(value))[2:]}'] = value
+                    self._used_props.add(key)
 
         def __delitem__(self, key):
             del self._dict[key]
@@ -128,21 +130,23 @@ class _ClassMeta(abc.ABCMeta):
 
     @classmethod
     def __prepare__(cls, name, bases, **kwargs):
-        regs = {}
+        props = {}
         mro = c3.merge([list(b.__mro__) for b in bases])
         for bmro in reversed(mro):
             for k, v in bmro.__dict__.items():
                 if isinstance(v, Property):
-                    regs[k] = v
+                    props[k] = v
 
-        return cls.RegisteringNamespace(regs)
+        return cls.RegisteringNamespace(props)
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         if not isinstance(namespace, mcls.RegisteringNamespace):
             raise TypeError(namespace)
 
-        namespace = namespace._dict
-        return super().__new__(mcls, name, bases, namespace, **kwargs)
+        dct = namespace._dict
+        for prop in namespace._used_props:
+            dct[prop] = namespace._props[prop]
+        return super().__new__(mcls, name, bases, dct, **kwargs)
 
 
 class Class(metaclass=_ClassMeta):

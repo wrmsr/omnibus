@@ -89,6 +89,11 @@ class Property(properties.Property[Registry[K, V]]):
         return CompositeRegistry(regs, policy=self._policy)
 
     def get_registry(self, cls: ta.Type) -> Registry[K, V]:
+        try:
+            return self._registries_by_cls[cls]
+        except KeyError:
+            pass
+
         with self._lock():
             try:
                 return self._registries_by_cls[cls]
@@ -112,9 +117,6 @@ class Property(properties.Property[Registry[K, V]]):
 
             self._registry = owner.get_registry(cls)
 
-            self.register = self._owner.register
-            self.registering = self._owner.registering
-
         @property
         def registry(self) -> Registry[K, V]:
             return self._registry
@@ -133,11 +135,21 @@ class Property(properties.Property[Registry[K, V]]):
         def __len__(self):
             return len(self._registry)
 
-        def register(self, value, keys):
-            raise TypeError
+        _register = None
 
-        def registering(self, *keys):
-            raise TypeError
+        @property
+        def register(self):
+            if self._register is None:
+                self._register = self._owner.register
+            return self._register
+
+        _registering = None
+
+        @property
+        def registering(self):
+            if self._registering is None:
+                self._registering = self._owner.registering
+            return self._registering
 
     def __get__(self, obj, cls=None) -> Accessor[K, V]:
         if cls is None:

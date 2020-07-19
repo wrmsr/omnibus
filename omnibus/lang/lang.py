@@ -47,13 +47,14 @@ def is_possibly_cls_dct(dct: ta.Mapping[str, ta.Any]) -> bool:
 
 class ClassDctFn:
 
-    def __init__(self, fn: ta.Callable, offset=1) -> None:
+    def __init__(self, fn: ta.Callable, offset=1, *, wrap=True) -> None:
         super().__init__()
 
         self._fn = fn
         self._offset = offset
 
-        functools.update_wrapper(self, fn)
+        if wrap:
+            functools.update_wrapper(self, fn)
 
     def __get__(self, instance, owner=None):
         return type(self)(self._fn.__get__(instance, owner), self._offset)
@@ -68,9 +69,9 @@ class ClassDctFn:
         return self._fn(cls_dct, *args, **kwargs)
 
 
-def cls_dct_fn(offset=1):
+def cls_dct_fn(offset=1, *, wrap=True):
     def outer(fn):
-        return ClassDctFn(fn, offset)
+        return ClassDctFn(fn, offset, wrap=wrap)
     return outer
 
 
