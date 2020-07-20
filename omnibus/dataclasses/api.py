@@ -191,8 +191,8 @@ def _astuple_inner(obj, tuple_factory):
 
 
 def field(
-        *,
         default: ta.Union[ta.Any, MISSING_TYPE] = MISSING,
+        *,
         default_factory: ta.Union[ta.Callable[[], ta.Any], MISSING_TYPE] = MISSING,
         init: bool = True,
         repr: bool = True,
