@@ -37,7 +37,7 @@ class Property(properties.Property[Registry[K, V]]):
         self._registrations_attr_name = '__%s_%x_registrations' % (type(self).__name__, id(self))
 
         self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
-        self._registries_by_cls: ta.MutableMapping[ta.Type, Registry[K, V]] = weakref.WeakKeyDictionary()
+        self._registries_by_tcls_by_scls: ta.MutableMapping[ta.Type, ta.MutableMapping[ta.Type, Registry[K, V]]] = weakref.WeakKeyDictionary()  # noqa
 
     def __set_name__(self, owner, name):
         if self._name is None:
@@ -88,22 +88,36 @@ class Property(properties.Property[Registry[K, V]]):
     def _build_composite_registry(self, regs: ta.Iterable[Registry[K, V]]) -> Registry[K, V]:
         return CompositeRegistry(regs, policy=self._policy)
 
-    def get_registry(self, cls: ta.Type) -> Registry[K, V]:
+    def get_registry(self, scls: ta.Type, tcls: ta.Type = None) -> Registry[K, V]:
+        if tcls is None:
+            tcls = scls
+
         try:
-            return self._registries_by_cls[cls]
+            return self._registries_by_tcls_by_scls[scls][tcls]
         except KeyError:
             pass
 
         with self._lock():
             try:
-                return self._registries_by_cls[cls]
+                tdct = self._registries_by_tcls_by_scls[scls]
+            except KeyError:
+                tdct = self._registries_by_tcls_by_scls[scls] = weakref.WeakKeyDictionary()
+
+            try:
+                return tdct[tcls]
 
             except KeyError:
-                mro_registries = [self._get_immediate_registry(mcls) for mcls in cls.__mro__]
+                mro_registries = []
+                adding = False
+                for mcls in scls.__mro__:
+                    if mcls is tcls:
+                        adding = True
+                    if adding:
+                        mro_registries.append(self._get_immediate_registry(mcls))
 
                 registry = self._build_composite_registry(mro_registries)
 
-                self._registries_by_cls[cls] = registry
+                tdct[tcls] = registry
                 return registry
 
     class Accessor(ta.Mapping[K, V]):
