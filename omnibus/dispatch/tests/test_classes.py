@@ -84,7 +84,6 @@ def test_class():
     class C(B):
 
         def fn(self, o: str):
-            s = super()  # noqa
             return super().fn(o) + '!'
 
     class D(C):

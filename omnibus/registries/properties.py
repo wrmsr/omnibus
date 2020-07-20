@@ -122,19 +122,20 @@ class Property(properties.Property[Registry[K, V]]):
 
     class Accessor(ta.Mapping[K, V]):
 
-        def __init__(self, owner, obj, cls):
+        def __init__(self, owner, obj, cls, tcls=None):
             super().__init__()
 
             self._owner = owner
             self._obj = obj
             self._cls = cls
+            self._tcls = tcls
 
         _registry: Registry[K, V] = None
 
         @property
         def registry(self) -> Registry[K, V]:
             if self._registry is None:
-                self._registry = self._owner.get_registry(self._cls)
+                self._registry = self._owner.get_registry(self._cls, self._tcls)
             return self._registry
 
         def __getitem__(self, key):
@@ -167,11 +168,11 @@ class Property(properties.Property[Registry[K, V]]):
                 self._registering = self._owner.registering
             return self._registering
 
-    def __get__(self, obj, cls=None) -> Accessor[K, V]:
+    def __get__(self, obj, cls=None, tcls=None) -> Accessor[K, V]:
         if cls is None:
             return self
 
-        accessor = self.Accessor(self, obj, cls)
+        accessor = self.Accessor(self, obj, cls, tcls)
 
         if obj is not None and self._name is not None:
             obj.__dict__[check.not_empty(self._name)] = accessor

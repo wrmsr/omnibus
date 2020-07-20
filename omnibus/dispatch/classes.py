@@ -25,23 +25,29 @@ class Property(registries.Property):
     def __init__(self) -> None:
         super().__init__(bind=True)
 
-        self._dispatcher_cache: ta.MutableMapping[ta.Type, Dispatcher] = weakref.WeakKeyDictionary()
+        self._dispatcher_by_tcls_by_scls: ta.MutableMapping[ta.Type, ta.MutableMapping[ta.Type, Dispatcher]] = weakref.WeakKeyDictionary()  # noqa
 
-    def get_dispatcher(self, cls: ta.Type) -> Dispatcher:
+    def get_dispatcher(self, scls: ta.Type, tcls: ta.Type = None) -> Dispatcher:
+        if tcls is None:
+            tcls = scls
         try:
-            return self._dispatcher_cache[cls]
+            return self._dispatcher_by_tcls_by_scls[scls][tcls]
         except KeyError:
-            registry = self.get_registry(cls)
+            try:
+                tdct = self._dispatcher_by_tcls_by_scls[scls]
+            except KeyError:
+                tdct = self._dispatcher_by_tcls_by_scls[scls] = weakref.WeakKeyDictionary()
+            registry = self.get_registry(scls, tcls)
             dispatcher = CachingDispatcher(ErasingDispatcher(registry))
-            self._dispatcher_cache[cls] = dispatcher
+            tdct[tcls] = dispatcher
             return dispatcher
 
     class Accessor(registries.Property.Accessor):
 
-        def __init__(self, owner, obj, cls):
-            super().__init__(owner, obj, cls)
+        def __init__(self, owner, obj, cls, tcls=None):
+            super().__init__(owner, obj, cls, tcls)
 
-            self._dispatcher = owner.get_dispatcher(cls)
+            self._dispatcher = owner.get_dispatcher(cls, tcls)
             self._bound_cache: ta.Dict[ta.Any, callable] = {}
 
         def __call__(self, arg, *args, **kwargs):
@@ -83,15 +89,15 @@ def property_() -> Property:  # noqa
 
 class _PropertyProxy:
 
-    def __init__(self, prop: Property, cls: ta.Type) -> None:
+    def __init__(self, prop: Property, tcls: ta.Type) -> None:
         super().__init__()
         self._prop = prop
-        self._cls = cls
+        self._tcls = tcls
 
     def __get__(self, instance, owner=None):
         if owner is None:
             return self
-        return self._prop.__get__(instance, owner)
+        return self._prop.__get__(instance, owner, self._tcls)
 
 
 class _ClassMeta(abc.ABCMeta):
@@ -149,6 +155,8 @@ class _ClassMeta(abc.ABCMeta):
             for k, v in bmro.__dict__.items():
                 if isinstance(v, Property):
                     props[k] = v
+                elif isinstance(v, _PropertyProxy):
+                    props[k] = v._prop
 
         return cls.RegisteringNamespace(props)
 
@@ -160,9 +168,7 @@ class _ClassMeta(abc.ABCMeta):
         cls = super().__new__(mcls, name, bases, dct, **kwargs)
 
         for prop in namespace._used_props:
-            propinst = namespace._props[prop]
-            if dct.get(prop) is not propinst:
-                setattr(cls, prop, _PropertyProxy(propinst, cls))
+            setattr(cls, prop, _PropertyProxy(namespace._props[prop], cls))
 
         return cls
 
