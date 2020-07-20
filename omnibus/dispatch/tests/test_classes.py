@@ -74,20 +74,21 @@ def test_class():
         def fn(self, o: str):
             return 'str'
 
-    assert A().fn(0) == 'int'
-    assert A().fn('') == 'object'
+    for _ in range(2):
+        assert A().fn(0) == 'int'
+        assert A().fn('') == 'object'
 
-    assert B().fn(0) == 'int'
-    assert B().fn('') == 'str'
+        assert B().fn(0) == 'int'
+        assert B().fn('') == 'str'
 
-    # class C(B):
-    #
-    #     def fn(self, o: str):
-    #         s = super()  # noqa
-    #         return super().fn(o) + '!'
-    #
-    # class D(C):
-    #     pass
-    #
-    # assert D().fn(0) == 'int'
-    # assert D().fn('') == 'str!'
+    class C(B):
+
+        def fn(self, o: str):
+            s = super()  # noqa
+            return super().fn(o) + '!'
+
+    class D(C):
+        pass
+
+    assert D().fn(0) == 'int'
+    assert D().fn('') == 'str!'
