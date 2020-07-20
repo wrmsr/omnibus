@@ -155,7 +155,7 @@ class Task(ta.Generic[E], lang.Abstract):
 
 class BehaviorTree(Task[E]):
 
-    def __init__(self, root: Task[E], object: E) -> None:
+    def __init__(self, root: Task[E], object: E = None) -> None:
         super().__init__(
             tree=self,
             guard=BehaviorTree.GuardEvaluator(self),
