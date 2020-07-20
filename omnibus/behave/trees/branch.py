@@ -47,10 +47,6 @@ class DynamicGuardSelector(BranchTask[E]):
                 self._running_child.start()
             self._running_child.run()
 
-    def reset(self) -> None:
-        super().reset()
-        self._running_child = None
-
 
 class Parallel(BranchTask[E]):
 
@@ -81,14 +77,6 @@ class Parallel(BranchTask[E]):
 
     def child_fail(self, task: 'Task[E]') -> None:
         self._last_result = self._policy.on_child_fail(self)
-
-    def reset(self) -> None:
-        super().reset()
-        self._no_running_tasks = True
-
-    def reset_all_children(self):
-        for child in self._children:
-            child.reset()
 
     class Orchestrator(lang.Abstract):
 
@@ -152,7 +140,6 @@ class Parallel(BranchTask[E]):
                 if parallel._last_result is not None:
                     parallel.cancel_running_children(
                         parallel._current_child_idx + 1 if parallel._no_running_tasks else 0)
-                    parallel.reset_all_children()
                     if parallel._last_result:
                         parallel.success()
                     else:

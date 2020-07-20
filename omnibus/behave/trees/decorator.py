@@ -1,4 +1,5 @@
 import random
+import typing as ta
 
 from .base import E
 from .base import Task
@@ -26,9 +27,6 @@ class Include(Decorator[E]):
     def start(self) -> None:
         raise NotImplementedError
 
-    def reset(self) -> None:
-        raise NotImplementedError
-
 
 class Invert(Decorator[E]):
 
@@ -41,7 +39,7 @@ class Invert(Decorator[E]):
 
 class Random(Decorator[E]):
 
-    def __init__(self, child: Task[E] = None, chance: float = 0.5) -> None:
+    def __init__(self, chance: float = 0.5, child: Task[E] = None) -> None:
         super().__init__(child)
 
         self._chance = chance
@@ -67,7 +65,7 @@ class Random(Decorator[E]):
 
 class Repeat(LoopDecorator[E]):
 
-    def __init__(self, child: Task[E] = None, times: int = 2) -> None:
+    def __init__(self, times: int = 2, child: Task[E] = None) -> None:
         super().__init__(child)
 
         self._times = times
@@ -92,27 +90,39 @@ class Repeat(LoopDecorator[E]):
         else:
             self._loop = True
 
-    def reset(self) -> None:
-        self._count = 0
-        super().reset()
+
+class Semaphore(ta.Protocol):
+
+    def acquire(self, num: int = 1) -> bool:
+        ...
+
+    def release(self, num: int = 1) -> bool:
+        ...
 
 
 class SemaphoreGuard(Decorator[E]):
 
-    def __init__(self, child: Task[E] = None) -> None:
-        raise NotImplementedError
+    def __init__(self, semaphore: Semaphore, child: Task[E] = None) -> None:
+        super().__init__(child)
+
+        self._semaphore = semaphore
+        self._acquired = False
 
     def start(self) -> None:
-        raise NotImplementedError
+        self._acquired = self._semaphore.acquire()
+        super().start()
 
     def run(self) -> None:
-        raise NotImplementedError
+        if self._acquired:
+            super().run()
+        else:
+            self.fail()
 
     def end(self) -> None:
-        raise NotImplementedError
-
-    def reset(self) -> None:
-        raise NotImplementedError
+        if self._acquired:
+            self._semaphore.release()
+            self._acquired = False
+        super().end()
 
 
 class UntilFail(LoopDecorator[E]):

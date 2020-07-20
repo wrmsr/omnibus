@@ -152,15 +152,6 @@ class Task(ta.Generic[E], lang.Abstract):
             if child._status == Task.Status.RUNNING:
                 child.cancel()
 
-    def reset(self) -> None:
-        if self._status == Task.Status.RUNNING:
-            self.cancel()
-        for i in range(self.num_children):
-            self.get_child(i).reset()
-        self._status = Task.Status.FRESH
-        self._tree = None
-        self._control = None
-
 
 class BehaviorTree(Task[E]):
 
@@ -224,11 +215,6 @@ class BehaviorTree(Task[E]):
 
     def child_fail(self, task: 'Task[E]') -> None:
         self.fail()
-
-    def reset(self) -> None:
-        super().reset()
-        self._root.reset()
-        self._tree = self
 
     def add_listener(self, listener: 'Listener[E]') -> None:
         self._listeners.append(listener)
@@ -461,9 +447,3 @@ class SingleRunningChildBranch(BranchTask[E], lang.Abstract):
     def cancel_running_children(self, start_idx: int = 0) -> None:
         super().cancel_running_children(start_idx)
         self._running_child = None
-
-    def reset(self) -> None:
-        super().reset()
-        self._current_child_idx = 0
-        self._running_child = None
-        self._random_children = None
