@@ -6,6 +6,7 @@ from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
+from .access import Access
 from .defaulting import Defaulting
 from .init import Init
 from .storage import Storage
@@ -133,3 +134,9 @@ class DictInit(Init):
                 else:
                     raise TypeError
             return ret
+
+
+class DictAccess(Access):
+
+    def process_field_attrs(self) -> None:
+        pass

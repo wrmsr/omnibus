@@ -3,13 +3,11 @@ import inspect
 import typing as ta
 
 from ... import check
-from ... import code
 from ... import properties
 from ..fields import build_cls_fields
 from ..internals import cmp_fn
 from ..internals import DataclassParams
 from ..internals import FieldType
-from ..internals import frozen_get_del_attr
 from ..internals import hash_action
 from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
@@ -178,65 +176,6 @@ class Doc(Aspect):
         if not getattr(self.ctx.cls, '__doc__'):
             sig = inspect.signature(self.ctx.cls)
             self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(sig).replace(' -> None', '')
-
-
-class Frozen(Aspect):
-
-    def check(self) -> None:
-        dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]
-        if dc_rmro:
-            any_frozen_base = any(getattr(b, PARAMS).frozen for b in dc_rmro)
-            if any_frozen_base:
-                if not self.ctx.params.frozen:
-                    raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
-            elif self.ctx.params.frozen:
-                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
-
-    def process(self) -> None:
-        if not self.ctx.params.frozen:
-            return
-
-        if self.ctx.extra_params.allow_setattr:
-            locals = {
-                'cls': self.ctx.cls,
-                'FrozenInstanceError': dc.FrozenInstanceError,
-                'fields': frozenset(self.ctx.spec.fields.by_name),
-            }
-
-            for fnname in ['__setattr__', '__delattr__']:
-                args = ['name'] + (['value'] if fnname == '__setattr__' else [])
-                fn = code.create_function(
-                    fnname,
-                    code.ArgSpec(['self'] + args),
-                    '\n'.join([
-                        f'if type(self) is cls and name in fields:',
-                        f'    raise FrozenInstanceError(f"Cannot assign to field {{name!r}}")',
-                        f'super(cls, self).{fnname}({", ".join(args)})',
-                    ]),
-                    locals=locals,
-                    globals=self.ctx.spec.globals,
-                )
-                if self.ctx.set_new_attribute(fn.__name__, fn):
-                    raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
-
-        else:
-            for fn in frozen_get_del_attr(
-                    self.ctx.cls,
-                    self.ctx.spec.fields.instance,
-                    self.ctx.spec.globals
-            ):
-                if self.ctx.set_new_attribute(fn.__name__, fn):
-                    raise TypeError(f'Cannot overwrite attribute {fn.__name__} in class {self.ctx.cls.__name__}')
-
-
-class FieldAttrs(Aspect):
-
-    def process(self) -> None:
-        if not self.ctx.extra_params.field_attrs:
-            return
-
-        for f in self.ctx.spec.fields:
-            setattr(self.ctx.cls, f.name, f)
 
 
 class PostInitAspect(Aspect):

@@ -1,3 +1,5 @@
+import random
+
 from .base import E
 from .base import Task
 from .base import Decorator
@@ -40,44 +42,59 @@ class Invert(Decorator[E]):
 class Random(Decorator[E]):
 
     def __init__(self, child: Task[E] = None, chance: float = 0.5) -> None:
-        raise NotImplementedError
+        super().__init__(child)
+
+        self._chance = chance
 
     def run(self) -> None:
-        raise NotImplementedError
-
-    def start(self) -> None:
-        raise NotImplementedError
+        if self._child is not None:
+            super().run()
+        else:
+            self.decide()
 
     def child_fail(self, task: 'Task[E]') -> None:
-        raise NotImplementedError
+        self.decide()
 
     def child_success(self, task: 'Task[E]') -> None:
-        raise NotImplementedError
+        self.decide()
 
-    def reset(self) -> None:
-        raise NotImplementedError
+    def decide(self) -> None:
+        if random.random() >= self._chance:
+            self.success()
+        else:
+            self.fail()
 
 
 class Repeat(LoopDecorator[E]):
 
-    def __init__(self, child: Task[E] = None) -> None:
-        raise NotImplementedError
+    def __init__(self, child: Task[E] = None, times: int = 2) -> None:
+        super().__init__(child)
+
+        self._times = times
+        self._count = 0
 
     @property
     def condition(self) -> bool:
-        raise NotImplementedError
+        return self._loop and bool(self._count)
 
     def start(self) -> None:
-        raise NotImplementedError
+        self._count = self._times
 
     def child_fail(self, task: 'Task[E]') -> None:
-        raise NotImplementedError
+        self.child_success(task)
 
     def child_success(self, task: 'Task[E]') -> None:
-        raise NotImplementedError
+        if self._count:
+            self._count -= 1
+        if not self._count:
+            super().child_success(task)
+            self._loop = False
+        else:
+            self._loop = True
 
     def reset(self) -> None:
-        raise NotImplementedError
+        self._count = 0
+        super().reset()
 
 
 class SemaphoreGuard(Decorator[E]):
