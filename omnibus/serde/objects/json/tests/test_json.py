@@ -4,7 +4,7 @@ from .. import parsing as parsing_
 from .. import json as json_
 
 
-def test_parsee():
+def test_parse():
     with open(os.path.join(os.path.dirname(__file__), 'examples/example2.json'), 'r') as f:
         buf = f.read()
     ret = parsing_.parse(buf)

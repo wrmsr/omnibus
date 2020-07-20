@@ -81,6 +81,19 @@ def property_() -> Property:  # noqa
     return Property()
 
 
+class _PropertyProxy:
+
+    def __init__(self, prop: Property, cls: ta.Type) -> None:
+        super().__init__()
+        self._prop = prop
+        self._cls = cls
+
+    def __get__(self, instance, owner=None):
+        if owner is None:
+            return self
+        return self._prop.__get__(instance, owner)
+
+
 class _ClassMeta(abc.ABCMeta):
 
     class RegisteringNamespace:
@@ -143,10 +156,15 @@ class _ClassMeta(abc.ABCMeta):
         if not isinstance(namespace, mcls.RegisteringNamespace):
             raise TypeError(namespace)
 
-        dct = namespace._dict
+        dct = dict(namespace._dict)
+        cls = super().__new__(mcls, name, bases, dct, **kwargs)
+
         for prop in namespace._used_props:
-            dct[prop] = namespace._props[prop]
-        return super().__new__(mcls, name, bases, dct, **kwargs)
+            propinst = namespace._props[prop]
+            if dct.get(prop) is not propinst:
+                setattr(cls, prop, _PropertyProxy(propinst, cls))
+
+        return cls
 
 
 class Class(metaclass=_ClassMeta):

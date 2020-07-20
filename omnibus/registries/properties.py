@@ -129,14 +129,16 @@ class Property(properties.Property[Registry[K, V]]):
             self._obj = obj
             self._cls = cls
 
-            self._registry = owner.get_registry(cls)
+        _registry: Registry[K, V] = None
 
         @property
         def registry(self) -> Registry[K, V]:
+            if self._registry is None:
+                self._registry = self._owner.get_registry(self._cls)
             return self._registry
 
         def __getitem__(self, key):
-            ret = self._registry[key]
+            ret = self.registry[key]
 
             if self._owner._bind:
                 ret = ret.__get__(self._obj, self._cls)
@@ -144,10 +146,10 @@ class Property(properties.Property[Registry[K, V]]):
             return ret
 
         def __iter__(self):
-            return iter(self._registry)
+            return iter(self.registry)
 
         def __len__(self):
-            return len(self._registry)
+            return len(self.registry)
 
         _register = None
 
