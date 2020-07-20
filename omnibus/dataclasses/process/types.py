@@ -154,13 +154,17 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
     def function(self, attachment_keys: ta.Iterable[ta.Any] = ()) -> Function[TypeT]:
         check.arg(not isinstance(attachment_keys, str))
         attachment_keys = list(attachment_keys)
-        attachments = [
-            functools.partial(attachment, aspect)
-            for aspect in self.aspects
-            for key in attachment_keys
-            for attachment in aspect.attachment_lists_by_key.get(key, [])
-            if attachment is not None
-        ]
+        if Aspect.Function not in attachment_keys:
+            attachment_keys.append(Aspect.Function)
+        attachments = []
+        seen = set()
+        for aspect in self.aspects:
+            for key in attachment_keys:
+                for attachment in aspect.attachment_lists_by_key.get(key, []):
+                    if attachment is None or attachment in seen:
+                        continue
+                    attachments.append(functools.partial(attachment, aspect))
+                    seen.add(attachment)
         return Context.Function(self, attachments)
 
 

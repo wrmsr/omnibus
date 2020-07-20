@@ -4,6 +4,7 @@ from ... import code
 from ..internals import frozen_get_del_attr
 from ..internals import PARAMS
 from .types import Aspect
+from .types import attach
 
 
 class Access(Aspect):
@@ -14,6 +15,10 @@ class Access(Aspect):
     def process(self) -> None:
         self.process_frozen()
         self.process_field_attrs()
+
+    @attach(Aspect.Function)
+    class Function(Aspect.Function['Access']):
+        pass
 
     def check_frozen(self) -> None:
         dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]
