@@ -81,6 +81,11 @@ def test_class():
         assert B().fn(0) == 'int'
         assert B().fn('') == 'str'
 
+    b = B()
+    for _ in range(2):
+        assert b.fn(0) == 'int'
+        assert b.fn('') == 'str'
+
     class C(B):
 
         def fn(self, o: str):

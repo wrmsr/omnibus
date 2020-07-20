@@ -17,15 +17,12 @@ FULL_ARG_SPECS_BY_FUNC = weakref.WeakKeyDictionary()
 
 def get_full_arg_spec(func: ta.Callable) -> inspect.FullArgSpec:
     try:
-        weakref.ref(func)
+        return FULL_ARG_SPECS_BY_FUNC[func]
     except TypeError:
         return inspect.getfullargspec(func)
-    else:
-        try:
-            return FULL_ARG_SPECS_BY_FUNC[func]
-        except KeyError:
-            fas = FULL_ARG_SPECS_BY_FUNC[func] = inspect.getfullargspec(func)
-            return fas
+    except KeyError:
+        fas = FULL_ARG_SPECS_BY_FUNC[func] = inspect.getfullargspec(func)
+        return fas
 
 
 @dc.dataclass(frozen=True)
