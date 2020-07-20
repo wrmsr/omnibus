@@ -74,13 +74,9 @@ class DictStorage(Storage):
     @attach('init')
     class Init(Storage.Function['DictStorage']):
 
-        @properties.cached
-        def setattr_name(self) -> str:
-            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
-
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
-            ret = [self.build_setattr(self.aspect.dict_attr, '{}')]
+            ret = [self.fctx.get_aspect(Access.Function).build_setattr(self.aspect.dict_attr, '{}')]
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
                     continue

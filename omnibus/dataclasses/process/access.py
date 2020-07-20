@@ -1,6 +1,7 @@
 import dataclasses as dc
 
 from ... import code
+from ... import properties
 from ..internals import frozen_get_del_attr
 from ..internals import PARAMS
 from .types import Aspect
@@ -18,7 +19,16 @@ class Access(Aspect):
 
     @attach(Aspect.Function)
     class Function(Aspect.Function['Access']):
-        pass
+
+        @properties.cached
+        def setattr_name(self) -> str:
+            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
+
+        def build_setattr(self, name: str, value: str) -> str:
+            if self.fctx.ctx.params.frozen:
+                return f'{self.setattr_name}({self.fctx.self_name}, {name!r}, {value})'
+            else:
+                return f'{self.fctx.self_name}.{name} = {value}'
 
     def check_frozen(self) -> None:
         dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]

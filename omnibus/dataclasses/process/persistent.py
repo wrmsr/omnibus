@@ -10,6 +10,7 @@ from ... import collections as ocol
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
+from .access import Access
 from .storage import Storage
 from .types import attach
 from .types import InitPhase
@@ -81,4 +82,7 @@ class PersistentStorage(Storage):
                     continue
                 args.append(f.name)
             seq_new = self.fctx.nsb.put(self.aspect.seq_ctor, '_seq_new')
-            return [self.build_setattr(self.aspect.seq_attr, f'{seq_new}(({", ".join(args)}),)')]
+            return [
+                self.fctx.get_aspect(Access.Function).build_setattr(
+                    self.aspect.seq_attr, f'{seq_new}(({", ".join(args)}),)')
+            ]

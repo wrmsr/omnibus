@@ -17,9 +17,9 @@ import dataclasses as dc
 import typing as ta
 
 from ... import lang
-from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
+from .access import Access
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -31,16 +31,7 @@ StorageT = ta.TypeVar('StorageT', bound='Storage', covariant=True)
 class Storage(Aspect, lang.Abstract):
 
     class Function(Aspect.Function[StorageT]):
-
-        @properties.cached
-        def setattr_name(self) -> str:
-            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
-
-        def build_setattr(self, name: str, value: str) -> str:
-            if self.fctx.ctx.params.frozen:
-                return f'{self.setattr_name}({self.fctx.self_name}, {name!r}, {value})'
-            else:
-                return f'{self.fctx.self_name}.{name} = {value}'
+        pass
 
 
 class StandardStorage(Storage):
@@ -56,5 +47,5 @@ class StandardStorage(Storage):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                ret.append(self.build_setattr(f.name, f.name))
+                ret.append(self.fctx.get_aspect(Access.Function).build_setattr(f.name, f.name))
             return ret
