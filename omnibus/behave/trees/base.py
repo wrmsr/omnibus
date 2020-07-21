@@ -178,7 +178,7 @@ class BehaviorTree(Task[E]):
     def guard_evaluator(self) -> 'BehaviorTree.GuardEvaluator[E]':
         return self._guard_evaluator
 
-    def _add_child(self, child: 'Task[E]') -> None:
+    def _add_child(self, child: Task[E]) -> None:
         check.none(self._root)
         self._root = child
         return 0
@@ -187,7 +187,7 @@ class BehaviorTree(Task[E]):
     def num_children(self) -> int:
         return 1 if self._root is not None else 0
 
-    def get_child(self, idx: int) -> 'Task[E]':
+    def get_child(self, idx: int) -> Task[E]:
         if idx == 0 and self._root is not None:
             return self._root
         else:
@@ -207,13 +207,13 @@ class BehaviorTree(Task[E]):
             else:
                 self._root.fail()
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         self.running()
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         self.success()
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         self.fail()
 
     def add_listener(self, listener: 'Listener[E]') -> None:
@@ -240,26 +240,26 @@ class BehaviorTree(Task[E]):
 
             self._tree = tree
 
-        def _add_child(self, child: 'Task[E]') -> None:
+        def _add_child(self, child: Task[E]) -> None:
             raise NotImplementedError
 
         @property
         def num_children(self) -> int:
             return 0
 
-        def get_child(self, idx: int) -> 'Task[E]':
+        def get_child(self, idx: int) -> Task[E]:
             return None
 
         def run(self) -> None:
             pass
 
-        def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+        def child_running(self, task: Task[E], reporter: Task[E]) -> None:
             pass
 
-        def child_success(self, task: 'Task[E]') -> None:
+        def child_success(self, task: Task[E]) -> None:
             pass
 
-        def child_fail(self, task: 'Task[E]') -> None:
+        def child_fail(self, task: Task[E]) -> None:
             pass
 
     class Listener(ta.Generic[E]):
@@ -278,7 +278,7 @@ class BranchTask(Task[E], lang.Abstract):
 
         self._children = list(children or [])
 
-    def _add_child(self, child: 'Task[E]') -> int:
+    def _add_child(self, child: Task[E]) -> int:
         self._children.append(child)
         return len(self._children) - 1
 
@@ -286,7 +286,7 @@ class BranchTask(Task[E], lang.Abstract):
     def num_children(self) -> int:
         return len(self._children)
 
-    def get_child(self, idx: int) -> 'Task[E]':
+    def get_child(self, idx: int) -> Task[E]:
         return self._children[idx]
 
 
@@ -297,7 +297,7 @@ class Decorator(Task[E], lang.Abstract):
 
         self._child = child
 
-    def _add_child(self, child: 'Task[E]') -> int:
+    def _add_child(self, child: Task[E]) -> int:
         check.none(self._child)
         self._child = child
         return 0
@@ -306,7 +306,7 @@ class Decorator(Task[E], lang.Abstract):
     def num_children(self) -> int:
         return 1 if self._child is not None else 0
 
-    def get_child(self, idx: int) -> 'Task[E]':
+    def get_child(self, idx: int) -> Task[E]:
         if idx == 0 and self._child is not None:
             return self._child
         else:
@@ -323,13 +323,13 @@ class Decorator(Task[E], lang.Abstract):
             else:
                 self._child.fail()
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         self.running()
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         self.fail()
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         self.success()
 
 
@@ -350,23 +350,23 @@ class LeafTask(Task[E], lang.Abstract):
         else:
             raise TypeError(result)
 
-    def _add_child(self, child: 'Task[E]') -> int:
+    def _add_child(self, child: Task[E]) -> int:
         raise TypeError
 
     @property
     def num_children(self) -> int:
         return 0
 
-    def get_child(self, idx: int) -> 'Task[E]':
+    def get_child(self, idx: int) -> Task[E]:
         raise IndexError(idx)
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         pass
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         pass
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         pass
 
 
@@ -394,7 +394,7 @@ class LoopDecorator(Decorator[E], lang.Abstract):
                 else:
                     self._child.fail()
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         super().child_running(task, reporter)
         self._loop = False
 
@@ -408,14 +408,14 @@ class SingleRunningChildBranch(BranchTask[E], lang.Abstract):
         self._current_child_idx: int = 0
         self._random_children: ta.Optional[ta.List[Task[E]]] = None
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         self._running_child = task
         self.running()
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         self._running_child = None
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         self._running_child = None
 
     def run(self) -> None:

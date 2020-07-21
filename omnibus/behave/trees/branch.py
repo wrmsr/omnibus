@@ -3,9 +3,11 @@ import typing as ta
 
 from ... import lang
 from .base import BranchTask
-from .base import E
 from .base import SingleRunningChildBranch
 from .base import Task
+
+
+E = ta.TypeVar('E')
 
 
 class DynamicGuardSelector(BranchTask[E]):
@@ -15,15 +17,15 @@ class DynamicGuardSelector(BranchTask[E]):
 
         self._running_child: Task[E] = None
 
-    def child_running(self, task: 'Task[E]', reporter: 'Task[E]') -> None:
+    def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         self._running_child = task
         self.running()
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         self._running_child = None
         self.success()
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         self._running_child = None
         self.fail()
 
@@ -189,11 +191,11 @@ class Parallel(BranchTask[E]):
 
 class Selector(SingleRunningChildBranch[E]):
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         super().child_success(task)
         self.success()
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         super().child_fail(task)
         self._current_child_idx += 1
         if self._current_child_idx < len(self._children):
@@ -204,7 +206,7 @@ class Selector(SingleRunningChildBranch[E]):
 
 class Sequence(SingleRunningChildBranch[E]):
 
-    def child_success(self, task: 'Task[E]') -> None:
+    def child_success(self, task: Task[E]) -> None:
         super().child_success(task)
         self._current_child_idx += 1
         if self._current_child_idx < len(self._children):
@@ -212,7 +214,7 @@ class Sequence(SingleRunningChildBranch[E]):
         else:
             self.success()
 
-    def child_fail(self, task: 'Task[E]') -> None:
+    def child_fail(self, task: Task[E]) -> None:
         super().child_fail(task)
         self.fail()
 

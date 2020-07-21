@@ -1,9 +1,11 @@
 import typing as ta
 
 from ... import check
-from .base import E
 from .base import LeafTask
 from .base import Task
+
+
+E = ta.TypeVar('E')
 
 
 class Failure(LeafTask[E]):
