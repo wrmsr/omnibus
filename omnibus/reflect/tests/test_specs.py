@@ -86,23 +86,23 @@ def test_weak_cache():
             pass
 
         cref = weakref.ref(C)
-        ts = gts(C)  # noqa
-        stats1 = specs_.spec._static.stats
-        ts = gts(C)  # noqa
-        stats1x = specs_.spec._static.stats
+        ts = specs_._cached_spec(C)  # noqa
+        stats1 = specs_._cached_spec._static.stats
+        ts = specs_._cached_spec(C)  # noqa
+        stats1x = specs_._cached_spec._static.stats
         assert stats1.size == stats1x.size
         assert stats1.hits < stats1x.hits
         del C
 
     gc.collect()
-    specs_.spec._static.reap()
-    stats0 = specs_.spec._static.stats
+    specs_._cached_spec._static.reap()
+    stats0 = specs_._cached_spec._static.stats
 
     f()
 
     gc.collect()
-    specs_.spec._static.reap()
-    stats2 = specs_.spec._static.stats
+    specs_._cached_spec._static.reap()
+    stats2 = specs_._cached_spec._static.stats
 
     assert stats1.size == stats0.size + 1
     assert stats2.size == stats0.size

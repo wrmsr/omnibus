@@ -20,6 +20,7 @@ https://github.com/ilevkivskyi/typing_inspect
 import abc
 import traceback
 import typing as ta
+import weakref
 
 from .. import caches
 from .. import check
@@ -473,8 +474,23 @@ def _spec(cls: Specable) -> Spec:
 
 
 @caches.cache(weak_keys=True, weak_values=True)
-def spec(cls: Specable) -> Spec:
+def _cached_spec(cls: Specable) -> Spec:
     return _spec(cls)
+
+
+_SPECS_BY_TYPE: ta.MutableMapping[type, Spec] = weakref.WeakKeyDictionary()
+
+
+def spec(cls: Specable) -> Spec:
+    if isinstance(cls, type):
+        try:
+            return _SPECS_BY_TYPE[cls]
+        except KeyError:
+            ret = _SPECS_BY_TYPE[cls] = _spec(cls)
+            return ret
+        except TypeError:
+            pass
+    return _cached_spec(cls)
 
 
 def type_spec(cls: Specable) -> TypeSpec:
