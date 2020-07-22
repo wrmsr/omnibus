@@ -50,7 +50,7 @@ kiwisolver==1.2.0
 llvmlite==0.33.0
 matplotlib==3.3.0
 notebook==6.0.3
-numpy==1.19.0
+numpy==1.19.1
 oauthlib==3.1.0
 pandas==1.0.5
 plotly==4.9.0
@@ -67,7 +67,7 @@ python-snappy==0.5.4
 pyzmq==19.0.1
 regex==2020.7.14
 rocksdb==0.7.0
-slackclient==2.7.2
+slackclient==2.7.3
 sympy==1.6.1
 thrift==0.13.0
 uvloop==0.14.0
