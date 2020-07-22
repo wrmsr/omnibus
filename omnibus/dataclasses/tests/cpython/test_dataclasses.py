@@ -2697,6 +2697,7 @@ class TestFrozen(unittest.TestCase):
 
 
 class TestSlots(unittest.TestCase):
+    @unittest.skip('omnibus')
     def test_simple(self):
         @dataclass
         class C:

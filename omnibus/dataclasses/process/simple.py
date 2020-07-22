@@ -81,7 +81,7 @@ class Order(Aspect):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if name in self.cls.__dict__:
+            if name in self.ctx.cls.__dict__:
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')

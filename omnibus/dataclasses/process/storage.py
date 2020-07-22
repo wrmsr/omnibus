@@ -143,10 +143,11 @@ class Storage(Aspect, lang.Abstract):
         def build_set_attr_lines(self) -> ta.List[str]:
             ret = []
             for f in self.fctx.ctx.spec.fields.init:
-                if get_field_type(f) is FieldType.INIT:
+                if get_field_type(f) is not FieldType.INSTANCE:
                     continue
-                if not f.init and f.default_factory is dc.MISSING:
-                    continue
+                # FIXME:
+                # if not f.init and f.default_factory is dc.MISSING:
+                #     continue
                 ret.append(self.fctx.get_aspect(self.aspect.Helper).build_set_field(f, f.name))
             return ret
 
@@ -171,7 +172,7 @@ class StandardStorage(Storage):
                     code.ArgSpec(['self'] + args),
                     '\n'.join([
                         f'if type(self) is cls and name in allowed:',
-                        f'    raise FrozenInstanceError(f"Cannot modify attribute {{name!r}}")',
+                        f'    raise FrozenInstanceError(f"Cannot overwrite attribute {{name!r}}")',
                         f'super(cls, self).{fnname}({", ".join(args)})',
                     ]),
                     locals=locals,
@@ -200,8 +201,10 @@ class StandardStorage(Storage):
                 return getattr(instance, self._mangled)
             elif self._field_attrs:
                 return self._field
+            elif self._field.default is not dc.MISSING:
+                return self._field.default
             else:
-                return self
+                raise AttributeError(self._field.name)
 
         def __set__(self, instance, value):
             if self._frozen:
