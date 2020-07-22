@@ -17,6 +17,7 @@ from ..types import SelfChecker
 from ..types import SelfValidator
 from ..types import Validator
 from ..validation import build_default_field_validation
+from .aspects import Fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -28,6 +29,10 @@ class Validation(Aspect, lang.Abstract):
 
 
 class StandardValidation(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     FN_ARG_EXTRA_TYPES = {
         Checker,

@@ -1,10 +1,12 @@
 import dataclasses as dc
+import typing as ta
 
 from ... import code
 from ... import properties
 from ..internals import frozen_get_del_attr
 from ..internals import PARAMS
 from ..types import ExtraFieldParams
+from .aspects import Fields
 from .types import Aspect
 from .types import attach
 
@@ -48,6 +50,10 @@ from .types import attach
 
 
 class Access(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def check(self) -> None:
         self.check_frozen()

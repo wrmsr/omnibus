@@ -3,6 +3,7 @@ import inspect
 import typing as ta
 
 from ... import check
+from ... import lang
 from ... import properties
 from ..fields import build_cls_fields
 from ..internals import cmp_fn
@@ -24,14 +25,13 @@ from ..types import PostInit
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
-from .types import Phase
 
 
 class Params(Aspect):
 
     @property
-    def phase(self) -> Phase:
-        return Phase.BOOTSTRAP
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return []
 
     def process(self) -> None:
         self.ctx.set_new_attribute(PARAMS, self.ctx.params)
@@ -55,8 +55,8 @@ class Params(Aspect):
 class Fields(Aspect):
 
     @property
-    def phase(self) -> Phase:
-        return Phase.BOOTSTRAP
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Params]
 
     def process(self) -> None:
         build_cls_fields(
@@ -69,8 +69,8 @@ class Fields(Aspect):
 class Mangling(Aspect):
 
     @property
-    def phase(self) -> Phase:
-        return Phase.PREPARE
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def process(self) -> None:
         dct = {}
@@ -95,6 +95,10 @@ class Mangling(Aspect):
 
 class Repr(Aspect):
 
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
+
     def process(self) -> None:
         if not self.ctx.params.repr:
             return
@@ -104,6 +108,10 @@ class Repr(Aspect):
 
 
 class Eq(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def process(self) -> None:
         if not self.ctx.params.eq:
@@ -125,6 +133,10 @@ class Eq(Aspect):
 
 
 class Order(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def check(self) -> None:
         if self.ctx.params.order and not self.ctx.params.eq:
@@ -159,6 +171,10 @@ class Order(Aspect):
 
 
 class Hash(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     @properties.cached
     def cache_attr(self) -> str:
@@ -195,11 +211,21 @@ class Hash(Aspect):
         self.ctx.cls.__hash__ = fn
 
 
+class Init(Aspect, lang.Abstract):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
+
+    def process(self) -> None:
+        raise TypeError
+
+
 class Doc(Aspect):
 
     @property
-    def phase(self) -> Phase:
-        return Phase.FINALIZE
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Init]
 
     def process(self) -> None:
         if not getattr(self.ctx.cls, '__doc__'):
@@ -208,6 +234,10 @@ class Doc(Aspect):
 
 
 class PostInitAspect(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     @attach('init')
     class Init(Aspect.Function['PostInitAspect']):
@@ -235,6 +265,10 @@ class PostInitAspect(Aspect):
 
 
 class Pickle(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def process(self) -> None:
         if self.ctx.extra_params.pickle and self.ctx.cls.__reduce__ is object.__reduce__:

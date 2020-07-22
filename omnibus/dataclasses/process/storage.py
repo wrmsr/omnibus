@@ -20,6 +20,7 @@ from ... import lang
 from ..internals import FieldType
 from ..internals import get_field_type
 from .access import Access
+from .aspects import Fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -29,6 +30,10 @@ StorageT = ta.TypeVar('StorageT', bound='Storage', covariant=True)
 
 
 class Storage(Aspect, lang.Abstract):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     class Function(Aspect.Function[StorageT]):
         pass

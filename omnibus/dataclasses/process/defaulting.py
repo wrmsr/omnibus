@@ -12,6 +12,7 @@ from ... import lang
 from ... import properties
 from ..types import Deriver
 from ..types import ExtraFieldParams
+from .aspects import Fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -38,6 +39,10 @@ class DeriverNode(ta.NamedTuple):
 
 
 class Defaulting(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
 
     def check(self) -> None:
         # Make sure we don't have fields without defaults following fields with defaults.  This actually would be caught

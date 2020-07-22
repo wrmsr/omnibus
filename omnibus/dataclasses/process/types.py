@@ -1,3 +1,4 @@
+import abc
 import functools
 import types
 import typing as ta
@@ -5,6 +6,7 @@ import weakref
 
 from ... import check
 from ... import code
+from ... import collections as ocol
 from ... import lang
 from ... import properties
 from ..confer import confer_params
@@ -110,11 +112,24 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
     @properties.cached
     @property
-    def aspect_lists_by_phase(self) -> ta.Mapping['Phase', ta.Sequence['Aspect']]:
-        ret = {}
+    def aspect_plan(self) -> ta.Sequence[ta.Sequence['Aspect']]:
+        dct = {}
         for a in self.aspects:
-            ret.setdefault(a.phase, []).append(a)
-        return ret
+            ds = set()
+            for dc in a.deps:
+                da = None
+                for dac in self.aspects:
+                    if isinstance(dac, dc):
+                        if da is None:
+                            da = dac
+                        else:
+                            raise Exception(f'Ambiguous dependency {dc} in aspect {a} resolved to {da} and {dac}')
+                if da is None:
+                    raise Exception(f'Unresolved dependency {dc} in aspect {a}')
+                ds.add(da)
+            dct[a] = ds
+        lst = list(ocol.toposort(dct))
+        return [sorted(al, key=lambda la: type(la).__name__) for al in lst]
 
     @properties.stateful_cached
     @property
@@ -210,13 +225,6 @@ class AttachmentCollection(lang.Abstract):
         return get_attachment_lists_by_key(self)
 
 
-class Phase(lang.AutoEnum):
-    BOOTSTRAP = ...
-    PREPARE = ...
-    PROCESS = ...
-    FINALIZE = ...
-
-
 class Aspect(AttachmentCollection, lang.Abstract):
 
     def __init__(self, ctx: Context[TypeT]) -> None:
@@ -224,9 +232,9 @@ class Aspect(AttachmentCollection, lang.Abstract):
 
         self._ctx = check.isinstance(ctx, Context)
 
-    @property
-    def phase(self) -> Phase:
-        return Phase.PROCESS
+    @abc.abstractproperty
+    def deps(self) -> ta.Collection[ta.Type['Aspect']]:
+        raise NotImplementedError
 
     @property
     def ctx(self) -> Context:

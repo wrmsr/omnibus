@@ -55,7 +55,7 @@ class Driver(ta.Generic[TypeT]):
         return self._ctx
 
     def __call__(self) -> None:
-        for phase, aspects in sorted(self.ctx.aspect_lists_by_phase.items(), key=lambda t: t[0].value):
+        for aspects in self.ctx.aspect_plan:
             for aspect in aspects:
                 aspect.check()
             for aspect in aspects:

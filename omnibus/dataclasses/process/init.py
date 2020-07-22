@@ -5,6 +5,8 @@ from ... import code
 from ... import lang
 from ... import properties
 from ..types import ExtraFieldParams
+from .aspects import Fields
+from .aspects import Init
 from .defaulting import Defaulting
 from .defaulting import HasFactory
 from .types import Aspect
@@ -60,10 +62,6 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
         kwonlydefaults=kwonlydefaults,
         annotations={**argspec.annotations, **annotations},
     )
-
-
-class Init(Aspect, lang.Abstract):
-    pass
 
 
 class StandardInit(Init):
