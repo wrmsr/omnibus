@@ -136,11 +136,10 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
     def spec(self) -> DataSpec:
         return get_cls_spec(self._cls)
 
-    def set_new_attribute(self, name: str, value: ta.Any) -> bool:
+    def set_new_attribute(self, name: str, value: ta.Any) -> None:
         if name in self.cls.__dict__:
-            return True
+            raise TypeError(f'Cannot overwrite attribute name in class {self.cls.__name__}')
         setattr(self.cls, name, value)
-        return False
 
     class Function(AspectCollection['Aspect.Function'], ta.Generic[TypeT]):
 

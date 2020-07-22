@@ -1,12 +1,10 @@
 import typing as ta
 
 from ... import check
-from .access import Access
 from .aspects import Doc
 from .aspects import Eq
 from .aspects import Fields
 from .aspects import Hash
-from .aspects import Mangling
 from .aspects import Order
 from .aspects import Params
 from .aspects import Pickle
@@ -24,13 +22,11 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 DEFAULT_ASPECTS = {
 
-    Access,
     Defaulting,
     Doc,
     Eq,
     Fields,
     Hash,
-    Mangling,
     Order,
     Params,
     Pickle,

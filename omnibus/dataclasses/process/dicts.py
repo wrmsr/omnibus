@@ -6,7 +6,6 @@ from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
-from .access import Access
 from .defaulting import Defaulting
 from .init import Init
 from .storage import Storage
@@ -76,7 +75,7 @@ class DictStorage(Storage):
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
-            ret = [self.fctx.get_aspect(Access.Function).build_setattr(self.aspect.dict_attr, '{}')]
+            ret = [self.fctx.get_aspect(Storage.Function).build_setattr(self.aspect.dict_attr, '{}')]
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is FieldType.INIT:
                     continue
@@ -130,9 +129,3 @@ class DictInit(Init):
                 else:
                     raise TypeError
             return ret
-
-
-class DictAccess(Access):
-
-    def process_field_attrs(self) -> None:
-        pass

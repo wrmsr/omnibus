@@ -15,9 +15,7 @@ from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
 from ..pickling import SimplePickle
-from ..types import ExtraFieldParams
 from ..types import ExtraParams
-from ..types import MANGLING
 from ..types import MetaclassParams
 from ..types import METADATA_ATTR
 from ..types import Original
@@ -64,33 +62,6 @@ class Fields(Aspect):
             reorder=self.ctx.extra_params.reorder,
             install=True,
         )
-
-
-class Mangling(Aspect):
-
-    @property
-    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Fields]
-
-    def process(self) -> None:
-        dct = {}
-        names = set(self.ctx.spec.fields.by_name)
-        for fld in self.ctx.spec.fields:
-            efp = fld.metadata.get(ExtraFieldParams)
-            if efp is not None and efp.mangled is not None:
-                mang = efp.efp.mangled
-            else:
-                if self.ctx.extra_params.mangler is not None:
-                    fn = self.ctx.extra_params.mangler
-                else:
-                    fn = lambda n: '_' + n
-                mang = fn(fld.name)
-            if mang in dct or mang in names:
-                raise NameError(dct)
-            dct[fld.name] = mang
-
-        md = getattr(self.ctx.cls, METADATA_ATTR)
-        md[MANGLING] = dct
 
 
 class Repr(Aspect):
@@ -155,19 +126,21 @@ class Order(Aspect):
             ('__gt__', '>'),
             ('__ge__', '>='),
         ]:
-            if self.ctx.set_new_attribute(
-                    name,
-                    cmp_fn(
-                        name,
-                        op,
-                        self_tuple,
-                        other_tuple,
-                        globals=self.ctx.spec.globals,
-                    )
-            ):
+            if name in self.cls.__dict__:
                 raise TypeError(
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
+
+            self.ctx.set_new_attribute(
+                name,
+                cmp_fn(
+                    name,
+                    op,
+                    self_tuple,
+                    other_tuple,
+                    globals=self.ctx.spec.globals,
+                )
+            )
 
 
 class Hash(Aspect):
