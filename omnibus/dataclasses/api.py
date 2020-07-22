@@ -49,6 +49,7 @@ TODO:
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - enforce immut metadata
  - enforce not field.name.startswith('__')
+ - replace aspect phases w/ dag?
 """
 import collections
 import collections.abc
@@ -68,6 +69,7 @@ from .types import Deriver
 from .types import ExtraFieldParams
 from .types import ExtraParams
 from .types import Extras
+from .types import Mangler
 from .types import METADATA_ATTR
 from .types import MISSING_TYPE
 from .types import PostInit
@@ -201,7 +203,9 @@ def field(
         metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None,
 
         doc: ta.Optional[str] = None,
+        mangled: ta.Optional[str] = None,
         size: ta.Optional[ta.Any] = None,
+        frozen: ta.Optional[bool] = None,
         kwonly: bool = False,
         coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None,
         derive: ta.Optional[ta.Callable[..., ta.Any]] = None,
@@ -210,7 +214,9 @@ def field(
 ) -> Field:
     extra_field_params = ExtraFieldParams(
         doc=doc,
+        mangled=mangled,
         size=size,
+        frozen=frozen,
         kwonly=kwonly,
         coerce=coerce,
         derive=derive,
@@ -249,14 +255,15 @@ def dataclass(
         unsafe_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         frozen: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
 
-        validate: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        pickle: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        reorder: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        allow_setattr: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
-        aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,  # None
-        confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,  # None
+        validate: ta.Union[bool, MISSING_TYPE] = MISSING,
+        field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,
+        cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,
+        pickle: ta.Union[bool, MISSING_TYPE] = MISSING,
+        reorder: ta.Union[bool, MISSING_TYPE] = MISSING,
+        allow_setattr: ta.Union[bool, MISSING_TYPE] = MISSING,
+        mangler: ta.Union[Mangler, MISSING_TYPE] = MISSING,
+        aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,
+        confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,
 ) -> ta.Type[T]:
     if aspects is not MISSING and aspects is not None:
         aspects = list(aspects)
@@ -279,6 +286,7 @@ def dataclass(
         pickle=pickle,
         reorder=reorder,
         allow_setattr=allow_setattr,
+        mangler=mangler,
         aspects=aspects,
         confer=confer,
     )

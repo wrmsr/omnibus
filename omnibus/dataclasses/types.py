@@ -62,7 +62,9 @@ class CheckException(Exception):
 @dc.dataclass(frozen=True)
 class ExtraFieldParams(lang.Final):
     doc: ta.Optional[str] = None
+    mangled: ta.Optional[str] = None
     size: ta.Optional[ta.Any] = None
+    frozen: ta.Optional[bool] = None
     kwonly: bool = False
     coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None
     derive: ta.Optional[ta.Callable[..., ta.Any]] = None
@@ -71,11 +73,16 @@ class ExtraFieldParams(lang.Final):
 
     def __post_init__(self) -> None:
         check.isinstance(self.doc, (str, NONE_TYPE))
+        check.isinstance(self.mangled, (str, NONE_TYPE))
+        check.isinstance(self.frozen, (bool, NONE_TYPE))
         check.isinstance(self.kwonly, bool)
         check.isinstance(self.coerce, (bool, lang.Callable, NONE_TYPE))
         check.isinstance(self.derive, (lang.Callable, NONE_TYPE))
         check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE))
         check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE))
+
+
+Mangler = ta.Callable[[str], str]
 
 
 @dc.dataclass(frozen=True)
@@ -104,6 +111,7 @@ class ExtraParams(lang.Final):
     pickle: bool = False
     reorder: bool = False
     allow_setattr: bool = False
+    mangler: ta.Optional[Mangler] = None
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
@@ -114,6 +122,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
         check.isinstance(self.allow_setattr, (bool, MISSING_TYPE))
+        check.isinstance(self.mangler, (lang.Callable, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.aspects, (ta.Collection, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.confer, (ta.Collection, ta.Mapping, NONE_TYPE, MISSING_TYPE))
 
@@ -160,3 +169,7 @@ CONFERS = set(check.unique([a for l in [
 @dc.dataclass(frozen=True)
 class Original(ta.Generic[T], lang.Final):
     type: ta.Type[T]
+
+
+class MANGLING(lang.Marker):
+    pass

@@ -4,8 +4,47 @@ from ... import code
 from ... import properties
 from ..internals import frozen_get_del_attr
 from ..internals import PARAMS
+from ..types import ExtraFieldParams
 from .types import Aspect
 from .types import attach
+
+
+# class Descriptor:
+#
+#     def __init__(
+#             self,
+#             field: dc.Field,
+#             *,
+#             frozen: bool = None,
+#             field_attrs: bool = False,
+#     ) -> None:
+#         super().__init__()
+#
+#         self._field = field
+#         self._frozen = bool(frozen if frozen is not None else field.metadata.get(ExtraFieldParams, ExtraFieldParams()).frozen)  # noqa
+#         self._field_attrs = field_attrs
+#
+#     def __get__(self, instance, owner=None):
+#         if instance is not None:
+#             dct = getattr(instance, self._dict_attr)
+#             try:
+#                 return dct[self._field.name]
+#             except KeyError:
+#                 raise AttributeError(self._field.name)
+#         elif self._field_attrs is not None:
+#             return self._field
+#         else:
+#             return self
+#
+#     def __set__(self, instance, value):
+#         if self._frozen:
+#             raise dc.FrozenInstanceError(f'cannot assign to field {self._field.name!r}')
+#         getattr(instance, self._dict_attr)[self._field.name] = value
+#
+#     def __delete__(self, instance):
+#         if self._frozen:
+#             raise dc.FrozenInstanceError(f'cannot delete field {self._field.name!r}')
+#         del getattr(instance, self._dict_attr)[self._field.name]
 
 
 class Access(Aspect):

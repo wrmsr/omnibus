@@ -6,6 +6,7 @@ from .aspects import Doc
 from .aspects import Eq
 from .aspects import Fields
 from .aspects import Hash
+from .aspects import Mangling
 from .aspects import Order
 from .aspects import Params
 from .aspects import Pickle
@@ -29,6 +30,7 @@ DEFAULT_ASPECTS = {
     Eq,
     Fields,
     Hash,
+    Mangling,
     Order,
     Params,
     Pickle,
