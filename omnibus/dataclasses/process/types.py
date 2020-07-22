@@ -13,6 +13,7 @@ from ..confer import confer_params
 from ..internals import DataclassParams
 from ..reflect import DataSpec
 from ..reflect import get_cls_spec
+from ..types import _Placeholder
 from ..types import ExtraParams
 from ..types import MetaclassParams
 
@@ -138,7 +139,9 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
 
     def set_new_attribute(self, name: str, value: ta.Any) -> None:
         if name in self.cls.__dict__:
-            raise TypeError(f'Cannot overwrite attribute name in class {self.cls.__name__}')
+            ev = self.cls.__dict__[name]
+            if ev is not _Placeholder:
+                raise TypeError(f'Cannot overwrite attribute name in class {self.cls.__name__}')
         setattr(self.cls, name, value)
 
     class Function(AspectCollection['Aspect.Function'], ta.Generic[TypeT]):

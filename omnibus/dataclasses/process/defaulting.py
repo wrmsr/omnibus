@@ -12,7 +12,7 @@ from ... import lang
 from ... import properties
 from ..types import Deriver
 from ..types import ExtraFieldParams
-from .aspects import Fields
+from .bootstrap import Fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase

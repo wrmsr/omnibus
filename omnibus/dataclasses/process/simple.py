@@ -2,66 +2,21 @@ import dataclasses as dc
 import inspect
 import typing as ta
 
-from ... import check
-from ... import lang
 from ... import properties
-from ..fields import build_cls_fields
 from ..internals import cmp_fn
-from ..internals import DataclassParams
 from ..internals import FieldType
 from ..internals import hash_action
-from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
 from ..pickling import SimplePickle
-from ..types import ExtraParams
-from ..types import MetaclassParams
-from ..types import METADATA_ATTR
-from ..types import Original
+from ..types import _Placeholder
 from ..types import PostInit
+from .bootstrap import Fields
+from .init import Init
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
-
-
-class Params(Aspect):
-
-    @property
-    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return []
-
-    def process(self) -> None:
-        self.ctx.set_new_attribute(PARAMS, self.ctx.params)
-        check.state(self.ctx.spec.params is self.ctx.params)
-
-        if METADATA_ATTR in self.ctx.cls.__dict__:
-            md = getattr(self.ctx.cls, METADATA_ATTR)
-        else:
-            md = {}
-            self.ctx.set_new_attribute(METADATA_ATTR, md)
-        check.state(self.ctx.spec._metadata is md)
-
-        md[ExtraParams] = self.ctx.extra_params
-        md[MetaclassParams] = self.ctx.metaclass_params
-
-        md[Original(DataclassParams)] = self.ctx.original_params
-        md[Original(ExtraParams)] = self.ctx.original_extra_params
-        md[Original(MetaclassParams)] = self.ctx.original_metaclass_params
-
-
-class Fields(Aspect):
-
-    @property
-    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Params]
-
-    def process(self) -> None:
-        build_cls_fields(
-            self.ctx.cls,
-            reorder=self.ctx.extra_params.reorder,
-            install=True,
-        )
 
 
 class Repr(Aspect):
@@ -184,16 +139,6 @@ class Hash(Aspect):
         self.ctx.cls.__hash__ = fn
 
 
-class Init(Aspect, lang.Abstract):
-
-    @property
-    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Fields]
-
-    def process(self) -> None:
-        raise TypeError
-
-
 class Doc(Aspect):
 
     @property
@@ -246,3 +191,15 @@ class Pickle(Aspect):
     def process(self) -> None:
         if self.ctx.extra_params.pickle and self.ctx.cls.__reduce__ is object.__reduce__:
             setattr(self.ctx.cls, '__reduce__', SimplePickle.__reduce__)
+
+
+class Placeholders(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Init]
+
+    def check(self) -> None:
+        for a, v in self.ctx.cls.__dict__.items():
+            if v is _Placeholder:
+                raise TypeError(f'Processed class contains placeholder: {a}')

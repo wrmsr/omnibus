@@ -17,12 +17,12 @@ import abc
 import dataclasses as dc
 import typing as ta
 
+from . import bootstrap
 from ... import check
 from ... import code
 from ... import lang
 from ... import properties
 from ..fields import Fields
-from ..internals import FIELDS
 from ..internals import FieldType
 from ..internals import get_field_type
 from ..internals import PARAMS
@@ -30,7 +30,6 @@ from ..types import ExtraFieldParams
 from ..types import ExtraParams
 from ..types import Mangling
 from ..types import METADATA_ATTR
-from .access import Access
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
@@ -43,7 +42,7 @@ class Storage(Aspect, lang.Abstract):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Access]
+        return [bootstrap.Fields]
 
     def check(self) -> None:
         self.check_frozen()
@@ -51,19 +50,13 @@ class Storage(Aspect, lang.Abstract):
     def process(self) -> None:
         self.process_mangling()
         self.process_frozen()
+        self.process_descriptors()
 
     @staticmethod
     def build_mangling(
-            dcls: type,
-            *,
-            fields: Fields = None,
-            extra_params: ExtraParams = None,
+            fields: Fields,
+            extra_params: ExtraParams,
     ) -> Mangling:
-        if fields is None:
-            fields = Fields(getattr(dcls, FIELDS).values())
-        if extra_params is None:
-            extra_params = dcls.__dict__.get(METADATA_ATTR, {}).get(ExtraParams, ExtraParams())
-
         dct = {}
         names = set(fields.by_name)
         for fld in fields:
@@ -79,23 +72,20 @@ class Storage(Aspect, lang.Abstract):
             if mang in dct or mang in names:
                 raise NameError(dct)
             dct[mang] = fld.name
-
         return ta.cast(Mangling, dct)
 
-    @properties.cached
-    def mangling(self) -> Mangling:
-        return self.build_mangling(
-            self.ctx.cls,
-            fields=self.ctx.spec.fields,
-            extra_params=self.ctx.spec.extra_params,
+    def process_mangling(self) -> None:
+        mangling = self.build_mangling(
+            self.ctx.spec.fields,
+            self.ctx.spec.extra_params,
         )
 
-    def process_mangling(self) -> None:
         metadata = self.ctx.cls.__dict__.get(METADATA_ATTR, {})
         if Mangling in metadata:
             raise KeyError(Mangling)
-        metadata[Mangling] = self.mangling
-        check.state(self.ctx.spec.metadata[Mangling] is self.mangling)
+        metadata[Mangling] = mangling
+        check.state(self.ctx.spec.mangling is mangling)
+        check.state(self.ctx.spec.unmangling is not None)
 
     def check_frozen(self) -> None:
         dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]
@@ -111,7 +101,7 @@ class Storage(Aspect, lang.Abstract):
     def process_frozen(self) -> None:
         raise NotImplementedError
 
-    class Descriptor(lang.Abstract):
+    class Descriptor(lang.Abstract, ta.Generic[StorageT]):
 
         def __init__(self, field: dc.Field) -> None:
             super().__init__()
@@ -130,8 +120,12 @@ class Storage(Aspect, lang.Abstract):
         def __delete__(self, instance):
             raise NotImplementedError
 
+    @abc.abstractmethod
+    def process_descriptors(self) -> None:
+        raise NotImplementedError
+
     @attach(Aspect.Function)
-    class Function(Aspect.Function[StorageT]):
+    class Helper(Aspect.Function[StorageT]):
 
         @properties.cached
         def setattr_name(self) -> str:
@@ -144,7 +138,7 @@ class Storage(Aspect, lang.Abstract):
                 return f'{self.fctx.self_name}.{name} = {value}'
 
     @attach('init')
-    class Init(Function[StorageT]):
+    class Init(Aspect.Function[StorageT]):
 
         @attach(InitPhase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
@@ -154,7 +148,7 @@ class Storage(Aspect, lang.Abstract):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                ret.append(self.fctx.get_aspect(Access.Function).build_setattr(f.name, f.name))
+                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_setattr(f.name, f.name))
             return ret
 
 
@@ -168,7 +162,7 @@ class StandardStorage(Storage):
             locals = {
                 'cls': self.ctx.cls,
                 'FrozenInstanceError': dc.FrozenInstanceError,
-                'allowed': frozenset(self.ctx.spec.fields.by_name) | frozenset(self.mangling),
+                'allowed': frozenset(self.ctx.spec.fields.by_name) | frozenset(self.ctx.spec.mangling),
             }
 
             for fnname in ['__setattr__', '__delattr__']:
@@ -219,3 +213,14 @@ class StandardStorage(Storage):
             if self._frozen:
                 raise dc.FrozenInstanceError(f'cannot delete field {self._field.name!r}')
             delattr(instance, self._mangled)
+
+    def process_descriptors(self) -> None:
+        for fld in self.ctx.spec.fields.instance:
+            dsc = self.Descriptor(
+                fld,
+                self.ctx.spec.unmangling[fld.name],
+                frozen=self.ctx.spec.params.frozen,
+                field_attrs=self.ctx.spec.extra_params.field_attrs,
+            )
+            # FIXME: check not overwriting
+            setattr(self.ctx.cls, fld.name, dsc)

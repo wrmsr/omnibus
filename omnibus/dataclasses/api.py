@@ -51,6 +51,7 @@ TODO:
  - enforce not field.name.startswith('__')
  - replace aspect phases w/ dag?
  - compile descriptor __get__ if only to get out of debugger (ideally one step)
+ - 3.9 compat (eq/order -> compare)
 """
 import collections
 import collections.abc

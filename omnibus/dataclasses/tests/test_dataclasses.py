@@ -15,7 +15,6 @@ from .. import virtual as virtual_
 from ... import check
 from ... import lang
 from ... import properties
-from ..process import access as access_
 from ..process import dicts as dicts_
 from ..process import init as init_
 from ..process import persistent as persistent_
@@ -497,8 +496,6 @@ def test_dicts3():
     for a in process_.DEFAULT_ASPECTS:
         if issubclass(a, storage_.Storage):
             a = dicts_.DictStorage
-        elif issubclass(a, access_.Access):
-            a = dicts_.DictAccess
         da.append(a)
 
     @api_.dataclass(aspects=da, frozen=True, field_attrs=True)

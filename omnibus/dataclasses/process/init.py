@@ -5,8 +5,7 @@ from ... import code
 from ... import lang
 from ... import properties
 from ..types import ExtraFieldParams
-from .aspects import Fields
-from .aspects import Init
+from .storage import Storage
 from .defaulting import Defaulting
 from .defaulting import HasFactory
 from .types import Aspect
@@ -15,6 +14,16 @@ from .types import attach
 
 T = ta.TypeVar('T')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
+
+
+class Init(Aspect, lang.Abstract):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Storage]
+
+    def process(self) -> None:
+        raise TypeError
 
 
 def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) -> code.ArgSpec:

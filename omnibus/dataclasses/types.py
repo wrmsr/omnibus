@@ -172,5 +172,10 @@ class Original(ta.Generic[T], lang.Final):
 
 
 Mangled = str
-Unmangled = str
+Unmangled = ta.Optional[str]
 Mangling = ta.NewType('Mangling', ta.Mapping[Mangled, Unmangled])
+Unmangling = ta.NewType('Unmangling', ta.Mapping[Unmangled, Mangled])
+
+
+class _Placeholder(lang.Marker):
+    pass

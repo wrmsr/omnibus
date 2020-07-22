@@ -17,7 +17,7 @@ from ..types import SelfChecker
 from ..types import SelfValidator
 from ..types import Validator
 from ..validation import build_default_field_validation
-from .aspects import Fields
+from .bootstrap import Fields
 from .types import Aspect
 from .types import attach
 from .types import InitPhase

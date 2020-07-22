@@ -13,6 +13,7 @@ from .api import MISSING_TYPE
 from .confer import confer_params
 from .fields import build_cls_fields
 from .internals import DataclassParams
+from .types import _Placeholder
 from .types import Conferrer
 from .types import ExtraParams
 from .types import MetaclassParams
@@ -20,10 +21,6 @@ from .types import SUPER
 
 
 T = ta.TypeVar('T')
-
-
-def _abstract_field_stub(self):
-    raise TypeError(self)
 
 
 class _Meta(abc.ABCMeta):
@@ -95,6 +92,17 @@ class _Meta(abc.ABCMeta):
         proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
         proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
 
+        aspects = kwargs.get('aspects')
+        if aspects is None:
+            aspects = extra_params.aspects
+            if aspects is None:
+                from .process.driver import DEFAULT_ASPECTS
+                aspects = DEFAULT_ASPECTS
+        storage = check.single(
+            a for a in aspects
+            if isinstance(a, process.Storage) or (isinstance(a, type) and issubclass(a, process.Storage))
+        )
+
         if metaclass_params.final and lang.Final not in bases:
             bases += (lang.Final,)
         if metaclass_params.sealed and lang.Sealed not in bases:
@@ -105,17 +113,18 @@ class _Meta(abc.ABCMeta):
         if not metaclass_params.abstract:
             for a in set(proto_flds.by_name) & proto_abs:
                 if a not in namespace:
-                    namespace[a] = _abstract_field_stub
+                    namespace[a] = _Placeholder
 
+        mangling = storage.build_mangling(proto_flds, extra_params)
         if metaclass_params.slots and '__slots__' not in namespace:
-            slots = tuple(proto_flds.by_name)
+            slots = tuple(sorted(mangling))
             if not metaclass_params.no_weakref and '__weakref__' not in slots:
                 slots += ('__weakref__',)
             namespace['__slots__'] = slots
         if '__slots__' not in namespace:
-            for fld in proto_flds:
-                if fld.name not in namespace and fld.name in proto_abs:
-                    namespace[fld.name] = _abstract_field_stub
+            for a in mangling:
+                if a not in namespace and a in proto_abs:
+                    namespace[a] = _Placeholder
 
         cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace, **kwargs)
         ctx = process.Context(

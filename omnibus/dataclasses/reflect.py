@@ -18,8 +18,10 @@ from .internals import FIELDS
 from .internals import PARAMS
 from .types import ExtraParams
 from .types import Extras
-from .types import METADATA_ATTR
+from .types import Mangling
 from .types import MetaclassParams
+from .types import METADATA_ATTR
+from .types import Unmangling
 
 
 Field = dc.Field
@@ -75,6 +77,23 @@ class DataSpec(ta.Generic[TypeT]):
     def fields(self) -> Fields:
         check.state(hasattr(self._cls, FIELDS))
         return Fields(getattr(self._cls, FIELDS).values())
+
+    @properties.cached
+    @property
+    def mangling(self) -> ta.Optional[Mangling]:
+        return self.metadata.get(Mangling)
+
+    @properties.cached
+    @property
+    def unmangling(self) -> ta.Optional[Unmangling]:
+        if self.mangling is None:
+            return None
+        dct = {}
+        for k, v in self.mangling.items():
+            if v in dct:
+                raise KeyError(k)
+            dct[v] = k
+        return dct
 
     @property
     def rmro(self) -> ta.Sequence[type]:

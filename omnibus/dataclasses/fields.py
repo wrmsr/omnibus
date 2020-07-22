@@ -51,10 +51,12 @@ class Fields(ta.Sequence[dc.Field]):
         return iter(self._seq)
 
     @properties.cached
+    @property
     def by_name(self) -> ta.Mapping[str, dc.Field]:
         return self._by_name
 
     @properties.cached
+    @property
     def by_field_type(self) -> ta.Mapping[FieldType, ta.Sequence[dc.Field]]:
         ret = {}
         for f in self:
@@ -62,10 +64,12 @@ class Fields(ta.Sequence[dc.Field]):
         return types.MappingProxyType({k: list(v) for k, v in ret.items()})
 
     @properties.cached
+    @property
     def instance(self) -> ta.Sequence[dc.Field]:
         return self.by_field_type.get(FieldType.INSTANCE, ())
 
     @properties.cached
+    @property
     def init(self) -> ta.List[dc.Field]:
         return [f for f in self if get_field_type(f) in (FieldType.INSTANCE, FieldType.INIT)]
 
