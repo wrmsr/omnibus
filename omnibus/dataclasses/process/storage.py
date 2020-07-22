@@ -131,11 +131,10 @@ class Storage(Aspect, lang.Abstract):
         def setattr_name(self) -> str:
             return self.fctx.nsb.put(object.__setattr__, '__setattr__')
 
-        def build_setattr(self, name: str, value: str) -> str:
-            if self.fctx.ctx.params.frozen:
-                return f'{self.setattr_name}({self.fctx.self_name}, {name!r}, {value})'
-            else:
-                return f'{self.fctx.self_name}.{name} = {value}'
+        def build_set_field(self, fld: dc.Field, value: str) -> str:
+            umd = self.fctx.ctx.spec.unmangling
+            name = umd[fld.name] if umd is not None else fld.name
+            return f'{self.setattr_name}({self.fctx.self_name}, {name!r}, {value})'
 
     @attach('init')
     class Init(Aspect.Function[StorageT]):
@@ -148,7 +147,7 @@ class Storage(Aspect, lang.Abstract):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_setattr(f.name, f.name))
+                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_set_field(f, f.name))
             return ret
 
 
