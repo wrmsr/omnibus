@@ -217,6 +217,7 @@ class StandardStorage(Storage):
             delattr(instance, self._mangled)
 
     def process_descriptors(self) -> None:
+        # FIXME: should ClassVars should get field_attrs (instead of returning default)?
         for fld in self.ctx.spec.fields.instance:
             dsc = self.Descriptor(
                 fld,
