@@ -101,6 +101,7 @@ class Storage(Aspect, lang.Abstract):
     def process_frozen(self) -> None:
         raise NotImplementedError
 
+    # FIXME: cython-jit-subclass, prob can't use lang.Abstract, manually enforce in __init_subclass__
     class Descriptor(lang.Abstract, ta.Generic[StorageT]):
 
         def __init__(self, field: dc.Field) -> None:
