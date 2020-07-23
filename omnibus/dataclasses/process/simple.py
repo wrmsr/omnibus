@@ -104,10 +104,20 @@ class Hash(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
 
+    DEFAULT_CACHE_ATTR = '___hash'
+
     @properties.cached
-    def cache_attr(self) -> str:
-        # FIXME: add slot
-        return '__%s_%x_hash' % (self.ctx.cls.__name__, id(self.ctx.cls))
+    def cache_attr(self) -> ta.Optional[str]:
+        if isinstance(self.ctx.spec.extra_params.cache_hash, str):
+            return self.ctx.spec.extra_params.cache_hash
+        elif self.ctx.spec.extra_params.cache_hash:
+            return self.DEFAULT_CACHE_ATTR
+        else:
+            return None
+
+    @property
+    def slots(self) -> ta.AbstractSet[str]:
+        return {self.cache_attr} if self.cache_attr is not None else set()
 
     def process(self) -> None:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python

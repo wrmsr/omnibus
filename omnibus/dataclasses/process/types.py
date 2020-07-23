@@ -237,13 +237,17 @@ class Aspect(AttachmentCollection, lang.Abstract):
 
         self._ctx = check.isinstance(ctx, Context)
 
+    @property
+    def ctx(self) -> Context:
+        return self._ctx
+
     @abc.abstractproperty
     def deps(self) -> ta.Collection[ta.Type['Aspect']]:
         raise NotImplementedError
 
     @property
-    def ctx(self) -> Context:
-        return self._ctx
+    def slots(self) -> ta.AbstractSet[str]:
+        return frozenset()
 
     def check(self) -> None:
         pass

@@ -60,6 +60,7 @@ import dataclasses as dc
 import functools
 import keyword
 import types
+import typing  # noqa
 import typing as ta
 
 from . import process
@@ -259,7 +260,7 @@ def dataclass(
 
         validate: ta.Union[bool, MISSING_TYPE] = MISSING,
         field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,
-        cache_hash: ta.Union[bool, MISSING_TYPE] = MISSING,
+        cache_hash: ta.Union[bool, str, MISSING_TYPE] = MISSING,
         pickle: ta.Union[bool, MISSING_TYPE] = MISSING,
         reorder: ta.Union[bool, MISSING_TYPE] = MISSING,
         allow_setattr: ta.Union[bool, MISSING_TYPE] = MISSING,

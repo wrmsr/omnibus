@@ -20,6 +20,7 @@ import typing as ta
 from . import bootstrap
 from ... import check
 from ... import code
+from ... import defs
 from ... import lang
 from ... import properties
 from ..fields import Fields
@@ -38,11 +39,68 @@ from .types import InitPhase
 StorageT = ta.TypeVar('StorageT', bound='Storage', covariant=True)
 
 
+class PyDescriptor:
+
+    def __init__(
+            self,
+            attr: str,
+            *,
+            default_: ta.Any = dc.MISSING,
+            frozen: bool = None,
+            name: str = False,
+    ) -> None:
+        super().__init__()
+
+        self._attr = attr
+        self._default_ = default_
+        self._frozen = frozen
+        self._name = name
+
+    defs.repr('attr', 'name')
+    defs.getter('attr', 'default_', 'frozen', 'name')
+
+    def __set_name__(self, owner, name):
+        if self._name is None:
+            self._name = name
+
+    def __get__(self, instance, owner=None):
+        if instance is not None:
+            return getattr(instance, self._attr)
+        elif self._default_ is not dc.MISSING:
+            return self._default_
+        else:
+            raise AttributeError(self._name)
+
+    def __set__(self, instance, value):
+        if self._frozen:
+            raise dc.FrozenInstanceError(f'cannot assign to field {self._name!r}')
+        setattr(instance, self._attr, value)
+
+    def __delete__(self, instance):
+        if self._frozen:
+            raise dc.FrozenInstanceError(f'cannot delete field {self._name!r}')
+        delattr(instance, self._attr)
+
+
+Descriptor = PyDescriptor
+
+try:
+    from ..._ext.cy.dataclasses import Descriptor as CyDescriptor
+except ImportError:
+    pass
+else:
+    Descriptor = CyDescriptor
+
+
 class Storage(Aspect, lang.Abstract):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [bootstrap.Fields]
+
+    @property
+    def slots(self) -> ta.AbstractSet[str]:
+        return set(self.mangling)
 
     def check(self) -> None:
         self.check_frozen()
@@ -52,20 +110,17 @@ class Storage(Aspect, lang.Abstract):
         self.process_frozen()
         self.process_descriptors()
 
-    @staticmethod
-    def build_mangling(
-            fields: Fields,
-            extra_params: ExtraParams,
-    ) -> Mangling:
+    @properties.cached
+    def mangling(self) -> Mangling:
         dct = {}
-        names = set(fields.by_name)
-        for fld in fields:
+        names = set(self.ctx.spec.fields.by_name)
+        for fld in self.ctx.spec.fields:
             efp = fld.metadata.get(ExtraFieldParams)
             if efp is not None and efp.mangled is not None:
                 mang = efp.mangled
             else:
-                if extra_params.mangler is not None:
-                    fn = extra_params.mangler
+                if self.ctx.spec.extra_params.mangler is not None:
+                    fn = self.ctx.spec.extra_params.mangler
                 else:
                     fn = lambda n: '_' + n
                 mang = fn(fld.name)
@@ -75,16 +130,11 @@ class Storage(Aspect, lang.Abstract):
         return ta.cast(Mangling, dct)
 
     def process_mangling(self) -> None:
-        mangling = self.build_mangling(
-            self.ctx.spec.fields,
-            self.ctx.spec.extra_params,
-        )
-
         metadata = self.ctx.cls.__dict__.get(METADATA_ATTR, {})
         if Mangling in metadata:
             raise KeyError(Mangling)
-        metadata[Mangling] = mangling
-        check.state(self.ctx.spec.mangling is mangling)
+        metadata[Mangling] = self.mangling
+        check.state(self.ctx.spec.mangling is self.mangling)
         check.state(self.ctx.spec.unmangling is not None)
 
     def check_frozen(self) -> None:
@@ -100,26 +150,6 @@ class Storage(Aspect, lang.Abstract):
     @abc.abstractmethod
     def process_frozen(self) -> None:
         raise NotImplementedError
-
-    # FIXME: cython-jit-subclass, prob can't use lang.Abstract, manually enforce in __init_subclass__
-    class Descriptor(lang.Abstract, ta.Generic[StorageT]):
-
-        def __init__(self, field: dc.Field) -> None:
-            super().__init__()
-
-            self._field = check.isinstance(field, dc.Field)
-
-        @abc.abstractmethod
-        def __get__(self, instance, owner=None):
-            raise NotImplementedError
-
-        @abc.abstractmethod
-        def __set__(self, instance, value):
-            raise NotImplementedError
-
-        @abc.abstractmethod
-        def __delete__(self, instance):
-            raise NotImplementedError
 
     @abc.abstractmethod
     def process_descriptors(self) -> None:
@@ -180,52 +210,18 @@ class StandardStorage(Storage):
                 )
                 self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)
 
-    class Descriptor(Storage.Descriptor['StandardStorage']):
-
-        def __init__(
-                self,
-                field: dc.Field,
-                mangled: str,
-                *,
-                frozen: bool = None,
-                field_attrs: bool = False,
-        ) -> None:
-            super().__init__(field)
-
-            self._mangled = mangled
-            self._frozen = bool(frozen if frozen is not None else field.metadata.get(ExtraFieldParams, ExtraFieldParams()).frozen)  # noqa
-            self._field_attrs = field_attrs
-
-        def __get__(self, instance, owner=None):
-            if instance is not None:
-                try:
-                    return getattr(instance, self._mangled)
-                except AttributeError:
-                    pass
-            if self._field_attrs:
-                return self._field
-            if self._field.default is not dc.MISSING:
-                return self._field.default
-            raise AttributeError(self._field.name)
-
-        def __set__(self, instance, value):
-            if self._frozen:
-                raise dc.FrozenInstanceError(f'cannot assign to field {self._field.name!r}')
-            setattr(instance, self._mangled, value)
-
-        def __delete__(self, instance):
-            if self._frozen:
-                raise dc.FrozenInstanceError(f'cannot delete field {self._field.name!r}')
-            delattr(instance, self._mangled)
-
     def process_descriptors(self) -> None:
         # FIXME: should ClassVars should get field_attrs (instead of returning default)?
         for fld in self.ctx.spec.fields.instance:
-            dsc = self.Descriptor(
-                fld,
+            default = fld if self.ctx.spec.extra_params.field_attrs else \
+                fld.default if fld.default is not dc.MISSING else dc.MISSING
+            fefp = fld.metadata.get(ExtraFieldParams, ExtraFieldParams())
+            frozen = bool(fefp.frozen if fefp.frozen is not None else self.ctx.spec.params.frozen)
+            dsc = Descriptor(
                 self.ctx.spec.unmangling[fld.name],
-                frozen=self.ctx.spec.params.frozen,
-                field_attrs=self.ctx.spec.extra_params.field_attrs,
+                default_=default,
+                frozen=frozen,
+                name=fld.name,
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)

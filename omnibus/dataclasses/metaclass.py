@@ -11,16 +11,19 @@ from .. import check
 from .. import lang
 from .api import MISSING_TYPE
 from .confer import confer_params
-from .fields import build_cls_fields
 from .internals import DataclassParams
 from .types import _Placeholder
 from .types import Conferrer
 from .types import ExtraParams
 from .types import MetaclassParams
+from .types import METADATA_ATTR
 from .types import SUPER
 
 
 T = ta.TypeVar('T')
+
+
+IGNORED_ATTRS = frozenset(a for a in dir(type('_', (object,), {})) if a.startswith('__') and a.endswith('__'))
 
 
 class _Meta(abc.ABCMeta):
@@ -81,27 +84,24 @@ class _Meta(abc.ABCMeta):
                 ccls = cloned_base_dct[bcls] = abc.ABCMeta(
                     bcls.__name__,
                     tuple(clone_base(bbcls) for bbcls in bcls.__bases__),
-                    {k: v for k, v in bcls.__dict__.items() if not k.startswith('__')},
+                    {k: v for k, v in bcls.__dict__.items() if k not in IGNORED_ATTRS},
                 )
                 return ccls
 
         cloned_base_dct = {}
         cloned_bases = tuple(clone_base(bcls) for bcls in bases)
 
-        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, cloned_bases, namespace)
+        proto_ns = {**namespace, METADATA_ATTR: dict(namespace.get(METADATA_ATTR, {}))}
+        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, cloned_bases, proto_ns)
         proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
-        proto_flds = build_cls_fields(proto_cls, reorder=extra_params.reorder)
-
-        aspects = kwargs.get('aspects')
-        if aspects is None:
-            aspects = extra_params.aspects
-            if aspects is None:
-                from .process.driver import DEFAULT_ASPECTS
-                aspects = DEFAULT_ASPECTS
-        storage = check.single(
-            a for a in aspects
-            if isinstance(a, process.Storage) or (isinstance(a, type) and issubclass(a, process.Storage))
+        proto_ctx = process.Context(
+            proto_cls,
+            params,
+            extra_params,
+            metaclass_params=original_metaclass_params,
         )
+        proto_drv = process.Driver(proto_ctx)
+        proto_drv()
 
         if metaclass_params.final and lang.Final not in bases:
             bases += (lang.Final,)
@@ -111,17 +111,15 @@ class _Meta(abc.ABCMeta):
             bases += (lang.Abstract,)
 
         if not metaclass_params.abstract:
-            for a in set(proto_flds.by_name) & proto_abs:
+            for a in set(proto_ctx.spec.fields.by_name) & proto_abs:
                 if a not in namespace:
                     namespace[a] = _Placeholder
 
-        mangling = storage.build_mangling(proto_flds, extra_params)
         if metaclass_params.slots and '__slots__' not in namespace:
-            slots = tuple(sorted(mangling))
-            if not metaclass_params.no_weakref and '__weakref__' not in slots:
-                slots += ('__weakref__',)
+            slots = tuple(sorted({s for a in proto_ctx.aspects for s in a.slots}))
             namespace['__slots__'] = slots
         if '__slots__' not in namespace:
+            mangling = proto_ctx.get_aspect(process.Storage).mangling
             for a in mangling:
                 if a not in namespace and a in proto_abs:
                     namespace[a] = _Placeholder

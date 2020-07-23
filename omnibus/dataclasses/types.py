@@ -107,7 +107,7 @@ PARAMS_CONFER_DEFAULTS = dict(
 class ExtraParams(lang.Final):
     validate: ta.Optional[bool] = None
     field_attrs: bool = False
-    cache_hash: bool = False
+    cache_hash: ta.Union[bool, str] = False
     pickle: bool = False
     reorder: bool = False
     allow_setattr: bool = False
@@ -118,7 +118,7 @@ class ExtraParams(lang.Final):
     def __post_init__(self) -> None:
         check.isinstance(self.validate, (bool, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
-        check.isinstance(self.cache_hash, (bool, MISSING_TYPE))
+        check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
         check.isinstance(self.allow_setattr, (bool, MISSING_TYPE))

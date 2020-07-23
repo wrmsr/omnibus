@@ -48,3 +48,22 @@ class Fields(Aspect):
             reorder=self.ctx.extra_params.reorder,
             install=True,
         )
+
+
+class Slots(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Params]
+
+    @property
+    def slots(self) -> ta.AbstractSet[str]:
+        return {'__weakref__'} if not self.ctx.spec.metaclass_params.no_weakref else set()
+
+    def check(self) -> None:
+        seen = set()
+        for a in self.ctx.aspects:
+            for s in a.slots:
+                if s in seen:
+                    raise NameError(s)
+                seen.add(s)

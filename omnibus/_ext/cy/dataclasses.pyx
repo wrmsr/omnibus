@@ -1,8 +1,6 @@
 from dataclasses import FrozenInstanceError
+from dataclasses import MISSING
 from libcpp cimport bool
-
-
-MISSING = object()
 
 
 cdef class Descriptor:
