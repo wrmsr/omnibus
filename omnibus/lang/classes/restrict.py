@@ -30,6 +30,7 @@ def make_abstract(obj: T) -> T:
 
 
 class Abstract(abc.ABC):
+    __slots__ = ()
 
     def __forceabstract__(self):
         raise TypeError
@@ -117,7 +118,7 @@ class _InterfaceMeta(abc.ABCMeta):
 
 
 class Interface(metaclass=_InterfaceMeta):
-    pass
+    __slots__ = ()
 
 
 class FinalException(TypeError):
@@ -132,6 +133,7 @@ class FinalException(TypeError):
 
 
 class Final(Abstract):
+    __slots__ = ()
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -168,6 +170,7 @@ class SealedException(TypeError):
 
 
 class Sealed:
+    __slots__ = ()
 
     def __init_subclass__(cls, **kwargs) -> None:
         for base in cls.__bases__:
@@ -178,12 +181,14 @@ class Sealed:
 
 
 class NotInstantiable(Abstract):
+    __slots__ = ()
 
     def __new__(cls, *args, **kwargs) -> ta.NoReturn:
         raise TypeError
 
 
 class NotPicklable:
+    __slots__ = ()
 
     def __getstate__(self) -> ta.NoReturn:
         raise TypeError
@@ -204,7 +209,7 @@ class _MarkerMeta(abc.ABCMeta):
                 raise RuntimeError
             _MARKER_NAMESPACE_KEYS = set(namespace)
         else:
-            if set(namespace) != _MARKER_NAMESPACE_KEYS:
+            if set(namespace) - _MARKER_NAMESPACE_KEYS:
                 raise TypeError('Markers must not include contents. Did you mean to use Namespace?')
             if Final not in bases:
                 bases += (Final,)
@@ -218,7 +223,9 @@ class _MarkerMeta(abc.ABCMeta):
 
 
 class Marker(NotInstantiable, metaclass=_MarkerMeta):
-    pass
+    """A marker."""
+
+    __slots__ = ()
 
 
 class _Namespace(Final):

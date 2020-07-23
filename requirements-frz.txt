@@ -6,12 +6,12 @@ arviz==0.9.0
 astpretty==2.0.0
 async-timeout==3.0.1
 attrs==19.3.0
-awscli==1.18.102
+awscli==1.18.104
 backcall==0.2.0
 billiard==3.6.3.0
 bleach==3.1.5
-boto3==1.14.25
-botocore==1.17.25
+boto3==1.14.27
+botocore==1.17.27
 bsddb3==6.2.7
 bson==0.5.10
 cachetools==4.1.1
@@ -24,7 +24,7 @@ cli-helpers==2.0.1
 click==7.1.2
 colorama==0.4.3
 configobj==5.0.6
-cryptography==2.9.2
+cryptography==3.0
 cycler==0.10.0
 Cython==0.29.21
 cytoolz==0.10.1
@@ -60,7 +60,7 @@ idna==2.10
 importlib-resources==3.0.0
 intervaltree==3.0.2
 ipdb==0.13.3
-ipykernel==5.3.3
+ipykernel==5.3.4
 ipython==7.16.1
 ipython-genutils==0.2.0
 iredis==1.8.0
@@ -93,7 +93,7 @@ mypy-extensions==0.4.3
 mysql-connector-python==8.0.21
 nbconvert==5.6.1
 nbformat==5.0.7
-netCDF4==1.5.3
+netCDF4==1.5.4
 nose==1.3.7
 notebook==6.0.3
 numba==0.50.1
@@ -198,7 +198,7 @@ typed-ast==1.4.1
 typing-extensions==3.7.4.2
 ujson==3.0.0
 uritemplate==3.0.1
-urllib3==1.25.9
+urllib3==1.25.10
 uvloop==0.14.0
 wcwidth==0.2.5
 webencodings==0.5.1
