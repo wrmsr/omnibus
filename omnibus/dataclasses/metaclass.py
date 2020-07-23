@@ -9,6 +9,7 @@ import typing as ta
 from . import process
 from .. import check
 from .. import lang
+from .. import properties
 from .api import MISSING_TYPE
 from .confer import confer_params
 from .internals import DataclassParams
@@ -26,13 +27,14 @@ T = ta.TypeVar('T')
 IGNORED_ATTRS = frozenset(a for a in dir(type('_', (object,), {})) if a.startswith('__') and a.endswith('__'))
 
 
-class _Meta(abc.ABCMeta):
+class _MetaBuilder:
 
-    def __new__(
-            mcls,
-            name,
-            bases,
-            namespace,
+    def __init__(
+            self,
+            mcls: '_Meta',
+            name: str,
+            bases: ta.Iterable[type],
+            namespace: ta.Mapping[str, ta.Any],
             *,
 
             slots: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
@@ -42,39 +44,75 @@ class _Meta(abc.ABCMeta):
             sealed: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
 
             **kwargs
-    ):
+    ) -> None:
+        super().__init__()
+
+        self._mcls = check.issubclass(mcls, _Meta)
+        self._name = name
+
+        self._orig_bases = list(bases)
+        self._orig_namespace = dict(namespace)
+        self._orig_kwargs = dict(kwargs)
+
+        self._slots = slots
+        self._no_weakref = no_weakref
+        self._abstract = abstract
+        self._final = final
+        self._sealed = sealed
+
+        kwargs = dict(self._orig_kwargs)
         if 'aspects' in kwargs:
             kwargs['aspects'] = list(kwargs['aspects'])
         if 'confer' in kwargs:
             kwargs['confer'] = dict(kwargs['confer']) \
                 if isinstance(kwargs['confer'], ta.Mapping) else set(kwargs['confer'])
 
-        original_params = DataclassParams(**{
+        self._orig_params = DataclassParams(**{
             a: kwargs.pop(a, dc.MISSING)
             for a in DataclassParams.__slots__
         })
 
-        original_extra_params = ExtraParams(**{
+        self._orig_extra_params = ExtraParams(**{
             a: kwargs.pop(a, dc.MISSING)
             for fld in dc.fields(ExtraParams)
             for a in [fld.name]
         })
 
-        original_metaclass_params = MetaclassParams(
-            slots=slots,
-            no_weakref=no_weakref,
-            abstract=abstract,
-            final=final,
-            sealed=sealed,
+        self._orig_metaclass_params = MetaclassParams(
+            slots=self._slots,
+            no_weakref=self._no_weakref,
+            abstract=self._abstract,
+            final=self._final,
+            sealed=self._sealed,
         )
 
         params, extra_params, metaclass_params = \
-            confer_params(bases, original_params, original_extra_params, original_metaclass_params)
+            confer_params(self._orig_bases, self._orig_params, self._orig_extra_params, self._orig_metaclass_params)
 
         check.arg(not (metaclass_params.abstract and metaclass_params.final))
 
-        bases = tuple(b for b in bases if b is not Data)
+        self._kwargs = kwargs
+        self._params = params
+        self._extra_params = extra_params
+        self._metaclass_params = metaclass_params
 
+    @property
+    def bases(self) -> ta.Sequence[type]:
+        return [b for b in self._orig_bases if b is not Data]
+
+    @property
+    def new_bases(self) -> ta.Sequence[type]:
+        bases = list(self.bases)
+        if self._metaclass_params.final and lang.Final not in bases:
+            bases.append(lang.Final)
+        if self._metaclass_params.sealed and lang.Sealed not in bases:
+            bases.append(lang.Sealed)
+        if self._metaclass_params.abstract and lang.Abstract not in bases:
+            bases.append(lang.Abstract)
+        return bases
+
+    @properties.cached
+    def proto_cls(self) -> type:
         def clone_base(bcls):
             if bcls is object:
                 return bcls
@@ -89,51 +127,76 @@ class _Meta(abc.ABCMeta):
                 return ccls
 
         cloned_base_dct = {}
-        cloned_bases = tuple(clone_base(bcls) for bcls in bases)
+        cloned_bases = [clone_base(bcls) for bcls in self.bases]
 
-        proto_ns = {**namespace, METADATA_ATTR: dict(namespace.get(METADATA_ATTR, {}))}
-        proto_cls = lang.super_meta(super(_Meta, mcls), mcls, name, cloned_bases, proto_ns)
-        proto_abs = getattr(proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
+        proto_ns = {**self._orig_namespace, METADATA_ATTR: dict(self._orig_namespace.get(METADATA_ATTR, {}))}
+        return lang.super_meta(super(_Meta, self._mcls), self._mcls, self._name, tuple(cloned_bases), proto_ns)
+
+    @properties.cached
+    def proto_ctx(self) -> process.Context:
         proto_ctx = process.Context(
-            proto_cls,
-            params,
-            extra_params,
-            metaclass_params=original_metaclass_params,
+            self.proto_cls,
+            self._params,
+            self._extra_params,
+            metaclass_params=self._orig_metaclass_params,
         )
         proto_drv = process.Driver(proto_ctx)
         proto_drv()
+        return proto_ctx
 
-        if metaclass_params.final and lang.Final not in bases:
-            bases += (lang.Final,)
-        if metaclass_params.sealed and lang.Sealed not in bases:
-            bases += (lang.Sealed,)
-        if metaclass_params.abstract and lang.Abstract not in bases:
-            bases += (lang.Abstract,)
+    @properties.cached
+    def proto_abs(self) -> ta.AbstractSet[str]:
+        return getattr(self.proto_cls, '__abstractmethods__', set()) - {'__forceabstract__'}
 
-        if not metaclass_params.abstract:
-            for a in set(proto_ctx.spec.fields.by_name) & proto_abs:
-                if a not in namespace:
-                    namespace[a] = _Placeholder
+    @properties.cached
+    def namespace(self) -> ta.Mapping[str, ta.Any]:
+        ns = dict(self._orig_namespace)
 
-        if metaclass_params.slots and '__slots__' not in namespace:
-            slots = tuple(sorted({s for a in proto_ctx.aspects for s in a.slots}))
-            namespace['__slots__'] = slots
-        if '__slots__' not in namespace:
-            mangling = proto_ctx.get_aspect(process.Storage).mangling
-            for a in mangling:
-                if a not in namespace and a in proto_abs:
-                    namespace[a] = _Placeholder
+        if not self._metaclass_params.abstract:
+            for a in set(self.proto_ctx.spec.fields.by_name) & self.proto_abs:
+                if a not in ns:
+                    ns[a] = _Placeholder
 
-        cls = lang.super_meta(super(_Meta, mcls), mcls, name, bases, namespace, **kwargs)
+        slots = {s for a in self.proto_ctx.aspects for s in a.slots}
+        if self._metaclass_params.slots and '__slots__' not in ns:
+            ns['__slots__'] = tuple(sorted(slots))
+
+        pha = (set(slots) & set(self.proto_abs)) - {'__weakref__'} - set(ns)
+        ns.update({a: _Placeholder for a in pha})
+
+        return ns
+
+    def build(self) -> type:
+        cls = lang.super_meta(
+            super(_Meta, self._mcls),
+            self._mcls,
+            self._name,
+            tuple(self.new_bases),
+            self.namespace,
+            **self._kwargs
+        )
         ctx = process.Context(
             cls,
-            original_params,
-            original_extra_params,
-            metaclass_params=original_metaclass_params,
+            self._orig_params,
+            self._orig_extra_params,
+            metaclass_params=self._orig_metaclass_params,
         )
         drv = process.Driver(ctx)
         drv()
         return cls
+
+
+class _Meta(abc.ABCMeta):
+
+    def __new__(
+            mcls,
+            name,
+            bases,
+            namespace,
+            **kwargs
+    ):
+        bld = _MetaBuilder(mcls, name, bases, namespace, **kwargs)
+        return bld.build()
 
 
 class Data(metaclass=_Meta):
@@ -152,6 +215,8 @@ class Frozen(
     Data,
     abstract=True,
     frozen=True,
+    slots=True,
+    no_weakref=True,
     confer={
         'frozen',
         'reorder',
@@ -166,6 +231,8 @@ class Pure(
     Data,
     abstract=True,
     frozen=True,
+    slots=True,
+    no_weakref=True,
     confer={
         'final': True,
         'frozen': True,
@@ -182,6 +249,8 @@ class Enum(
     Data,
     abstract=True,
     frozen=True,
+    slots=True,
+    no_weakref=True,
     confer={
         'abstract': True,
         'frozen': True,
@@ -191,6 +260,8 @@ class Enum(
             'frozen': True,
             'reorder': SUPER,
             'allow_setattr': SUPER,
+            'slots': SUPER,
+            'aspects': SUPER,
             'confer': SUPER,
         },
     },

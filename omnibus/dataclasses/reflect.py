@@ -65,12 +65,13 @@ class DataSpec(ta.Generic[TypeT]):
     @properties.cached
     @property
     def extra_params(self) -> ExtraParams:
-        return self.metadata.get(ExtraParams, ExtraParams())
+        return check.isinstance(self.metadata.get(ExtraParams, ExtraParams()), ExtraParams)
 
     @properties.cached
     @property
-    def metaclass_params(self) -> MetaclassParams:
-        return self.metadata.get(MetaclassParams, MetaclassParams())
+    def metaclass_params(self) -> ta.Optional[MetaclassParams]:
+        mcp = self.metadata.get(MetaclassParams)
+        return check.isinstance(mcp, MetaclassParams) if mcp is not None else None
 
     @properties.cached
     @property

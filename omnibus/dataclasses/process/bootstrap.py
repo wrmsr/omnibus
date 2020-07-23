@@ -54,11 +54,12 @@ class Slots(Aspect):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Params]
+        return [Fields]
 
     @property
     def slots(self) -> ta.AbstractSet[str]:
-        return {'__weakref__'} if not self.ctx.spec.metaclass_params.no_weakref else set()
+        mcp = self.ctx.spec.metaclass_params
+        return {'__weakref__'} if mcp is not None and not mcp.no_weakref else set()
 
     def check(self) -> None:
         seen = set()

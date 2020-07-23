@@ -349,3 +349,13 @@ def test_abstract_enum():
     with pytest.raises(Exception):
         class G_(G):
             pass
+
+
+def test_slots():
+    class C(metaclass_.Pure, slots=True):
+        x: int = 0
+
+    c = C(1)
+    assert c.x == 1
+    with pytest.raises(Exception):
+        c.y = 2

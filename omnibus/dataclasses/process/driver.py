@@ -3,6 +3,7 @@ import typing as ta
 from ... import check
 from .bootstrap import Fields
 from .bootstrap import Params
+from .bootstrap import Slots
 from .defaulting import Defaulting
 from .init import StandardInit
 from .simple import Doc
@@ -36,6 +37,7 @@ DEFAULT_ASPECTS = {
     Placeholders,
     PostInitAspect,
     Repr,
+    Slots,
     StandardInit,
     StandardStorage,
     StandardValidation,
