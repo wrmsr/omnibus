@@ -1706,6 +1706,7 @@ class TestCase(unittest.TestCase):
         self.assertEqual(cls1, cls)
         self.assertEqual(asdict(cls1(1)), {'x': 1, 'y': 5})
 
+    @unittest.skip('omnibus')
     def test_init_in_order(self):
         @dataclass
         class C:

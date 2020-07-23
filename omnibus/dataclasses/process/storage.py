@@ -146,9 +146,8 @@ class Storage(Aspect, lang.Abstract):
             for f in self.fctx.ctx.spec.fields.init:
                 if get_field_type(f) is not FieldType.INSTANCE:
                     continue
-                # FIXME:
-                # if not f.init and f.default_factory is dc.MISSING:
-                #     continue
+                if not f.init and f.default_factory is dc.MISSING:
+                    continue
                 ret.append(self.fctx.get_aspect(self.aspect.Helper).build_set_field(f, f.name))
             return ret
 
@@ -173,13 +172,13 @@ class StandardStorage(Storage):
                     code.ArgSpec(['self'] + args),
                     '\n'.join([
                         f'if type(self) is cls and name in allowed:',
-                        f'    raise FrozenInstanceError(f"Cannot overwrite attribute {{name!r}}")',
+                        f'    raise FrozenInstanceError(f"cannot assign to field {{name!r}}")',
                         f'super(cls, self).{fnname}({", ".join(args)})',
                     ]),
                     locals=locals,
                     globals=self.ctx.spec.globals,
                 )
-                self.ctx.set_new_attribute(fn.__name__, fn)
+                self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)
 
     class Descriptor(Storage.Descriptor['StandardStorage']):
 
@@ -199,13 +198,15 @@ class StandardStorage(Storage):
 
         def __get__(self, instance, owner=None):
             if instance is not None:
-                return getattr(instance, self._mangled)
-            elif self._field_attrs:
+                try:
+                    return getattr(instance, self._mangled)
+                except AttributeError:
+                    pass
+            if self._field_attrs:
                 return self._field
-            elif self._field.default is not dc.MISSING:
+            if self._field.default is not dc.MISSING:
                 return self._field.default
-            else:
-                raise AttributeError(self._field.name)
+            raise AttributeError(self._field.name)
 
         def __set__(self, instance, value):
             if self._frozen:

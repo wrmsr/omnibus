@@ -54,7 +54,7 @@ class Eq(Aspect):
                 self_tuple,
                 other_tuple,
                 globals=self.ctx.spec.globals,
-            )
+            ),
         )
 
 
@@ -106,6 +106,7 @@ class Hash(Aspect):
 
     @properties.cached
     def cache_attr(self) -> str:
+        # FIXME: add slot
         return '__%s_%x_hash' % (self.ctx.cls.__name__, id(self.ctx.cls))
 
     def process(self) -> None:

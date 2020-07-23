@@ -18,14 +18,14 @@ class Params(Aspect):
         return []
 
     def process(self) -> None:
-        self.ctx.set_new_attribute(PARAMS, self.ctx.params)
+        self.ctx.set_new_attribute(PARAMS, self.ctx.params, raise_=True)
         check.state(self.ctx.spec.params is self.ctx.params)
 
         if METADATA_ATTR in self.ctx.cls.__dict__:
             md = getattr(self.ctx.cls, METADATA_ATTR)
         else:
             md = {}
-            self.ctx.set_new_attribute(METADATA_ATTR, md)
+            self.ctx.set_new_attribute(METADATA_ATTR, md, raise_=True)
         check.state(self.ctx.spec._metadata is md)
 
         md[ExtraParams] = self.ctx.extra_params
