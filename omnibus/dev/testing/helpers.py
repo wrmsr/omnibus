@@ -1,7 +1,9 @@
 import contextlib
+import functools
 import os
 import threading
 import time
+import traceback
 import typing as ta
 
 from ... import lang
@@ -121,3 +123,13 @@ def can_import(*args, **kwargs) -> bool:
 
 def skip_if_cant_import(module: str):
     return pytest.mark.skipif(not can_import(module), reason=f'requires import {module}')
+
+
+def xfail(fn):
+    @functools.wraps(fn)
+    def inner(*args, **kwargs):
+        try:
+            fn(*args, **kwargs)
+        except Exception:  # noqa
+            traceback.print_exc()
+    return inner

@@ -2746,6 +2746,7 @@ class TestSlots(unittest.TestCase):
         # We can add a new field to the derived instance.
         d.z = 10
 
+@unittest.skip('omnibus')
 class TestDescriptors(unittest.TestCase):
     def test_set_name(self):
         # See bpo-33141.

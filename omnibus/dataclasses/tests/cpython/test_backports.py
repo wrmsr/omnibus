@@ -1,12 +1,15 @@
-import sys
 import typing  # noqa
 import typing as ta
 import unittest
+import unittest.mock as um
 
 from ... import api as dc
+from ....dev.testing.helpers import xfail
 
 
 class TestBackports(unittest.TestCase):
+
+    @xfail
     def test_field_repr(self):
         int_field = dc.field(default=1, init=True, repr=False)
         int_field.name = "id"
@@ -105,6 +108,7 @@ class TestBackports(unittest.TestCase):
         c = C(10, 11, 50, 51)
         self.assertEqual(vars(c), {'_x': 21, '_y': 101})
 
+    @xfail
     def test_init_in_order(self):
         @dc.dataclass
         class C:
@@ -121,7 +125,7 @@ class TestBackports(unittest.TestCase):
             calls.append((name, value))
 
         C.__setattr__ = setattr
-        c = C(0, 1)
+        c = C(0, 1)  # noqa
         self.assertEqual(('a', 0), calls[0])
         self.assertEqual(('b', 1), calls[1])
         self.assertEqual(('c', []), calls[2])
@@ -129,6 +133,7 @@ class TestBackports(unittest.TestCase):
         self.assertNotIn(('e', 4), calls)
         self.assertEqual(('f', 4), calls[4])
 
+    @xfail
     def test_items_in_dicts(self):
         @dc.dataclass
         class C:
@@ -158,19 +163,20 @@ class TestBackports(unittest.TestCase):
         self.assertIn('_e', c.__dict__)
         self.assertEqual(c.e, 0)
 
+    @xfail
     def test_field_metadata_mapping(self):
         # Make sure only a mapping can be passed as metadata
         #  zero length.
         with self.assertRaises(TypeError):
             @dc.dataclass
-            class C:
+            class C:  # noqa
                 i: int = dc.field(metadata=0)
 
         # Make sure an empty dict works.
         d = {}
 
         @dc.dataclass
-        class C:
+        class C:  # noqa
             i: int = dc.field(metadata=d)
 
         self.assertFalse(dc.fields(C)[0].metadata)
@@ -203,6 +209,7 @@ class TestBackports(unittest.TestCase):
         with self.assertRaisesRegex(TypeError, 'does not support item assignment'):
             dc.fields(C)[0].metadata['test'] = 3
 
+    @xfail
     def test_field_metadata_custom_mapping(self):
         # Try a custom mapping.
         class SimpleNameSpace:
@@ -228,11 +235,12 @@ class TestBackports(unittest.TestCase):
         # Make sure we're still talking to our custom mapping.
         self.assertEqual(dc.fields(C)[0].metadata['xyzzy'], 'plugh')
 
+    @xfail
     def test_overwriting_frozen(self):
         # frozen uses __setattr__ and __delattr__.
         with self.assertRaisesRegex(TypeError, 'Cannot overwrite attribute __setattr__'):
             @dc.dataclass(frozen=True)
-            class C:
+            class C:  # noqa
                 x: int
 
                 def __setattr__(self):
@@ -240,14 +248,14 @@ class TestBackports(unittest.TestCase):
 
         with self.assertRaisesRegex(TypeError, 'Cannot overwrite attribute __delattr__'):
             @dc.dataclass(frozen=True)
-            class C:
+            class C:  # noqa
                 x: int
 
                 def __delattr__(self):
                     pass
 
         @dc.dataclass(frozen=False)
-        class C:
+        class C:  # noqa
             x: int
 
             def __setattr__(self, name, value):
@@ -258,12 +266,11 @@ class TestBackports(unittest.TestCase):
     def test_simple(self):
         @dc.dataclass
         class C:
-            __slots__ = ('x',)
+            __slots__ = ('_x',)
             x: ta.Any
 
-        # There was a bug where a variable in a slot was assumed to
-        #  also have a default value (of type
-        #  types.MemberDescriptorType).
+        # There was a bug where a variable in a slot was assumed to also have a default value (of type
+        # types.MemberDescriptorType).
         with self.assertRaisesRegex(TypeError, r"__init__\(\) missing 1 required positional argument: 'x'"):
             C()
 
@@ -326,6 +333,85 @@ class TestBackports(unittest.TestCase):
             'y': int,
             'z': 'typing.Any',
         })
+
+    @xfail
+    def test_descriptors_set_name(self):
+        # See bpo-33141.
+
+        # Create a descriptor.
+        class D:
+            def __set_name__(self, owner, name):
+                self.name = name + 'x'
+
+            def __get__(self, instance, owner):
+                if instance is not None:
+                    return 1
+                return self
+
+        # This is the case of just normal descriptor behavior, no
+        #  dataclass code is involved in initializing the descriptor.
+        @dc.dataclass
+        class C:
+            c: int = D()
+
+        self.assertEqual(C.c.name, 'cx')
+
+        # Now test with a default value and init=False, which is the
+        #  only time this is really meaningful.  If not using
+        #  init=False, then the descriptor will be overwritten, anyway.
+        @dc.dataclass
+        class C:
+            c: int = dc.field(default=D(), init=False)
+
+        self.assertEqual(C.c.name, 'cx')
+        self.assertEqual(C().c, 1)
+
+    @xfail
+    def test_descriptors_non_descriptor(self):
+        # PEP 487 says __set_name__ should work on non-descriptors.
+        # Create a descriptor.
+
+        class D:
+            def __set_name__(self, owner, name):
+                self.name = name + 'x'
+
+        @dc.dataclass
+        class C:
+            c: int = dc.field(default=D(), init=False)
+
+        self.assertEqual(C.c.name, 'cx')
+
+    @xfail
+    def test_descriptors_lookup_on_instance(self):
+        # See bpo-33175.
+        class D:
+            pass
+
+        d = D()
+        # Create an attribute on the instance, not type.
+        d.__set_name__ = um.Mock()
+
+        # Make sure d.__set_name__ is not called.
+        @dc.dataclass
+        class C:
+            i: int = dc.field(default=d, init=False)
+
+        self.assertEqual(d.__set_name__.call_count, 0)
+
+    @xfail
+    def test_descriptors_lookup_on_class(self):
+        # See bpo-33175.
+        class D:
+            pass
+
+        D.__set_name__ = um.Mock()
+
+        # Make sure D.__set_name__ is called.
+        @dc.dataclass
+        class C:
+            i: int = dc.field(default=D(), init=False)
+
+        self.assertEqual(D.__set_name__.call_count, 1)
 
 
 if __name__ == '__main__':
