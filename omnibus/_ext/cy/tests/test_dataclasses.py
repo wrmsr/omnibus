@@ -2,7 +2,7 @@ from .. import dataclasses as dc_
 
 
 def test_descriptor():
-    class D(dc_.Descriptor):
+    class D(dc_.FieldDescriptor):
         pass
 
     class C:

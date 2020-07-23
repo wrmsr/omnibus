@@ -20,76 +20,21 @@ import typing as ta
 from . import bootstrap
 from ... import check
 from ... import code
-from ... import defs
 from ... import lang
 from ... import properties
-from ..fields import Fields
 from ..internals import FieldType
 from ..internals import get_field_type
 from ..internals import PARAMS
 from ..types import ExtraFieldParams
-from ..types import ExtraParams
 from ..types import Mangling
 from ..types import METADATA_ATTR
+from .descriptors import FieldDescriptor
 from .types import Aspect
 from .types import attach
 from .types import InitPhase
 
 
 StorageT = ta.TypeVar('StorageT', bound='Storage', covariant=True)
-
-
-class PyDescriptor:
-
-    def __init__(
-            self,
-            attr: str,
-            *,
-            default_: ta.Any = dc.MISSING,
-            frozen: bool = None,
-            name: str = False,
-    ) -> None:
-        super().__init__()
-
-        self._attr = attr
-        self._default_ = default_
-        self._frozen = frozen
-        self._name = name
-
-    defs.repr('attr', 'name')
-    defs.getter('attr', 'default_', 'frozen', 'name')
-
-    def __set_name__(self, owner, name):
-        if self._name is None:
-            self._name = name
-
-    def __get__(self, instance, owner=None):
-        if instance is not None:
-            return getattr(instance, self._attr)
-        elif self._default_ is not dc.MISSING:
-            return self._default_
-        else:
-            raise AttributeError(self._name)
-
-    def __set__(self, instance, value):
-        if self._frozen:
-            raise dc.FrozenInstanceError(f'cannot assign to field {self._name!r}')
-        setattr(instance, self._attr, value)
-
-    def __delete__(self, instance):
-        if self._frozen:
-            raise dc.FrozenInstanceError(f'cannot delete field {self._name!r}')
-        delattr(instance, self._attr)
-
-
-Descriptor = PyDescriptor
-
-try:
-    from ..._ext.cy.dataclasses import Descriptor as CyDescriptor
-except ImportError:
-    pass
-else:
-    Descriptor = CyDescriptor
 
 
 class Storage(Aspect, lang.Abstract):
@@ -217,7 +162,7 @@ class StandardStorage(Storage):
                 fld.default if fld.default is not dc.MISSING else dc.MISSING
             fefp = fld.metadata.get(ExtraFieldParams, ExtraFieldParams())
             frozen = bool(fefp.frozen if fefp.frozen is not None else self.ctx.spec.params.frozen)
-            dsc = Descriptor(
+            dsc = FieldDescriptor(
                 self.ctx.spec.unmangling[fld.name],
                 default_=default,
                 frozen=frozen,
