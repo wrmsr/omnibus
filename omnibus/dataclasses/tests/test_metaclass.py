@@ -352,10 +352,19 @@ def test_abstract_enum():
 
 
 def test_slots():
-    class C(metaclass_.Pure, slots=True):
+    class C(metaclass_.Frozen, slots=True):
         x: int = 0
 
     c = C(1)
     assert c.x == 1
     with pytest.raises(Exception):
         c.y = 2
+
+    class D(C, slots=True):
+        y: int = 0
+
+    d = D(1, 2)
+    assert d.x == 1
+    assert d.y == 2
+    with pytest.raises(Exception):
+        d.z = 3

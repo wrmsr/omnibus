@@ -24,7 +24,10 @@ from .types import SUPER
 T = ta.TypeVar('T')
 
 
-IGNORED_ATTRS = frozenset(a for a in dir(type('_', (object,), {})) if a.startswith('__') and a.endswith('__'))
+IGNORED_ATTRS = frozenset(
+    a for a in dir(type('_', (object,), {'__slots__': ()}))
+    if a.startswith('__') and a.endswith('__')
+)
 
 
 class _MetaBuilder:
@@ -158,8 +161,14 @@ class _MetaBuilder:
                     ns[a] = _Placeholder
 
         slots = {s for a in self.proto_ctx.aspects for s in a.slots}
+
+        existing_slots = {
+            s
+            for b in self.bases
+            for s in check.not_isinstance(b.__dict__.get('__slots__', []), str)
+        }
         if self._metaclass_params.slots and '__slots__' not in ns:
-            ns['__slots__'] = tuple(sorted(slots))
+            ns['__slots__'] = tuple(sorted(slots - existing_slots))
 
         pha = (set(slots) & set(self.proto_abs)) - {'__weakref__'} - set(ns)
         ns.update({a: _Placeholder for a in pha})
