@@ -2,10 +2,12 @@ import dataclasses as dc
 import inspect
 import typing as ta
 
+from ... import code
 from ... import properties
 from ..internals import cmp_fn
 from ..internals import FieldType
 from ..internals import hash_action
+from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
 from ..internals import repr_fn
 from ..internals import tuple_str
@@ -16,7 +18,6 @@ from .bootstrap import Fields
 from .init import Init
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 
 
 class Repr(Aspect):
@@ -171,7 +172,7 @@ class PostInitAspect(Aspect):
     @attach('init')
     class Init(Aspect.Function['PostInitAspect']):
 
-        @attach(InitPhase.POST_INIT)
+        @attach(Aspect.Function.Phase.POST_INIT)
         def build_post_init_lines(self) -> ta.List[str]:
             if not self.fctx.ctx.spec.params.init:
                 return []
@@ -182,7 +183,7 @@ class PostInitAspect(Aspect):
                 ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
             return ret
 
-        @attach(InitPhase.POST_INIT)
+        @attach(Aspect.Function.Phase.POST_INIT)
         def build_extra_post_init_lines(self) -> ta.List[str]:
             if not self.fctx.ctx.spec.params.init:
                 return []
@@ -214,3 +215,47 @@ class Placeholders(Aspect):
         for a, v in self.ctx.cls.__dict__.items():
             if v is _Placeholder:
                 raise TypeError(f'Processed class contains placeholder: {a}')
+
+
+class Frozen(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
+
+    def check(self) -> None:
+        dc_rmro = [b for b in self.ctx.spec.rmro[:-1] if dc.is_dataclass(b)]
+        if dc_rmro:
+            any_frozen_base = any(getattr(b, PARAMS).frozen for b in dc_rmro)
+            if any_frozen_base:
+                if not self.ctx.params.frozen:
+                    raise TypeError('cannot inherit non-frozen dataclass from a frozen one')
+            elif self.ctx.params.frozen:
+                raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
+
+    def process(self) -> None:
+        if not self.ctx.params.frozen:
+            return
+
+        if not self.ctx.extra_params.allow_setattr:
+            slots = [s for a in self.ctx.aspects for s in a.slots]
+            locals = {
+                'cls': self.ctx.cls,
+                'FrozenInstanceError': dc.FrozenInstanceError,
+                'allowed': frozenset(self.ctx.spec.fields.by_name) | frozenset(slots),
+            }
+
+            for fnname in ['__setattr__', '__delattr__']:
+                args = ['name'] + (['value'] if fnname == '__setattr__' else [])
+                fn = code.create_function(
+                    fnname,
+                    code.ArgSpec(['self'] + args),
+                    '\n'.join([
+                        f'if type(self) is cls and name in allowed:',
+                        f'    raise FrozenInstanceError(f"cannot assign to field {{name!r}}")',
+                        f'super(cls, self).{fnname}({", ".join(args)})',
+                    ]),
+                    locals=locals,
+                    globals=self.ctx.spec.globals,
+                )
+                self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)

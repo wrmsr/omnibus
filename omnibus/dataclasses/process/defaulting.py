@@ -15,7 +15,6 @@ from ..types import ExtraFieldParams
 from .bootstrap import Fields
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 from .utils import get_flat_fn_args
 
 
@@ -130,7 +129,7 @@ class Defaulting(Aspect):
         def has_factory_name(self) -> str:
             return self.fctx.nsb.put(HasFactory, 'has_factory')
 
-        @attach(InitPhase.DEFAULT)
+        @attach(Aspect.Function.Phase.DEFAULT)
         def build_default_lines(self) -> ta.List[str]:
             ret = []
             for f in self.fctx.ctx.spec.fields.init:

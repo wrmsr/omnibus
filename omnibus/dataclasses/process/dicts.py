@@ -11,7 +11,6 @@ from .init import Init
 from .storage import Storage
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 
 
 class DictDescriptor:
@@ -73,7 +72,7 @@ class DictStorage(Storage):
     @attach('init')
     class Init(Storage.Function['DictStorage']):
 
-        @attach(InitPhase.SET_ATTRS)
+        @attach(Aspect.Function.Phase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
             ret = [self.fctx.get_aspect(Storage.Function).build_setattr(self.aspect.dict_attr, '{}')]
             for f in self.fctx.ctx.spec.fields.init:
@@ -114,7 +113,7 @@ class DictInit(Init):
                 annotations={'return': None, self.dict_name: ta.Mapping[str, ta.Any]},
             )
 
-        @attach(InitPhase.BOOTSTRAP)
+        @attach(Aspect.Function.Phase.BOOTSTRAP)
         def build_bootstrap_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields.init:

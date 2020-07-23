@@ -7,6 +7,7 @@ from .defaulting import Defaulting
 from .init import StandardInit
 from .simple import Doc
 from .simple import Eq
+from .simple import Frozen
 from .simple import Hash
 from .simple import Order
 from .simple import Pickle
@@ -27,6 +28,7 @@ DEFAULT_ASPECTS = {
     Doc,
     Eq,
     Fields,
+    Frozen,
     Hash,
     Order,
     Params,

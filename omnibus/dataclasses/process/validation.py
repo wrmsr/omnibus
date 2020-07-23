@@ -20,7 +20,6 @@ from ..validation import build_default_field_validation
 from .bootstrap import Fields
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 from .utils import get_flat_fn_args
 
 
@@ -57,7 +56,7 @@ class StandardValidation(Aspect):
     @attach('init')
     class Init(Aspect.Function['StandardValidation']):
 
-        @attach(InitPhase.VALIDATE)
+        @attach(Aspect.Function.Phase.VALIDATE)
         def build_check_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -75,7 +74,7 @@ class StandardValidation(Aspect):
                     raise TypeError(chk_md)
             return ret
 
-        @attach(InitPhase.VALIDATE)
+        @attach(Aspect.Function.Phase.VALIDATE)
         def build_validate_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -90,7 +89,7 @@ class StandardValidation(Aspect):
                     raise TypeError(vld_md)
             return ret
 
-        @attach(InitPhase.VALIDATE)
+        @attach(Aspect.Function.Phase.VALIDATE)
         def build_validator_lines(self) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
@@ -100,14 +99,14 @@ class StandardValidation(Aspect):
                 ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
             return ret
 
-        @attach(InitPhase.POST_SET_ATTRS)
+        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
         def build_self_validator_lines(self) -> ta.List[str]:
             ret = []
             for self_vld in self.fctx.ctx.spec.rmro_extras_by_cls[SelfValidator]:
                 ret.append(f'{self.fctx.nsb.put(self_vld.fn)}({self.fctx.self_name})')
             return ret
 
-        @attach(InitPhase.POST_SET_ATTRS)
+        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
         def build_checker_lines(self) -> ta.List[str]:
             ret = []
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
@@ -121,7 +120,7 @@ class StandardValidation(Aspect):
                 )
             return ret
 
-        @attach(InitPhase.POST_SET_ATTRS)
+        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
         def build_self_checker_lines(self) -> ta.List[str]:
             ret = []
             for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:

@@ -11,7 +11,6 @@ from .init import Init
 from .storage import Storage
 from .types import Aspect
 from .types import attach
-from .types import InitPhase
 
 
 class TupleDescriptor:
@@ -64,7 +63,7 @@ class TupleStorage(Storage):
         def cls_name(self) -> str:
             return self.fctx.nsb.put(None, '_cls')
 
-        @attach(InitPhase.SET_ATTRS)
+        @attach(Aspect.Function.Phase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
             args = []
             for f in self.fctx.ctx.spec.fields.init:
@@ -103,6 +102,6 @@ class TupleInit(Init):
             )
             return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
 
-        @attach(InitPhase.RETURN)
+        @attach(Aspect.Function.Phase.RETURN)
         def build_return_lines(self) -> ta.List[str]:
             return [f'return {self.fctx.self_name}']

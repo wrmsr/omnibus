@@ -11,8 +11,8 @@ from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
 from .storage import Storage
+from .types import Aspect
 from .types import attach
-from .types import InitPhase
 
 
 class PersistentDescriptor:
@@ -71,7 +71,7 @@ class PersistentStorage(Storage):
     @attach('init')
     class Init(Storage.Function['PersistentStorage']):
 
-        @attach(InitPhase.SET_ATTRS)
+        @attach(Aspect.Function.Phase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
             args = []
             for f in self.fctx.ctx.spec.fields.init:
