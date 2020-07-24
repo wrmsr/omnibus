@@ -92,3 +92,8 @@ class DictStorage(Storage):
                     continue
                 ret.append(self.fctx.get_aspect(self.aspect.Helper).build_raw_set_field(f, f.name))
             return ret
+
+
+ASPECT_REPLACEMENTS = {
+    Storage: DictStorage,
+}

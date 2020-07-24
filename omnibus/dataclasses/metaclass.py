@@ -295,12 +295,6 @@ class Enum(
     pass
 
 
-_TUPLE_ASPECTS = process.replace_aspects({
-    process.Init: tuples.TupleInit,
-    process.Storage: tuples.TupleStorage,
-})
-
-
 class Tuple(
     Data,
     tuple,
@@ -308,7 +302,7 @@ class Tuple(
     frozen=True,
     slots=True,
     no_weakref=True,
-    aspects=_TUPLE_ASPECTS,
+    aspects=process.replace_aspects(process.DEFAULT_ASPECTS, tuples.ASPECT_REPLACEMENTS),
     confer={
         'frozen',
         'reorder',

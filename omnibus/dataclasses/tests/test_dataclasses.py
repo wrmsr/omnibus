@@ -491,7 +491,7 @@ class TestTuples:
 
     @property
     def aspects(self):
-        return process_.replace_aspects({
+        return process_.replace_aspects(process_.DEFAULT_ASPECTS, {
             init_.Init: tuples_.TupleInit,
             storage_.Storage: tuples_.TupleStorage,
         })

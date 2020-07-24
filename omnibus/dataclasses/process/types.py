@@ -322,3 +322,16 @@ class Aspect(AttachmentCollection, lang.Abstract):
                 **{n: None for n in ans},
             },
         )
+
+
+def replace_aspects(
+        aspects: ta.Iterable[Aspectable],
+        replacements_by_cls: ta.Mapping[ta.Type[Aspect], Aspectable],
+) -> ta.Sequence[Aspectable]:
+    da = []
+    for a in aspects:
+        for rc, rv in replacements_by_cls.items():
+            if (isinstance(a, type) and issubclass(a, rc)) or (isinstance(a, Aspect) and issubclass(type(a), rc)):
+                a = rv
+        da.append(a)
+    return da

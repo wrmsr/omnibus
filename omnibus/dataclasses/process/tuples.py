@@ -109,3 +109,9 @@ class TupleInit(Init):
         @attach(Aspect.Function.Phase.RETURN)
         def build_return_lines(self) -> ta.List[str]:
             return [f'return {self.fctx.self_name}']
+
+
+ASPECT_REPLACEMENTS = {
+    Init: TupleInit,
+    Storage: TupleStorage,
+}

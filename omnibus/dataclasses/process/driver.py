@@ -17,8 +17,6 @@ from .simple import Placeholders
 from .simple import PostInitAspect
 from .simple import Repr
 from .storage import StandardStorage
-from .types import Aspect
-from .types import Aspectable
 from .types import Context
 from .validation import StandardValidation
 
@@ -47,19 +45,6 @@ DEFAULT_ASPECTS = {
     StandardValidation,
 
 }
-
-
-def replace_aspects(
-        replacements_by_cls: ta.Mapping[ta.Type[Aspect], Aspectable],
-        aspects: ta.Iterable[Aspectable] = DEFAULT_ASPECTS,  # noqa
-) -> ta.Sequence[Aspectable]:
-    da = []
-    for a in aspects:
-        for rc, rv in replacements_by_cls.items():
-            if (isinstance(a, type) and issubclass(a, rc)) or (isinstance(a, Aspect) and issubclass(type(a), rc)):
-                a = rv
-        da.append(a)
-    return da
 
 
 class Driver(ta.Generic[TypeT]):
