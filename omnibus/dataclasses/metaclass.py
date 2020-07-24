@@ -262,6 +262,8 @@ class Pure(
     confer={
         'final': True,
         'frozen': True,
+        'slots': True,
+        'no_weakref': True,
     },
 ):
     pass

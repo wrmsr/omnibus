@@ -81,7 +81,8 @@ class TupleStorage(Storage):
         @attach(Aspect.Function.Phase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
             tuple_new = self.fctx.nsb.put(tuple.__new__, '_tuple_new')
-            return [f'{self.fctx.self_name} = {tuple_new}({self.cls_name}, ({", ".join(self.aspect.idxs_by_field_name)}),)']  # noqa
+            args = (', '.join(self.aspect.idxs_by_field_name) + ',') if self.aspect.idxs_by_field_name else ''
+            return [f'{self.fctx.self_name} = {tuple_new}({self.cls_name}, ({args}))']  # noqa
 
 
 class TupleInit(Init):

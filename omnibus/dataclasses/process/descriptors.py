@@ -5,6 +5,9 @@ import typing as ta
 from ... import defs
 
 
+_CYTHON_ENABLED = True
+
+
 class AbstractFieldDescriptor(abc.ABC):
 
     def __init__(
@@ -94,9 +97,10 @@ class PyFieldDescriptor(AbstractFieldDescriptor):
 
 FieldDescriptor = PyFieldDescriptor
 
-try:
-    from ..._ext.cy.dataclasses import FieldDescriptor as CyFieldDescriptor
-except ImportError:
-    pass
-else:
-    FieldDescriptor = CyFieldDescriptor
+if _CYTHON_ENABLED:
+    try:
+        from ..._ext.cy.dataclasses import FieldDescriptor as CyFieldDescriptor
+    except ImportError:
+        pass
+    else:
+        FieldDescriptor = CyFieldDescriptor
