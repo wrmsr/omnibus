@@ -2921,6 +2921,7 @@ class TestStringAnnotations(unittest.TestCase):
                 # x is not an InitVar, so there will be a member x.
                 self.assertEqual(C(10).x, 10)
 
+    @unittest.skip('omnibus')
     def test_classvar_module_level_import(self):
         from . import dataclass_module_1
         from . import dataclass_module_1_str
@@ -2963,7 +2964,7 @@ class TestStringAnnotations(unittest.TestCase):
                     self.assertNotIn('not_iv4', c.__dict__)
 
     def test_text_annotations(self):
-        from test import dataclass_textanno
+        from . import dataclass_textanno
 
         self.assertEqual(
             get_type_hints(dataclass_textanno.Bar),

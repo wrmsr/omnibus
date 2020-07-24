@@ -284,6 +284,35 @@ class TestBackports(unittest.TestCase):
         with self.assertRaisesRegex(AttributeError, "'C' object has no attribute 'y'"):
             c.y = 5
 
+    def test_classvar_module_level_import(self):
+        from . import dataclass_module_1
+        from . import dataclass_module_1_str
+        from . import dataclass_module_2
+        from . import dataclass_module_2_str
+
+        for m in (dataclass_module_1, dataclass_module_1_str, dataclass_module_2, dataclass_module_2_str):
+            with self.subTest(m=m):
+                # There's a difference in how the ClassVars are interpreted when using string annotations or not. See
+                # the imported modules for details.
+                if m.USING_STRINGS:
+                    c = m.CV(10)
+                else:
+                    c = m.CV()
+                self.assertEqual(c.cv0, 20)
+
+                # There's a difference in how the InitVars are interpreted when using string annotations or not. See the
+                # imported modules for details.
+                c = m.IV(0, 1, 2, 3, 4)
+
+                for field_name in ('iv0', 'iv1', 'iv2', 'iv3'):
+                    with self.subTest(field_name=field_name):
+                        with self.assertRaisesRegex(AttributeError, f"object has no attribute '{field_name}'"):
+                            # Since field_name is an InitVar, it's not an instance field.
+                            getattr(c, field_name)
+
+                # iv4 is interpreted as an InitVar, so it won't exist on the instance.
+                self.assertNotIn('not_iv4', c.__dict__)
+
     def test_init_var(self):
         def post_init(self, y):
             self.x *= y

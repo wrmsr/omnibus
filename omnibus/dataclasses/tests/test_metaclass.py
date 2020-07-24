@@ -282,7 +282,7 @@ def test_confer():
     class C(A, abstract=True):
         pass
 
-    class D:
+    class D(C):
         pass
 
     with pytest.raises(Exception):

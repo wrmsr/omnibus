@@ -1,3 +1,5 @@
+import dataclasses as dc
+import sys
 import typing as ta
 
 from ... import check
@@ -17,8 +19,33 @@ class FixVarAnnotations(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return []
 
+    EVAL_OBJS = {
+        dc.InitVar,
+        ta.ClassVar,
+    }
+
     def process(self) -> None:
-        pass
+        anns = self.ctx.cls.__dict__.get('__annotations__', {})
+        if not anns:
+            return
+        mod = sys.modules.get(self.ctx.cls.__dict__.get('__module__'))
+        if mod is None:
+            return
+
+        for name, ann in anns.items():
+            if not isinstance(ann, str):
+                continue
+            prefix, _, suffix = ann.partition('[') if '[' in ann else (ann, None, '')
+            obj = mod
+            for part in prefix.split('.'):
+                if obj in self.EVAL_OBJS:
+                    break
+                if not hasattr(obj, '__dict__') or part not in obj.__dict__:
+                    break
+                obj = obj.__dict__[part]
+            if obj not in self.EVAL_OBJS:
+                continue
+            anns[name] = obj['[' + suffix] if suffix else obj
 
 
 class Params(Aspect):
