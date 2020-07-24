@@ -22,14 +22,15 @@ T = ta.TypeVar('T')
 U = ta.TypeVar('U')
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 AspectT = ta.TypeVar('AspectT', bound='Aspect', covariant=True)
+Aspectable = ta.Union['Aspect', ta.Type['Aspect'], ta.Callable[..., 'Aspect']]
 
 
-class AspectCollection(ta.Generic[T], lang.Abstract):
+class AspectCollection(ta.Generic[AspectT], lang.Abstract):
 
     def __init__(
             self,
-            aspects: ta.Iterable[ta.Union[T, ta.Callable[..., T]]],
-            aspect_cls: ta.Type[T],
+            aspects: ta.Iterable[ta.Union[AspectT, ta.Callable[..., AspectT]]],
+            aspect_cls: ta.Type[AspectT],
     ) -> None:
         super().__init__()
 
@@ -40,11 +41,11 @@ class AspectCollection(ta.Generic[T], lang.Abstract):
             check.isinstance(a, aspect_cls)
 
     @property
-    def aspects(self) -> ta.Sequence[T]:
+    def aspects(self) -> ta.Sequence[AspectT]:
         return self._aspects
 
     @property
-    def aspect_cls(self) -> ta.Type[T]:
+    def aspect_cls(self) -> ta.Type[AspectT]:
         return self._aspect_cls
 
     def get_aspects(self, cls: ta.Type[U]) -> ta.Sequence[U]:
@@ -64,6 +65,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
             *,
             metaclass_params: ta.Optional[MetaclassParams] = None,
             aspects: ta.Optional[ta.Iterable[ta.Union['Aspect', ta.Callable[..., 'AspectT']]]] = None,
+            inspecting: bool = False,
     ) -> None:
         self._original_params = check.isinstance(params, DataclassParams)
         self._original_extra_params = check.isinstance(extra_params, ExtraParams)
@@ -82,6 +84,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         self._params = params
         self._extra_params = extra_params
         self._metaclass_params = metaclass_params
+        self._inspecting = inspecting
 
     @property
     def cls(self) -> TypeT:
@@ -98,6 +101,10 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
     @property
     def metaclass_params(self) -> ta.Optional[MetaclassParams]:
         return self._metaclass_params
+
+    @property
+    def inspecting(self) -> bool:
+        return self._inspecting
 
     @property
     def original_params(self) -> DataclassParams:

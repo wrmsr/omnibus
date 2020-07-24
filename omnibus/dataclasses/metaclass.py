@@ -1,6 +1,6 @@
 """
-TODO:
- - inner=False ** InnerMeta
+TeODO:
+ e- inner=False ** InnerMeta
 """
 import abc
 import dataclasses as dc
@@ -13,6 +13,7 @@ from .. import properties
 from .api import MISSING_TYPE
 from .confer import confer_params
 from .internals import DataclassParams
+from .process import tuples
 from .types import _Placeholder
 from .types import Conferrer
 from .types import ExtraParams
@@ -24,21 +25,25 @@ from .types import SUPER
 T = ta.TypeVar('T')
 
 
-IGNORED_ATTRS = frozenset(
-    a for a in dir(type('_', (object,), {'__slots__': ()}))
-    if a.startswith('__') and a.endswith('__')
-)
+class _IgnoreTemplate:
+    __slots__ = ()
+
+
+IGNORED_ATTRS = frozenset(a for a in dir(_IgnoreTemplate) if a.startswith('__') and a.endswith('__'))
 
 
 class _MetaBuilder:
 
     def __init__(
             self,
-            mcls: '_Meta',
+            mcls: type,
             name: str,
             bases: ta.Iterable[type],
             namespace: ta.Mapping[str, ta.Any],
             *,
+
+            mbase: type = abc.ABCMeta,
+            msuper: ta.Any = None,
 
             slots: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             no_weakref: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
@@ -50,8 +55,12 @@ class _MetaBuilder:
     ) -> None:
         super().__init__()
 
-        self._mcls = check.issubclass(mcls, _Meta)
+        self._mcls = check.isinstance(mcls, type)
         self._name = name
+
+        self._mbase = check.isinstance(mbase, type)
+        self._msuper = msuper if msuper is not None else super(_Meta, mcls)
+        check.issubclass(mcls, mbase)
 
         self._orig_bases = list(bases)
         self._orig_namespace = dict(namespace)
@@ -122,7 +131,8 @@ class _MetaBuilder:
             try:
                 return cloned_base_dct[bcls]
             except KeyError:
-                ccls = cloned_base_dct[bcls] = abc.ABCMeta(
+                cbase = self._mbase if isinstance(bcls, self._mcls) else type(bcls)
+                ccls = cloned_base_dct[bcls] = cbase(
                     bcls.__name__,
                     tuple(clone_base(bbcls) for bbcls in bcls.__bases__),
                     {k: v for k, v in bcls.__dict__.items() if k not in IGNORED_ATTRS},
@@ -133,7 +143,7 @@ class _MetaBuilder:
         cloned_bases = [clone_base(bcls) for bcls in self.bases]
 
         proto_ns = {**self._orig_namespace, METADATA_ATTR: dict(self._orig_namespace.get(METADATA_ATTR, {}))}
-        return lang.super_meta(super(_Meta, self._mcls), self._mcls, self._name, tuple(cloned_bases), proto_ns)
+        return lang.super_meta(self._msuper, self._mcls, self._name, tuple(cloned_bases), proto_ns)
 
     @properties.cached
     def proto_ctx(self) -> process.Context:
@@ -142,6 +152,7 @@ class _MetaBuilder:
             self._params,
             self._extra_params,
             metaclass_params=self._orig_metaclass_params,
+            inspecting=True,
         )
         proto_drv = process.Driver(proto_ctx)
         proto_drv()
@@ -177,7 +188,7 @@ class _MetaBuilder:
 
     def build(self) -> type:
         cls = lang.super_meta(
-            super(_Meta, self._mcls),
+            self._msuper,
             self._mcls,
             self._name,
             tuple(self.new_bases),
@@ -204,7 +215,13 @@ class _Meta(abc.ABCMeta):
             namespace,
             **kwargs
     ):
-        bld = _MetaBuilder(mcls, name, bases, namespace, **kwargs)
+        bld = _MetaBuilder(
+            mcls,
+            name,
+            bases,
+            namespace,
+            **kwargs
+        )
         return bld.build()
 
 
@@ -273,6 +290,32 @@ class Enum(
             'aspects': SUPER,
             'confer': SUPER,
         },
+    },
+):
+    pass
+
+
+_TUPLE_ASPECTS = process.replace_aspects({
+    process.Init: tuples.TupleInit,
+    process.Storage: tuples.TupleStorage,
+})
+
+
+class Tuple(
+    Data,
+    tuple,
+    abstract=True,
+    frozen=True,
+    slots=True,
+    no_weakref=True,
+    aspects=_TUPLE_ASPECTS,
+    confer={
+        'frozen',
+        'reorder',
+        'slots',
+        'no_weakref',
+        'aspects',
+        'confer',
     },
 ):
     pass

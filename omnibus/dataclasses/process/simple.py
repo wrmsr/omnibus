@@ -120,6 +120,10 @@ class Hash(Aspect):
     def slots(self) -> ta.AbstractSet[str]:
         return {self.cache_attr} if self.cache_attr is not None else set()
 
+    def check(self) -> None:
+        if self.cache_attr in self.ctx.spec.fields.by_name:
+            raise AttributeError(self.cache_attr)
+
     def process(self) -> None:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None

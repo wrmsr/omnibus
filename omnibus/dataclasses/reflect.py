@@ -82,7 +82,7 @@ class DataSpec(ta.Generic[TypeT]):
     @properties.cached
     @property
     def mangling(self) -> ta.Optional[Mangling]:
-        return self.metadata.get(Mangling)
+        return check.isinstance(self.metadata.get(Mangling), (Mangling, type(None)))
 
     @properties.cached
     @property
@@ -94,7 +94,7 @@ class DataSpec(ta.Generic[TypeT]):
             if v in dct:
                 raise KeyError(k)
             dct[v] = k
-        return dct
+        return Unmangling(dct)
 
     @property
     def rmro(self) -> ta.Sequence[type]:

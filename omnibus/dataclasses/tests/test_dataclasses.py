@@ -415,17 +415,19 @@ def test_cache_hash():
     assert l == [b.i]
 
 
-@pytest.mark.skip('fixme')
 class TestDicts:
 
-    def test_dicts0(self):
+    @property
+    def aspects(self):
         da = []
         for a in process_.DEFAULT_ASPECTS:
             if issubclass(a, storage_.Storage):
                 a = dicts_.DictStorage
             da.append(a)
+        return da
 
-        @api_.dataclass(aspects=da)
+    def test_dicts0(self):
+        @api_.dataclass(aspects=self.aspects)
         class C:
             x: int
             y: int
@@ -437,33 +439,7 @@ class TestDicts:
         assert c.y == 3
 
     def test_dicts1(self):
-        da = []
-        for a in process_.DEFAULT_ASPECTS:
-            if issubclass(a, init_.Init):
-                a = dicts_.DictInit
-            elif issubclass(a, storage_.Storage):
-                a = dicts_.DictStorage
-            da.append(a)
-
-        @api_.dataclass(aspects=da)
-        class C:
-            x: int
-            y: int
-
-        c = C({'x': 1, 'y': 2})
-        assert c.x == 1
-        assert c.y == 2
-        c.y = 3
-        assert c.y == 3
-
-    def test_dicts2(self):
-        da = []
-        for a in process_.DEFAULT_ASPECTS:
-            if issubclass(a, storage_.Storage):
-                a = dicts_.DictStorage
-            da.append(a)
-
-        @api_.dataclass(aspects=da, frozen=True)
+        @api_.dataclass(aspects=self.aspects, frozen=True)
         class C:
             x: int
             y: int
@@ -474,14 +450,8 @@ class TestDicts:
         with pytest.raises(dc.FrozenInstanceError):
             c.y = 3
 
-    def test_dicts3(self):
-        da = []
-        for a in process_.DEFAULT_ASPECTS:
-            if issubclass(a, storage_.Storage):
-                a = dicts_.DictStorage
-            da.append(a)
-
-        @api_.dataclass(aspects=da, frozen=True, field_attrs=True)
+    def test_dicts2(self):
+        @api_.dataclass(aspects=self.aspects, frozen=True, field_attrs=True)
         class C:
             x: int
             y: int
@@ -497,14 +467,17 @@ class TestDicts:
 @pytest.mark.skip('fixme')
 class TestPersistent:
 
-    def test_persistent(self):
+    @property
+    def aspects(self):
         da = []
         for a in process_.DEFAULT_ASPECTS:
             if issubclass(a, storage_.Storage):
                 a = persistent_.PersistentStorage
             da.append(a)
+        return da
 
-        @api_.dataclass(frozen=True, aspects=da)
+    def test_persistent(self):
+        @api_.dataclass(frozen=True, aspects=self.aspects)
         class C:
             x: int
             y: int
@@ -514,19 +487,17 @@ class TestPersistent:
         assert c.y == 2
 
 
-@pytest.mark.skip('fixme')
 class TestTuples:
 
-    def test_tuples(self):
-        da = []
-        for a in process_.DEFAULT_ASPECTS:
-            if issubclass(a, init_.Init):
-                a = tuples_.TupleInit
-            elif issubclass(a, storage_.Storage):
-                a = tuples_.TupleStorage
-            da.append(a)
+    @property
+    def aspects(self):
+        return process_.replace_aspects({
+            init_.Init: tuples_.TupleInit,
+            storage_.Storage: tuples_.TupleStorage,
+        })
 
-        @api_.dataclass(frozen=True, aspects=da)
+    def test_tuples(self):
+        @api_.dataclass(frozen=True, aspects=self.aspects)
         class C(tuple):
             x: int
             y: int

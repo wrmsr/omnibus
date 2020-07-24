@@ -172,6 +172,9 @@ def test_frozen():
     assert pt2.y == 2
     assert pt2.z == 3
 
+    with pytest.raises(Exception):
+        pt2.x = 3
+
 
 def test_pure():
     class Pt(metaclass_.Pure):
@@ -283,7 +286,7 @@ def test_confer():
         pass
 
     with pytest.raises(Exception):
-        with D_(D):
+        class D_(D):
             pass
 
 
@@ -368,3 +371,29 @@ def test_slots():
     assert d.y == 2
     with pytest.raises(Exception):
         d.z = 3
+
+
+class TestTuples:
+
+    def test_tuple(self):
+        class C(metaclass_.Tuple):
+            x: int
+            y: int
+
+        c = C(1, 2)
+        assert isinstance(c, tuple)
+        assert c.x == 1
+        assert c.y == 2
+        with pytest.raises(Exception):
+            c.a = 4
+
+        class D(C):
+            z: int
+
+        d = D(1, 2, 3)
+        assert isinstance(d, tuple)
+        assert d.x == 1
+        assert d.y == 2
+        assert d.z == 3
+        with pytest.raises(Exception):
+            d.a = 4

@@ -89,7 +89,7 @@ class StandardStorage(Storage):
             if mang in dct or mang in names:
                 raise NameError(dct)
             dct[mang] = fld.name
-        return ta.cast(Mangling, dct)
+        return Mangling(dct)
 
     def process(self) -> None:
         metadata = self.ctx.cls.__dict__.get(METADATA_ATTR, {})

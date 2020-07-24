@@ -6,6 +6,8 @@ from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
+from ..types import ExtraFieldParams
+from .descriptors import AbstractFieldDescriptor
 from .init import append_argspec_args
 from .init import Init
 from .storage import Storage
@@ -13,48 +15,61 @@ from .types import Aspect
 from .types import attach
 
 
-class TupleDescriptor:
+class TupleFieldDescriptor(AbstractFieldDescriptor):
 
-    def __init__(
-            self,
-            field: dc.Field,
-            idx: int,
-            *,
-            field_attrs: bool = False,
-    ) -> None:
-        super().__init__()
+    def __init__(self, idx: ta.Optional[int], **kwargs) -> None:
+        super().__init__(**kwargs)
 
-        self._field = field
         self._idx = idx
-        self._field_attrs = field_attrs
 
-    def __get__(self, instance, owner=None):
-        if instance is not None:
-            try:
-                return instance[self._idx]
-            except IndexError:
-                raise AttributeError(self._field.name)
-        elif self._field_attrs is not None:
-            return self._field
-        else:
-            return self
+    def _get(self, instance):
+        return instance[self._idx]
+
+    def _set(self, instance, value):
+        raise TypeError
+
+    def _del(self, instance):
+        raise TypeError
 
 
 class TupleStorage(Storage):
 
     def check(self) -> None:
-        check.state(issubclass(self.ctx.cls, tuple))
+        if not self.ctx.inspecting:
+            check.state(issubclass(self.ctx.cls, tuple))
         check.state(self.ctx.spec.params.frozen)
         check.state(not self.ctx.spec.extra_params.allow_setattr)
 
+    @properties.cached
+    def idxs_by_field_name(self) -> ta.Mapping[str, int]:
+        dct = {}
+        for f in self.ctx.spec.fields.init:
+            if get_field_type(f) is FieldType.INIT:
+                continue
+            dct[f.name] = len(dct)
+        return dct
+
     def process(self) -> None:
-        for idx, fld in enumerate(self.ctx.spec.fields.instance):
-            dsc = TupleDescriptor(
-                fld,
-                idx,
-                field_attrs=self.ctx.spec.extra_params.field_attrs,
+        # FIXME: should ClassVars should get field_attrs (instead of returning default)?
+        for fld in self.ctx.spec.fields.instance:
+            default = fld if self.ctx.spec.extra_params.field_attrs else \
+                fld.default if fld.default is not dc.MISSING else dc.MISSING
+            fefp = fld.metadata.get(ExtraFieldParams, ExtraFieldParams())
+            frozen = bool(fefp.frozen if fefp.frozen is not None else self.ctx.spec.params.frozen)
+            dsc = TupleFieldDescriptor(
+                self.idxs_by_field_name.get(fld.name),
+                default_=default,
+                frozen=frozen,
+                name=fld.name,
             )
-            self.ctx.set_new_attribute(fld.name, dsc)
+            # FIXME: check not overwriting
+            setattr(self.ctx.cls, fld.name, dsc)
+
+    @attach(Aspect.Function)
+    class Helper(Storage.Helper['TupleStorage']):
+
+        def build_raw_set_field(self, fld: dc.Field, value: str) -> str:
+            raise TypeError
 
     @attach('init')
     class Init(Storage.Function['TupleStorage']):
@@ -65,15 +80,8 @@ class TupleStorage(Storage):
 
         @attach(Aspect.Function.Phase.SET_ATTRS)
         def build_set_attr_lines(self) -> ta.List[str]:
-            args = []
-            for f in self.fctx.ctx.spec.fields.init:
-                if get_field_type(f) is FieldType.INIT:
-                    continue
-                if not f.init and f.default_factory is dc.MISSING:
-                    continue
-                args.append(f.name)
             tuple_new = self.fctx.nsb.put(tuple.__new__, '_tuple_new')
-            return [f'{self.fctx.self_name} = {tuple_new}({self.cls_name}, ({", ".join(args)}),)']
+            return [f'{self.fctx.self_name} = {tuple_new}({self.cls_name}, ({", ".join(self.aspect.idxs_by_field_name)}),)']  # noqa
 
 
 class TupleInit(Init):
@@ -91,13 +99,9 @@ class TupleInit(Init):
     class Init(Aspect.Function['TupleInit']):
 
         @properties.cached
-        def storage(self) -> TupleStorage.Init:
-            return self.fctx.get_aspect(TupleStorage.Init)
-
-        @properties.cached
         def argspec(self) -> code.ArgSpec:
             argspec = code.ArgSpec(
-                [self.storage.cls_name],
+                [self.fctx.get_aspect(TupleStorage.Init).cls_name],
                 annotations={'return': self.fctx.nsb.put(self.fctx.ctx.cls)},
             )
             return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)

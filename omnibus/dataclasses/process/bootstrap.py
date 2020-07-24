@@ -11,11 +11,21 @@ from ..types import Original
 from .types import Aspect
 
 
-class Params(Aspect):
+class FixVarAnnotations(Aspect):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return []
+
+    def process(self) -> None:
+        pass
+
+
+class Params(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [FixVarAnnotations]
 
     def process(self) -> None:
         self.ctx.set_new_attribute(PARAMS, self.ctx.params, raise_=True)

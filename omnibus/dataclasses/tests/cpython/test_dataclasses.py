@@ -2922,10 +2922,10 @@ class TestStringAnnotations(unittest.TestCase):
                 self.assertEqual(C(10).x, 10)
 
     def test_classvar_module_level_import(self):
-        from test import dataclass_module_1
-        from test import dataclass_module_1_str
-        from test import dataclass_module_2
-        from test import dataclass_module_2_str
+        from . import dataclass_module_1
+        from . import dataclass_module_1_str
+        from . import dataclass_module_2
+        from . import dataclass_module_2_str
 
         for m in (dataclass_module_1, dataclass_module_1_str,
                   dataclass_module_2, dataclass_module_2_str,

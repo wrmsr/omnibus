@@ -1,130 +1,94 @@
 import dataclasses as dc
 import typing as ta
 
-from ... import check
-from ... import code
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
-from .defaulting import Defaulting
-from .init import Init
+from ..types import ExtraFieldParams
+from .descriptors import AbstractFieldDescriptor
 from .storage import Storage
 from .types import Aspect
 from .types import attach
 
 
-class DictDescriptor:
+class DictFieldDescriptor(AbstractFieldDescriptor):
 
-    def __init__(
-            self,
-            field: dc.Field,
-            dict_attr: str,
-            *,
-            frozen: bool = False,
-            field_attrs: bool = False,
-    ) -> None:
-        super().__init__()
+    def __init__(self, key: str, dict_attr: str, **kwargs) -> None:
+        super().__init__(**kwargs)
 
-        self._field = field
+        self._key = key
         self._dict_attr = dict_attr
-        self._frozen = frozen
-        self._field_attrs = field_attrs
 
-    def __get__(self, instance, owner=None):
-        if instance is not None:
-            dct = getattr(instance, self._dict_attr)
-            try:
-                return dct[self._field.name]
-            except KeyError:
-                raise AttributeError(self._field.name)
-        elif self._field_attrs is not None:
-            return self._field
-        else:
-            return self
+    def _get(self, instance):
+        try:
+            return getattr(instance, self._dict_attr)[self._key]
+        except KeyError:
+            raise AttributeError(self._key)
 
-    def __set__(self, instance, value):
-        if self._frozen:
-            raise dc.FrozenInstanceError(f'cannot assign to field {self._field.name!r}')
-        getattr(instance, self._dict_attr)[self._field.name] = value
+    def _set(self, instance, value):
+        getattr(instance, self._dict_attr)[self._key] = value
 
-    def __delete__(self, instance):
-        if self._frozen:
-            raise dc.FrozenInstanceError(f'cannot delete field {self._field.name!r}')
-        del getattr(instance, self._dict_attr)[self._field.name]
+    def _del(self, instance):
+        del getattr(instance, self._dict_attr)[self._key]
 
 
 class DictStorage(Storage):
 
+    DEFAULT_DICT_ATTR = '___dict'
+
     @properties.cached
     def dict_attr(self) -> str:
-        return '__%s_%x_dict' % (self.ctx.cls.__name__, id(self.ctx.cls))
+        return self.DEFAULT_DICT_ATTR
+
+    @property
+    def slots(self) -> ta.AbstractSet[str]:
+        return {self.dict_attr} if self.dict_attr is not None else set()
+
+    def check(self) -> None:
+        if self.dict_attr in self.ctx.spec.fields.by_name:
+            raise AttributeError(self.dict_attr)
 
     def process(self) -> None:
+        # FIXME: should ClassVars should get field_attrs (instead of returning default)?
         for fld in self.ctx.spec.fields.instance:
-            dsc = DictDescriptor(
-                fld,
+            default = fld if self.ctx.spec.extra_params.field_attrs else \
+                fld.default if fld.default is not dc.MISSING else dc.MISSING
+            fefp = fld.metadata.get(ExtraFieldParams, ExtraFieldParams())
+            frozen = bool(fefp.frozen if fefp.frozen is not None else self.ctx.spec.params.frozen)
+            dsc = DictFieldDescriptor(
+                fld.name,
                 self.dict_attr,
-                frozen=self.ctx.spec.params.frozen,
-                field_attrs=self.ctx.spec.extra_params.field_attrs,
+                default_=default,
+                frozen=frozen,
+                name=fld.name,
             )
-            self.ctx.set_new_attribute(fld.name, dsc)
+            # FIXME: check not overwriting
+            setattr(self.ctx.cls, fld.name, dsc)
+
+    @attach(Aspect.Function)
+    class Helper(Storage.Helper['DictStorage']):
+
+        def build_raw_set_field(self, fld: dc.Field, value: str) -> str:
+            return f'{self.fctx.self_name}.{self.aspect.dict_attr}[{fld.name!r}] = {value}'
 
     @attach('init')
-    class Init(Storage.Function['DictStorage']):
-
-        @attach(Aspect.Function.Phase.SET_ATTRS)
-        def build_set_attr_lines(self) -> ta.List[str]:
-            ret = [self.fctx.get_aspect(Storage.Function).build_setattr(self.aspect.dict_attr, '{}')]
-            for f in self.fctx.ctx.spec.fields.init:
-                if get_field_type(f) is FieldType.INIT:
-                    continue
-                if not f.init and f.default_factory is dc.MISSING:
-                    continue
-                ret.append(f'{self.fctx.self_name}.{self.aspect.dict_attr}[{f.name!r}] = {f.name}')
-            return ret
-
-
-class DictInit(Init):
-
-    def process(self) -> None:
-        if not self.ctx.spec.params.init:
-            return
-
-        fctx = self.ctx.function(['init'])
-        init = fctx.get_aspect(DictInit.Init)
-        fn = init.build('__init__')
-        self.ctx.set_new_attribute('__init__', fn)
-
-    @attach('init')
-    class Init(Aspect.Function['DictInit']):
+    class Init(Storage.Init['DictStorage']):
 
         @properties.cached
-        def defaulting(self) -> Defaulting:
-            return check.isinstance(self.fctx.get_aspect(Defaulting), Defaulting)
-
-        @properties.cached
-        def dict_name(self) -> str:
-            return self.fctx.nsb.put(None, '_dict')
-
-        @properties.cached
-        def argspec(self) -> code.ArgSpec:
-            return code.ArgSpec(
-                [self.fctx.self_name, self.dict_name],
-                annotations={'return': None, self.dict_name: ta.Mapping[str, ta.Any]},
-            )
+        def setattr_name(self) -> str:
+            return self.fctx.nsb.put(object.__setattr__, '__setattr__')
 
         @attach(Aspect.Function.Phase.BOOTSTRAP)
-        def build_bootstrap_lines(self) -> ta.List[str]:
+        def build_set_dict_lines(self) -> ta.List[str]:
+            return [f'{self.setattr_name}(self, {self.aspect.dict_attr!r}, {{}})']
+
+        @attach(Aspect.Function.Phase.SET_ATTRS)
+        def build_set_default_attr_lines(self) -> ta.List[str]:
             ret = []
-            for fld in self.fctx.ctx.spec.fields.init:
-                if not fld.init:
+            for f in self.fctx.ctx.spec.fields.init:
+                if get_field_type(f) is not FieldType.INSTANCE:
                     continue
-                if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
-                    ret.append(f'{fld.name} = {self.dict_name}[{fld.name!r}]')
-                elif fld.default is not dc.MISSING:
-                    ret.append(f'{fld.name} = {self.dict_name}get({fld.name!r}, {self.default_names_by_field_name[fld.name]}')  # noqa
-                elif fld.default_factory is not dc.MISSING:
-                    ret.append(f'{fld.name} = {self.dict_name}get({fld.name!r}, {self.defaulting.has_factory_name}')
-                else:
-                    raise TypeError
+                if f.default is dc.MISSING:
+                    continue
+                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_raw_set_field(f, f.name))
             return ret
