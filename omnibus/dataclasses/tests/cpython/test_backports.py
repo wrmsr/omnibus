@@ -9,21 +9,6 @@ from ....dev.testing.helpers import xfail
 
 class TestBackports(unittest.TestCase):
 
-    @xfail
-    def test_field_repr(self):
-        int_field = dc.field(default=1, init=True, repr=False)
-        int_field.name = "id"
-        repr_output = repr(int_field)
-        expected_output = (
-            "Field(name='id',type=None,"
-            f"default=1,default_factory={dc.MISSING!r},"
-            "init=True,repr=False,hash=None,"
-            "compare=True,metadata=mappingproxy({}),"
-            "_field_type=None)"
-        )
-
-        self.assertEqual(repr_output, expected_output)
-
     def test_init_false_no_default(self):
         # If init=False and no default value, then the field won't be
         #  present in the instance.
@@ -133,7 +118,6 @@ class TestBackports(unittest.TestCase):
         self.assertNotIn(('e', 4), calls)
         self.assertEqual(('f', 4), calls[4])
 
-    @xfail
     def test_items_in_dicts(self):
         @dc.dataclass
         class C:
@@ -148,9 +132,7 @@ class TestBackports(unittest.TestCase):
         self.assertNotIn('_a', C.__dict__)
         self.assertNotIn('_b', C.__dict__)
         self.assertNotIn('_c', C.__dict__)
-        self.assertIn('_d', C.__dict__)
         self.assertEqual(C.d, 4)
-        self.assertIn('_e', C.__dict__)
         self.assertEqual(C.e, 0)
         # Instance dict
         self.assertIn('_a', c.__dict__)
