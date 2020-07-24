@@ -8,9 +8,6 @@ TODO:
  - Field options:
   - transient (+cache_hash)
   - *default_factory with lambda args* - toposort again
-  - redaction - RedactedStr type?
-  - per-field finality
-  - per-field ordering (does this already?)
  - Class options:
   - coerce: True=just call w val, cls-lvl default on/off, unary void callable
   - validate: True=default, cls-lvl default on/off, unary void callable ...
@@ -21,11 +18,8 @@ TODO:
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - pyo3 + cy struct type interop
   - derive dataclasses from external
- - ExtraFieldParams?
  - observable? dc.observe? per-cls/per-field? config-lvl?
- - fix: validate/coerce on setattr
  - intern? class-level, can intern fields w/ just coerce
- - frozen_subtypes, frozen_deep - enum?
  - freeze a non-frozen dc
  - lazy derivers
  - gen
@@ -37,7 +31,6 @@ TODO:
   - incl enums
   - extend w functions? grpc/twirp/thrift?
  - partial validation - subclass?
- - parameterized tests - storage, params, etc
  - standard named aspect packs: tuple, dict, pyrsistent
   - 'profiles' - will also be in serde too (but keep eye on inj interop)
  - ** CYTHON **
@@ -45,13 +38,9 @@ TODO:
   - with jitted/compiled dataclasses ~can bypass dict hits~...
   - maven style classpath scan at build, hash/cmp structure at boot, use if present / warn if not
    - just like tok
- - make FunctionCtx use code.FunctionGen (need argspec earlier)
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - enforce immut metadata
- - enforce not field.name.startswith('__')
  - replace aspect phases w/ dag?
- - compile descriptor __get__ if only to get out of debugger (ideally one step)
- - 3.9 compat (eq/order -> compare)
 """
 import collections
 import collections.abc

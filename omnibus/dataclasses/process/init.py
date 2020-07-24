@@ -6,7 +6,6 @@ from ... import lang
 from ... import properties
 from ..types import ExtraFieldParams
 from .storage import Storage
-from .defaulting import Defaulting
 from .defaulting import HasFactory
 from .types import Aspect
 from .types import attach
@@ -86,10 +85,6 @@ class StandardInit(Init):
 
     @attach('init')
     class Init(Aspect.Function['StandardInit']):
-
-        @properties.cached
-        def defaulting(self) -> Defaulting.Init:
-            return self.fctx.get_aspect(Defaulting.Init)
 
         @properties.cached
         def argspec(self) -> code.ArgSpec:

@@ -11,7 +11,8 @@ Backends:
  - arrays
   - numpy
   - mmap
- - configs
+ - configs? reverse (gen cfg cls's w/ getters from dc defs)?
+ - 'direct'
 """
 import abc
 import dataclasses as dc

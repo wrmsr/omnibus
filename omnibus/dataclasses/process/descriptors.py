@@ -52,7 +52,7 @@ class AbstractFieldDescriptor(abc.ABC):
         if self._frozen:
             raise dc.FrozenInstanceError(f'cannot assign to field {self._name!r}')
         if self._pre_set is not None:
-            self._pre_set(value)
+            value = self._pre_set(value)
         self._set(instance, value)
         if self._post_set is not None:
             self._post_set(value)
