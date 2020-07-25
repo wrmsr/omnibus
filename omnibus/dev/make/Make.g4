@@ -296,3 +296,8 @@ SLIT ::= <single- or double-quote literal>
 LEADING_TAB ::= <tabulation at the first position in a line (eats NL)>
 */
 grammar Make;
+
+
+makefile
+    : EOF
+    ;
