@@ -45,7 +45,7 @@ clean-services: stop
 
 .PHONY: clean
 clean: clean-services
-	docker-compose rm -fv omnibus-dev ;
+	docker-compose rm -fv omnibus-dev
 
 .PHONY: images
 images:

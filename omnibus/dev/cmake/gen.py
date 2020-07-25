@@ -1,6 +1,7 @@
 import abc
-import dataclasses as dc
 import typing as ta
+
+from ... import dataclasses as dc
 
 
 @dc.dataclass(frozen=True)
