@@ -24,7 +24,7 @@ msgpack==1.0.0
 mysql-connector-python==8.0.21
 numpy==1.19.1
 orjson==3.3.0; python_version < '3.9'
-pg8000==1.16.2
+pg8000==1.16.3
 psutil==5.7.2
 psycopg2==2.8.5
 pymemcache==3.2.0
