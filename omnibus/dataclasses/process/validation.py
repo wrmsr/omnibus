@@ -43,6 +43,34 @@ class Validation(Aspect):
     @attach(Aspect.Function)
     class Building(Aspect.Function['Validation']):
 
+        def __init__(self, *args, **kwargs) -> None:
+            super().__init__(*args, **kwargs)
+
+            self._loaded_fields: ta.Dict[str, str] = {}
+
+        def load_field(self, field: str, lines: ta.List[str]) -> str:
+            try:
+                return self._loaded_fields[field]
+            except KeyError:
+                name = self._loaded_fields[field] = self.fctx.nsb.put(None, field)
+                lines.append(f'{name} = {self.fctx.self_name}.{name}')
+                return name
+
+        def load_fields(
+                self,
+                wanted: ta.Iterable[str],
+                given: ta.AbstractSet[str],
+                lines: ta.List[str],
+        ) -> ta.Mapping[str, str]:
+            dct = {}
+            for field in wanted:
+                check.in_(field, self.fctx.ctx.spec.fields.by_name)
+                if field in given:
+                    dct[field] = field
+                else:
+                    dct[field] = self.load_field(field, lines)
+            return dct
+
         def build_validate_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -63,11 +91,10 @@ class Validation(Aspect):
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
                 vld_args = get_flat_fn_args(vld.fn)
-                for arg in vld_args:
-                    check.in_(arg, self.fctx.ctx.spec.fields.by_name)
                 if not any(arg in fields for arg in vld_args):
                     continue
-                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
+                ldct = self.load_fields(vld_args, fields, ret)
+                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(ldct[a] for a in vld_args)})')
             return ret
 
         def build_check_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
@@ -93,14 +120,13 @@ class Validation(Aspect):
             ret = []
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
                 chk_args = get_flat_fn_args(chk.fn)
-                for arg in chk_args:
-                    check.in_(arg, self.fctx.ctx.spec.fields.by_name)
                 if not any(arg in fields for arg in chk_args):
                     continue
+                ldct = self.load_fields(chk_args, fields, ret)
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
-                    f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(chk_args)}): '
-                    f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+                    f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(ldct[a] for a in chk_args)}): '
+                    f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(ldct[a] for a in chk_args)})'
                 )
             return ret
 
