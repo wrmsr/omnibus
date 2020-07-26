@@ -117,7 +117,7 @@ def test_validate():
     with pytest.raises(ValueError):
         C(0, 1)
 
-    @api_.dataclass(frozen=True)
+    @api_.dataclass()
     class C:
         x: int = api_.field()
         y: int
@@ -127,6 +127,11 @@ def test_validate():
     C(1, 2)
     with pytest.raises(ValueError):
         C(0, 1)
+
+    c = C(1, 2)
+    with pytest.raises(ValueError):
+        c.x = 0
+    assert c.x == 1
 
 
 def test_coerce():

@@ -145,3 +145,10 @@ class Validation(Aspect):
         def build_validation_lines(self) -> ta.List[str]:
             all_fields = set(self.fctx.ctx.spec.fields.by_name)
             return self.fctx.get_aspect(Validation.Building).build_validation_lines(all_fields)
+
+    @attach('pre_set')
+    class PreSet(Aspect.Function['Validation']):
+
+        @attach(Aspect.Function.Phase.VALIDATE)
+        def build_validation_lines(self) -> ta.List[str]:
+            return self.fctx.get_aspect(Validation.Building).build_validation_lines({self.fctx.field.name})

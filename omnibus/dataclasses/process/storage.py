@@ -20,6 +20,7 @@ import typing as ta
 
 from . import bootstrap
 from ... import check
+from ... import code
 from ... import lang
 from ... import properties
 from ..internals import FieldType
@@ -66,6 +67,42 @@ class Storage(Aspect, lang.Abstract):
                 ret.append(self.fctx.get_aspect(self.aspect.Building).build_raw_set_field(f, f.name))
             return ret
 
+    def build_pre_set(self, field: dc.Field) -> ta.Optional[ta.Callable[[object, object], object]]:
+        fctx = self.ctx.function(['pre_set'], field=field)
+        aspect = fctx.get_aspect(Storage.PreSet)
+        return aspect.build(f'_pre_set__{field.name}', optional=True, optional_phases={Aspect.Function.Phase.RETURN})
+
+    @attach('pre_set')
+    class PreSet(Aspect.Function['Storage']):
+
+        @properties.cached
+        def argspec(self) -> code.ArgSpec:
+            ty = self.fctx.nsb.put(self.fctx.field.type, '_ty')
+            return code.ArgSpec(
+                [self.fctx.self_name, self.fctx.field.name],
+                annotations={'return': ty, self.fctx.field.name: ty},
+            )
+
+        @attach(Aspect.Function.Phase.RETURN)
+        def build_return_lines(self) -> ta.List[str]:
+            return [f'return {self.fctx.field.name}']
+
+    def build_post_set(self, field: dc.Field) -> ta.Optional[ta.Callable[[object, object], None]]:
+        fctx = self.ctx.function(['post_set'], field=field)
+        aspect = fctx.get_aspect(Storage.PostSet)
+        return aspect.build(f'_post_set__{field.name}', optional=True)
+
+    @attach('post_set')
+    class PostSet(Aspect.Function['Storage']):
+
+        @properties.cached
+        def argspec(self) -> code.ArgSpec:
+            ty = self.fctx.nsb.put(self.fctx.field.type, '_ty')
+            return code.ArgSpec(
+                [self.fctx.self_name, self.fctx.field.name],
+                annotations={'return': None, self.fctx.field.name: ty},
+            )
+
 
 class StandardStorage(Storage):
 
@@ -111,6 +148,8 @@ class StandardStorage(Storage):
                 default_=default,
                 frozen=frozen,
                 name=fld.name,
+                pre_set=self.build_pre_set(fld),
+                post_set=self.build_post_set(fld),
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)

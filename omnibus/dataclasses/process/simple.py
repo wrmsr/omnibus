@@ -176,7 +176,7 @@ class PostInitAspect(Aspect):
     @attach('init')
     class Init(Aspect.Function['PostInitAspect']):
 
-        @attach(Aspect.Function.Phase.POST_INIT)
+        @attach(Aspect.Function.Phase.POST)
         def build_post_init_lines(self) -> ta.List[str]:
             if not self.fctx.ctx.spec.params.init:
                 return []
@@ -187,7 +187,7 @@ class PostInitAspect(Aspect):
                 ret.append(f'{self.fctx.self_name}.{POST_INIT_NAME}({params_str})')
             return ret
 
-        @attach(Aspect.Function.Phase.POST_INIT)
+        @attach(Aspect.Function.Phase.POST)
         def build_extra_post_init_lines(self) -> ta.List[str]:
             if not self.fctx.ctx.spec.params.init:
                 return []

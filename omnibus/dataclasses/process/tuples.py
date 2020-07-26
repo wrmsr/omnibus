@@ -61,6 +61,8 @@ class TupleStorage(Storage):
                 default_=default,
                 frozen=frozen,
                 name=fld.name,
+                pre_set=self.build_pre_set(fld),
+                post_set=self.build_post_set(fld),
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)

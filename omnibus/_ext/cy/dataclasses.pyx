@@ -50,10 +50,10 @@ cdef class FieldDescriptor:
         if self.frozen:
             raise FrozenInstanceError(f'cannot assign to field {self.name!r}')
         if self.pre_set is not None:
-            value = self.pre_set(value)
+            value = self.pre_set(instance, value)
         setattr(instance, self.attr, value)
         if self.post_set is not None:
-            self.post_set(value)
+            self.post_set(instance, value)
 
     def __delete__(self, instance):
         if self.frozen:

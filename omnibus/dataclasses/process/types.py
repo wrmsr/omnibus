@@ -1,4 +1,5 @@
 import abc
+import dataclasses as dc
 import functools
 import types
 import typing as ta
@@ -124,16 +125,16 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         dct = {}
         for a in self.aspects:
             ds = set()
-            for dc in a.deps:
+            for dep in a.deps:
                 da = None
                 for dac in self.aspects:
-                    if isinstance(dac, dc):
+                    if isinstance(dac, dep):
                         if da is None:
                             da = dac
                         else:
-                            raise Exception(f'Ambiguous dependency {dc} in aspect {a} resolved to {da} and {dac}')
+                            raise Exception(f'Ambiguous dependency {dep} in aspect {a} resolved to {da} and {dac}')
                 if da is None:
-                    raise Exception(f'Unresolved dependency {dc} in aspect {a}')
+                    raise Exception(f'Unresolved dependency {dep} in aspect {a}')
                 ds.add(da)
             dct[a] = ds
         lst = list(ocol.toposort(dct))
@@ -160,14 +161,27 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
                 self,
                 ctx: 'Context[TypeT]',
                 aspects: ta.Iterable[ta.Union['Aspect.Function', ta.Callable[..., 'Aspect.Function']]],
+                *,
+                field: ta.Optional[dc.Field] = None,
         ) -> None:
             super().__init__(aspects, Aspect.Function)
 
             self._ctx = check.isinstance(ctx, Context)
+            self._field = check.isinstance(field, (dc.Field, type(None)))
 
         @property
         def ctx(self) -> 'Context[TypeT]':
             return self._ctx
+
+        @property
+        def has_field(self) -> bool:
+            return self._field is not None
+
+        @property
+        def field(self) -> dc.Field:
+            if self._field is None:
+                raise TypeError
+            return self._field
 
         @properties.cached
         @property
@@ -178,7 +192,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
         def self_name(self) -> str:
             return self.nsb.put(None, 'self')
 
-    def function(self, attachment_keys: ta.Iterable[ta.Any] = ()) -> Function[TypeT]:
+    def function(self, attachment_keys: ta.Iterable[ta.Any] = (), **kwargs) -> Function[TypeT]:
         check.arg(not isinstance(attachment_keys, str))
         attachment_keys = list(attachment_keys)
         if Aspect.Function not in attachment_keys:
@@ -192,7 +206,7 @@ class Context(AspectCollection['Aspect'], ta.Generic[TypeT]):
                         continue
                     attachments.append(functools.partial(attachment, aspect))
                     seen.add(attachment)
-        return Context.Function(self, attachments)
+        return Context.Function(self, attachments, **kwargs)
 
 
 ATTACHMENTS = weakref.WeakKeyDictionary()
@@ -267,7 +281,7 @@ class Aspect(AttachmentCollection, lang.Abstract):
         def __init__(self, aspect: AspectT, fctx: Context.Function) -> None:
             super().__init__()
 
-            self._aspect = aspect
+            self._aspect = check.isinstance(aspect, Aspect)
             self._fctx = check.isinstance(fctx, Context.Function)
 
         @property
@@ -288,20 +302,38 @@ class Aspect(AttachmentCollection, lang.Abstract):
             DEFAULT = ...
             VALIDATE = ...
             SET_ATTRS = ...
-            POST_INIT = ...
+            POST = ...
             RETURN = ...
 
-        def build(self, name: str) -> types.FunctionType:
-            lines = []
+            @classmethod
+            def all(cls) -> ta.List['Aspect.Function.Phase']:
+                return list(cls.__members__.values())
 
-            for phase in self.Phase.__members__.values():
+        def build(
+                self,
+                name: str,
+                *,
+                phases: ta.Optional[ta.Iterable[Phase]] = None,
+                optional: bool = False,
+                optional_phases: ta.Optional[ta.Iterable[Phase]] = (),
+        ) -> ta.Optional[types.FunctionType]:
+            lines = []
+            if phases is None:
+                phases = self.Phase.all()
+            has_req_lines = False
+            for phase in phases:
                 for aspect in self.fctx.aspects:
                     for attachment in aspect.attachment_lists_by_key.get(phase, []):
-                        lines.extend(attachment())
-
+                        alines = list(attachment())
+                        if not alines:
+                            continue
+                        if phase not in optional_phases:
+                            has_req_lines = True
+                        lines.extend(alines)
+            if optional and not has_req_lines:
+                return None
             if not lines:
                 lines = ['pass']
-
             return code.create_function(
                 name,
                 self.argspec,
@@ -309,19 +341,6 @@ class Aspect(AttachmentCollection, lang.Abstract):
                 locals=dict(self.fctx.nsb),
                 globals=self.fctx.ctx.spec.globals,
             )
-
-    @classmethod
-    def nop(cls: ta.Type[AspectT]) -> ta.Type[AspectT]:
-        ans = get_keys_by_attachment_name(cls)
-        return type(
-            cls.__qualname__ + '$nop',
-            (cls,),
-            {
-                'check': lambda self: None,
-                'process': lambda self: None,
-                **{n: None for n in ans},
-            },
-        )
 
 
 def replace_aspects(

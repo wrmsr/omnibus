@@ -16,8 +16,8 @@ class AbstractFieldDescriptor(abc.ABC):
             default_: ta.Any = dc.MISSING,
             frozen: bool = None,
             name: str = False,
-            pre_set: ta.Callable[[object], None] = None,
-            post_set: ta.Callable[[object], None] = None,
+            pre_set: ta.Callable[[object, object], None] = None,
+            post_set: ta.Callable[[object, object], None] = None,
     ) -> None:
         super().__init__()
 
@@ -52,10 +52,10 @@ class AbstractFieldDescriptor(abc.ABC):
         if self._frozen:
             raise dc.FrozenInstanceError(f'cannot assign to field {self._name!r}')
         if self._pre_set is not None:
-            value = self._pre_set(value)
+            value = self._pre_set(instance, value)
         self._set(instance, value)
         if self._post_set is not None:
-            self._post_set(value)
+            self._post_set(instance, value)
 
     @abc.abstractmethod
     def _set(self, instance, value):
