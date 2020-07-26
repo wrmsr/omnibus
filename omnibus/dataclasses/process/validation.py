@@ -1,9 +1,3 @@
-"""
-TODO:
- - run in setters
-  - only gen setters with validations
-   - built-in usecase for listeners?
-"""
 import functools
 import typing as ta
 
@@ -13,8 +7,6 @@ from ... import properties
 from ..types import Checker
 from ..types import CheckException
 from ..types import ExtraFieldParams
-from ..types import SelfChecker
-from ..types import SelfValidator
 from ..types import Validator
 from ..validation import build_default_field_validation
 from .bootstrap import Fields
@@ -56,7 +48,29 @@ class StandardValidation(Aspect):
     @attach('init')
     class Init(Aspect.Function['StandardValidation']):
 
-        @attach(Aspect.Function.Phase.VALIDATE)
+        def build_validate_lines(self) -> ta.List[str]:
+            ret = []
+            for fld in self.fctx.ctx.spec.fields:
+                vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
+                if callable(vld_md):
+                    ret.append(f'{self.fctx.nsb.put(vld_md)}({fld.name})')
+                elif vld_md is True or (vld_md is None and self.fctx.ctx.extra_params.validate is True):
+                    ret.append(f'{self.fctx.nsb.put(build_default_field_validation(fld))}({fld.name})')
+                elif vld_md is False or vld_md is None:
+                    pass
+                else:
+                    raise TypeError(vld_md)
+            return ret
+
+        def build_validator_lines(self) -> ta.List[str]:
+            ret = []
+            for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
+                vld_args = get_flat_fn_args(vld.fn)
+                for arg in vld_args:
+                    check.in_(arg, self.fctx.ctx.spec.fields)
+                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
+            return ret
+
         def build_check_lines(self) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
@@ -74,39 +88,6 @@ class StandardValidation(Aspect):
                     raise TypeError(chk_md)
             return ret
 
-        @attach(Aspect.Function.Phase.VALIDATE)
-        def build_validate_lines(self) -> ta.List[str]:
-            ret = []
-            for fld in self.fctx.ctx.spec.fields:
-                vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
-                if callable(vld_md):
-                    ret.append(f'{self.fctx.nsb.put(vld_md)}({fld.name})')
-                elif vld_md is True or (vld_md is None and self.fctx.ctx.extra_params.validate is True):
-                    ret.append(f'{self.fctx.nsb.put(build_default_field_validation(fld))}({fld.name})')
-                elif vld_md is False or vld_md is None:
-                    pass
-                else:
-                    raise TypeError(vld_md)
-            return ret
-
-        @attach(Aspect.Function.Phase.VALIDATE)
-        def build_validator_lines(self) -> ta.List[str]:
-            ret = []
-            for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
-                vld_args = get_flat_fn_args(vld.fn)
-                for arg in vld_args:
-                    check.in_(arg, self.fctx.ctx.spec.fields)
-                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
-            return ret
-
-        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
-        def build_self_validator_lines(self) -> ta.List[str]:
-            ret = []
-            for self_vld in self.fctx.ctx.spec.rmro_extras_by_cls[SelfValidator]:
-                ret.append(f'{self.fctx.nsb.put(self_vld.fn)}({self.fctx.self_name})')
-            return ret
-
-        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
         def build_checker_lines(self) -> ta.List[str]:
             ret = []
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
@@ -120,14 +101,11 @@ class StandardValidation(Aspect):
                 )
             return ret
 
-        @attach(Aspect.Function.Phase.POST_SET_ATTRS)
-        def build_self_checker_lines(self) -> ta.List[str]:
-            ret = []
-            for self_chk in self.fctx.ctx.spec.rmro_extras_by_cls[SelfChecker]:
-                self_chk_arg = [check.single(get_flat_fn_args(self_chk.fn))]
-                bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, self_chk, self_chk_arg)
-                ret.append(
-                    f'if not {self.fctx.nsb.put(self_chk.fn)}({self.fctx.self_name}): '
-                    f'{self.fctx.nsb.put(bound_build_chk_exc)}({self.fctx.self_name})'
-                )
-            return ret
+        @attach(Aspect.Function.Phase.VALIDATE)
+        def build_validation_lines(self) -> ta.List[str]:
+            return [
+                *self.build_validate_lines(),
+                *self.build_validator_lines(),
+                *self.build_check_lines(),
+                *self.build_checker_lines(),
+            ]

@@ -44,16 +44,6 @@ class Validator(lang.Final):
 
 
 @dc.dataclass(frozen=True)
-class SelfChecker(lang.Final):
-    fn: ta.Callable[[ta.Any], bool]
-
-
-@dc.dataclass(frozen=True)
-class SelfValidator(lang.Final):
-    fn: ta.Callable[[ta.Any], None]
-
-
-@dc.dataclass(frozen=True)
 class CheckException(Exception):
     values: ta.Dict[str, ta.Any]
     checker: Checker

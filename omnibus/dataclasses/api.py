@@ -3,6 +3,7 @@
 
 DECREE:
  - validate returns None and raises, check returns bool
+ - NO SELF VALIDATE/CHECK - can't be done in setters - use post_init
 
 TODO:
  - Field options:
@@ -65,8 +66,6 @@ from .types import Mangler
 from .types import METADATA_ATTR
 from .types import MISSING_TYPE
 from .types import PostInit
-from .types import SelfChecker
-from .types import SelfValidator
 from .types import Validator
 
 
@@ -304,8 +303,6 @@ def install(cls_dct, cls, *args, **kwargs) -> None:
 
 
 check_ = functools.partial(install, Checker)
-check_self = functools.partial(install, SelfChecker)
 derive = functools.partial(install, Deriver)
 post_init = functools.partial(install, PostInit)
 validate = functools.partial(install, Validator)
-validate_self = functools.partial(install, SelfValidator)
