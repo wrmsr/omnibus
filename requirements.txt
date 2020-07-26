@@ -6,8 +6,8 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.14.27
-botocore==1.17.27
+boto3==1.14.28
+botocore==1.17.28
 bson==0.5.10
 cbor==1.0.0
 cytoolz==0.10.1
@@ -23,8 +23,8 @@ lz4==3.1.0
 msgpack==1.0.0
 mysql-connector-python==8.0.21
 numpy==1.19.1
-orjson==3.2.2; python_version < '3.9'
-pg8000==1.16.1
+orjson==3.3.0; python_version < '3.9'
+pg8000==1.16.2
 psutil==5.7.2
 psycopg2==2.8.5
 pymemcache==3.2.0

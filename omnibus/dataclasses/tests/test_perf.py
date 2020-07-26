@@ -8,8 +8,21 @@ from ... import dataclasses as odc
 
 
 def test_perf():
-    @dc.dataclass(frozen=True)
+    @dc.dataclass()
     class CBuiltin:
+        x: int
+
+    class CStandard(odc.Data):
+        x: int
+
+    class CDict(
+        odc.Data,
+        aspects=odc.process.replace_aspects(odc.process.DEFAULT_ASPECTS, odc.process.dicts.ASPECT_REPLACEMENTS),
+    ):
+        x: int
+
+    @dc.dataclass(frozen=True)
+    class CBuiltinFrozen:
         x: int
 
     class CFrozen(odc.Frozen):
@@ -25,6 +38,9 @@ def test_perf():
 
     for C in [
         CBuiltin,
+        CStandard,
+        CDict,
+        CBuiltinFrozen,
         CFrozen,
         CPure,
         CTuple,
@@ -46,13 +62,24 @@ def test_perf():
         end = time.time()
         print(f'getattr: {end - start:0.04}')
 
+        try:
+            c.x = 2
+        except Exception:  # noqa
+            pass
+        else:
+            start = time.time()
+            for i in range(10_000_000):
+                c.x = i  # noqa
+            end = time.time()
+            print(f'setattr: {end - start:0.04}')
+
         getrss = lambda: resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         start = getrss()
         r, w = os.pipe()
         pid = os.fork()
         if not pid:
             os.close(r)
-            l = [C(1) for _ in range(5_000_000)]  # noqa
+            l = [C(1) for _ in range(2_000_000)]  # noqa
             end = getrss()
             os.write(w, f'{end}\n'.encode('utf-8'))
             os.close(w)
