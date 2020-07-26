@@ -324,7 +324,7 @@ class Aspect(AttachmentCollection, lang.Abstract):
             for phase in phases:
                 for aspect in self.fctx.aspects:
                     for attachment in aspect.attachment_lists_by_key.get(phase, []):
-                        alines = list(attachment())
+                        alines = list(check.not_isinstance(attachment(), str))
                         if not alines:
                             continue
                         if phase not in optional_phases:

@@ -127,7 +127,7 @@ class Defaulting(Aspect):
 
         @properties.cached
         def has_factory_name(self) -> str:
-            return self.fctx.nsb.put(HasFactory, 'has_factory')
+            return self.fctx.nsb.put(HasFactory, '_has_factory')
 
         @attach(Aspect.Function.Phase.DEFAULT)
         def build_default_lines(self) -> ta.List[str]:

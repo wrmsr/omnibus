@@ -2,7 +2,6 @@ import functools
 import typing as ta
 
 from ... import check
-from ... import properties
 from ..types import Checker
 from ..types import CheckException
 from ..types import ExtraFieldParams
@@ -19,20 +18,6 @@ class Validation(Aspect):
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
-
-    FN_ARG_EXTRA_TYPES = {
-        Checker,
-        Validator,
-    }
-
-    @properties.cached
-    def fn_extra_lists_by_arg_name_by_cls(self) -> ta.Mapping[str, ta.Mapping[type, ta.Sequence[ta.Any]]]:
-        ret = {}
-        for excls in self.FN_ARG_EXTRA_TYPES:
-            for ex in self.ctx.spec.rmro_extras_by_cls[excls]:
-                for arg in get_flat_fn_args(ex.fn):
-                    ret.setdefault(arg, {}).setdefault(excls, []).append(ex)
-        return ret
 
     @staticmethod
     def raise_check_exception(chk, chk_args, *args):

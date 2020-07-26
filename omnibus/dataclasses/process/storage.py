@@ -77,7 +77,7 @@ class Storage(Aspect, lang.Abstract):
 
         @properties.cached
         def argspec(self) -> code.ArgSpec:
-            ty = self.fctx.nsb.put(self.fctx.field.type, '_ty')
+            ty = self.fctx.nsb.put(self.fctx.field.type)
             return code.ArgSpec(
                 [self.fctx.self_name, self.fctx.field.name],
                 annotations={'return': ty, self.fctx.field.name: ty},
@@ -97,7 +97,7 @@ class Storage(Aspect, lang.Abstract):
 
         @properties.cached
         def argspec(self) -> code.ArgSpec:
-            ty = self.fctx.nsb.put(self.fctx.field.type, '_ty')
+            ty = self.fctx.nsb.put(self.fctx.field.type)
             return code.ArgSpec(
                 [self.fctx.self_name, self.fctx.field.name],
                 annotations={'return': None, self.fctx.field.name: ty},

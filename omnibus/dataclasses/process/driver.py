@@ -5,6 +5,7 @@ from .bootstrap import Fields
 from .bootstrap import FixVarAnnotations
 from .bootstrap import Params
 from .bootstrap import Slots
+from .coercion import Coercion
 from .defaulting import Defaulting
 from .init import StandardInit
 from .simple import Doc
@@ -26,6 +27,7 @@ TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
 
 DEFAULT_ASPECTS = {
 
+    Coercion,
     Defaulting,
     Doc,
     Eq,

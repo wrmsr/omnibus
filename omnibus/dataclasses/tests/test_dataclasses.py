@@ -159,9 +159,19 @@ def test_validate():
 
 
 def test_coerce():
-    @api_.dataclass(frozen=True)
+    @api_.dataclass()
     class C:
         s: str = api_.field(coerce=str)
+        t: int
+
+    c = C(1, '2')
+    assert c.s == '1'
+    assert c.t == '2'
+
+    c.s = 2
+    assert c.s == '2'
+    c.t = 3
+    assert c.t == 3
 
 
 def test_derive():
