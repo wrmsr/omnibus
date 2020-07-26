@@ -25,7 +25,7 @@ _read_about()
 
 
 INCLUDED_STATIC_FILE_PATHS = {
-    '*.cc'
+    '*.cc',
     '*.g4',
     '*.h',
     '*.interp',
@@ -40,25 +40,26 @@ EXCLUDED_STATIC_FILE_PATHS = {
     '*.py',
     '*.so',
     '*/__pycache__/*',
+    '*/_ext/cy/*.cpp',
     '*/tests/*',
 }
 
 
 def _get_static_files(path):
-    return [
-        filepath
-        for (dirpath, dirnames, filenames) in os.walk(path, followlinks=True)
-        for filename in filenames
-        for filepath in [os.path.join(dirpath, filename)]
-        if any(fnmatch.fnmatch(filepath, pat) for pat in INCLUDED_STATIC_FILE_PATHS)
-        and not any(fnmatch.fnmatch(filepath, pat) for pat in EXCLUDED_STATIC_FILE_PATHS)
-    ]
+    ret = []
+    for (dirpath, dirnames, filenames) in os.walk(path, followlinks=True):
+        for filename in filenames:
+            for filepath in [os.path.join(dirpath, filename)]:
+                if (
+                        any(fnmatch.fnmatch(filepath, pat) for pat in INCLUDED_STATIC_FILE_PATHS) and
+                        not any(fnmatch.fnmatch(filepath, pat) for pat in EXCLUDED_STATIC_FILE_PATHS)
+                ):
+                    ret.append(filepath)
+    return ret
 
 
 PACKAGE_DATA = [
 ] + _get_static_files('omnibus')
-
-print(PACKAGE_DATA)
 
 
 INSTALL_REQUIRES = [
