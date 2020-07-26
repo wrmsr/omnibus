@@ -53,7 +53,7 @@ class Validation(Aspect):
                 return self._loaded_fields[field]
             except KeyError:
                 name = self._loaded_fields[field] = self.fctx.nsb.put(None, field)
-                lines.append(f'{name} = {self.fctx.self_name}.{name}')
+                lines.append(f'{name} = {self.fctx.self_name}.{field}')
                 return name
 
         def load_fields(
@@ -104,11 +104,10 @@ class Validation(Aspect):
                     continue
                 chk_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check
                 if callable(chk_md):
-                    chk_args = [fld.name]
-                    bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk_md, chk_args)
+                    bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk_md, [fld.name])
                     ret.append(
-                        f'if not {self.fctx.nsb.put(chk_md)}({", ".join(chk_args)}): '
-                        f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(chk_args)})'
+                        f'if not {self.fctx.nsb.put(chk_md)}({fld.name}): '
+                        f'{self.fctx.nsb.put(bound_build_chk_exc)}({fld.name})'
                     )
                 elif chk_md is False or chk_md is None:
                     pass

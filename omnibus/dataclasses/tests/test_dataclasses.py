@@ -133,6 +133,30 @@ def test_validate():
         c.x = 0
     assert c.x == 1
 
+    def raise_if_greater(l, r):
+        if l > r:
+            raise ValueError
+
+    @api_.dataclass()
+    class C:
+        x: int = api_.field()
+        y: int
+
+        api_.validate(lambda x, y: raise_if_greater(x, y))
+
+    C(1, 2)
+    C(2, 2)
+    with pytest.raises(ValueError):
+        C(3, 2)
+
+    c = C(2, 2)
+    with pytest.raises(ValueError):
+        c.x = 3
+    assert c.x == 2
+    with pytest.raises(ValueError):
+        c.y = 1
+    assert c.y == 2
+
 
 def test_coerce():
     @api_.dataclass(frozen=True)
