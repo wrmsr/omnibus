@@ -66,7 +66,7 @@ class TupleStorage(Storage):
             setattr(self.ctx.cls, fld.name, dsc)
 
     @attach(Aspect.Function)
-    class Helper(Storage.Helper['TupleStorage']):
+    class Building(Storage.Building['TupleStorage']):
 
         def build_raw_set_field(self, fld: dc.Field, value: str) -> str:
             raise TypeError

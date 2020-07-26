@@ -18,7 +18,7 @@ from .simple import PostInitAspect
 from .simple import Repr
 from .storage import StandardStorage
 from .types import Context
-from .validation import StandardValidation
+from .validation import Validation
 
 
 TypeT = ta.TypeVar('TypeT', bound=type, covariant=True)
@@ -42,7 +42,7 @@ DEFAULT_ASPECTS = {
     Slots,
     StandardInit,
     StandardStorage,
-    StandardValidation,
+    Validation,
 
 }
 

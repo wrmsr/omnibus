@@ -2,7 +2,6 @@ import functools
 import typing as ta
 
 from ... import check
-from ... import lang
 from ... import properties
 from ..types import Checker
 from ..types import CheckException
@@ -15,11 +14,7 @@ from .types import attach
 from .utils import get_flat_fn_args
 
 
-class Validation(Aspect, lang.Abstract):
-    pass
-
-
-class StandardValidation(Aspect):
+class Validation(Aspect):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
@@ -45,12 +40,14 @@ class StandardValidation(Aspect):
             raise TypeError(chk_args, args)
         raise CheckException({k: v for k, v in zip(chk_args, args)}, chk)
 
-    @attach('init')
-    class Init(Aspect.Function['StandardValidation']):
+    @attach(Aspect.Function)
+    class Building(Aspect.Function['Validation']):
 
-        def build_validate_lines(self) -> ta.List[str]:
+        def build_validate_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
+                if fld.name not in fields:
+                    continue
                 vld_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).validate
                 if callable(vld_md):
                     ret.append(f'{self.fctx.nsb.put(vld_md)}({fld.name})')
@@ -62,18 +59,22 @@ class StandardValidation(Aspect):
                     raise TypeError(vld_md)
             return ret
 
-        def build_validator_lines(self) -> ta.List[str]:
+        def build_validator_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             ret = []
             for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]:
                 vld_args = get_flat_fn_args(vld.fn)
                 for arg in vld_args:
-                    check.in_(arg, self.fctx.ctx.spec.fields)
+                    check.in_(arg, self.fctx.ctx.spec.fields.by_name)
+                if not any(arg in fields for arg in vld_args):
+                    continue
                 ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(vld_args)})')
             return ret
 
-        def build_check_lines(self) -> ta.List[str]:
+        def build_check_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             ret = []
             for fld in self.fctx.ctx.spec.fields:
+                if fld.name not in fields:
+                    continue
                 chk_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check
                 if callable(chk_md):
                     chk_args = [fld.name]
@@ -88,12 +89,14 @@ class StandardValidation(Aspect):
                     raise TypeError(chk_md)
             return ret
 
-        def build_checker_lines(self) -> ta.List[str]:
+        def build_checker_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             ret = []
             for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]:
                 chk_args = get_flat_fn_args(chk.fn)
                 for arg in chk_args:
-                    check.in_(arg, self.fctx.ctx.spec.fields)
+                    check.in_(arg, self.fctx.ctx.spec.fields.by_name)
+                if not any(arg in fields for arg in chk_args):
+                    continue
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
                     f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(chk_args)}): '
@@ -101,11 +104,18 @@ class StandardValidation(Aspect):
                 )
             return ret
 
+        def build_validation_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
+            return [
+                *self.build_validate_lines(fields),
+                *self.build_validator_lines(fields),
+                *self.build_check_lines(fields),
+                *self.build_checker_lines(fields),
+            ]
+
+    @attach('init')
+    class Init(Aspect.Function['Validation']):
+
         @attach(Aspect.Function.Phase.VALIDATE)
         def build_validation_lines(self) -> ta.List[str]:
-            return [
-                *self.build_validate_lines(),
-                *self.build_validator_lines(),
-                *self.build_check_lines(),
-                *self.build_checker_lines(),
-            ]
+            all_fields = set(self.fctx.ctx.spec.fields.by_name)
+            return self.fctx.get_aspect(Validation.Building).build_validation_lines(all_fields)

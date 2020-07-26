@@ -66,7 +66,7 @@ class DictStorage(Storage):
             setattr(self.ctx.cls, fld.name, dsc)
 
     @attach(Aspect.Function)
-    class Helper(Storage.Helper['DictStorage']):
+    class Building(Storage.Building['DictStorage']):
 
         def build_raw_set_field(self, fld: dc.Field, value: str) -> str:
             return f'{self.fctx.self_name}.{self.aspect.dict_attr}[{fld.name!r}] = {value}'
@@ -90,7 +90,7 @@ class DictStorage(Storage):
                     continue
                 if f.default is dc.MISSING:
                     continue
-                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_raw_set_field(f, f.name))
+                ret.append(self.fctx.get_aspect(self.aspect.Building).build_raw_set_field(f, f.name))
             return ret
 
 

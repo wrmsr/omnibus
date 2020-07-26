@@ -87,7 +87,16 @@ def test_implicit_abc():
 def test_check():
     @api_.dataclass()
     class C:
-        x: int = api_.field(check=lambda x: x > 2)
+        x: int = api_.field(check=lambda foo: foo > 2)
+
+    C(3)
+    with pytest.raises(Exception):
+        C(2)
+
+    @api_.dataclass()
+    class C:
+        x: int = api_.field()
+        api_.check_(lambda x: x > 2)
 
     C(3)
     with pytest.raises(Exception):
@@ -95,20 +104,29 @@ def test_check():
 
 
 def test_validate():
+    def raise_if_falsey(o):
+        if not o:
+            raise ValueError
+
     @api_.dataclass(frozen=True)
     class C:
-        x: int = api_.field(validate=lambda x: x > 0)
+        x: int = api_.field(validate=lambda foo: raise_if_falsey(foo))
         y: int
 
-        api_.validate(lambda x, y: x > y)
+    C(1, 2)
+    with pytest.raises(ValueError):
+        C(0, 1)
 
-        # @dataclasses_.validate
-        # @staticmethod
-        # def _validate(x, y):
-        #     if not (x > y):
-        #         raise ValueError
+    @api_.dataclass(frozen=True)
+    class C:
+        x: int = api_.field()
+        y: int
 
-    # assert C.__dataclass_validators__
+        api_.validate(lambda x: raise_if_falsey(x))
+
+    C(1, 2)
+    with pytest.raises(ValueError):
+        C(0, 1)
 
 
 def test_coerce():
@@ -337,6 +355,22 @@ def test_iv():
     assert l == [2]
     with pytest.raises(Exception):
         c.y
+
+
+def test_post_init():
+    l = []
+
+    @api_.dataclass()
+    class C:
+        x: int
+        y: int
+
+        api_.post_init(lambda self: l.append((self.x, self.y)))
+
+    c = C(3, 4)
+    assert c.x == 3
+    assert c.y == 4
+    assert l == [(3, 4)]
 
 
 def test_descriptor():

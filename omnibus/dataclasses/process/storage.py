@@ -46,7 +46,7 @@ class Storage(Aspect, lang.Abstract):
         raise NotImplementedError
 
     @attach(Aspect.Function)
-    class Helper(Aspect.Function[StorageT], lang.Abstract):
+    class Building(Aspect.Function[StorageT], lang.Abstract):
 
         @abc.abstractmethod
         def build_raw_set_field(self, fld: dc.Field, value: str) -> str:
@@ -63,7 +63,7 @@ class Storage(Aspect, lang.Abstract):
                     continue
                 if not f.init and f.default_factory is dc.MISSING:
                     continue
-                ret.append(self.fctx.get_aspect(self.aspect.Helper).build_raw_set_field(f, f.name))
+                ret.append(self.fctx.get_aspect(self.aspect.Building).build_raw_set_field(f, f.name))
             return ret
 
 
@@ -116,7 +116,7 @@ class StandardStorage(Storage):
             setattr(self.ctx.cls, fld.name, dsc)
 
     @attach(Aspect.Function)
-    class Helper(Storage.Function['StandardStorage']):
+    class Building(Storage.Building['StandardStorage']):
 
         @properties.cached
         def setattr_name(self) -> str:
