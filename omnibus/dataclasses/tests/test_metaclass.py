@@ -77,6 +77,9 @@ def test_meta():
     class PackageIface(metaclass_.Data, abstract=True, sealed='package', pickle=True):  # noqa
         x: int
 
+    class PackageIface2(PackageIface, abstract=True):  # noqa
+        x: int
+
     class FrozenIface(metaclass_.Data, abstract=True, sealed=True, pickle=True, frozen=True):
         x: int
 
