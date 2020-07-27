@@ -245,6 +245,8 @@ type-ignore-vendor:
 		fi ; \
 		if [ ! "$$(sed -n '/^# type: ignore/p;q' "$$F")" ] ; then \
 			echo "$$F" ; \
+			BUF=$(cat "$$F") ; \
+			(echo -e "# type: ignore\n" ; echo "$$BUF") > "$$F" ; \
 		fi ; \
 	done
 
