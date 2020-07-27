@@ -30,6 +30,8 @@ TODO:
   - unordered_multimap
   - bitset
 
+https://martinralbrecht.wordpress.com/2017/07/23/adventures-in-cython-templating/
+
 https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html
 https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#wrapping-cplusplus
 https://github.com/cython/cython/wiki/WrappingSetOfCppClasses

@@ -1,10 +1,4 @@
 """
-** FEATURE LOCK **
-
-DECREE:
- - validate returns None and raises, check returns bool
- - NO SELF VALIDATE/CHECK - can't be done in setters - use post_init
-
 TODO:
  - Field options:
   - transient (+cache_hash)
@@ -14,6 +8,7 @@ TODO:
   - validate: True=default, cls-lvl default on/off, unary void callable ...
   - iterable: ta.Union[Iterability, str], enum Iterability: VALUES, KEYS, ITEMS
    - VALUES = namedtuple compat, destructuring
+  - validation 'profiles' including str_is_not_seq
  - typecheck defaults on def
  - jackson style json serdes interop
    - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
@@ -42,6 +37,10 @@ TODO:
  - sql interop? https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
  - enforce immut metadata
  - replace aspect phases w/ dag?
+ - dc.touch
+  - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
+ - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
+ - sealed='package'
 """
 import collections
 import collections.abc

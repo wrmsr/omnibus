@@ -8,6 +8,8 @@ https://github.com/apache/airflow/blob/7d69987eddd0d5793339ccfd272bac8721d95894/
 https://github.com/leinardi/mypy-pycharm
 
 mypy.plugin.dataclasses:dataclass_class_maker_callback
+
+https://github.com/python/mypy/issues/1862
 """
 import resource  # noqa
 import typing as ta

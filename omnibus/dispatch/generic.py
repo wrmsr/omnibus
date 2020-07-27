@@ -3,6 +3,7 @@ TODO:
  - fmap
   - asts - traverse, rewrite
  - ensure virtual abc's work
+ - https://docs.julialang.org/en/v1/manual/methods/
 """
 import typing as ta
 
