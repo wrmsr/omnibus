@@ -269,13 +269,13 @@ test-verbose: build
 ### Dist
 
 define do-dist
-	ifeq "$(3)" "1"
-		$(eval DIST_BUILD_DIR:=$(shell mktemp -d -t omnibus-build-XXXXXXXXXX))
-	else
-		rm -rf build
-		mkdir -p build
-		$(eval DIST_BUILD_DIR:=build)
-	endif
+ifeq "$(3)" "1"
+	$(eval DIST_BUILD_DIR:=$(shell mktemp -d -t omnibus-build-XXXXXXXXXX))
+else
+	rm -rf build
+	mkdir -p build
+	$(eval DIST_BUILD_DIR:=build)
+endif
 
 	$(eval DIST_BUILD_PYTHON:=$(shell echo "$(shell pwd)/$(1)/bin/python"))
 
