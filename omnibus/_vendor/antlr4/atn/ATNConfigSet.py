@@ -1,3 +1,4 @@
+# type: ignore
 #
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
@@ -204,6 +205,3 @@ class OrderedATNConfigSet(ATNConfigSet):
 
     def __init__(self):
         super().__init__()
-
-
-

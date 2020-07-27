@@ -1,3 +1,4 @@
+# type: ignore
 #
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
@@ -101,4 +102,3 @@ class TestInputStream(unittest.TestCase):
         self.assertEqual("bcd", stream.getText(1, 3))
         stream.reset()
         self.assertEqual(0, stream.index)
-

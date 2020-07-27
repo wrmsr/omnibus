@@ -1,3 +1,4 @@
+# type: ignore
 #
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
@@ -278,5 +279,3 @@ class TestIntervalSet(unittest.TestCase):
         self.assertTrue(100 in c)
         self.assertTrue(10 not in c)
         self.assertTrue(20 not in c)
-
-

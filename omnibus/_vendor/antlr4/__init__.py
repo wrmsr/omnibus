@@ -1,3 +1,4 @@
+# type: ignore
 from .Token import Token
 from .InputStream import InputStream
 from .FileStream import FileStream

@@ -1,3 +1,4 @@
+# type: ignore
 #
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
@@ -620,4 +621,3 @@ def getAllContextNodes(context:PredictionContext, nodes:list=None, visited:dict=
         for i in range(0, len(context)):
             getAllContextNodes(context.getParent(i), nodes, visited)
         return nodes
-

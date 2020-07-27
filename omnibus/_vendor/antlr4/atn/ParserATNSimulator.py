@@ -1,3 +1,4 @@
+# type: ignore
 #
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
@@ -1643,4 +1644,3 @@ class ParserATNSimulator(ATNSimulator):
                                ", input=" + self.parser.getTokenStream().getText(startIndex, stopIndex))
         if self.parser is not None:
             self.parser.getErrorListenerDispatch().reportAmbiguity(self.parser, dfa, startIndex, stopIndex, exact, ambigAlts, configs)
-
