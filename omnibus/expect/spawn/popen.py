@@ -1,7 +1,7 @@
-from .types import Spawn
+from .base import BaseSpawn
 
 
-class BaseSpawn(Spawn):
+class PopenSpawn(BaseSpawn):
 
     def __init__(self) -> None:
         super().__init__()

@@ -1,6 +1,7 @@
 """
 TODO:
  - streaming
+  - https://docs.python.org/3/library/codecs.html#incremental-encoding-and-decoding
  - interops
   - csvloader
 """
