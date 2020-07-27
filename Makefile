@@ -72,7 +72,7 @@ define do-venv
 	set -e ; \
 	\
 	if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
-		virtualenv $(1) ; \
+		python -m venv $(1) ; \
 	\
 	else \
 		PYENV_INSTALL_DIR="$(2)" ; \
@@ -323,7 +323,7 @@ test-install: dist
 	rm -rf .venv-install
 
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
-		virtualenv .venv-install ; \
+		python -m venv .venv-install ; \
 	else \
 		"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-install ; \
@@ -366,7 +366,7 @@ test-pypi:
 	rm -rf .venv-pypi
 
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
-		virtualenv .venv-pypi ; \
+		python -m venv .venv-pypi ; \
 	else \
 		"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-pypi ; \
@@ -456,7 +456,7 @@ _docker-venv-37:
 		$(call do-deps,.venv-docker-37,$(REQUIREMENTS_TXT)) ; \
 	fi
 
-### Deps
+## Deps
 
 .PHONY: docker-deps
 docker-deps:
@@ -519,3 +519,15 @@ _docker-dist: _docker-venv
 .PHONY: _docker-dist-37
 _docker-dist-37: _docker-venv-37
 	$(call do-dist,.venv-docker-37,0,1)
+
+
+### Circle
+
+.PHONY: circle
+circle:
+	(cd docker && make circle)
+
+.PHONY: circle-test
+circle-test:
+	flake8 omnibus
+	pytest -v -n auto omnibus

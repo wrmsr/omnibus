@@ -40,7 +40,6 @@ TODO:
  - dc.touch
   - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
  - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
- - sealed='package'
 """
 import collections
 import collections.abc

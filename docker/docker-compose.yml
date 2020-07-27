@@ -221,3 +221,14 @@ services:
       - '8000'
     ports:
       - '22210:8000'
+
+  omnibus-circle:
+    build: '.'
+    image: 'wrmsr/omnibus-circle:latest'
+    restart: 'no'
+    depends_on:
+      - 'omnibus-mysql-master'
+      - 'omnibus-mysql-slave'
+    links:
+      - 'omnibus-mysql-master'
+      - 'omnibus-mysql-slave'

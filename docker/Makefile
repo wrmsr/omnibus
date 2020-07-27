@@ -94,3 +94,11 @@ reup: stop
 .PHONY: enable-ptrace
 enable-ptrace:
 	docker run --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
+
+.PHONY: circle-images
+circle-images:
+	(cd .. && docker build --tag "$(DOCKER_USER)/omnibus-circle" -f docker/omnibus-circle/Dockerfile .)
+
+.PHONY: circle
+circle: circle-images
+	docker-compose run --rm omnibus-circle
