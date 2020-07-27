@@ -187,7 +187,7 @@ class PackageSealed:
     def __init_subclass__(cls, **kwargs) -> None:
         for base in cls.__bases__:
             if base is not Abstract:
-                if Sealed in base.__bases__:
+                if PackageSealed in base.__bases__:
                     if cls.__module__.split('.')[:-1] != base.__module__.spllit('.')[:-1]:
                         raise SealedException(base)
         super().__init_subclass__(**kwargs)
