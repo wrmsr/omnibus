@@ -31,6 +31,7 @@ from .classes import NotInstantiable  # noqa
 from .classes import NotPicklable  # noqa
 from .classes import Override  # noqa
 from .classes import override  # noqa
+from .classes import PackageSealed  # noqa
 from .classes import Picklable  # noqa
 from .classes import Protocol  # noqa
 from .classes import protocol_check  # noqa

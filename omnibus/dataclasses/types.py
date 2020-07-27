@@ -133,14 +133,14 @@ class MetaclassParams(lang.Final):
     no_weakref: bool = False
     abstract: bool = False
     final: bool = False
-    sealed: bool = False
+    sealed: ta.Union[bool, str] = False
 
     def __post_init__(self) -> None:
         check.isinstance(self.slots, (bool, MISSING_TYPE))
         check.isinstance(self.no_weakref, (bool, MISSING_TYPE))
         check.isinstance(self.abstract, (bool, MISSING_TYPE))
         check.isinstance(self.final, (bool, MISSING_TYPE))
-        check.isinstance(self.sealed, (bool, MISSING_TYPE))
+        check.isinstance(self.sealed, (bool, str, MISSING_TYPE))
 
 
 METACLASS_PARAMS_CONFER_DEFAULTS = {

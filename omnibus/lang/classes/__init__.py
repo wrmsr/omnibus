@@ -17,6 +17,7 @@ from .restrict import NotInstantiable  # noqa
 from .restrict import NotPicklable  # noqa
 from .restrict import Override  # noqa
 from .restrict import override  # noqa
+from .restrict import PackageSealed  # noqa
 from .restrict import Sealed  # noqa
 from .restrict import SealedException  # noqa
 from .simple import Inner  # noqa

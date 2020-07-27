@@ -49,7 +49,7 @@ class _MetaBuilder:
             no_weakref: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             abstract: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
             final: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
-            sealed: ta.Union[bool, MISSING_TYPE] = dc.MISSING,  # False
+            sealed: ta.Union[bool, str, MISSING_TYPE] = dc.MISSING,  # False
 
             **kwargs
     ) -> None:
@@ -117,8 +117,13 @@ class _MetaBuilder:
         bases = list(self.bases)
         if self._metaclass_params.final and lang.Final not in bases:
             bases.append(lang.Final)
-        if self._metaclass_params.sealed and lang.Sealed not in bases:
-            bases.append(lang.Sealed)
+        if self._metaclass_params.sealed:
+            if self._metaclass_params.sealed == 'package' and lang.PackageSealed not in bases:
+                bases.append(lang.PackageSealed)
+            elif isinstance(self._metaclass_params.sealed, bool) and lang.Sealed not in bases:
+                bases.append(lang.Sealed)
+            else:
+                raise ValueError(self._metaclass_params.sealed)
         if self._metaclass_params.abstract and lang.Abstract not in bases:
             bases.append(lang.Abstract)
         return bases
