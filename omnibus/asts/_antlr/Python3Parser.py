@@ -1,4 +1,5 @@
 # flake8: noqa
+# type: ignore
 # Generated from Python3.g4 by ANTLR 4.8
 # encoding: utf-8
 from ..._vendor.antlr4 import *

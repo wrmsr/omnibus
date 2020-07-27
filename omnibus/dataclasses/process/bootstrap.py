@@ -14,6 +14,8 @@ from .types import Aspect
 
 
 class FixVarAnnotations(Aspect):
+    # https://github.com/python/cpython/blob/0dd98c2d00a75efbec19c2ed942923981bc06683/Lib/test/test_dataclasses.py#L2908
+    # https://github.com/python/cpython/blob/0dd98c2d00a75efbec19c2ed942923981bc06683/Lib/dataclasses.py#L612
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
