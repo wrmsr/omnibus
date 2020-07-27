@@ -234,7 +234,7 @@ flake: venv
 
 .PHONY: typecheck
 typecheck: venv
-	.venv/bin/mypy --ignore-missing-imports omnibus | awk '{c+=1;print $$0}END{print c}'
+	PYTHONPATH=. .venv/bin/mypy --ignore-missing-imports omnibus
 
 .PHONY: type-ignore-vendor
 type-ignore-vendor:
