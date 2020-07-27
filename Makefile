@@ -236,6 +236,18 @@ flake: venv
 typecheck: venv
 	.venv/bin/mypy --ignore-missing-imports omnibus | awk '{c+=1;print $$0}END{print c}'
 
+.PHONY: type-ignore-vendor
+type-ignore-vendor:
+	# # type: ignore
+	for F in $$(find omnibus/_vendor -name '*.py') ; do \
+		if [ ! -s "$$F" ] ; then \
+			continue ; \
+		fi ; \
+		if [ ! "$$(sed -n '/^# type: ignore/p;q' "$$F")" ] ; then \
+			echo "$$F" ; \
+		fi ; \
+	done
+
 
 ### Test
 
