@@ -269,11 +269,13 @@ test-verbose: build
 ### Dist
 
 define do-dist
-	# rm -rf build
-	# mkdir -p build
-	# $(eval DIST_BUILD_DIR:=build)
-
-	$(eval DIST_BUILD_DIR:=$(shell mktemp -d -t omnibus-build-))
+	ifeq "$(3)" "1"
+		$(eval DIST_BUILD_DIR:=$(shell mktemp -d -t omnibus-build-XXXXXXXXXX))
+	else
+		rm -rf build
+		mkdir -p build
+		$(eval DIST_BUILD_DIR:=build)
+	endif
 
 	$(eval DIST_BUILD_PYTHON:=$(shell echo "$(shell pwd)/$(1)/bin/python"))
 
@@ -334,18 +336,18 @@ test-install: dist
 
 .PHONY: dist
 dist: venv
-	$(call do-dist,.venv,0)
+	$(call do-dist,.venv,0,0)
 
 .PHONY: dist-37
 dist-37: venv-37
-	$(call do-dist,.venv-37,0)
+	$(call do-dist,.venv-37,0,0)
 
 
 ### Dev
 
 .PHONY: dist-dev
 dist-dev: venv
-	$(call do-dist,.venv,1)
+	$(call do-dist,.venv,1,0)
 
 
 ### Publish
@@ -512,8 +514,8 @@ docker-dist-37: docker-venv-37
 
 .PHONY: _docker-dist
 _docker-dist: _docker-venv
-	$(call do-dist,.venv-docker,0)
+	$(call do-dist,.venv-docker,0,1)
 
 .PHONY: _docker-dist-37
 _docker-dist-37: _docker-venv-37
-	$(call do-dist,.venv-docker-37,0)
+	$(call do-dist,.venv-docker-37,0,1)
