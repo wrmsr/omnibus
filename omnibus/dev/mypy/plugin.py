@@ -6,6 +6,8 @@ https://github.com/lyft/pynamodb-mypy/tree/master/pynamodb_mypy
 https://sobolevn.me/2019/08/testing-mypy-types
 https://github.com/apache/airflow/blob/7d69987eddd0d5793339ccfd272bac8721d95894/airflow/mypy/plugin/decorators.py
 https://github.com/leinardi/mypy-pycharm
+
+mypy.plugin.dataclasses:dataclass_class_maker_callback
 """
 import resource  # noqa
 import typing as ta
