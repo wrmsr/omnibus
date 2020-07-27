@@ -269,8 +269,12 @@ test-verbose: build
 ### Dist
 
 define do-dist
-	rm -rf build
-	mkdir build
+	# rm -rf build
+	# mkdir -p build
+	# $(eval DIST_BUILD_DIR:=build)
+
+	$(eval DIST_BUILD_DIR:=$(shell mktemp -d -t omnibus-build-))
+
 	$(eval DIST_BUILD_PYTHON:=$(shell echo "$(shell pwd)/$(1)/bin/python"))
 
 	cp -rv \
@@ -278,38 +282,38 @@ define do-dist
 		omnibus \
 		README.md \
 	\
-		build/
+		$(DIST_BUILD_DIR)/
 	cp -rv \
 		LICENSE-* \
 	\
-		build/ || :
+		$(DIST_BUILD_DIR)/ || :
 
 	if [ $(2) == "1" ] ; then \
-		cp setup-dev.py build/setup.py ; \
-		cp MANIFEST-dev.in build/MANIFEST.in ; \
+		cp setup-dev.py $(DIST_BUILD_DIR)/setup.py ; \
+		cp MANIFEST-dev.in $(DIST_BUILD_DIR)/MANIFEST.in ; \
 	else \
-		cp setup.py build/setup.py ; \
-		cp MANIFEST.in build/MANIFEST.in ; \
+		cp setup.py $(DIST_BUILD_DIR)/setup.py ; \
+		cp MANIFEST.in $(DIST_BUILD_DIR)/MANIFEST.in ; \
 	fi
 
-	find build -name '*.so' -delete
-	cd build && "$(DIST_BUILD_PYTHON)" setup.py clean
+	find $(DIST_BUILD_DIR) -name '*.so' -delete
+	cd $(DIST_BUILD_DIR) && "$(DIST_BUILD_PYTHON)" setup.py clean
 
-	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/.revision"
-	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "build/omnibus/dev/.revision"
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision"
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/dev/.revision"
 
 	if [ "$(1)" = ".venv" ] ; then \
-		cd build && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
+		cd $(DIST_BUILD_DIR) && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
 	fi
 
 	if [ $(2) != "1" ] ; then \
-		cd build && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel ; \
+		cd $(DIST_BUILD_DIR) && "$(DIST_BUILD_PYTHON)" setup.py bdist_wheel ; \
 	fi
 
 	if [ ! -d ./dist ] ; then \
 		mkdir dist ; \
 	fi
-	cp build/dist/* ./dist/
+	cp $(DIST_BUILD_DIR)/dist/* ./dist/
 endef
 
 .PHONY: test-install
