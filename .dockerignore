@@ -5,9 +5,11 @@
 .env
 .git
 .idea
+.mypy_cache
 .pytest_cache
 .tox
 .venv*
+antlr-*-complete.jar
 attic
 build
 dist
