@@ -529,5 +529,6 @@ circle:
 
 .PHONY: circle-test
 circle-test:
+	python setup.py build_ext --inplace
 	flake8 omnibus
 	pytest -v -n auto omnibus

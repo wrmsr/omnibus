@@ -137,6 +137,15 @@ if APPLE:
     ])
 
 
+def new_build_ext_init_opts(self, *args, **kwargs):
+    old_build_ext_init_opts(self, *args, **kwargs)
+    self.parallel = os.cpu_count()
+
+import distutils.command.build_ext  # noqa
+old_build_ext_init_opts = distutils.command.build_ext.build_ext.initialize_options  # noqa
+distutils.command.build_ext.build_ext.initialize_options = new_build_ext_init_opts  # noqa
+
+
 if __name__ == '__main__':
     setuptools.setup(
         name=ABOUT['__title__'],
