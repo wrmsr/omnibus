@@ -1,6 +1,10 @@
 DOCKER_USER=wrmsr
 
+DOCKER_CIRCLE_IMAGES:= \
+	omnibus-mysql \
+
 DOCKER_IMAGES:= \
+	$(DOCKER_CIRCLE_IMAGES) \
 	omnibus-dev \
 	omnibus-dynamodb \
 	omnibus-elasticmq \
@@ -9,7 +13,6 @@ DOCKER_IMAGES:= \
 	omnibus-memcached \
 	omnibus-minio \
 	omnibus-mongo \
-	omnibus-mysql \
 	omnibus-postgres \
 	omnibus-redis \
 	omnibus-spark-master \
@@ -97,7 +100,16 @@ enable-ptrace:
 
 .PHONY: circle-images
 circle-images:
-	(cd .. && docker build --tag "$(DOCKER_USER)/omnibus-circle" -f docker/omnibus-circle/Dockerfile .)
+	for IMG in $(DOCKER_CIRCLE_IMAGES) ; do \
+		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
+	done
+
+	DI=$$(mktemp) ; \
+	cd .. ; \
+	(cat .dockerignore | egrep -v '^omnibus$$') > "$$DI" ; \
+	tar cvh --exclude-from="$$DI" * .dockertimestamp | \
+		docker build --tag "$(DOCKER_USER)/omnibus-circle" -f "docker/omnibus-circle/Dockerfile" -
+
 
 .PHONY: circle
 circle: circle-images

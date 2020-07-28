@@ -1,10 +1,8 @@
 FROM python:3.8.5-buster
 COPY .dockertimestamp /
 
-RUN \
-    touch ~/.bashrc && \
-    echo 'export CIRCLECI=true' >> ~/.bashrc \
-;
+
+# Packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
 RUN apt-get update && apt-get upgrade -y && apt-get install -y apt-utils
@@ -35,6 +33,38 @@ RUN ( \
     zip \
 \
 )
+
+
+# Configuration files
+
+RUN echo "\
+setw -g mode-keys vi \n\
+set -g status-keys vi \n\
+set -sg escape-time 0 \n\
+set -g status-fg black \n\
+set-option -g history-limit 20000 \n\
+" >> ~/.tmux.conf
+
+RUN echo "\
+set number \n\
+syntax on \n\
+filetype indent plugin on \n\
+" >> ~/.vimrc
+
+RUN echo "\
+TERM=screen-256color \n\
+\n\
+" >> ~/.bashrc
+
+RUN echo 'source ~/.bashrc' >> ~/.bash_profile
+
+
+# Circle
+
+RUN \
+    touch ~/.bashrc && \
+    echo 'export CIRCLECI=true' >> ~/.bashrc \
+;
 
 RUN mkdir /build
 WORKDIR /build
