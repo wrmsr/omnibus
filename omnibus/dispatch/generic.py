@@ -4,6 +4,7 @@ TODO:
   - asts - traverse, rewrite
  - ensure virtual abc's work
  - https://docs.julialang.org/en/v1/manual/methods/
+  - https://www.reddit.com/r/IAmA/comments/hyva5n/we_are_the_creators_of_the_julia_programming/
 """
 import typing as ta
 
