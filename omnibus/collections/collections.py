@@ -22,6 +22,7 @@ TODO:
    - leveldb (btc)
    - bsddb3 (btc)
  - boost::MultiIndex - sorted.py?
+  - https://www.boost.org/doc/libs/1_73_0/libs/multi_index/doc/reference/index.html
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
  - IndexableSet
