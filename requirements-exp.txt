@@ -13,6 +13,7 @@ cachetools==4.1.1
 certifi==2020.6.20
 cffi==1.14.1
 cftime==1.2.1
+fastprogress==0.2.4
 humanize==2.5.0
 importlib-resources==3.0.0
 ipykernel==5.3.4
