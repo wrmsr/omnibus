@@ -23,6 +23,13 @@ TODO:
    - bsddb3 (btc)
  - boost::MultiIndex - sorted.py?
   - https://www.boost.org/doc/libs/1_73_0/libs/multi_index/doc/reference/index.html
+   - Index reference
+   - Ordered indices
+   - Ranked indices
+   - Hashed indices
+   - Sequenced indices
+   - Random access indices
+   - Key Extraction
  - Immutable + Builder (put-once) + ImmutSetMultiMap
  - LinkedList (fexpr stack, dom topo)
  - IndexableSet
