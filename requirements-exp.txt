@@ -69,6 +69,7 @@ pymc3==3.9.2
 Pyomo==5.7
 pyroaring==0.2.9
 pyspark==3.0.0
+python-pcre==0.7
 python-snappy==0.5.4
 pyzmq==19.0.1
 regex==2020.7.14
