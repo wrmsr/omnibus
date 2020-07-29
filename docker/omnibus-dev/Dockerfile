@@ -23,6 +23,8 @@ RUN ( \
     iputils-tracepath \
     jq \
     less \
+    libpcre2-dev \
+    libpcre3-dev \
     libpq-dev \
     libsnappy-dev \
     make \

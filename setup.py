@@ -1,12 +1,24 @@
 import fnmatch
 import glob
+import logging
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
+import textwrap
+import traceback
 
+import distutils.ccompiler
+import distutils.errors
+import distutils.sysconfig
 import setuptools.command.build_ext
 
 
-APPLE = sys.platform == 'darwin'
+log = logging.getLogger(__name__)
+
+
+# region About
 
 
 BASE_DIR = os.path.dirname(__file__)
@@ -22,6 +34,12 @@ def _read_about():
 
 
 _read_about()
+
+
+# endregion
+
+
+# region Data
 
 
 INCLUDED_STATIC_FILE_PATHS = {
@@ -62,6 +80,12 @@ PACKAGE_DATA = [
 ] + _get_static_files('omnibus')
 
 
+# endregion
+
+
+# region Requires
+
+
 INSTALL_REQUIRES = [
 ]
 
@@ -69,8 +93,87 @@ EXTRAS_REQUIRE = {
 }
 
 
+# endregion
+
+
+# region Extensions
+
+
+APPLE = sys.platform == 'darwin'
+
+
 DEBUG = os.environ.get('DEBUG')
 TRACE = os.environ.get('TRACE')
+
+
+EXT_TOGGLES_BY_FNAME = {
+}
+
+EXT_KWARGS_BY_FNAME = {
+}
+
+
+def try_compile(
+        src: str,
+        *,
+        errors=(
+            distutils.errors.CompileError,
+            distutils.errors.LinkError,
+            subprocess.CalledProcessError,
+        ),
+        **kwargs
+) -> bool:
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        bin_file_name = os.path.join(tmp_dir, 'test')
+        file_name = bin_file_name + '.c'
+        with open(file_name, 'w') as fp:
+            fp.write(src)
+
+        compiler = distutils.ccompiler.new_compiler()
+        distutils.sysconfig.customize_compiler(compiler)
+
+        try:
+            compiler.link_executable(
+                compiler.compile(
+                    [file_name],
+                    output_dir=tmp_dir,
+                ),
+                bin_file_name,
+                output_dir=tmp_dir,
+                **kwargs
+            )
+            subprocess.check_call(bin_file_name)
+        except errors:
+            log.debug(traceback.format_exc())
+            return False
+        else:
+            return True
+
+    finally:
+        shutil.rmtree(tmp_dir)
+
+
+HAS_PCRE2 = lambda: try_compile(
+    textwrap.dedent("""
+#define PCRE2_CODE_UNIT_WIDTH 8
+#include <pcre2.h>
+
+int main(int argc, char *argv[]) {
+  int errornumber;
+  PCRE2_SIZE erroroffset;
+  pcre2_code *re;
+  re = pcre2_compile((PCRE2_SPTR) ".*", PCRE2_ZERO_TERMINATED, 0, &errornumber, &erroroffset, NULL);
+  if (re == NULL)
+    return 1;
+  return 0;
+}
+"""),
+    libraries=['pcre2-8'],
+)
+
+EXT_TOGGLES_BY_FNAME['pcre2.pyx'] = HAS_PCRE2
+EXT_KWARGS_BY_FNAME['pcre2.pyx'] = {'libraries': ['pcre2-8']}
 
 
 EXT_MODULES = [
@@ -80,8 +183,10 @@ EXT_MODULES = [
             sources=[fpath],
             extra_compile_args=['-std=c++14'],
             optional=True,
+            **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
         )
         for fpath in glob.glob('omnibus/_ext/cc/*.cc')
+        if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
     ]
 ]
 
@@ -106,8 +211,10 @@ else:
                     define_macros=[
                         *([('CYTHON_TRACE', '1')] if TRACE else []),
                     ],
+                    **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
                 )
                 for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
+                if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
             ],
             language_level=3,
             gdb_debug=DEBUG,
@@ -117,7 +224,6 @@ else:
                 'embedsignature': True,
                 'binding': True,
             },
-            # FIXME: nthreads=os.cpu_count(),
         ),
     ])
 
@@ -132,8 +238,10 @@ if APPLE:
                 '-framework', 'CoreFoundation',
             ],
             optional=True,
+            **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
         )
         for fpath in glob.glob('omnibus/_ext/m/*.m')
+        if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
     ])
 
 
@@ -144,6 +252,9 @@ def new_build_ext_init_opts(self, *args, **kwargs):
 import distutils.command.build_ext  # noqa
 old_build_ext_init_opts = distutils.command.build_ext.build_ext.initialize_options  # noqa
 distutils.command.build_ext.build_ext.initialize_options = new_build_ext_init_opts  # noqa
+
+
+# endregion
 
 
 if __name__ == '__main__':
