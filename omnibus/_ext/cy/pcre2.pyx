@@ -27,6 +27,7 @@ from libc.stdint cimport uint32_t
 from libc.stdint cimport uint8_t
 from libc.string cimport memcpy
 
+
 cdef extern from "_pcre2.h":
     enum:
         PCRE2_ZERO_TERMINATED
@@ -138,6 +139,7 @@ cdef extern from "_pcre2.h":
 
     PCRE2_SIZE *pcre2_get_ovector_pointer(pcre2_match_data *)
 
+
 ctypedef int(*match_func_type)(
         const pcre2_code *,
         PCRE2_SPTR,
@@ -159,6 +161,7 @@ ctypedef int(*dfa_match_func_type)(
         int *,
         PCRE2_SIZE,
 )
+
 
 # jit
 JIT_COMPLETE = PCRE2_JIT_COMPLETE
@@ -191,6 +194,7 @@ ALT_CIRCUMFLEX = PCRE2_ALT_CIRCUMFLEX
 ALT_VERBNAMES = PCRE2_ALT_VERBNAMES
 USE_OFFSET_LIMIT = PCRE2_USE_OFFSET_LIMIT
 
+
 cdef class PCRE2:
     cdef bint use_alternative_algorithm
     cdef unsigned char *_pattern
@@ -206,9 +210,9 @@ cdef class PCRE2:
     def __cinit__(
             self,
             bytes pattern,
-            uint32_t options=0,
-            uint32_t jit_option=PCRE2_JIT_COMPLETE,
-            bint use_alternative_algorithm=False,
+            uint32_t options = 0,
+            uint32_t jit_option = PCRE2_JIT_COMPLETE,
+            bint use_alternative_algorithm = False,
     ):
         cdef size_t length = len(pattern)
         self._pattern = <unsigned char *> PyMem_Malloc((length + 1) * sizeof(unsigned char))
@@ -292,6 +296,7 @@ cdef class PCRE2:
         if self.use_alternative_algorithm:
             PyMem_Free(self._workspace)
 
+
 cdef Result ResultFactory(
         bytes content,
         int match_count,
@@ -308,6 +313,7 @@ cdef Result ResultFactory(
         res.add_match(substring)
 
     return res
+
 
 cdef class Result:
     cdef list matches
