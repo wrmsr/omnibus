@@ -1,5 +1,6 @@
 import contextlib
 import functools
+import importlib
 import os
 import threading
 import time
@@ -114,15 +115,15 @@ def with_env(**env):
 
 def can_import(*args, **kwargs) -> bool:
     try:
-        __import__(*args, **kwargs)
+        importlib.import_module(*args, **kwargs)
     except ImportError:
         return False
     else:
         return True
 
 
-def skip_if_cant_import(module: str):
-    return pytest.mark.skipif(not can_import(module), reason=f'requires import {module}')
+def skip_if_cant_import(module: str, *args, **kwargs):
+    return pytest.mark.skipif(not can_import(module, *args, **kwargs), reason=f'requires import {module}')
 
 
 def xfail(fn):

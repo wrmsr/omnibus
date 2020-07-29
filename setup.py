@@ -1,6 +1,6 @@
 import fnmatch
+import functools
 import glob
-import logging
 import os
 import shutil
 import subprocess
@@ -9,13 +9,11 @@ import tempfile
 import textwrap
 import traceback
 
+import distutils.log
 import distutils.ccompiler
 import distutils.errors
 import distutils.sysconfig
 import setuptools.command.build_ext
-
-
-log = logging.getLogger(__name__)
 
 
 # region About
@@ -116,6 +114,7 @@ EXT_KWARGS_BY_FNAME = {
 def try_compile(
         src: str,
         *,
+        name=None,
         errors=(
             distutils.errors.CompileError,
             distutils.errors.LinkError,
@@ -133,6 +132,16 @@ def try_compile(
         compiler = distutils.ccompiler.new_compiler()
         distutils.sysconfig.customize_compiler(compiler)
 
+        def new_exec(old, *args, **kwargs):
+            os.close(sys.stderr.fileno())
+            null = os.open('/dev/null', os.O_WRONLY)
+            os.dup2(null, sys.stderr.fileno())
+            return old(*args, **kwargs)
+        old_os_atts = {}
+        for att in {'execv', 'execve', 'execvp', 'execvpe'}:
+            old = old_os_atts[att] = getattr(os, att)
+            setattr(os, att, functools.partial(new_exec, old))
+
         try:
             compiler.link_executable(
                 compiler.compile(
@@ -145,10 +154,17 @@ def try_compile(
             )
             subprocess.check_call(bin_file_name)
         except errors:
-            log.debug(traceback.format_exc())
+            distutils.log.debug(traceback.format_exc())
+            if name:
+                distutils.log.warn(f'{name} not found')
             return False
         else:
+            if name:
+                distutils.log.info(f'{name} found')
             return True
+        finally:
+            for att, old in old_os_atts.items():
+                setattr(os, att, old)
 
     finally:
         shutil.rmtree(tmp_dir)
@@ -170,6 +186,7 @@ int main(int argc, char *argv[]) {
 }
 """),
     libraries=['pcre2-8'],
+    name='pcre2',
 )
 
 EXT_TOGGLES_BY_FNAME['pcre2.pyx'] = HAS_PCRE2
