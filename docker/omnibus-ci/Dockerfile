@@ -22,6 +22,7 @@ RUN ( \
         gdb \
         git \
         less \
+        libpcre2-dev \
         libpq-dev \
         libsnappy-dev \
         make \
