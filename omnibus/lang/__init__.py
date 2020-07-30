@@ -55,7 +55,10 @@ from .contextmanagers import ExitStacked  # noqa
 from .contextmanagers import Lockable  # noqa
 from .contextmanagers import manage_maybe_iterator  # noqa
 from .contextmanagers import maybe_managing  # noqa
+from .contextmanagers import NOP_CONTEXT_MANAGED  # noqa
+from .contextmanagers import NOP_CONTEXT_MANAGER  # noqa
 from .contextmanagers import nop_context_manager  # noqa
+from .contextmanagers import NopContextManaged  # noqa
 from .contextmanagers import NopContextManager  # noqa
 from .contextmanagers import setattr_context  # noqa
 from .datetimes import months_ago  # noqa
@@ -116,8 +119,8 @@ from .lang import VoidException  # noqa
 from .math import FixedWidthInt  # noqa
 from .math import get_bit  # noqa
 from .math import get_bits  # noqa
-from .math import Infinity  # noqa
 from .math import INFINITY  # noqa
+from .math import Infinity  # noqa
 from .math import Int128  # noqa
 from .math import Int32  # noqa
 from .math import Int64  # noqa

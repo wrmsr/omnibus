@@ -33,17 +33,25 @@ class ContextManaged:
         return
 
 
-class NopContextManager(ContextManaged):
+class NopContextManaged(ContextManaged):
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError
 
 
-NOP_CONTEXT_MANAGER = NopContextManager()
+NOP_CONTEXT_MANAGED = NopContextManaged()
 
 
-def nop_context_manager():
-    return NOP_CONTEXT_MANAGER
+class NopContextManager:
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+    def __call__(self, *args, **kwargs):
+        return NOP_CONTEXT_MANAGED
+
+
+nop_context_manager = NOP_CONTEXT_MANAGER = NopContextManager()
 
 
 class ContextManageable(Protocol, ta.Generic[T]):

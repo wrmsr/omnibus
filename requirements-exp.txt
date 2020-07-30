@@ -45,7 +45,7 @@ chardet==3.0.4
 datadog==0.38.0
 ddtrace==0.40.0
 dnspython==2.0.0
-fastavro==0.23.6
+fastavro==0.24.0
 fastparquet==0.4.1
 grpcio==1.30.0
 hyperscan==0.1.5
