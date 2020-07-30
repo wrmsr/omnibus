@@ -231,8 +231,8 @@ endef
 build: venv gen
 	$(call do-build,.venv)
 
-.PHONY: build-37 gen
-build-37: venv-37
+.PHONY: build-37
+build-37: venv-37 gen
 	$(call do-build,.venv-37)
 
 
