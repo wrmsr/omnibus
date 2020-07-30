@@ -3,23 +3,18 @@ name: Ci
 on:
   push:
     branches:
-      - *
-
+      - '*'
     tags:
-      - v*
-
+      - '*'
   pull_request:
 
 env:
-  IMAGE_NAME: omnibus-ci
+  IMAGE_NAME: 'omnibus-ci'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
+    runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Run tests
-        run: |
-          make ci
+      - uses: 'actions/checkout@v2'
+      - name: 'Run tests'
+        run: 'make ci'
