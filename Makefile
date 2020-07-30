@@ -538,4 +538,4 @@ ci:
 ci-test:
 	flake8 omnibus
 	python setup.py build_ext --inplace
-	pytest -v -n auto omnibus
+	pytest -v -n auto --junit-xml=test-results.xml omnibus

@@ -28,3 +28,4 @@
 /profiles/
 /target/
 antlr-*.jar
+test-*.xml
