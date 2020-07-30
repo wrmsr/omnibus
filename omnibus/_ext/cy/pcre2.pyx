@@ -63,7 +63,6 @@ cdef extern from "_pcre2.h":
         PCRE2_ALT_CIRCUMFLEX
         PCRE2_ALT_VERBNAMES
         PCRE2_USE_OFFSET_LIMIT
-    #
 
     cdef struct pcre2_real_general_context:
         pass
@@ -305,7 +304,7 @@ cdef Result ResultFactory(
 ):
     cdef Result res = Result(use_alternative_algorithm=use_alternative_algorithm)
     cdef bytes substring
-    cdef PCRE2_SIZE* ovector = pcre2_get_ovector_pointer(match_data)
+    cdef PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data)
     cdef int i
 
     for i in range(match_count):
@@ -320,7 +319,7 @@ cdef class Result:
     cdef bint use_alternative_algorithm
 
     def __init__(self, use_alternative_algorithm=False):
-        self.matches = list()
+        self.matches = []
         self.use_alternative_algorithm = use_alternative_algorithm
 
     def add_match(self, bytes substring):
