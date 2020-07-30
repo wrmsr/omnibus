@@ -124,27 +124,37 @@ class CachedProperty(_GetterProperty[T]):
             'func': func,
         }
 
-        exec(
-            textwrap.dedent(f"""
-            def {fn_name}(self, instance, owner=None) -> T:
-                if instance is None:
-                    return self
-
-                {"forbid_debugger_call()" if stateful else ""}
-
-                if self._name is None:
-                    raise TypeError('Need name assigned')
-
-                with lock():
-                    try:
-                        value = instance.__dict__[self._name]
-                    except KeyError:
-                        value = instance.__dict__[self._name] = func(instance)
-
-                return value
-            """),
-            ns,
+        body = (
+            f'def {fn_name}(self, instance, owner=None) -> T:\n'
+            f'    if instance is None:\n'
+            f'        return self\n'
         )
+
+        if stateful:
+            body += (
+                f'    forbid_debugger_call()\n'
+            )
+
+        block = (
+            f'    try:\n'
+            f'        value = instance.__dict__[self._name]\n'
+            f'    except KeyError:\n'
+            f'        value = instance.__dict__[self._name] = func(instance)\n'
+        )
+
+        if not isinstance(lock, lang.NopContextManager):
+            body += (
+                f'    with lock():\n'
+            )
+            body += textwrap.indent(block, '    ')
+        else:
+            body += block
+
+        body += (
+            f'    return value\n'
+        )
+
+        exec(body, ns)
 
         return ns[fn_name]
 
@@ -186,13 +196,13 @@ class CachedClassProperty(_GetterProperty[T]):
         }
 
         exec(
-            textwrap.dedent(f"""
-            def {fn_name}(self, binstance, bowner=None) -> T:
-                if bowner is owner:
-                    return value
-                else:
-                    return get(binstance, bowner)
-            """),
+            (
+                f'def {fn_name}(self, binstance, bowner=None) -> T:\n'
+                f'    if bowner is owner:\n'
+                f'        return value\n'
+                f'    else:\n'
+                f'        return get(binstance, bowner)\n'
+            ),
             ns,
         )
 
@@ -223,27 +233,40 @@ class CachedClassProperty(_GetterProperty[T]):
             'cls': cls,
         }
 
-        exec(
-            textwrap.dedent(f"""
-            def {fn_name}(self, instance, owner=None) -> T:
-                if owner is None:
-                    return func(owner)
-
-                {"forbid_debugger_call()" if stateful else ""}
-
-                with lock():
-                    try:
-                        bound = owner.__dict__[self._name]
-                    except KeyError:
-                        bound = None
-                    if bound is None or bound is self:
-                        bound = _build_bound(func, {fn_name}.__get__(self, cls), owner, func(owner))
-                        setattr(owner, self._name, bound)
-
-                return bound._value
-            """),
-            ns,
+        body = (
+            f'def {fn_name}(self, instance, owner=None) -> T:\n'
+            f'    if owner is None:\n'
+            f'        return func(owner)\n'
         )
+
+        if stateful:
+            body += (
+                f'    forbid_debugger_call()\n'
+            )
+
+        block = (
+            f'    try:\n'
+            f'        bound = owner.__dict__[self._name]\n'
+            f'    except KeyError:\n'
+            f'        bound = None\n'
+            f'    if bound is None or bound is self:\n'
+            f'        bound = _build_bound(func, {fn_name}.__get__(self, cls), owner, func(owner))\n'
+            f'        setattr(owner, self._name, bound)\n'
+        )
+
+        if not isinstance(lock, lang.NopContextManager):
+            body += (
+                f'    with lock():\n'
+            )
+            body += textwrap.indent(block, '    ')
+        else:
+            body += block
+
+        body += (
+            f'    return bound._value\n'
+        )
+
+        exec(body, ns)
 
         return ns[fn_name]
 

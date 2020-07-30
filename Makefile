@@ -257,15 +257,15 @@ type-ignore-vendor:
 ### Test
 
 .PHONY: test
-test: build
+test:
 	.venv/bin/pytest -v -n auto omnibus
 
 .PHONY: test-37
-test-37: build-37
+test-37:
 	.venv-37/bin/pytest -v -n auto omnibus
 
 .PHONY: test-verbose
-test-verbose: build
+test-verbose:
 	.venv/bin/pytest -svvv omnibus
 
 
@@ -524,14 +524,14 @@ _docker-dist-37: _docker-venv-37
 	$(call do-dist,.venv-docker-37,0,1)
 
 
-### Circle
+### Ci
 
-.PHONY: circle
-circle:
-	(cd docker && make circle)
+.PHONY: ci
+ci:
+	(cd docker && make ci)
 
-.PHONY: circle-test
-circle-test:
+.PHONY: ci-test
+ci-test:
 	python setup.py build_ext --inplace
 	flake8 omnibus
 	pytest -v -n auto omnibus

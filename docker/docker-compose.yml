@@ -222,9 +222,9 @@ services:
     ports:
       - '22210:8000'
 
-  omnibus-circle:
+  omnibus-ci:
     build: '.'
-    image: 'wrmsr/omnibus-circle:latest'
+    image: 'wrmsr/omnibus-ci:latest'
     restart: 'no'
     depends_on:
       - 'omnibus-mysql-master'

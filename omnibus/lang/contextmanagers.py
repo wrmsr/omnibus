@@ -33,7 +33,13 @@ class ContextManaged:
         return
 
 
-NOP_CONTEXT_MANAGER = ContextManaged()
+class NopContextManager(ContextManaged):
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError
+
+
+NOP_CONTEXT_MANAGER = NopContextManager()
 
 
 def nop_context_manager():

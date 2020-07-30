@@ -1,10 +1,10 @@
 DOCKER_USER=wrmsr
 
-DOCKER_CIRCLE_IMAGES:= \
+DOCKER_CI_IMAGES:= \
 	omnibus-mysql \
 
 DOCKER_IMAGES:= \
-	$(DOCKER_CIRCLE_IMAGES) \
+	$(DOCKER_CI_IMAGES) \
 	omnibus-dev \
 	omnibus-dynamodb \
 	omnibus-elasticmq \
@@ -98,9 +98,9 @@ reup: stop
 enable-ptrace:
 	docker run --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
 
-.PHONY: circle-images
-circle-images:
-	for IMG in $(DOCKER_CIRCLE_IMAGES) ; do \
+.PHONY: ci-images
+ci-images:
+	for IMG in $(DOCKER_CI_IMAGES) ; do \
 		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
 
@@ -108,9 +108,8 @@ circle-images:
 	cd .. ; \
 	(cat .dockerignore | egrep -v '^omnibus$$') > "$$DI" ; \
 	tar cvh --exclude-from="$$DI" * .dockertimestamp | \
-		docker build --tag "$(DOCKER_USER)/omnibus-circle" -f "docker/omnibus-circle/Dockerfile" -
+		docker build --tag "$(DOCKER_USER)/omnibus-ci" -f "docker/omnibus-ci/Dockerfile" -
 
-
-.PHONY: circle
-circle: circle-images
-	docker-compose run --rm omnibus-circle
+.PHONY: ci
+ci: ci-images
+	docker-compose run --rm omnibus-ci

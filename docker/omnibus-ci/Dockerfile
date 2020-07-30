@@ -5,7 +5,7 @@ COPY .dockertimestamp /
 # Packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
-RUN (
+RUN ( \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -65,11 +65,11 @@ TERM=screen-256color \n\
 RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 
-# Circle
+# Ci
 
-RUN (
+RUN ( \
     touch ~/.bashrc && \
-    echo 'export CIRCLECI=true' >> ~/.bashrc \
+    echo 'export CI=true' >> ~/.bashrc \
 )
 
 RUN mkdir /build
@@ -84,4 +84,4 @@ COPY . /omnibus/
 
 WORKDIR /omnibus
 
-CMD ["bash", "-c", "make circle-test"]
+CMD ["bash", "-c", "make ci-test"]
