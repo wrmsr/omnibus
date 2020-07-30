@@ -16,6 +16,8 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - uses: 'actions/checkout@v2'
+      - name: 'Pull images'
+        run: 'make ci-pull'
       - uses: 'satackey/action-docker-layer-caching@v0.0.4'
       - name: 'Run tests'
         run: 'make ci'

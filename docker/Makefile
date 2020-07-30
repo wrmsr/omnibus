@@ -98,6 +98,12 @@ reup: stop
 enable-ptrace:
 	docker run --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
 
+.PHONY: ci-pull
+ci-pull:
+	for IMG in $(DOCKER_CI_IMAGES) omnibus-ci ; do \
+		egrep '^FROM ' "$$IMG/Dockerfile" | cut -c 6- | xargs docker pull ; \
+	done
+
 .PHONY: ci-images
 ci-images:
 	for IMG in $(DOCKER_CI_IMAGES) ; do \

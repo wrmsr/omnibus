@@ -526,6 +526,10 @@ _docker-dist-37: _docker-venv-37
 
 ### Ci
 
+.PHONY: ci-pull
+ci-pull:
+	(cd docker && make ci-pull)
+
 .PHONY: ci
 ci:
 	(cd docker && make ci)
