@@ -63,7 +63,7 @@ ctypedef cpp_vector[uint8_t] uint8_vector
 ctypedef PyObject* pPyobject
 
 
-cdef extern from "helpers.h" namespace "stl_helpers":
+cdef extern from "_helpers.h" namespace "stl_helpers":
     cdef cppclass Uint8VectorHash:
         pass
 

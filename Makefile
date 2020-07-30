@@ -34,12 +34,8 @@ dist-all: venv-all dist dist-37 docker-dist docker-dist-37
 
 ### Clean
 
-.PHONY: clean
-clean:
-	-rm -rf .cache
-	-rm -rf .mypy_cache
-	-rm -rf .pytest_cache
-	-rm -rf .venv*
+.PHONY: clean-build
+clean-build:
 	-rm -rf build
 	-rm -rf dist
 	-rm -rf omnibus.egg-info
@@ -60,6 +56,13 @@ clean:
 	fi
 
 	(cd omnibus/_ext/cy/stl && $(MAKE) clean)
+
+.PHONY: clean
+clean: clean-build
+	-rm -rf .cache
+	-rm -rf .mypy_cache
+	-rm -rf .pytest_cache
+	-rm -rf .venv*
 
 
 ### Venvs
@@ -218,10 +221,10 @@ define do-build
 endef
 
 .PHONY: build
-build: venv
+build: venv gen
 	$(call do-build,.venv)
 
-.PHONY: build-37
+.PHONY: build-37 gen
 build-37: venv-37
 	$(call do-build,.venv-37)
 
