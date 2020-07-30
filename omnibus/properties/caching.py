@@ -5,15 +5,21 @@ TODO:
 """
 import abc
 import functools
+import textwrap
 import typing as ta
 
-from .. import check
 from .. import lang
 from .. import pydevd
 from .base import Property
 
 
 T = ta.TypeVar('T')
+
+
+def _mangle(s: str) -> str:
+    for r in '.<>$':
+        s = s.replace(r, '__')
+    return s
 
 
 class _GetterProperty(Property[T], lang.Abstract):
@@ -77,6 +83,16 @@ class _GetterProperty(Property[T], lang.Abstract):
         elif name != self._name:
             raise TypeError(f'Cannot assign the two different names ({self._name!r} and {name!r}).')
 
+    @classmethod
+    def _name_getter(cls, func: ta.Callable) -> str:
+        try:
+            co = func.__code__
+            glo = func.__globals__
+            suffix = f'{glo["__name__"]}__{co.co_firstlineno}'
+        except Exception:  # noqa
+            suffix = hex(id(func))[2:]
+        return _mangle(f'_{cls.__name__}__get__{func.__name__}__{suffix}')
+
     @abc.abstractclassmethod
     def _build_getter(
             cls,
@@ -99,25 +115,38 @@ class CachedProperty(_GetterProperty[T]):
             lock: lang.DefaultLockable = None,
             stateful: bool = False,
     ) -> ta.Callable[[object, object], T]:
-        def __get__(self, instance, owner=None) -> T:
-            if instance is None:
-                return self
+        fn_name = cls._name_getter(func)
+        ns = {
+            'fn_name': fn_name,
+            'T': T,
+            'forbid_debugger_call': pydevd.forbid_debugger_call,
+            'lock': lock,
+            'func': func,
+        }
 
-            if stateful:
-                pydevd.forbid_debugger_call()
+        exec(
+            textwrap.dedent(f"""
+            def {fn_name}(self, instance, owner=None) -> T:
+                if instance is None:
+                    return self
 
-            if self._name is None:
-                raise TypeError('Need name assigned')
+                {"forbid_debugger_call()" if stateful else ""}
 
-            with lock():
-                try:
-                    value = instance.__dict__[self._name]
-                except KeyError:
-                    value = instance.__dict__[self._name] = func(instance)
+                if self._name is None:
+                    raise TypeError('Need name assigned')
 
-            return value
+                with lock():
+                    try:
+                        value = instance.__dict__[self._name]
+                    except KeyError:
+                        value = instance.__dict__[self._name] = func(instance)
 
-        return __get__
+                return value
+            """),
+            ns,
+        )
+
+        return ns[fn_name]
 
 
 def cached(fn: ta.Callable[..., T]) -> T:
@@ -132,62 +161,91 @@ def stateful_cached(fn: ta.Callable[..., T]) -> T:
     return CachedProperty(fn, stateful=True)
 
 
-class CachedClassProperty(Property[T]):
+class CachedClassProperty(_GetterProperty[T]):
 
-    def __init__(
-            self,
+    @classmethod
+    def _unwrap(cls, fn):
+        if isinstance(fn, classmethod):
+            return fn.__func__
+        return super()._unwrap(fn)
+
+    @classmethod
+    def _build_bound(
+            cls,
+            func: ta.Callable[[ta.Any], T],
+            get: ta.Callable,
+            owner: type,
+            value: T,
+    ) -> type:
+        fn_name = cls._name_getter(func) + '__bound__' + _mangle(owner.__qualname__)
+        ns = {
+            'T': T,
+            'owner': owner,
+            'value': value,
+            'get': get,
+        }
+
+        exec(
+            textwrap.dedent(f"""
+            def {fn_name}(self, binstance, bowner=None) -> T:
+                if bowner is owner:
+                    return value
+                else:
+                    return get(binstance, bowner)
+            """),
+            ns,
+        )
+
+        return type(
+            fn_name,
+            (object,),
+            {
+                '__get__': ns[fn_name],
+                '_value': value,
+            }
+        )()
+
+    @classmethod
+    def _build_getter(
+            cls,
             func: ta.Callable[[ta.Any], T],
             *,
             lock: lang.DefaultLockable = None,
             stateful: bool = False,
-    ) -> None:
-        super().__init__()
+    ) -> ta.Callable[[object, object], T]:
+        fn_name = cls._name_getter(func)
+        ns = {
+            'T': T,
+            'forbid_debugger_call': pydevd.forbid_debugger_call,
+            'lock': lock,
+            'func': func,
+            '_build_bound': cls._build_bound,
+            'cls': cls,
+        }
 
-        functools.update_wrapper(self, func)
-        self._func = self._unwrap(func)
-        self._lock = lang.default_lock(lock, False)
-        self._stateful = bool(stateful)
-        self._name: ta.Optional[str] = None
+        exec(
+            textwrap.dedent(f"""
+            def {fn_name}(self, instance, owner=None) -> T:
+                if owner is None:
+                    return func(owner)
 
-    def __set_name__(self, owner, name):
-        if self._name is None:
-            self._name = name
-        elif name != self._name:
-            raise TypeError(f'Cannot assign the two different names ({self._name!r} and {name!r}).')
+                {"forbid_debugger_call()" if stateful else ""}
 
-    class Bound:
+                with lock():
+                    try:
+                        bound = owner.__dict__[self._name]
+                    except KeyError:
+                        bound = None
+                    if bound is None or bound is self:
+                        bound = _build_bound(func, {fn_name}.__get__(self, cls), owner, func(owner))
+                        setattr(owner, self._name, bound)
 
-        def __init__(self, owner: 'CachedClassProperty[T]', cls: type, value: T) -> None:
-            super().__init__()
+                return bound._value
+            """),
+            ns,
+        )
 
-            functools.update_wrapper(self, owner._func)
-            self._cls = cls
-            self._value = value
-            self._delegate = owner.__get__
-
-        def __get__(self, obj, cls=None) -> T:
-            if cls is self._cls:
-                return self._value
-            else:
-                return self._delegate(obj, cls)
-
-    def __get__(self, obj, cls=None) -> T:
-        if cls is None:
-            return self._func(cls)
-
-        if self._stateful:
-            pydevd.forbid_debugger_call()
-
-        with self._lock():
-            try:
-                bound = cls.__dict__[self._name]
-            except KeyError:
-                bound = None
-            if bound is None or bound is self:
-                bound = self.Bound(self, cls, self._func(cls))
-                setattr(cls, self._name, bound)
-
-        return bound._value
+        return ns[fn_name]
 
 
 def cached_class(fn: ta.Callable[..., T]) -> T:

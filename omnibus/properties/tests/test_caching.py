@@ -73,6 +73,15 @@ def test_caching_class_property():
         assert C.locked_cached == 'locked_cached C'
     assert count == 4
 
+    class CC:
+
+        @caching_.cached_class
+        @classmethod
+        def x(cls):
+            return 1
+
+    assert CC.x == 1
+
 
 def test_unwrapping():
     class C:
@@ -92,14 +101,53 @@ def test_unwrapping():
 
 
 def test_profile():
-    class C:
+    class C0:
         @caching_.cached
         def x(self):
             x = 0
-            for i in range(1_000_000):
+            for i in range(300_000):
                 x += i
             return x
 
-    for _ in range(1_000):
-        c = C()
-        assert c.x
+    class C1:
+        @caching_.cached
+        def x(self):
+            x = 0
+            for i in range(300_000):
+                x += i
+            return x
+
+    for _ in range(100):
+        c0 = C0()
+        c1 = C1()
+        assert c0.x == c1.x
+
+
+def test_class_profile():
+    class C0:
+        @caching_.cached_class
+        def x(cls):
+            x = 0
+            for i in range(10_000_000):
+                x += i
+            return x
+
+    class D0(C0):
+        pass
+
+    class C1:
+        @caching_.cached_class
+        def x(cls):
+            x = 0
+            for i in range(10_000_000):
+                x += i
+            return x
+
+    class D1(C1):
+        pass
+
+    c0 = C0()
+    d0 = D0()
+    c1 = C1()
+    d1 = D1()
+    assert c0.x == d0.x == c1.x == d1.x
