@@ -41,18 +41,25 @@ clean-build:
 	-rm -rf omnibus.egg-info
 
 	find omnibus \
-		-name '*.pyc' -delete -or \
-		-name '*.pyo' -delete -or \
-		-name '__pycache__' -delete -or \
-		-name '*.so' -delete -or \
+		\
 		-name '*.dylib' -delete -or \
 		-name '*.exe' -delete -or \
-		-name '.revision' -delete
+		-name '*.pyc' -delete -or \
+		-name '*.pyo' -delete -or \
+		-name '*.so' -delete -or \
+		-name '.revision' -delete -or \
+		-name '__pycache__' -delete -or \
+		-name 'test-*.xml' -delete -or \
+		\
+		-name 'NeVeRmAtCh' -delete
 
 	if [ -d omnibus/_ext/cy ]; then \
 		find omnibus/_ext/cy \
+			\
 			-name '*.c' -delete -or \
-			-name '*.cpp' -delete ; \
+			-name '*.cpp' -delete -or \
+			\
+			-name 'NeVeRmAtCh' -delete ; \
 	fi
 
 	(cd omnibus/_ext/cy/stl && $(MAKE) clean)
@@ -538,4 +545,4 @@ ci:
 ci-test:
 	flake8 omnibus
 	python setup.py build_ext --inplace
-	pytest -v -n auto --junit-xml=test-results.xml omnibus
+	pytest -v -n auto --junitxml=test-results.xml omnibus
