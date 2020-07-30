@@ -1,17 +1,22 @@
 FROM mysql:8.0.20
 COPY .dockertimestamp /
 
+
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5072E1F5
 
 RUN ( \
-  apt-get -o Acquire::Check-Valid-Until=false update && \
-  apt-get install -y \
-    apt-utils \
-    iputils-ping \
-    sudo \
-    tmux \
-    vim \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y \
+\
+        apt-utils \
+        iputils-ping \
+        sudo \
+        tmux \
+        vim \
+\
 )
+
 
 RUN ( \
     echo "root ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \

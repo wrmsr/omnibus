@@ -5,32 +5,38 @@ COPY .dockertimestamp /
 # Packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
-RUN apt-get update && apt-get upgrade -y && apt-get install -y apt-utils
+RUN (
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y apt-utils \
+)
 
 RUN ( \
-  apt-get install -y \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y \
 \
-    build-essential \
-    dumb-init \
-    gcc \
-    gdb \
-    git \
-    less \
-    libpq-dev \
-    libsnappy-dev \
-    make \
-    moreutils \
-    pkg-config \
-    silversearcher-ag \
-    socat \
-    software-properties-common \
-    strace \
-    sudo \
-    tmux \
-    unzip \
-    vim \
-    wget \
-    zip \
+        build-essential \
+        dumb-init \
+        gcc \
+        gdb \
+        git \
+        less \
+        libpq-dev \
+        libsnappy-dev \
+        make \
+        moreutils \
+        pkg-config \
+        silversearcher-ag \
+        socat \
+        software-properties-common \
+        strace \
+        sudo \
+        tmux \
+        unzip \
+        vim \
+        wget \
+        zip \
 \
 )
 
@@ -61,10 +67,10 @@ RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 # Circle
 
-RUN \
+RUN (
     touch ~/.bashrc && \
     echo 'export CIRCLECI=true' >> ~/.bashrc \
-;
+)
 
 RUN mkdir /build
 WORKDIR /build

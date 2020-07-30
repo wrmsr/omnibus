@@ -89,3 +89,17 @@ def test_unwrapping():
     assert i == 1
     assert c.s == 'barf'
     assert i == 1
+
+
+def test_profile():
+    class C:
+        @caching_.cached
+        def x(self):
+            x = 0
+            for i in range(1_000_000):
+                x += i
+            return x
+
+    for _ in range(1_000):
+        c = C()
+        assert c.x
