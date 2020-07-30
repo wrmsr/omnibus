@@ -20,7 +20,7 @@ jobs:
       - uses: 'styfle/cancel-workflow-action@0.4.1'
         with:
           access_token: '${{ github.token }}'
-      - uses: 'mxschmitt/action-tmate@v2'
+      # - uses: 'mxschmitt/action-tmate@v2'
 
       - name: 'Pull images'
         run: 'make ci-pull'
