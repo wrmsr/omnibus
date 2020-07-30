@@ -532,6 +532,6 @@ ci:
 
 .PHONY: ci-test
 ci-test:
-	python setup.py build_ext --inplace
 	flake8 omnibus
+	python setup.py build_ext --inplace
 	pytest -v -n auto omnibus
