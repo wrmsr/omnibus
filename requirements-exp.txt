@@ -13,6 +13,7 @@ cachetools==4.1.1
 certifi==2020.6.20
 cffi==1.14.1
 cftime==1.2.1
+cli-helpers==2.1.0
 fastprogress==0.2.4
 humanize==2.5.0
 importlib-resources==3.0.0
@@ -58,9 +59,10 @@ llvmlite==0.33.0
 matplotlib==3.3.0
 notebook==6.0.3
 oauthlib==3.1.0
-pandas==1.0.5
+pandas==1.1.0
 plotly==4.9.0
 plyvel==1.2.0
+protobuf==3.12.4
 py4j==0.10.9
 pyglet==1.5.7
 pyjwt==1.7.1
