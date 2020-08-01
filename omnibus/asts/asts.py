@@ -19,7 +19,9 @@ TODO:
  - unused imports
  - light type checking via analysis?
  - using non-iterable things as iterable
- - omnibus aware (like mypy plugin but fully builtin) - dataclass, dispatch
+ - omnibus aware (like mypy plugin but fully builtin)
+  - dataclass, dispatch
+  - need *simple* symbol resolution then
 
 - analysis
  - type inf, sym resolution
