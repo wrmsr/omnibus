@@ -1,8 +1,25 @@
+import asyncio
 import concurrent.futures
 import time
 
 from .. import asyncs as asyncs_
 from ... import toolz
+
+
+def test_simple():
+    l = []
+
+    async def hello(name, sleepfor):
+        l.append(f'start {name}')
+        await asyncio.sleep(sleepfor)
+        l.append(f'end {name}')
+
+    loop = asyncio.get_event_loop()
+    loop.create_task(hello("Billy Bob", .3))
+    loop.create_task(hello("Billy Alice", .1))
+
+    loop.run_forever()
+    loop.close()
 
 
 def test_await_futures():

@@ -7,6 +7,7 @@ TODO:
  - omnibus.asyncs?
   - could use collect at this point (cycle detection)
 """
+import asyncio
 import concurrent.futures as cf
 import contextlib
 import functools
@@ -15,6 +16,18 @@ import typing as ta
 
 
 T = ta.TypeVar('T')
+CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
+
+
+def async_once(fn: CallableT) -> CallableT:
+    @functools.wraps(fn)
+    async def inner(*args, **kwargs):
+        nonlocal future
+        if not future:
+            future = asyncio.create_task(fn(*args, **kwargs))
+        return await future
+    future = None
+    return inner
 
 
 def sync_await(fn: ta.Callable[..., T], *args, **kwargs) -> T:
