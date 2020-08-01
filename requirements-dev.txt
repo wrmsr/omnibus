@@ -25,6 +25,7 @@ docutils==0.16
 flake8==3.8.3
 gprof2dot==2019.11.30
 guppy3==3.0.10.post1
+httpie==2.2.0
 ipdb==0.13.3
 ipython==7.17.0
 iredis==1.9.0
