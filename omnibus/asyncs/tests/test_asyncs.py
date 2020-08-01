@@ -9,16 +9,24 @@ from ... import toolz
 def test_simple():
     l = []
 
-    async def hello(name, sleepfor):
-        l.append(f'start {name}')
+    async def f(sleepfor) -> int:
         await asyncio.sleep(sleepfor)
+        return 4
+
+    async def hello(name, sleepfor) -> str:
+        l.append(f'start {name}')
+        x = await f(sleepfor)
         l.append(f'end {name}')
+        return x
+
+    async def main():
+        await asyncio.gather(
+            hello("Billy Bob", .3),
+            hello("Billy Alice", .1),
+        )
 
     loop = asyncio.get_event_loop()
-    loop.create_task(hello("Billy Bob", .3))
-    loop.create_task(hello("Billy Alice", .1))
-
-    loop.run_forever()
+    loop.run_until_complete(main())
     loop.close()
 
 

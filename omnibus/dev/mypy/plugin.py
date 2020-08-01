@@ -1,4 +1,9 @@
 """
+TODO:
+ - dataclasses
+ - dispatch (class/property)
+ - async/await ugh - require ta.cast(None) or smth
+
 https://github.com/apache/airflow/pull/8145
 https://github.com/samuelcolvin/pydantic/blob/master/pydantic/mypy.py
 https://github.com/seandstewart/typical/blob/master/typic/mypy.py

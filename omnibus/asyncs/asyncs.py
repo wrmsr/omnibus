@@ -4,8 +4,6 @@ TODO:
   In [5]: %timeit greenlet.greenlet(f).switch()
   517 ns ± 13.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
  - push/pull bridge?
- - omnibus.asyncs?
-  - could use collect at this point (cycle detection)
 """
 import asyncio
 import concurrent.futures as cf

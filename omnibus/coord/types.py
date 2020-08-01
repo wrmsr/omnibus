@@ -1,4 +1,9 @@
 """
+TODO:
+ - sql
+ - redis
+ - zk
+
 https://curator.apache.org/
 https://github.com/obsidiandynamics/goneli
 https://www.micahlerner.com/2020/05/08/understanding-raft-consensus.html
