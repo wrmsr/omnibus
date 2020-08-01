@@ -13,7 +13,7 @@ def test_simple():
         await asyncio.sleep(sleepfor)
         return 4
 
-    async def hello(name, sleepfor) -> str:
+    async def hello(name, sleepfor) -> int:
         l.append(f'start {name}')
         x = await f(sleepfor)
         l.append(f'end {name}')
