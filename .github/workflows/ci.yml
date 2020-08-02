@@ -38,7 +38,7 @@ jobs:
       - name: 'Docker ls images'
         run: >
           docker images -a ;
-          docker image history wrmsr/omnibus-ci ;
+          docker image history wrmsr/omnibus-ci ||: ;
 
       # - uses: 'mxschmitt/action-tmate@v2'
 
