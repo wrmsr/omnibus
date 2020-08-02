@@ -545,4 +545,11 @@ ci:
 ci-test:
 	flake8 omnibus
 	python setup.py build_ext --inplace
-	pytest -v -n auto --junitxml=test-results.xml omnibus
+
+	rm test-results.xml
+
+	pytest -v -n auto --junitxml=test-results.xml omnibus && \
+	\
+	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
+		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
+	fi
