@@ -550,8 +550,8 @@ ci-test:
 		rm test-results.xml ; \
 	fi
 
-	 # pytest -v -n auto --junitxml=test-results.xml omnibus && \
-	 # \
-	 # if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
-	 # 	cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
-	 # fi
+	pytest -v -n auto --junitxml=test-results.xml omnibus && \
+	\
+	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
+		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
+	fi
