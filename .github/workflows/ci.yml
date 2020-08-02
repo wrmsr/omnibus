@@ -28,9 +28,9 @@ jobs:
           key: 'omnibus-ci'
 
       - name: 'Docker cache'
-        run: 'find ~/.cache'
+        run: 'ls -al ~/.cache/docker'
 
-      - name: 'Docker cache'
+      - name: 'Docker cache load'
         run: >
           docker load -i ~/.cache/docker/omnibus-ci.tar
 
@@ -46,7 +46,7 @@ jobs:
           OMNIBUS_CI_OUTPUT_DIR=/github/workspace
           make ci
 
-      - name: 'Docker cache'
+      - name: 'Docker cache save'
         run: >
           mkdir -p ~/.cache/docker/ &&
           docker save -o ~/.cache/docker/omnibus-ci.tar wrmsr/omnibus-ci
