@@ -32,6 +32,7 @@ jobs:
 
       - name: 'Docker cache load'
         run: >
+          cat .dockertimestamp ;
           tar -tvf ~/.cache/docker/omnibus-ci.tar ||: ;
           docker load -i ~/.cache/docker/omnibus-ci.tar ||:
 
