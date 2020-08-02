@@ -28,3 +28,7 @@ Namespace = argparse.Namespace
 RawDescriptionHelpFormatter = argparse.RawDescriptionHelpFormatter
 RawTextHelpFormatter = argparse.RawTextHelpFormatter
 SubParsersAction = argparse._SubParsersAction  # noqa
+
+
+class Cli:
+    pass
