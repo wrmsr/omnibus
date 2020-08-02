@@ -29,7 +29,10 @@ jobs:
       # - uses: 'satackey/action-docker-layer-caching@v0.0.4'
 
       - name: 'Run tests'
-        run: "OMNIBUS_CI_DOCKER_OPTS='-v ${{ github.workspace }}:/github/workspace' OMNIBUS_CI_OUTPUT_DIR=/github/workspace make ci"
+        run: >
+          OMNIBUS_CI_DOCKER_OPTS='-v ${{ github.workspace }}:/github/workspace'
+          OMNIBUS_CI_OUTPUT_DIR=/github/workspace
+          make ci
 
       - name: 'ls'
         run: 'ls -al'

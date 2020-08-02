@@ -546,7 +546,9 @@ ci-test:
 	flake8 omnibus
 	python setup.py build_ext --inplace
 
-	rm test-results.xml
+	if [ -f test-results.xml ] ; then \
+		rm test-results.xml ; \
+	fi
 
 	pytest -v -n auto --junitxml=test-results.xml omnibus && \
 	\
