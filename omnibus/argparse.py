@@ -1,5 +1,6 @@
 import argparse
 import dataclasses as dc
+import functools
 import sys
 import typing as ta
 
@@ -45,19 +46,39 @@ def arg(*args, **kwargs) -> Arg:
     return Arg(args, kwargs)
 
 
-@dc.dataclass(frozen=True)
+CommandFn = ta.Callable[[], None]
+
+
+@dc.dataclass()
 class Command:
-    fn: ta.Callable[[], None]
+    name: str
+    fn: CommandFn
     args: ta.Sequence[Arg] = ()
-    name: ta.Optional[str] = None
     parent: ta.Optional['Command'] = None
+
+    def __post_init__(self) -> None:
+        check.isinstance(self.name, str)
+        check.not_in('-', self.name)
+        check.not_empty(self.name)
+
+        check.callable(self.fn)
+        check.arg(all(isinstance(a, Arg) for a in self.args))
+        check.isinstance(self.parent, (Command, None))
+
+        functools.update_wrapper(self, self.fn)
+
+    def __call__(self) -> None:
+        self.fn()
+
+    def __get__(self, instance, owner=None):
+        return dc.replace(self, fn=self.fn.__get__(instance, owner))
 
 
 def command(
         *args: Arg,
         name: ta.Optional[str] = None,
         parent: ta.Optional[Command] = None,
-):
+) -> ta.Callable[[CommandFn], Command]:
     for arg in args:
         check.isinstance(arg, Arg)
     check.isinstance(name, (str, None))
@@ -65,9 +86,9 @@ def command(
 
     def inner(fn):
         return Command(
+            (name if name is not None else fn.__name__).replace('-', '_'),
             fn,
             args,
-            name=name,
             parent=parent,
         )
 
@@ -77,25 +98,43 @@ def command(
 class _CliMeta(type):
 
     def __new__(mcls, name: str, bases: ta.Sequence[type], namespace: ta.Mapping[str, ta.Any]) -> type:
+        if not bases:
+            return super().__new__(mcls, name, tuple(bases), dict(namespace))
+
+        bases = list(bases)
+        namespace = dict(namespace)
+
         cmds = {}
         mro = c3.merge([list(b.__mro__) for b in bases])
-        for bcls in reversed(mro):
-            for k, v in bcls.__dict__.items():
+        for bns in [bcls.__dict__ for bcls in reversed(mro)] + [namespace]:
+            for k, v in bns.items():
                 if isinstance(v, Command):
                     cmds[k] = v
                 elif k in cmds:
                     del [k]
 
-        cls = super().__new__(mcls, name, tuple(bases), dict(namespace))
+        if 'parser' in namespace:
+            parser = check.isinstance(namespace.pop('parser'), ArgumentParser)
+        else:
+            parser = ArgumentParser()
+        namespace['_parser'] = parser
+
+        subparsers = parser.add_subparsers()
+        for cmd in cmds.values():
+            cparser = subparsers.add_parser(cmd.name)
+            cparser.set_defaults(_cmd=cmd)
+
+        cls = super().__new__(mcls, name, tuple(bases), namespace)
         return cls
 
 
 class Cli(metaclass=_CliMeta):
 
-    def __init__(self, args: ta.Optional[ta.Sequence[str]] = None) -> None:
+    def __init__(self, argv: ta.Optional[ta.Sequence[str]] = None) -> None:
         super().__init__()
 
-        self._args = args if args is not None else sys.argv
+        self._argv = argv if argv is not None else list(sys.argv)
+        self._args = self.parser.parse_args(self._argv)
 
     _parser: ta.ClassVar[ArgumentParser]
 
@@ -104,5 +143,20 @@ class Cli(metaclass=_CliMeta):
     def parser(cls) -> ArgumentParser:
         return cls._parser
 
+    @property
+    def argv(self) -> ta.Sequence[str]:
+        return self._argv
+
+    @property
+    def args(self) -> Namespace:
+        return self._args
+
+    def _run_cmd(self, cmd: Command) -> None:
+        cmd()
+
     def __call__(self) -> None:
-        raise NotImplementedError
+        cmd = getattr(self.args, '_cmd', None)
+        if cmd is None:
+            self.parser.print_help()
+            return
+        self._run_cmd(cmd)
