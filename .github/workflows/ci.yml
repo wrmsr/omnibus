@@ -25,14 +25,13 @@ jobs:
         uses: 'actions/cache@v2'
         with:
           path: '~/.cache'
-          key: 'omnibus-ci-${{ github.ref }}-${{ github.sha }}'
+          key: "omnibus-ci-${{ github.ref }}-${{ hashFiles('docker/omnibus-ci/Dockerfile', 'requirements.txt', 'requirements-dev.txt') }}"
           restore-keys: |
-            omnibus-ci-${{ github.ref }}
+            omnibus-ci-${{ github.ref }}-
             omnibus-ci-
 
       - name: 'Docker cache load'
         run: >
-          cat .dockertimestamp ;
           tar -tvf ~/.cache/docker/omnibus-ci.tar ||: ;
           docker load -i ~/.cache/docker/omnibus-ci.tar ||:
 
