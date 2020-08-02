@@ -15,15 +15,23 @@ jobs:
   test:
     runs-on: 'ubuntu-latest'
     steps:
-      - name: 'docker ls'
-        run: >
-          docker image ls | tail -n+2 | awk '{print $3}' | sort > .dockerimages-pre
-
       - uses: 'actions/checkout@v2'
 
       - uses: 'styfle/cancel-workflow-action@0.4.1'
         with:
           access_token: '${{ github.token }}'
+
+      - name: 'Cache'
+        uses: 'actions/cache@v2'
+        with:
+          path: '~/.cache'
+          key: 'omnibus-ci'
+
+      - name: 'Docker cache'
+        run: >
+          if [ -f "~/.cache/omnibus-ci.tar" ] ; then
+            docker load -i ~/.cache/omnibus-ci.tar ;
+          fi
 
       # - uses: 'mxschmitt/action-tmate@v2'
 
@@ -33,10 +41,10 @@ jobs:
           OMNIBUS_CI_OUTPUT_DIR=/github/workspace
           make ci
 
-      - name: 'docker ls'
+      - name: 'Docker cache'
         run: >
-          docker image ls | tail -n+2 | awk '{print $3}' | sort > .dockerimages-post &&
-          diff --new-line-format="" --unchanged-line-format="" .dockerimages-pre .dockerimages-post
+          mkdir -p ~/.cache/ &&
+          docker save -o ~/.cache/omnibus-ci.tar wrmsr/omnibus-ci
 
       - uses: 'ashley-taylor/junit-report-annotations-action@1.3'
         if: '${{ always() }}'

@@ -10,7 +10,6 @@
 *.so
 *.sock
 *.swp
-.dockerimages-*
 /.benchmarks/
 /.cache/
 /.env
