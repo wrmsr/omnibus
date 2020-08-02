@@ -31,6 +31,9 @@ jobs:
       - name: 'Run tests'
         run: 'make ci'
 
+      - name: 'ls'
+        run: 'ls -al'
+
       - uses: 'ashley-taylor/junit-report-annotations-action@1.3'
         if: '${{ always() }}'
         with:
