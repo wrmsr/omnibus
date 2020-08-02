@@ -67,12 +67,6 @@ class Command:
 
         functools.update_wrapper(self, self.fn)
 
-    def __call__(self) -> None:
-        self.fn()
-
-    def __get__(self, instance, owner=None):
-        return dc.replace(self, fn=self.fn.__get__(instance, owner))
-
 
 def command(
         *args: Arg,
@@ -133,7 +127,7 @@ class Cli(metaclass=_CliMeta):
     def __init__(self, argv: ta.Optional[ta.Sequence[str]] = None) -> None:
         super().__init__()
 
-        self._argv = argv if argv is not None else list(sys.argv)
+        self._argv = argv if argv is not None else sys.argv[1:]
         self._args = self.parser.parse_args(self._argv)
 
     _parser: ta.ClassVar[ArgumentParser]
@@ -152,7 +146,7 @@ class Cli(metaclass=_CliMeta):
         return self._args
 
     def _run_cmd(self, cmd: Command) -> None:
-        cmd()
+        cmd.fn.__get__(self, type(self))()
 
     def __call__(self) -> None:
         cmd = getattr(self.args, '_cmd', None)
