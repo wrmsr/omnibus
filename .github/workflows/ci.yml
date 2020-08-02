@@ -31,7 +31,7 @@ jobs:
 
       - name: 'Docker cache load'
         run: >
-          tar -tvf docker image history wrmsr/omnibus-ci ;
+          tar -tvf ~/.cache/docker/omnibus-ci.tar ;
           docker load -i ~/.cache/docker/omnibus-ci.tar ||:
 
       - name: 'Docker ls images'
