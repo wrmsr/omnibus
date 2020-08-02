@@ -153,6 +153,7 @@ class Injector(lang.Abstract):
     _CURRENT: dyn.Var['Injector'] = dyn.Var()
 
     @properties.class_
+    @classmethod
     def current(cls) -> 'Injector':
         return check.isinstance(cls._CURRENT(), cls)
 

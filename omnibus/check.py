@@ -14,6 +14,7 @@ Messageable = ta.Union[None, str, ta.Callable[..., MR]]
 _isinstance = isinstance
 _issubclass = issubclass
 _callable = callable
+_NONE_TYPE = type(None)
 
 
 def _raise(
@@ -45,6 +46,8 @@ def arg(condition: bool, message: Messageable = None) -> None:
 
 
 def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
+    if _isinstance(spec, tuple) and None in spec:
+        spec = tuple(filter(None, spec)) + (_NONE_TYPE,)
     if not _isinstance(obj, spec):
         _raise(TypeError, 'Must be instance', message, spec)
     return obj
@@ -57,6 +60,8 @@ def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageabl
 
 
 def not_isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
+    if _isinstance(spec, tuple) and None in spec:
+        spec = tuple(filter(None, spec)) + (_NONE_TYPE,)
     if _isinstance(obj, spec):
         _raise(TypeError, 'Must be not instance', message, spec)
     return obj

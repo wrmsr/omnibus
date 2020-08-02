@@ -57,6 +57,12 @@ class ClassProperty(Property[T]):
         functools.update_wrapper(self, func)
         self._func = self._unwrap(func)
 
+    @classmethod
+    def _unwrap(cls, fn):
+        if isinstance(fn, classmethod):
+            return fn.__func__
+        return super()._unwrap(fn)
+
     def __get__(self, obj, cls=None) -> T:
         return self._func(cls)
 
