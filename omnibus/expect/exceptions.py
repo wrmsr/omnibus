@@ -2,9 +2,9 @@ class ExpectException(Exception):
     pass
 
 
-class EofExpectException(ExpectException):
+class EofException(ExpectException):
     pass
 
 
-class TimeoutExpectException(ExpectException):
+class TimeoutException(ExpectException):
     pass
