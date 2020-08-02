@@ -25,10 +25,11 @@ jobs:
         uses: 'actions/cache@v2'
         with:
           path: '~/.cache'
-          key: 'omnibus-ci-${{ github.sha }}'
-          restore-keys:
-            - 'omnibus-ci-${{ github.sha }}'
-            - 'omnibus-ci-${{ github.ref }}'
+          key: |
+            omnibus-ci-${{ github.sha }}
+          restore-keys: |
+            omnibus-ci-${{ github.sha }}
+            omnibus-ci-${{ github.ref }}
 
       - name: 'Docker cache load'
         run: >
