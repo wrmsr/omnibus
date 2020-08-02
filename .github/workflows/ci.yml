@@ -56,7 +56,8 @@ jobs:
       - name: 'Docker cache save'
         run: >
           mkdir -p ~/.cache/docker/ &&
-          docker save -o ~/.cache/docker/omnibus-ci.tar wrmsr/omnibus-ci
+          docker history wrmsr/omnibus-ci | tail -n+2 | awk '{print $1}' | egrep -v '<missing>' |
+            xargs docker save -o ~/.cache/docker/omnibus-ci.tar wrmsr/omnibus-ci
 
       - uses: 'ashley-taylor/junit-report-annotations-action@1.3'
         if: '${{ always() }}'
