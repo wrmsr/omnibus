@@ -114,11 +114,11 @@ class Registry(lang.Abstract, ta.Mapping[K, V]):
         self.remove_listener([obj])
 
 
-class MultiRegistry(Registry[K, ta.AbstractSet[V]]):
+class MultiRegistry(Registry[K, ta.AbstractSet[V]], lang.Abstract):
     pass
 
 
-class BaseRegistry(Registry[K, V]):
+class BaseRegistry(Registry[K, V], lang.Abstract):
 
     def __init__(
             self,

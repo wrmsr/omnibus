@@ -14,6 +14,9 @@ import typing as ta
 T = ta.TypeVar('T')
 
 
+_DISABLE_CHECKS = False
+
+
 def make_abstract(obj: T) -> T:
     if callable(obj):
         return abc.abstractmethod(obj)
@@ -43,6 +46,15 @@ class Abstract(abc.ABC):
         else:
             cls.__forceabstract__ = False
         super().__init_subclass__(**kwargs)
+        if not _DISABLE_CHECKS and Abstract not in cls.__bases__:
+            am = {
+                am
+                for b in cls.__bases__
+                for am in getattr(b, '__abstractmethods__', [])
+                if am not in cls.__dict__ or is_abstract(cls.__dict__[am])
+            }
+            if am:
+                raise TypeError('Cannot create subclass with abstract methods ' + ', '.join(map(str, am)))
 
 
 abstract = abc.abstractmethod

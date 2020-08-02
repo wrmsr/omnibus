@@ -18,7 +18,7 @@ class Persistent(ta.Hashable, lang.Abstract):
     pass
 
 
-class PersistentSequence(ta.Sequence[T], Persistent):
+class PersistentSequence(ta.Sequence[T], Persistent, lang.Abstract):
 
     @abc.abstractmethod
     def append(self, item: T) -> 'PersistentSequence[T]':
@@ -37,7 +37,7 @@ class PersistentSequence(ta.Sequence[T], Persistent):
         raise NotImplementedError
 
 
-class PersistentSet(ta.AbstractSet[T], Persistent):
+class PersistentSet(ta.AbstractSet[T], Persistent, lang.Abstract):
 
     @abc.abstractmethod
     def add(self, item: T) -> 'PersistentSet[T]':
@@ -52,7 +52,7 @@ class PersistentSet(ta.AbstractSet[T], Persistent):
         raise NotImplementedError
 
 
-class PersistentMapping(ta.Mapping[K, V], Persistent):
+class PersistentMapping(ta.Mapping[K, V], Persistent, lang.Abstract):
 
     @abc.abstractmethod
     def set(self, key: K, value: V) -> 'PersistentMapping[K, V]':

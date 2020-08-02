@@ -1,3 +1,4 @@
+import abc
 import typing as ta
 
 import pytest
@@ -171,6 +172,31 @@ def test_abstract():
     with pytest.raises(TypeError):
         E()
     F()
+
+
+def test_abstract2():
+    class A(restrict_.Abstract):
+        @abc.abstractmethod
+        def f(self):
+            pass
+
+    with pytest.raises(TypeError):
+        A()
+
+    class B(A, restrict_.Abstract):
+        pass
+
+    with pytest.raises(TypeError):
+        B()
+
+    class C(B):
+        f = 0
+
+    assert C()
+
+    with pytest.raises(TypeError):
+        class D(A):
+            pass
 
 
 def test_marker():
