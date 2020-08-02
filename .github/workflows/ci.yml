@@ -25,18 +25,19 @@ jobs:
         uses: 'actions/cache@v2'
         with:
           path: '~/.cache'
-          key: 'omnibus-ci'
-
-      - name: 'Docker cache'
-        run: 'ls -al ~/.cache/docker'
+          key: 'omnibus-ci-${{ github.sha }}'
+          restore-keys:
+            - 'omnibus-ci-${{ github.sha }}'
+            - 'omnibus-ci-${{ github.ref }}'
 
       - name: 'Docker cache load'
         run: >
-          docker load -i ~/.cache/docker/omnibus-ci.tar
+          docker load -i ~/.cache/docker/omnibus-ci.tar ||:
 
-        # if [ -f "~/.cache/docker/omnibus-ci.tar" ] ; then
-        #   docker load -i ~/.cache/docker/omnibus-ci.tar ;
-        # fi
+      - name: 'Docker ls images'
+        run: >
+          docker images -a ;
+          docker image history wrmsr/omnibus-ci ;
 
       # - uses: 'mxschmitt/action-tmate@v2'
 
@@ -45,6 +46,11 @@ jobs:
           OMNIBUS_CI_DOCKER_OPTS='-v ${{ github.workspace }}:/github/workspace'
           OMNIBUS_CI_OUTPUT_DIR=/github/workspace
           make ci
+
+      - name: 'Docker ls images'
+        run: >
+          docker images -a ;
+          docker image history wrmsr/omnibus-ci ;
 
       - name: 'Docker cache save'
         run: >
