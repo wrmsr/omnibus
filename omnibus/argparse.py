@@ -116,6 +116,8 @@ class _CliMeta(type):
         subparsers = parser.add_subparsers()
         for cmd in cmds.values():
             cparser = subparsers.add_parser(cmd.name)
+            for arg in (cmd.args or []):
+                cparser.add_argument(*arg.args, **arg.kwargs)
             cparser.set_defaults(_cmd=cmd)
 
         cls = super().__new__(mcls, name, tuple(bases), namespace)
