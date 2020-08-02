@@ -112,7 +112,7 @@ class CompositeRegistry(BaseRegistry[K, V]):
         raise TypeError
 
 
-class CompositeMultiRegistry(MultiRegistry[K, V], CompositeRegistry[K, ta.AbstractSet[V]]):
+class CompositeMultiRegistry(CompositeRegistry[K, ta.AbstractSet[V]], MultiRegistry[K, V]):
 
     @lang.staticfunction
     def MERGE(children):

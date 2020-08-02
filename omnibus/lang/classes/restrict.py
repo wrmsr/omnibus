@@ -47,25 +47,32 @@ class Abstract(abc.ABC):
             cls.__forceabstract__ = False
         super().__init_subclass__(**kwargs)
         if not _DISABLE_CHECKS and Abstract not in cls.__bases__:
-            am = {
-                am
-                for b in cls.__bases__
-                for am in getattr(b, '__abstractmethods__', [])
-                if am not in cls.__dict__ or is_abstract(cls.__dict__[am])
-            }
-            if am:
-                raise TypeError('Cannot create subclass with abstract methods ' + ', '.join(map(str, am)))
+            ams = {a for a, o in cls.__dict__.items() if is_abstract_method(o)}
+            seen = set(cls.__dict__)
+            for b in cls.__bases__:
+                ams.update(set(getattr(b, '__abstractmethods__', [])) - seen)
+                seen.update(dir(b))
+            if ams:
+                raise TypeError(f'Cannot subclass abstract class {cls.__name__} with abstract methods {", ".join(map(str, sorted(ams)))}')  # noqa
 
 
 abstract = abc.abstractmethod
 
 
-def is_abstract(obj: ta.Any) -> bool:
+def is_abstract_method(obj: ta.Any) -> bool:
+    return bool(getattr(obj, '__isabstractmethod__', False))
+
+
+def is_abstract_class(obj: ta.Any) -> bool:
     return bool(getattr(obj, '__abstractmethods__', [])) or (
         isinstance(obj, type) and
         issubclass(obj, Abstract) and
         getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
     )
+
+
+def is_abstract(obj: ta.Any) -> bool:
+    return is_abstract_method(obj) or is_abstract_class(obj)
 
 
 class _AbstractSkeleton:

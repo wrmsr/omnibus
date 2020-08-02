@@ -132,7 +132,7 @@ class DictRegistry(BaseRegistry[K, V]):
         return self
 
 
-class DictMultiRegistry(MultiRegistry[K, V], DictRegistry[K, ta.AbstractSet[V]]):
+class DictMultiRegistry(DictRegistry[K, ta.AbstractSet[V]], MultiRegistry[K, V]):
 
     def _prepare_value(self, k: K, v: V) -> V:
         check.arg(not isinstance(v, str))

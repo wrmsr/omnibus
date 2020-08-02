@@ -42,10 +42,30 @@ class NopMetricsCollection(MetricsCollection):
 
 
 class PrefixedMetricsCollection(MetricsCollection):
-    # FIXME
-    pass
+
+    def gauge(self, name: str) -> None:
+        raise TypeError
+
+    def count(self, name: str, num: int = 1) -> None:
+        raise TypeError
+
+    def timing(self, name: str) -> None:
+        raise TypeError
+
+    def set(self, name: str) -> None:
+        raise TypeError
 
 
 class CompositeMetricsCollection(MetricsCollection):
-    # FIXME
-    pass
+
+    def gauge(self, name: str) -> None:
+        raise TypeError
+
+    def count(self, name: str, num: int = 1) -> None:
+        raise TypeError
+
+    def timing(self, name: str) -> None:
+        raise TypeError
+
+    def set(self, name: str) -> None:
+        raise TypeError

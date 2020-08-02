@@ -349,7 +349,7 @@ class Binder(lang.Abstract):
         raise NotImplementedError
 
 
-class PrivateBinder(Binder):
+class PrivateBinder(Binder, lang.Abstract):
 
     @abc.abstractmethod
     def expose(

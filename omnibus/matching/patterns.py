@@ -2,6 +2,7 @@ import abc
 import typing as ta
 
 from .. import check
+from .. import lang
 from .types import Capture
 from .types import Captures
 from .types import Match
@@ -15,7 +16,7 @@ R = ta.TypeVar('R')
 C = ta.TypeVar('C')
 
 
-class AbstractPattern(Pattern[T]):
+class AbstractPattern(Pattern[T], lang.Abstract):
 
     def __init__(self, next: ta.Optional['Pattern']) -> None:
         super().__init__()

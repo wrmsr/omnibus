@@ -52,19 +52,27 @@ class Renderable(lang.Abstract):
 
 
 class Column(Renderable):
-    pass
+
+    def render(self, out) -> None:
+        raise TypeError
 
 
 class Row(Renderable):
-    pass
+
+    def render(self, out) -> None:
+        raise TypeError
 
 
 class Section(Renderable):
-    pass
+
+    def render(self, out) -> None:
+        raise TypeError
 
 
 class Table(Renderable):
-    pass
+
+    def render(self, out) -> None:
+        raise TypeError
 
 
 def open_dot(gv: str, *, timeout: float = 1.) -> None:

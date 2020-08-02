@@ -138,6 +138,10 @@ class Picklable(Protocol):
         raise NotImplementedError
 
 
+def _intersection_unreachable() -> None:
+    raise TypeError
+
+
 class _IntersectionMeta(abc.ABCMeta):
 
     def __new__(mcls, name, bases, namespace, **kwargs):
@@ -184,11 +188,17 @@ class _IntersectionMeta(abc.ABCMeta):
             finally:
                 is_checking.value = False
 
-        namespace['__subclasshook__'] = classmethod(__subclasshook__)
+        ns = dict(namespace)
+        ns.update({
+            a: _intersection_unreachable
+            for b in new_bases
+            for a in getattr(b, '__abstractmethods__', [])
+            if a not in ns
+        })
+        ns['__subclasshook__'] = classmethod(__subclasshook__)
+        ns.update(_make_not_instantiable())
 
-        namespace.update(_make_not_instantiable())
-
-        return super().__new__(mcls, name, tuple(new_bases), namespace, **kwargs)
+        return super().__new__(mcls, name, tuple(new_bases), ns, **kwargs)
 
 
 class Intersection(metaclass=_IntersectionMeta):

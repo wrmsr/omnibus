@@ -9,6 +9,7 @@ from .. import api as api_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
 from .. import types as types_
+from ... import lang
 
 
 T = ta.TypeVar('T')
@@ -52,7 +53,7 @@ def test_meta():
 
     assert ImplV(3).value == 3
 
-    class ImplVNoF(AbsV):
+    class ImplVNoF(AbsV, lang.Abstract):
         value: int
 
     with pytest.raises(TypeError):

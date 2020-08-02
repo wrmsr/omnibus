@@ -131,7 +131,7 @@ class DupBinder(Binder):
         return self._target.accept(socket)
 
 
-class BindBinder(Binder):
+class BindBinder(Binder, lang.Abstract):
 
     _address: ta.Any = None
 

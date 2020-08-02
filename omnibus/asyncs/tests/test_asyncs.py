@@ -2,11 +2,14 @@ import asyncio
 import concurrent.futures
 import time
 
+import pytest
+
 from .. import asyncs as asyncs_
 from ... import toolz
 
 
-def test_simple():
+@pytest.mark.asyncio
+async def test_simple():
     l = []
 
     async def f(sleepfor) -> int:
@@ -25,9 +28,7 @@ def test_simple():
             hello("Billy Alice", .1),
         )
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    loop.close()
+    await main()
 
 
 def test_await_futures():

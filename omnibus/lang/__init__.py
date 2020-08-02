@@ -12,7 +12,9 @@ from .classes import Inner  # noqa
 from .classes import Interface  # noqa
 from .classes import Intersection  # noqa
 from .classes import is_abstract  # noqa
+from .classes import is_abstract_class  # noqa
 from .classes import is_abstract_impl  # noqa
+from .classes import is_abstract_method  # noqa
 from .classes import make_abstract  # noqa
 from .classes import Marker  # noqa
 from .classes import Mixin  # noqa
