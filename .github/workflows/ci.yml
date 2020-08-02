@@ -32,9 +32,11 @@ jobs:
 
       - name: 'Docker cache'
         run: >
-          if [ -f "~/.cache/docker/omnibus-ci.tar" ] ; then
-            docker load -i ~/.cache/docker/omnibus-ci.tar ;
-          fi
+          docker load -i ~/.cache/docker/omnibus-ci.tar
+
+        # if [ -f "~/.cache/docker/omnibus-ci.tar" ] ; then
+        #   docker load -i ~/.cache/docker/omnibus-ci.tar ;
+        # fi
 
       # - uses: 'mxschmitt/action-tmate@v2'
 
