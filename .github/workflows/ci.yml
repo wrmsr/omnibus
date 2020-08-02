@@ -45,6 +45,7 @@ jobs:
           make ci
 
       - name: 'Docker cache save'
+        if: "steps.cache.outputs.cache-hit != 'true'"
         run: >
           mkdir -p ~/.cache/docker/ &&
           docker image history wrmsr/omnibus-ci &&
@@ -52,7 +53,7 @@ jobs:
             xargs docker save -o ~/.cache/docker/omnibus-ci.tar wrmsr/omnibus-ci
 
       - uses: 'ashley-taylor/junit-report-annotations-action@1.3'
-        if: '${{ always() }}'
+        if: 'always()'
         with:
           access-token: '${{ github.token }}'
           path: 'test-results.xml'
