@@ -89,6 +89,17 @@ def command(
     return inner
 
 
+def get_type_arg_kwargs(ty: type) -> ta.Mapping[str, ta.Any]:
+    if ty is str:
+        return {}
+    elif ty is int:
+        return {'type': int}
+    elif ty is list:
+        return {'action': 'append'}
+    else:
+        raise TypeError(ty)
+
+
 class _CliMeta(type):
 
     def __new__(mcls, name: str, bases: ta.Sequence[type], namespace: ta.Mapping[str, ta.Any]) -> type:
