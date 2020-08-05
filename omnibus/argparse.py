@@ -36,10 +36,16 @@ RawTextHelpFormatter = argparse.RawTextHelpFormatter
 SubParsersAction = argparse._SubParsersAction  # noqa
 
 
-@dc.dataclass(frozen=True)
+@dc.dataclass(eq=False)
 class Arg:
     args: ta.Sequence[ta.Any]
     kwargs: ta.Mapping[str, ta.Any]
+    dest: ta.Optional[str] = None
+
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
+        return getattr(instance.args, self.dest)
 
 
 def arg(*args, **kwargs) -> Arg:
@@ -49,7 +55,7 @@ def arg(*args, **kwargs) -> Arg:
 CommandFn = ta.Callable[[], None]
 
 
-@dc.dataclass()
+@dc.dataclass(eq=False)
 class Command:
     name: str
     fn: CommandFn
@@ -66,6 +72,14 @@ class Command:
         check.isinstance(self.parent, (Command, None))
 
         functools.update_wrapper(self, self.fn)
+
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
+        return dc.replace(self, fn=self.fn.__get__(instance, owner))
+
+    def __call__(self, *args, **kwargs) -> None:
+        return self.fn(*args, **kwargs)
 
 
 def command(
@@ -89,15 +103,24 @@ def command(
     return inner
 
 
-def get_type_arg_kwargs(ty: type) -> ta.Mapping[str, ta.Any]:
-    if ty is str:
+def get_arg_ann_kwargs(ann: ta.Any) -> ta.Mapping[str, ta.Any]:
+    if ann is str:
         return {}
-    elif ty is int:
+    elif ann is int:
         return {'type': int}
-    elif ty is list:
+    elif ann is bool:
+        return {'action': 'store_true'}
+    elif ann is list:
         return {'action': 'append'}
     else:
-        raise TypeError(ty)
+        raise TypeError(ann)
+
+
+class _AnnotationBox:
+
+    def __init__(self, annotations: ta.Mapping[str, ta.Any]) -> None:
+        super().__init__()
+        self.__annotations__ = annotations
 
 
 class _CliMeta(type):
@@ -109,14 +132,22 @@ class _CliMeta(type):
         bases = list(bases)
         namespace = dict(namespace)
 
-        cmds = {}
+        objs = {}
         mro = c3.merge([list(b.__mro__) for b in bases])
         for bns in [bcls.__dict__ for bcls in reversed(mro)] + [namespace]:
+            bseen = set()
             for k, v in bns.items():
-                if isinstance(v, Command):
-                    cmds[k] = v
-                elif k in cmds:
+                if isinstance(v, (Command, Arg)):
+                    check.not_in(v, bseen)
+                    bseen.add(v)
+                    objs[k] = v
+                elif k in objs:
                     del [k]
+
+        anns = ta.get_type_hints(_AnnotationBox({
+            **{k: v for bcls in reversed(mro) for k, v in getattr(bcls, '__annotations__', {}).items()},
+            **namespace.get('__annotations__', {}),
+        }), globalns=namespace.get('__globals__', {}))
 
         if 'parser' in namespace:
             parser = check.isinstance(namespace.pop('parser'), ArgumentParser)
@@ -125,14 +156,30 @@ class _CliMeta(type):
         namespace['_parser'] = parser
 
         subparsers = parser.add_subparsers()
-        for cmd in cmds.values():
-            cparser = subparsers.add_parser(cmd.name)
-            for arg in (cmd.args or []):
-                cparser.add_argument(*arg.args, **arg.kwargs)
-            cparser.set_defaults(_cmd=cmd)
+        for name, obj in objs.items():
+            if isinstance(obj, Command):
+                if obj.parent is not None:
+                    raise NotImplementedError
+                cparser = subparsers.add_parser(obj.name)
+                for arg in (obj.args or []):
+                    cparser.add_argument(*arg.args, **arg.kwargs)
+                cparser.set_defaults(_cmd=obj)
 
-        cls = super().__new__(mcls, name, tuple(bases), namespace)
-        return cls
+            elif isinstance(obj, Arg):
+                if name in anns:
+                    akwargs = get_arg_ann_kwargs(anns[name])
+                    obj.kwargs = {**akwargs, **obj.kwargs}
+                if not obj.dest:
+                    if 'dest' in obj.kwargs:
+                        obj.dest = obj.kwargs['dest']
+                    else:
+                        obj.dest = obj.kwargs['dest'] = name
+                parser.add_argument(*obj.args, **obj.kwargs)
+
+            else:
+                raise TypeError(obj)
+
+        return super().__new__(mcls, name, tuple(bases), namespace)
 
 
 class Cli(metaclass=_CliMeta):
@@ -159,7 +206,7 @@ class Cli(metaclass=_CliMeta):
         return self._args
 
     def _run_cmd(self, cmd: Command) -> None:
-        cmd.fn.__get__(self, type(self))()
+        cmd.__get__(self, type(self))()
 
     def __call__(self) -> None:
         cmd = getattr(self.args, '_cmd', None)
