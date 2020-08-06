@@ -1,5 +1,6 @@
-import os.path
 import concurrent.futures as cf
+import logging
+import os.path
 import subprocess
 import time
 import typing as ta
@@ -9,7 +10,11 @@ from .. import asyncs
 from .. import check
 from .. import dataclasses as dc
 from .. import json
+from .. import logs
 from .. import properties
+
+
+log = logging.getLogger(__name__)
 
 
 class Entry(dc.Pure):
@@ -50,6 +55,7 @@ class Builder:
             asyncs.await_futures(futs, raise_exceptions=True)
 
     def _build(self, file_name: str) -> None:
+        log.info(f'Building {file_name}')
         file_path = os.path.abspath(os.path.join(self.dir_path, file_name))
         if not os.path.isfile(file_path):
             if file_name in self._entries_by_name:
@@ -104,6 +110,7 @@ class Cli(ap.Cli):
 
 
 def main():
+    logs.configure_standard_logging(logging.INFO)
     cli = Cli()
     cli()
 

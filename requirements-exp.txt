@@ -15,7 +15,7 @@ certifi==2020.6.20
 cffi==1.14.1
 cftime==1.2.1
 cli-helpers==2.1.0
-fastprogress==0.2.4
+fastprogress==0.2.5
 humanize==2.5.0
 importlib-resources==3.0.0
 iniconfig==1.0.1
