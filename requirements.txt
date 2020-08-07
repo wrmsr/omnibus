@@ -15,7 +15,7 @@ docker==4.2.2
 google-api-core==1.22.0
 google-api-python-client==1.10.0
 google-auth-httplib2==0.0.4
-google-auth==1.20.0
+google-auth==1.20.1
 greenlet==0.4.16
 httptools==0.1.1
 kazoo==2.8.0
