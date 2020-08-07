@@ -1,5 +1,8 @@
 """
 TODO:
+ - DC.REPLACE
+  - __dataclass_replace__
+  - builtin doesn't validate *or* coerce
  - Field options:
   - transient (+cache_hash)
   - *default_factory with lambda args* - toposort again
