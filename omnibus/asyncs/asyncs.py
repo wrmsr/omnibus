@@ -3,6 +3,7 @@ TODO:
  - async<->sync greeenlet bridge
   In [5]: %timeit greenlet.greenlet(f).switch()
   517 ns ± 13.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
+  - injected io provider - sync vs greenlet aio trampolined
  - push/pull bridge?
 """
 import asyncio
