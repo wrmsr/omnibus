@@ -22,6 +22,8 @@ def test_frozen_list():
     lst = frozen_.FrozenList([1, 2, 3])
     assert isinstance(lst, collections.abc.Sequence)
     assert lst + [4, 5] == [1, 2, 3, 4, 5]
+    assert lst[0] == 1
+    assert lst[0:2] == [1, 2]
 
     dct = {frozen_.frozenlist([0, 1]): 2, frozen_.frozenlist([3, 4]): 5}
     assert dct[frozen_.frozenlist([0, 1])] == 2

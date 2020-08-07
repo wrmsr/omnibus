@@ -116,7 +116,10 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
         return self._hash
 
     def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':
-        return FrozenList(self._tup[idx])
+        if isinstance(idx, int):
+            return self._tup[idx]
+        else:
+            return FrozenList(self._tup[idx])
 
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self._tup)
