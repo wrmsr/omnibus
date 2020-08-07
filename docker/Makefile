@@ -125,5 +125,9 @@ updates:
 	for i in $$(find . -name Dockerfile | xargs -n1 egrep '^FROM' | cut -c6-) ; do \
 		echo "$$i" ; \
 		export n=$$(echo "$$i" | egrep -o '^[^:]+') ; \
-		curl -s "https://registry.hub.docker.com/v1/repositories/$$n/tags" | jq '.[].name' ; \
+		export v=$$(echo "$$i" | egrep -o ':.+' | cut -c2-) ; \
+		export m=$$(echo "$$v" | egrep -o '^[^\.]+') ; \
+		echo "$$m" ; \
+		curl -s "https://registry.hub.docker.com/v1/repositories/$$n/tags" | jq -r '.[].name' | egrep "^$$m\." ; \
+		echo ; \
 	done
