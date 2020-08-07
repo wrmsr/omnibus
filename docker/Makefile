@@ -122,7 +122,7 @@ ci: ci-images
 
 .PHONY: updates
 updates:
-	for i in $$(find . -name Dockerfile | xargs -n1 egrep '^FROM' | cut -c6-) ; do \
+	for i in $$(find . -name Dockerfile | xargs -n1 egrep '^FROM' | cut -c6- | sort) ; do \
 		echo "$$i" ; \
 		export n=$$(echo "$$i" | egrep -o '^[^:]+') ; \
 		export v=$$(echo "$$i" | egrep -o ':.+' | cut -c2-) ; \
@@ -130,4 +130,5 @@ updates:
 		echo "$$m" ; \
 		curl -s "https://registry.hub.docker.com/v1/repositories/$$n/tags" | jq -r '.[].name' | egrep "^$$m\." ; \
 		echo ; \
+		read ; \
 	done
