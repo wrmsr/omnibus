@@ -22,6 +22,7 @@ TODO:
  - omnibus aware (like mypy plugin but fully builtin)
   - dataclass, dispatch
   - need *simple* symbol resolution then
+ - flake for redundant # noqa's lol
 
 - analysis
  - type inf, sym resolution

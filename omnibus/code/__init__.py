@@ -1,7 +1,9 @@
 from .argspecs import ArgSpec  # noqa
+from .argspecs import ArgSpecable  # noqa
 from .argspecs import get_full_arg_spec  # noqa
 from .argspecs import get_full_arg_spec  # noqa
-from .argspecs import render_arg_spec  # noqa
+from .argspecs import render_arg_spec_call  # noqa
+from .argspecs import render_arg_spec_def  # noqa
 from .callables import alias  # noqa
 from .callables import Bindable  # noqa
 from .callables import Bindable  # noqa
@@ -38,6 +40,7 @@ from .objs import CO_OPTIMIZED  # noqa
 from .objs import CO_VARARGS  # noqa
 from .objs import CO_VARKEYWORDS  # noqa
 from .objs import CODE_ARGS  # noqa
+from .objs import create_detour  # noqa
 from .objs import FUNC_ANNOTATIONS  # noqa
 from .objs import FUNC_CLOSURE  # noqa
 from .objs import FUNC_DEFAULTS  # noqa

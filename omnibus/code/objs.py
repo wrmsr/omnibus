@@ -9,6 +9,12 @@ import types
 import typing as ta
 import weakref
 
+from .. import check
+from .argspecs import ArgSpec
+from .argspecs import ArgSpecable
+from .argspecs import render_arg_spec_call
+from .gen import create_function
+
 
 CODE_ARGS = [
     'argcount',
@@ -108,3 +114,14 @@ def get_code_function(code: types.CodeType) -> types.FunctionType:
             raise AmbiguousCodeException(code)
         func = _FUNCTIONS_BY_CODE[code] = funcs[0]
         return func
+
+
+def create_detour(arg_spec: ArgSpecable, target: ta.Callable) -> types.CodeType:
+    arg_spec = ArgSpec.of(arg_spec)
+    check.callable(target)
+
+    gfn = create_function('_', arg_spec, f'return 1{render_arg_spec_call(arg_spec)}')
+    check.state(gfn.__code__.co_consts == (None, 1))
+    kw = {a: getattr(gfn.__code__, 'co_' + a) for a in CODE_ARGS}
+    kw['consts'] = (None, target)
+    return types.CodeType(*[kw[a] for a in CODE_ARGS])

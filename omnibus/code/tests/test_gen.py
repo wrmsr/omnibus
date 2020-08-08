@@ -10,7 +10,7 @@ from .. import names as names_
 def test_codegen():
     def run(fn):
         nsb = names_.NamespaceBuilder()
-        argspecs_.render_arg_spec(argspecs_.ArgSpec.from_inspect(inspect.getfullargspec(fn)), nsb)
+        argspecs_.render_arg_spec_def(argspecs_.ArgSpec.from_inspect(inspect.getfullargspec(fn)), nsb)
 
     run(lambda: None)
     run(lambda a: None)

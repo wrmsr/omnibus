@@ -12,7 +12,7 @@ import uuid
 
 from .. import check
 from .argspecs import ArgSpec
-from .argspecs import render_arg_spec
+from .argspecs import render_arg_spec_def
 from .names import NamespaceBuilder
 
 
@@ -134,7 +134,7 @@ def create_function(
     locals = dict(locals or {})
 
     nsb = NamespaceBuilder(unavailable_names=set(locals) | set(globals or []))
-    sig = render_arg_spec(arg_spec, nsb)
+    sig = render_arg_spec_def(arg_spec, nsb)
     for k, v in nsb.items():
         check.not_in(k, locals)
         locals[k] = v

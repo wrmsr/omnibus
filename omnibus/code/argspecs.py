@@ -12,6 +12,9 @@ from .. import lang
 from .names import NamespaceBuilder
 
 
+ArgSpecable = ta.Union['ArgSpec', inspect.FullArgSpec, ta.Callable]
+
+
 FULL_ARG_SPECS_BY_FUNC = weakref.WeakKeyDictionary()
 
 
@@ -66,12 +69,20 @@ class ArgSpec(lang.Final):
             annotations=dict(arg_spec.annotations or {}),
         )
 
+    @classmethod
+    def of(cls, obj: ta.Union[ArgSpecable]) -> 'ArgSpec':
+        if isinstance(obj, ArgSpec):
+            return obj
+        elif isinstance(obj, inspect.FullArgSpec):
+            return cls.from_inspect(obj)
+        elif callable(obj):
+            return cls.of(get_full_arg_spec(obj))
+        else:
+            raise TypeError(obj)
 
-def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder: NamespaceBuilder) -> str:
-    if isinstance(arg_spec, inspect.FullArgSpec):
-        arg_spec = ArgSpec.from_inspect(arg_spec)
-    else:
-        check.isinstance(arg_spec, ArgSpec)
+
+def render_arg_spec_def(arg_spec: ArgSpecable, ns_builder: NamespaceBuilder) -> str:
+    arg_spec = ArgSpec.of(arg_spec)
 
     anns = {}
 
@@ -112,3 +123,19 @@ def render_arg_spec(arg_spec: ta.Union[ArgSpec, inspect.FullArgSpec], ns_builder
         line += f" -> {arg_spec.annotations['return']}"
 
     return line
+
+
+def render_arg_spec_call(arg_spec: ArgSpecable) -> str:
+    arg_spec = ArgSpec.of(arg_spec)
+
+    args = []
+    if arg_spec.args:
+        args.extend(arg_spec.args)
+    if arg_spec.varargs:
+        args.append(f'*{arg_spec.varargs}')
+    for kw in arg_spec.kwonlyargs:
+        args.append(f'{kw}={kw}')
+    if arg_spec.varkw:
+        args.append(f'**{arg_spec.varkw}')
+
+    return f"({', '.join(args)})"

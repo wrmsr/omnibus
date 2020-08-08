@@ -1,3 +1,4 @@
+import inspect
 import sys
 
 from .. import objs as objs_
@@ -31,3 +32,16 @@ def test_get_code_function():
 
     v = g()
     assert v is g
+
+
+def test_create_detour():
+    def f(x):
+        return x + 1
+
+    def g(x):
+        return x + 2
+
+    assert f(3) == 4
+    co = objs_.create_detour(inspect.getfullargspec(f), g)
+    f.__code__ = co
+    assert f(3) == 5
