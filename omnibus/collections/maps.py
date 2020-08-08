@@ -3,6 +3,8 @@ TODO:
  - dict update w policy (replace, check, raise)
   - generic? mutating vs immut?
   - cats/tcs/dispatch powered?
+ - set_once_mapping
+  - whatever guava haas
 """
 import collections.abc
 import typing as ta

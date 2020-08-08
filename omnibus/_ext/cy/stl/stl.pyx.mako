@@ -41,6 +41,8 @@ https://www.nexedi.com/blog/NXD-Document.Blog.Cypclass
 
 https://github.com/sagemath/sage/blob/860e4dc9881966a36ef8808a0d1fae0c6b54f741/src/sage/structure/coerce_dict.pyx#L849
 https://github.com/mdavidsaver/cython-c--demo/blob/ba086ad56696c492bbf0d375a4f45cfc81568eff/demo/ext.pyx
+
+https://martinralbrecht.wordpress.com/2017/07/23/adventures-in-cython-templating/
 </%doc>
 from libc.stdint cimport int32_t
 from libc.stdint cimport int64_t

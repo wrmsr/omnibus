@@ -1,6 +1,9 @@
 """
 TODO:
  - mypy.. ‘interop’..
+  - mypy-powered lint/refactor
+   - will be heavily coupled to mypy ver :/
+   - alt: simple resolution
  - revisit hy ast compo
 
 - formatter
