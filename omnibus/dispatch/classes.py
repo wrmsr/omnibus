@@ -50,14 +50,18 @@ class Property(registries.Property):
             self._dispatcher = owner.get_dispatcher(cls, tcls)
             self._bound_cache: ta.Dict[ta.Any, callable] = {}
 
-        def __call__(self, arg, *args, **kwargs):
-            key = self._dispatcher.key(arg)
+        def bind(self, key):
             try:
                 bound = self._bound_cache[key]
             except KeyError:
                 impl, manifest = self._dispatcher.dispatch(key)
                 impl = inject_manifest(impl, manifest)
                 bound = self._bound_cache[key] = impl.__get__(self._obj, self._cls)
+            return bound
+
+        def __call__(self, arg, *args, **kwargs):
+            key = self._dispatcher.key(arg)
+            bound = self.bind(key)
             return bound(arg, *args, **kwargs)
 
         def dispatch(self, cls: ta.Any) -> ta.Tuple[ta.Optional[Impl], ta.Optional[Manifest]]:

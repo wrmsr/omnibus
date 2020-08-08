@@ -58,6 +58,8 @@ def test_property():
     assert D().fn(6.) == 'Dfloat'
     assert D().fn('hi') == 'Dstr'
 
+    assert D().fn.bind(float)(6) == 'Dfloat'
+
 
 def test_class():
     class A(classes_.Class):
