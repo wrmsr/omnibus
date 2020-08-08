@@ -52,7 +52,9 @@ clean: clean-services
 
 .PHONY: images
 images:
+	set -e ; \
 	for IMG in $(DOCKER_IMAGES) ; do \
+		echo "$$IMG" ; \
 		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
 
@@ -106,6 +108,7 @@ ci-pull:
 
 .PHONY: ci-images
 ci-images:
+	set -e ; \
 	for IMG in $(DOCKER_CI_IMAGES) ; do \
 		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done

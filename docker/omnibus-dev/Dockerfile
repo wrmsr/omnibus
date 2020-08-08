@@ -5,7 +5,7 @@ COPY .dockertimestamp /
 # Packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
-RUN (
+RUN ( \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get upgrade -y && \

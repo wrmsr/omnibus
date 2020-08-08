@@ -2,20 +2,20 @@ FROM mysql:8.0.21
 COPY .dockertimestamp /
 
 
-#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5072E1F5
-#
-#RUN ( \
-#    export DEBIAN_FRONTEND=noninteractive && \
-#    apt-get -o Acquire::Check-Valid-Until=false update && \
-#    apt-get install -y \
-#\
-#        apt-utils \
-#        iputils-ping \
-#        sudo \
-#        tmux \
-#        vim \
-#\
-#)
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5072E1F5
+
+RUN ( \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get -o Acquire::Check-Valid-Until=false update && \
+    apt-get install -y \
+\
+        apt-utils \
+        iputils-ping \
+        sudo \
+        tmux \
+        vim \
+\
+)
 
 
 RUN ( \
