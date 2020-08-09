@@ -32,6 +32,7 @@ def test_docker_mysql():
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'mysql+mysqlconnector://omnibus:omnibus@{host}:{port}')) as engine:
         with engine.connect() as conn:
+            print(list(conn.execute("show session status like 'Com_begin'")))
             print(conn.scalar(sa.select([sa.func.version()])))
 
 

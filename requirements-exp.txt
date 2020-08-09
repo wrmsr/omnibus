@@ -46,7 +46,7 @@ yarl==1.5.1
 bsddb3==6.2.7
 chardet==3.0.4
 datadog==0.38.0
-ddtrace==0.40.0
+ddtrace==0.41.0
 dnspython==2.0.0
 fastavro==0.24.0
 fastparquet==0.4.1
