@@ -32,6 +32,8 @@ TODO:
  - partial validation - subclass?
  - standard named aspect packs: tuple, dict, pyrsistent
   - 'profiles' - will also be in serde too (but keep eye on inj interop)
+   - * frozen coercion profile - frozenlist for seq, frozendict for mapping
+    - use for pure
  - ** CYTHON **
   - dogfood CacheLink
   - with jitted/compiled dataclasses ~can bypass dict hits~...
