@@ -26,6 +26,8 @@ TODO:
   - dataclass, dispatch
   - need *simple* symbol resolution then
  - flake for redundant # noqa's lol
+ - transitive deps
+ - async misuse
 
 - analysis
  - type inf, sym resolution

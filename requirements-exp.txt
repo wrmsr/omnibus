@@ -80,7 +80,7 @@ pyzmq==19.0.2
 regex==2020.7.14
 rocksdb==0.7.0
 slackclient==2.8.0
-sympy==1.6.1
+sympy==1.6.2
 thrift==0.13.0
 uvloop==0.14.0
 
