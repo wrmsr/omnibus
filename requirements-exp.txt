@@ -15,7 +15,7 @@ certifi==2020.6.20
 cffi==1.14.1
 cftime==1.2.1
 cli-helpers==2.1.0
-fastprogress==0.2.5
+fastprogress==0.2.6
 humanize==2.5.0
 importlib-resources==3.0.0
 iniconfig==1.0.1
@@ -70,7 +70,7 @@ py4j==0.10.9
 pyglet==1.5.7
 pyjwt==1.7.1
 pykafka==2.8.0
-pymc3==3.9.2
+pymc3==3.9.3
 Pyomo==5.7
 pyroaring==0.2.9
 pyspark==3.0.0
