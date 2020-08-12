@@ -9,11 +9,12 @@ import tempfile
 import textwrap
 import traceback
 
+import setuptools.command.build_ext
+
 import distutils.log
 import distutils.ccompiler
 import distutils.errors
 import distutils.sysconfig
-import setuptools.command.build_ext
 
 
 # region About
