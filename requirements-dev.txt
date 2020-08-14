@@ -4,7 +4,7 @@
 ## packaging deps
 
 twine==3.2.0
-wheel>=0.34.2
+wheel>=0.35.0
 
 
 ## actual code deps
@@ -21,7 +21,7 @@ pytest==6.0.1
 ## useful tools
 
 astpretty==2.0.0
-awscli==1.18.116
+awscli==1.18.119
 docutils==0.16
 flake8==3.8.3
 gprof2dot==2019.11.30

@@ -25,12 +25,12 @@ def generic_compose_mro(
         cls: T,
         types: ta.Sequence[T] = None,
 ):
-    return c3.compose_mro(
+    return [rfl.erase_generic(t) for t in c3.compose_mro(
         cls,
         list(types),
         getbases=rfl.generic_bases,
         issubclass=generic_issubclass,
-    )
+    )]
 
 
 class ErasingDispatcher(Dispatcher[Impl]):
