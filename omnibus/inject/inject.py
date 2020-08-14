@@ -29,6 +29,9 @@ TODO:
    - resurrect unwrappers? :|
    - ALT: templates are dataclasses lol, free ctor
     - weird poss's like pointlessly cythonized generic templates.. too much freedom?
+ - injection super __init__ kwargs inspection?
+  - almost certainly NOT. force manually forwarding. shouldn't have that many deps - if a lot then break out to compo.
+  - *maybe* a @inj.inject_kwargs(SuperThing[.__init__?])
 """
 import collections
 import typing as ta
