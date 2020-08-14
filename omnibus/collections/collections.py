@@ -10,7 +10,6 @@ TODO:
  - OneForAllWeakSet
  - RingBuffer
  - Persistent (iface + pyrsistent, immutables (magicstack hamt))
- - **KeyValues**
   - old repo, support scalars/slices/tuples/ranges intermixed - spans now?
   - *implemented as a major extension to collections but as a toplevel subpackage, like configs is to dataclasses**
   - interops:

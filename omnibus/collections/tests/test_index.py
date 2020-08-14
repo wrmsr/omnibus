@@ -1,5 +1,6 @@
 """
 TODO:
+ - mutability? both of index and of items?
  - boost::MultiIndex - sorted.py?
   - https://www.boost.org/doc/libs/1_73_0/libs/multi_index/doc/reference/index.html
    - Index reference
