@@ -12,7 +12,7 @@ wcwidth==0.2.5
 arviz==0.9.0
 cachetools==4.1.1
 certifi==2020.6.20
-cffi==1.14.1
+cffi==1.14.2
 cftime==1.2.1
 cli-helpers==2.1.0
 fastprogress==0.2.6
@@ -49,7 +49,7 @@ datadog==0.38.0
 ddtrace==0.41.0
 dnspython==2.0.0
 elasticsearch==7.8.1
-fastavro==0.24.0
+fastavro==0.24.1
 fastparquet==0.4.1
 grpcio==1.31.0
 hyperscan==0.1.5
@@ -66,7 +66,7 @@ oauthlib==3.1.0
 pandas==1.1.0
 plotly==4.9.0
 plyvel==1.2.0
-protobuf==3.12.4
+protobuf==3.13.0
 py4j==0.10.9
 pyglet==1.5.7
 pyjwt==1.7.1
