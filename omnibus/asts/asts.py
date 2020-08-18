@@ -28,6 +28,8 @@ TODO:
  - flake for redundant # noqa's lol
  - transitive deps
  - async misuse
+ - pytest injection noqa
+ - nodiscard catch dc.validate/check mixup
 
 - analysis
  - type inf, sym resolution
