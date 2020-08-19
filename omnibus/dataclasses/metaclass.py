@@ -245,6 +245,7 @@ class Data(metaclass=_Meta):
 class Frozen(
     Data,
     abstract=True,
+    eq=False,
     frozen=True,
     slots=True,
     no_weakref=True,
@@ -261,6 +262,7 @@ class Frozen(
 class Pure(
     Data,
     abstract=True,
+    eq=False,
     frozen=True,
     slots=True,
     no_weakref=True,
@@ -281,6 +283,7 @@ def _confer_enum_final(att, sub, sup):
 class Enum(
     Data,
     abstract=True,
+    eq=False,
     frozen=True,
     slots=True,
     no_weakref=True,
@@ -306,6 +309,7 @@ class Tuple(
     Data,
     tuple,
     abstract=True,
+    eq=False,
     frozen=True,
     slots=True,
     no_weakref=True,

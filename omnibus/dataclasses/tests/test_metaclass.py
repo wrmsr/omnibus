@@ -404,3 +404,10 @@ class TestTuples:
         assert d.z == 3
         with pytest.raises(Exception):
             d.a = 4
+
+
+def test_ident_eq():
+    class C(metaclass_.Pure, eq=False):
+        x: int
+
+    assert C(1) != C(1)
