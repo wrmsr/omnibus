@@ -1,5 +1,7 @@
 SHELL:=/bin/bash
 
+PROJECT:=omnibus
+
 PYTHON_VERSION:=3.8.5
 PYTHON_37_VERSION:=3.7.8
 PYTHON_39_VERSION:=3.9.0rc1
@@ -38,9 +40,9 @@ dist-all: venv-all dist dist-37 docker-dist docker-dist-37
 clean-build:
 	-rm -rf build
 	-rm -rf dist
-	-rm -rf omnibus.egg-info
+	-rm -rf $(PROJECT).egg-info
 
-	find omnibus \
+	find $(PROJECT) \
 		\
 		-name '*.dylib' -delete -or \
 		-name '*.exe' -delete -or \
@@ -53,8 +55,8 @@ clean-build:
 		\
 		-name 'NeVeRmAtCh' -delete
 
-	if [ -d omnibus/_ext/cy ]; then \
-		find omnibus/_ext/cy \
+	if [ -d $(PROJECT)/_ext/cy ]; then \
+		find $(PROJECT)/_ext/cy \
 			\
 			-name '*.c' -delete -or \
 			-name '*.cpp' -delete -or \
@@ -62,7 +64,7 @@ clean-build:
 			-name 'NeVeRmAtCh' -delete ; \
 	fi
 
-	(cd omnibus/_ext/cy/stl && $(MAKE) clean)
+	(cd $(PROJECT)/_ext/cy/stl && $(MAKE) clean)
 
 .PHONY: clean
 clean: clean-build
@@ -179,9 +181,9 @@ antlr:
 	\
 	java -version ; \
 	\
-	find omnibus -name _antlr -type d | xargs -n 1 rm -rf ; \
+	find $(PROJECT) -name _antlr -type d | xargs -n 1 rm -rf ; \
 	\
-	for D in $$(find omnibus -name '*.g4' | xargs -n1 dirname | sort | uniq) ; do \
+	for D in $$(find $(PROJECT) -name '*.g4' | xargs -n1 dirname | sort | uniq) ; do \
 		echo "$$D" ; \
 		\
 		mkdir "$$D/_antlr" ; \
@@ -218,7 +220,7 @@ antlr:
 
 .PHONY: stl
 stl: venv
-	(. .venv/bin/activate && cd omnibus/_ext/cy/stl && $(MAKE) render)
+	(. .venv/bin/activate && cd $(PROJECT)/_ext/cy/stl && $(MAKE) render)
 
 
 ### Build
@@ -240,16 +242,16 @@ build-37: venv-37 gen
 
 .PHONY: flake
 flake: venv
-	.venv/bin/flake8 omnibus
+	.venv/bin/flake8 $(PROJECT)
 
 .PHONY: typecheck
 typecheck: venv
-	PYTHONPATH=. .venv/bin/mypy --ignore-missing-imports omnibus
+	PYTHONPATH=. .venv/bin/mypy --ignore-missing-imports $(PROJECT)
 
 .PHONY: type-ignore-vendor
 type-ignore-vendor:
 	# # type: ignore
-	for F in $$(find omnibus/_vendor -name '*.py') ; do \
+	for F in $$(find $(PROJECT)/_vendor -name '*.py') ; do \
 		if [ ! -s "$$F" ] ; then \
 			continue ; \
 		fi ; \
@@ -265,21 +267,21 @@ type-ignore-vendor:
 
 .PHONY: test
 test:
-	.venv/bin/pytest -v -n auto omnibus
+	.venv/bin/pytest -v -n auto $(PROJECT)
 
 .PHONY: test-37
 test-37:
-	.venv-37/bin/pytest -v -n auto omnibus
+	.venv-37/bin/pytest -v -n auto $(PROJECT)
 
 .PHONY: test-verbose
 test-verbose:
-	.venv/bin/pytest -svvv omnibus
+	.venv/bin/pytest -svvv $(PROJECT)
 
 
 ### Dist
 
 define do-dist
-	$(eval DIST_BUILD_DIR:=$(if $(filter "$(3)", "1"), $(shell mktemp -d -t omnibus-build-XXXXXXXXXX), build))
+	$(eval DIST_BUILD_DIR:=$(if $(filter "$(3)", "1"), $(shell mktemp -d -t $(PROJECT)-build-XXXXXXXXXX), build))
 	echo $(DIST_BUILD_DIR)
 
 	if [ $(DIST_BUILD_DIR) == "build" ] ; then \
@@ -291,7 +293,7 @@ define do-dist
 
 	cp -rv \
 		LICENSE \
-		omnibus \
+		$(PROJECT) \
 		README.md \
 	\
 		$(DIST_BUILD_DIR)/
@@ -311,8 +313,8 @@ define do-dist
 	find $(DIST_BUILD_DIR) -name '*.so' -delete
 	cd $(DIST_BUILD_DIR) && "$(DIST_BUILD_PYTHON)" setup.py clean
 
-	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/.revision"
-	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/omnibus/dev/.revision"
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/$(PROJECT)/.revision"
+	git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty > "$(DIST_BUILD_DIR)/$(PROJECT)/dev/.revision"
 
 	if [ "$(1)" = ".venv" ] ; then \
 		cd $(DIST_BUILD_DIR) && "$(DIST_BUILD_PYTHON)" setup.py sdist --formats=zip ; \
@@ -342,7 +344,7 @@ test-install: dist
 	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
 		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup; e=setup.EXTRAS_REQUIRE; print(("["+",".join(e)+"]") if e else "")')
 
-	cd .venv-install && bin/python -c 'import omnibus; omnibus._test_install()'
+	cd .venv-install && bin/python -c 'import $(PROJECT); $(PROJECT)._test_install()'
 
 .PHONY: dist
 dist: venv
@@ -382,7 +384,7 @@ test-pypi:
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-pypi ; \
 	fi ; \
 
-	cd .venv-pypi && bin/pip install omnibus && bin/python -m omnibus.revision
+	cd .venv-pypi && bin/pip install $(PROJECT) && bin/python -m $(PROJECT).revision
 
 
 ### Deps
@@ -506,11 +508,11 @@ _docker-build-37: _docker-venv-37
 
 .PHONY: docker-test
 docker-test: docker-build
-	./docker-dev .venv-docker/bin/pytest -v -n auto omnibus
+	./docker-dev .venv-docker/bin/pytest -v -n auto $(PROJECT)
 
 .PHONY: docker-test-37
 docker-test-37: docker-build-37
-	./docker-dev .venv-docker-37/bin/pytest -v -n auto omnibus
+	./docker-dev .venv-docker-37/bin/pytest -v -n auto $(PROJECT)
 
 ## Dist
 
@@ -543,14 +545,14 @@ ci:
 
 .PHONY: ci-test
 ci-test:
-	flake8 omnibus
+	flake8 $(PROJECT)
 	python setup.py build_ext --inplace
 
 	if [ -f test-results.xml ] ; then \
 		rm test-results.xml ; \
 	fi
 
-	pytest -v -n auto --junitxml=test-results.xml omnibus && \
+	pytest -v -n auto --junitxml=test-results.xml $(PROJECT) && \
 	\
 	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
 		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \

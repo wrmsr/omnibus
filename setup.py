@@ -20,12 +20,14 @@ import distutils.sysconfig
 # region About
 
 
+PROJECT = 'omnibus'
+
 BASE_DIR = os.path.dirname(__file__)
 ABOUT = {}
 
 
 def _read_about():
-    with open(os.path.join(BASE_DIR, 'omnibus', '__about__.py'), 'rb') as f:
+    with open(os.path.join(BASE_DIR, PROJECT, '__about__.py'), 'rb') as f:
         src = f.read()
         if sys.version_info[0] > 2:
             src = src.decode('UTF-8')
@@ -76,7 +78,7 @@ def _get_static_files(path):
 
 
 PACKAGE_DATA = [
-] + _get_static_files('omnibus')
+] + _get_static_files(PROJECT)
 
 
 # endregion
@@ -203,7 +205,7 @@ EXT_MODULES = [
             optional=True,
             **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
         )
-        for fpath in glob.glob('omnibus/_ext/cc/*.cc')
+        for fpath in glob.glob(f'{PROJECT}/_ext/cc/*.cc')
         if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
     ]
 ]
@@ -231,7 +233,7 @@ else:
                     ],
                     **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
                 )
-                for fpath in glob.glob('omnibus/_ext/cy/**/*.pyx', recursive=True)
+                for fpath in glob.glob(f'{PROJECT}/_ext/cy/**/*.pyx', recursive=True)
                 if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
             ],
             language_level=3,
@@ -258,7 +260,7 @@ if APPLE:
             optional=True,
             **EXT_KWARGS_BY_FNAME.get(os.path.basename(fpath), {}),
         )
-        for fpath in glob.glob('omnibus/_ext/m/*.m')
+        for fpath in glob.glob(f'{PROJECT}/_ext/m/*.m')
         if EXT_TOGGLES_BY_FNAME.get(os.path.basename(fpath), lambda: True)()
     ])
 
@@ -289,12 +291,12 @@ if __name__ == '__main__':
         setup_requires=['setuptools'],
 
         packages=setuptools.find_packages(
-            include=['omnibus', 'omnibus.*'],
+            include=[PROJECT, PROJECT + '.*'],
             exclude=['tests', '*.tests', '*.tests.*'],
         ),
-        py_modules=['omnibus'],
+        py_modules=[PROJECT],
 
-        package_data={'omnibus': PACKAGE_DATA},
+        package_data={PROJECT: PACKAGE_DATA},
         include_package_data=True,
 
         entry_points={},
