@@ -295,6 +295,7 @@ class Enum(
             'repr': SUPER,
             'frozen': True,
             'reorder': SUPER,
+            'eq': SUPER,
             'allow_setattr': SUPER,
             'slots': SUPER,
             'aspects': SUPER,
