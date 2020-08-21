@@ -411,3 +411,13 @@ def test_ident_eq():
         x: int
 
     assert C(1) != C(1)
+
+
+def test_enum_ident_eq():
+    class A(metaclass_.Enum, eq=False):
+        x: int
+
+    class B(A):
+        pass
+
+    assert B(1) != B(1)
