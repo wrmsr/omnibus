@@ -16,14 +16,14 @@ certifi==2020.6.20
 cffi==1.14.2
 cftime==1.2.1
 cli-helpers==2.1.0
-fastprogress==0.2.6
+fastprogress==1.0.0
 humanize==2.6.0
 importlib-resources==3.0.0
 iniconfig==1.0.1
 ipykernel==5.3.4
 jedi==0.17.2
 jmespath==0.10.0
-keyring==21.3.0
+keyring==21.3.1
 more-itertools==8.4.0
 netCDF4==1.5.4
 numba==0.51.0
@@ -37,6 +37,7 @@ scipy==1.5.2
 scramp==1.2.0
 Theano==1.0.5
 tqdm==4.48.2
+typing-extensions==3.7.4.3
 urllib3==1.25.10
 xarray==0.16.0
 yarl==1.5.1
