@@ -89,7 +89,7 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
         self._hash = None
 
     def __repr__(self) -> str:
-        return '%s(%r)' % (type(self).__name__, self._tup)
+        return '%s([%s])' % (type(self).__name__, ', '.join(map(repr, self._tup)))
 
     def __add__(self, o) -> 'FrozenList[T]':
         if isinstance(o, FrozenList):
