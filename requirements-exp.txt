@@ -51,7 +51,7 @@ datadog==0.38.0
 ddtrace==0.41.0
 dnspython==2.0.0
 elasticsearch==7.9.1
-fastavro==0.24.2
+fastavro==1.0.0
 fastparquet==0.4.1
 grpcio==1.31.0
 hyperscan==0.1.5
