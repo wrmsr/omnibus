@@ -265,7 +265,7 @@ class BinderImpl(Binder):
                 self._require_key(v, callable)
 
         def provide():
-            instance_kwargs = {k: Injector.current.get_instance(v, d) for k, (v, d) in kwargs_and_defaults.items()}
+            instance_kwargs = {k: Injector.current.get(v, d) for k, (v, d) in kwargs_and_defaults.items()}
             return callable(**instance_kwargs)
 
         return provider_factory(provide)

@@ -248,7 +248,7 @@ class InjectorImpl(Injector):
         return binding
 
     @lang.context_wrapped('_locking')
-    def get_instance(
+    def get(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
             default: ta.Any = MISSING,
@@ -365,7 +365,7 @@ class InjectorImpl(Injector):
     def _load_eager_singletons(self) -> None:
         for binding in self._bindings:
             if binding.scoping is EagerSingletonScope:
-                self.get_instance(binding.key)
+                self.get(binding.key)
 
     def _add_jit_bindings(self) -> None:
         while self._required_keys:

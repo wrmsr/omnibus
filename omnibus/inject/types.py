@@ -179,12 +179,18 @@ class Injector(lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_instance(
+    def get(
             self,
             target: ta.Union[Key[T], ta.Type[T]],
             default: ta.Any = MISSING,
     ) -> T:
         raise NotImplementedError
+
+    def __getitem__(
+            self,
+            target: ta.Union[Key[T], ta.Type[T]],
+    ) -> T:
+        return self.get(target)
 
     @abc.abstractmethod
     def get_elements_by_type(

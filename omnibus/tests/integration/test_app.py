@@ -35,7 +35,7 @@ class LifecycleRegistrar:
                 not isinstance(instance, lifecycles.LifecycleManager) and
                 instance not in self._seen
         ):
-            man = injector.get_instance(lifecycles.LifecycleManager)
+            man = injector.get(lifecycles.LifecycleManager)
             man.add(instance)
             self._seen.add(instance)
 
@@ -114,9 +114,9 @@ def test_app():
 
     injector = inject.create_injector(binder)
 
-    lm = injector.get_instance(lifecycles.LifecycleManager)
+    lm = injector[lifecycles.LifecycleManager]
     with lifecycles.context_manage(lm):
-        server = injector.get_instance(http.servers.WsgiServer)
+        server = injector[http.servers.WsgiServer]
         with server.loop_context() as loop:
             port = server.binder.port
             for _ in loop:

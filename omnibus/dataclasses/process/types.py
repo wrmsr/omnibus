@@ -220,20 +220,37 @@ def attach(key):
     return inner
 
 
+CLS_ATTACHMENT_KEYS = weakref.WeakKeyDictionary()
+
+
 def get_keys_by_attachment_name(obj: ta.Any) -> ta.Mapping[ta.Any, ta.Any]:
     if isinstance(obj, type):
         rmro = reversed(obj.__mro__[1:])
     else:
         rmro = reversed(type(obj).__mro__)
     keys_by_name = {}
-    for items in [list(c.__dict__.items()) for c in rmro] + [list(obj.__dict__.items())]:
-        for n, v in items:
-            try:
-                ks = ATTACHMENTS[v]
-            except (KeyError, TypeError):
-                continue
+    for c in rmro:
+        try:
+            nks = CLS_ATTACHMENT_KEYS[c]
+        except KeyError:
+            nks = {}
+            for n, v in c.__dict__.items():
+                try:
+                    ks = ATTACHMENTS[v]
+                except (KeyError, TypeError):
+                    continue
+                nks[n] = ks
+            CLS_ATTACHMENT_KEYS[c] = nks
+        for n, ks in nks.items():
             for k in ks:
                 keys_by_name[n] = k
+    for n, v in obj.__dict__.items():
+        try:
+            ks = ATTACHMENTS[v]
+        except (KeyError, TypeError):
+            continue
+        for k in ks:
+            keys_by_name[n] = k
     return keys_by_name
 
 

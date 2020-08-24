@@ -3,14 +3,16 @@ TODO:
  - posonly
 """
 import contextlib
+import dataclasses as dc
 import io
 import linecache
 import textwrap
+import threading
 import types
 import typing as ta
-import uuid
 
 from .. import check
+from .. import uuid
 from .argspecs import ArgSpec
 from .argspecs import render_arg_spec_def
 from .names import NamespaceBuilder
@@ -111,15 +113,26 @@ class CodeGen:
         )
 
 
+@dc.dataclass()
+class _ReservedFilenameEntry:
+    unique_id: str
+    seq: int = 0
+
+
+_RESERVED_FILENAME_UUID_THREADLOCAL = threading.local()
+
+
 def reserve_filename(prefix: str) -> str:
-    unique_id = uuid.uuid4()
-    count = 0
+    try:
+        e = _RESERVED_FILENAME_UUID_THREADLOCAL.unique_id
+    except AttributeError:
+        e = _RESERVED_FILENAME_UUID_THREADLOCAL.unique_id = _ReservedFilenameEntry(str(uuid.uuid4()))
     while True:
-        unique_filename = f'<generated:{prefix}:{count}>'
-        cache_line = (1, None, (str(unique_id),), unique_filename)
+        unique_filename = f'<generated:{prefix}:{e.seq}>'
+        cache_line = (1, None, (e.unique_id,), unique_filename)
+        e.seq += 1
         if linecache.cache.setdefault(unique_filename, cache_line) == cache_line:
             return unique_filename
-        count += 1
 
 
 def create_function(

@@ -36,7 +36,7 @@ class LinkedProvider(Provider[T], lang.Final):
     key: Key[T]
 
     def __call__(self) -> T:
-        return Injector.current.get_instance(self.key)
+        return Injector.current.get(self.key)
 
 
 @dc.dataclass(frozen=True)
@@ -44,7 +44,7 @@ class ProviderLinkedProvider(Provider[T], lang.Final):
     key: Key[T]
 
     def __call__(self) -> T:
-        return Injector.current.get_instance(Key(Provider[self.key.type], self.key.annotation))()
+        return Injector.current.get(Key(Provider[self.key.type], self.key.annotation))()
 
 
 @dc.dataclass(frozen=True)
@@ -53,4 +53,4 @@ class DelegatedProvider(Provider[T], lang.Final):
     injector: 'Injector'
 
     def __call__(self) -> T:
-        return self.injector.get_instance(self.key)
+        return self.injector.get(self.key)

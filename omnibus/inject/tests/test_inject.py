@@ -41,17 +41,17 @@ def test_base():
 
     injector = inject_.create_injector(binder, config=inject_.InjectorConfig(enable_jit_bindings=True))
 
-    c = injector.get_instance(types_.Key(C))
+    c = injector.get(types_.Key(C))
     assert isinstance(c, C)
     assert c.x == 420
-    assert injector.get_instance(types_.Key(C)) is not c
+    assert injector.get(types_.Key(C)) is not c
 
-    d = injector.get_instance(types_.Key(D))
+    d = injector.get(types_.Key(D))
     assert isinstance(d, D)
     assert d.x == 420
-    assert injector.get_instance(types_.Key(D)) is d
+    assert injector.get(types_.Key(D)) is d
 
-    f = injector.get_instance(F)
+    f = injector.get(F)
     assert isinstance(f, G)
 
 
@@ -68,11 +68,11 @@ def test_box():
 
     injector = inject_.create_injector(binder)
 
-    name = injector.get_instance(Name)
+    name = injector.get(Name)
     assert isinstance(name, Name)
     assert name.value == 'some name'
 
-    title = injector.get_instance(Title)
+    title = injector.get(Title)
     assert isinstance(title, Title)
     assert title.value == 'some name title'
 
@@ -88,10 +88,10 @@ def test_annotation():
 
     injector = inject_.create_injector(binder)
 
-    name = injector.get_instance(types_.Key(str, 'name'))
+    name = injector.get(types_.Key(str, 'name'))
     assert name == 'some name'
 
-    title = injector.get_instance(types_.Key(str, 'title'))
+    title = injector.get(types_.Key(str, 'title'))
     assert title == 'some name title'
 
 
@@ -103,7 +103,7 @@ def test_provider():
 
     injector = inject_.create_injector(binder)
 
-    assert injector.get_instance(object) == 5
+    assert injector.get(object) == 5
 
 
 def test_default():
@@ -116,7 +116,7 @@ def test_default():
 
     injector = inject_.create_injector(binder)
 
-    title = injector.get_instance(types_.Key(str, 'title'))
+    title = injector.get(types_.Key(str, 'title'))
     assert title == 'default name title'
 
 
@@ -127,7 +127,7 @@ def test_set():
 
     injector = inject_.create_injector(binder)
 
-    s = injector.get_instance(ta.Set[int])
+    s = injector.get(ta.Set[int])
     assert s == {4, 5}
 
 
@@ -138,7 +138,7 @@ def test_dict():
 
     injector = inject_.create_injector(binder)
 
-    s = injector.get_instance(ta.Dict[int, str])
+    s = injector.get(ta.Dict[int, str])
     assert s == {4: 'four', 5: 'five'}
 
 
@@ -149,8 +149,8 @@ def test_child():
     injector = inject_.create_injector(binder)
     child_injector = injector.create_child()
 
-    assert injector.get_instance(int) == 420
-    assert child_injector.get_instance(int) == 420
+    assert injector.get(int) == 420
+    assert child_injector.get(int) == 420
 
 
 def test_child2():
@@ -159,9 +159,9 @@ def test_child2():
     injector = inject_.create_injector(binder, config=types_.InjectorConfig(enable_jit_bindings=True))
     child_injector = injector.create_child()
 
-    assert child_injector.get_instance(int) == 0
+    assert child_injector.get(int) == 0
     with pytest.raises(types_.InjectionBlacklistedKeyError):
-        injector.get_instance(int)
+        injector.get(int)
 
 
 def test_private():
@@ -189,16 +189,16 @@ def test_private():
     binder.bind(D)
 
     injector = inject_.create_injector(private_binder, binder)
-    d = injector.get_instance(D)
+    d = injector.get(D)
     assert isinstance(d, D)
     assert isinstance(d.b, C)
     assert isinstance(d.b.a, A)
 
     with pytest.raises(types_.InjectionBlacklistedKeyError):
-        injector.get_instance(A)
+        injector.get(A)
 
     with pytest.raises(types_.InjectionBlacklistedKeyError):
-        injector.get_instance(C)
+        injector.get(C)
 
 
 def test_nested_private():
@@ -215,12 +215,12 @@ def test_nested_private():
     binder2.new_set_binder(int).bind(to_instance=2)
     injector2 = injector0.create_child(binder2)
 
-    print(injector0.get_instance(ta.Set[int]))
-    print(injector0.get_instance(ta.Set[int]))
+    print(injector0.get(ta.Set[int]))
+    print(injector0.get(ta.Set[int]))
 
     # FIXME: SetProvider.__call__ -> get_bindings parent=True?
-    print(injector1.get_instance(ta.Set[int]))
-    print(injector2.get_instance(ta.Set[int]))
+    print(injector1.get(ta.Set[int]))
+    print(injector2.get(ta.Set[int]))
 
 
 def test_dataclasses():
@@ -233,6 +233,6 @@ def test_dataclasses():
     binder.bind(C)
 
     injector = inject_.create_injector(binder)
-    c = injector.get_instance(C)
+    c = injector.get(C)
     assert isinstance(c, C)
     assert c.x == 420
