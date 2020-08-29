@@ -26,7 +26,7 @@ jmespath==0.10.0
 keyring==21.3.1
 more-itertools==8.4.0
 netCDF4==1.5.4
-numba==0.51.0
+numba==0.51.1
 parso==0.8.0
 pendulum==2.1.2
 py-cpuinfo==7.0.0
@@ -47,8 +47,8 @@ yarl==1.5.1
 
 bsddb3==6.2.7
 chardet==3.0.4
-datadog==0.38.0
-ddtrace==0.41.0
+datadog==0.39.0
+ddtrace==0.41.2
 dnspython==2.0.0
 elasticsearch==7.9.1
 fastavro==1.0.0
@@ -56,8 +56,8 @@ fastparquet==0.4.1
 grpcio==1.31.0
 hyperscan==0.1.5
 idna==2.10
-jupyter-client==6.1.6
-jupyter-console==6.1.0
+jupyter-client==6.1.7
+jupyter-console==6.2.0
 jupyter-core==4.6.3
 kafka-python==2.0.1
 kiwisolver==1.2.0
@@ -82,7 +82,7 @@ python-snappy==0.5.4
 pyzmq==19.0.2
 regex==2020.7.14
 rocksdb==0.7.0
-slackclient==2.8.0
+slackclient==2.8.1
 sympy==1.6.2
 thrift==0.13.0
 uvloop==0.14.0
