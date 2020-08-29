@@ -1,6 +1,7 @@
 """
 TODO:
  - class CO/FUNC (ValueEnum)
+ - Code/Function dataclass - dc.replaceable
 """
 import dis
 import gc
