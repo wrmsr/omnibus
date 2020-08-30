@@ -1,5 +1,6 @@
 """
 TODO:
+ - ** rename to memoized? does not invalidate.. **
  - properties.init? eager cached, ~ideally~ automatically on __init__
   - not really possible without explicit help/call or baseclass
 """

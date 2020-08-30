@@ -2,6 +2,10 @@
 TODO:
  - statics? once, every, and_every, ...
  - io - FileObj protocol
+ - cached_unary?
+ - s/cached/memoized/?
+ - @classmethod with instancemethod override/overload
+ - functools.partial but check prototype fits (kwargs, #args)
 """
 import collections.abc
 import functools

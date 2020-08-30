@@ -4,6 +4,7 @@ TODO:
  - Markers become ta.Literals after dropping 3.7? or same just diff anns
  - eagerly abstract - if Abstract not explicitly in baseclass list of new subclasses enforce concreteness eagerlly
   - .. **make this default**?
+ - frozen_after_init?
 """
 import abc
 import functools

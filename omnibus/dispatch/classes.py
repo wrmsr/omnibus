@@ -1,3 +1,7 @@
+"""
+TODO:
+ - Property wrapper/decorator kwarg
+"""
 import abc
 import types
 import typing as ta

@@ -37,6 +37,7 @@ TODO:
  - guava table (graph in graph pkg)
  - https://github.com/rust-lang/ena
  - https://github.com/aio-libs/multidict
+ - indexable OrderedSet - + back by dict? OrderedIdentitySet?
 """
 import functools
 import typing as ta
