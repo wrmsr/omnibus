@@ -26,7 +26,13 @@ jobs:
         id: 'cache'
         with:
           path: '~/.cache'
-          key: "omnibus-ci-${{ github.ref }}-${{ hashFiles('.dockertimestamp', 'docker/omnibus-ci/Dockerfile', 'requirements.txt', 'requirements-dev.txt') }}"
+          key: |
+            omnibus-ci-${{ github.ref }}-${{ hashFiles(
+              '.dockertimestamp',
+              'docker/omnibus-ci/Dockerfile',
+              'requirements.txt',
+              'requirements-dev.txt'
+            ) }}
           restore-keys: |
             omnibus-ci-${{ github.ref }}-
             omnibus-ci-
