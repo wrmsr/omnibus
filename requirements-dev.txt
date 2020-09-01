@@ -21,14 +21,14 @@ pytest==6.0.1
 ## useful tools
 
 astpretty==2.0.0
-awscli==1.18.128
+awscli==1.18.129
 docutils==0.16
 flake8==3.8.3
 gprof2dot==2019.11.30
 guppy3==3.0.10.post1
 httpie==2.2.0
 ipdb==0.13.3
-ipython==7.18.0
+ipython==7.18.1
 iredis==1.9.1
 litecli==1.4.1
 mycli==1.22.2
@@ -36,7 +36,7 @@ mypy==0.782
 objgraph==3.4.1
 pgcli==3.0.0
 pipdeptree==1.0.0
-prompt-toolkit==3.0.6
+prompt-toolkit==3.0.7
 pyflakes==2.2.0
 pyrasite==2.0
 s3cmd==2.1.0
