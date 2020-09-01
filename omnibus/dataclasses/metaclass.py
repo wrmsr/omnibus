@@ -1,6 +1,7 @@
 """
-TeODO:
- e- inner=False ** InnerMeta
+TODO:
+ - inner=False ** InnerMeta
+ - metadata kwarg - * merge with parents *
 """
 import abc
 import dataclasses as dc
