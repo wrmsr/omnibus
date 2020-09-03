@@ -42,6 +42,8 @@ RUN ( \
         net-tools \
         netcat \
         nginx \
+        nodejs \
+        npm \
         perl \
         pkg-config \
         postgresql-client \
@@ -124,6 +126,11 @@ PATH=\"~/.pyenv/bin:\$PATH\" \n\
 \n\
 " >> ~/.bashrc \
 )
+
+
+# js
+
+RUN npm install -g yarn
 
 
 # jp
