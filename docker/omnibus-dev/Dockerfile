@@ -32,6 +32,7 @@ RUN ( \
         libpcre2-dev \
         libpcre3-dev \
         libpq-dev \
+        libsasl2-dev \
         libsnappy-dev \
         make \
         man \
