@@ -47,6 +47,7 @@ RUN ( \
         perl \
         pkg-config \
         postgresql-client \
+        protobuf-compiler \
         python \
         silversearcher-ag \
         socat \

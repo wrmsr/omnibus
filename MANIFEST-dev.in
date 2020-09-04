@@ -1,7 +1,8 @@
 include README.md
 include LICENSE
 include LICENSE-*
-include **/.revision
+
+global-include .revision
 
 exclude omnibus
 

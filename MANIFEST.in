@@ -1,14 +1,15 @@
 include README.md
 include LICENSE
 include LICENSE-*
-include **/.revision
 
 exclude omnibus/_ext/cy/**.cpp
 exclude omnibus/_ext/cy/**/*.cpp
 
-include omnibus/**.g4
-include omnibus/**.interp
-include omnibus/**.tokens
+global-include *.g4
+global-include *.interp
+global-include *.tokens
+global-include .revision
+
 include omnibus/_ext/cc/**.cc
 include omnibus/_ext/cc/**.h
 include omnibus/_ext/cy/**.pxd

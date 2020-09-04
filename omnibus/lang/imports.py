@@ -76,7 +76,7 @@ def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterat
                 return
             module = sys.modules[dir]
         # FIXME: pyox
-        if getattr(module, __file__, None) is None:
+        if getattr(module, '__file__', None) is None:
             return
 
         for file in _pkg_resources().resource_listdir(dir, '.'):
@@ -97,9 +97,10 @@ def yield_import_all(
         globals: ta.Dict[str, ta.Any] = None,
         locals: ta.Dict[str, ta.Any] = None,
         recursive: bool = False,
-) -> ta.Iterator[types.ModuleType]:
+) -> ta.Iterator[str]:
     for import_path in yield_importable(package_root, recursive=recursive):
-        yield __import__(import_path, globals=globals, locals=locals)
+        __import__(import_path, globals=globals, locals=locals)
+        yield import_path
 
 
 def import_all(package_root: str, *, recursive: bool = False) -> None:
