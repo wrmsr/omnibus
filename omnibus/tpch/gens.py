@@ -113,40 +113,17 @@ class RegionGenerator(ta.Iterable[Region]):
         # market_segment_random = RandomString(1140279430, self._text_dists.market_segments)
         comment_random = RandomText(1500869201, self._text_pool, self._COMMENT_AVERAGE_LENGTH)
 
-        # address_random = RandomAlphaNumeric(881155353, self._ADDRESS_AVERAGE_LENGTH)
-        # nation_key_random = RandomBoundedInt(1489529863, 0, self._text_dists.nations.size - 1)
-        # phone_random = RandomPhoneNumber(1521138112)
-        # account_balance_random = RandomBoundedInt(298370230, self._ACCOUNT_BALANCE_MIN, self._ACCOUNT_BALANCE_MAX)
-        # market_segment_random = RandomString(1140279430, self._text_dists.market_segments)
-        # comment_random = RandomText(1335826707, self._text_pool, self._COMMENT_AVERAGE_LENGTH)
-        #
-        # for index in range(row_count):
-        #     region_key = start_index + index + 1
-        #     nation_key = nation_key_random.next_value()
-        #
-        #     region = Region(
-        #         region_key,
-        #         region_key,
-        #         'Customer#%09d' % (region_key,),
-        #         address_random.next_value(),
-        #         nation_key,
-        #         phone_random.next_value(nation_key),
-        #         account_balance_random.next_value(),
-        #         market_segment_random.next_value(),
-        #         comment_random.next_value(),
-        #         )
-        #
-        #     yield region
-        #
-        #     address_random.row_finished()
-        #     nation_key_random.row_finished()
-        #     phone_random.row_finished()
-        #     account_balance_random.row_finished()
-        #     market_segment_random.row_finished()
-        #     comment_random.row_finished()
+        for index in range(self._text_dists.regions.size):
+            region = Region(
+                index,
+                index,
+                self._text_dists.regions.values[index],
+                comment_random.next_value(),
+            )
 
-        return
-        yield  # noqa
+            yield region
+
+            comment_random.row_finished()
 
 
 class CustomerGenerator(ta.Iterable[Customer]):
