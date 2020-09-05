@@ -96,6 +96,17 @@ class DataSpec(ta.Generic[TypeT]):
             dct[v] = k
         return Unmangling(dct)
 
+    @properties.cached
+    def shallow_extras(self) -> ta.Sequence[ta.Any]:
+        return tuple(
+            e
+            for e in self._cls.__dict__.get(METADATA_ATTR, {}).get(Extras, [])
+        )
+
+    @properties.cached
+    def shallow_extras_by_cls(self) -> ocol.ItemSeqTypeMap:
+        return ocol.ItemSeqTypeMap(self.shallow_extras)
+
     @property
     def rmro(self) -> ta.Sequence[type]:
         return tuple(reversed(self.cls.__mro__))
