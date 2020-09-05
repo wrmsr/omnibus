@@ -36,7 +36,7 @@ class Entity(dc.Enum):
 
 
 class Region(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['region_key'])
+    dc.metadata({Meta: Meta(['region_key'])})
 
     region_key: int = dc.field(metadata={Column: Column('r_regionkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('r_name', Column.Type.VARCHAR, precision=25)})
@@ -44,7 +44,7 @@ class Region(Entity):
 
 
 class Nation(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['nation_key'], [['region_key']])
+    dc.metadata({Meta: Meta(['nation_key'], [['region_key']])})
 
     nation_key: int = dc.field(metadata={Column: Column('n_nationkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('n_name', Column.Type.VARCHAR, precision=25)})
@@ -53,7 +53,7 @@ class Nation(Entity):
 
 
 class Part(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['part_key'])
+    dc.metadata({Meta: Meta(['part_key'])})
 
     part_key: int = dc.field(metadata={Column: Column('p_partkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('p_name', Column.Type.VARCHAR, precision=55)})
@@ -67,7 +67,7 @@ class Part(Entity):
 
 
 class Supplier(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['supplier_key'], [['nation_key']])
+    dc.metadata({Meta: Meta(['supplier_key'], [['nation_key']])})
 
     supplier_key: int = dc.field(metadata={Column: Column('s_suppkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('s_name', Column.Type.VARCHAR, precision=25)})
@@ -79,7 +79,7 @@ class Supplier(Entity):
 
 
 class PartSupplier(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['part_key', 'supplier_key'], [['supplier_key', 'part_key']])
+    dc.metadata({Meta: Meta(['part_key', 'supplier_key'], [['supplier_key', 'part_key']])})
 
     part_key: int = dc.field(metadata={Column: Column('ps_partkey', Column.Type.IDENTIFIER)})
     supplier_key: int = dc.field(metadata={Column: Column('ps_suppkey', Column.Type.IDENTIFIER)})
@@ -89,7 +89,7 @@ class PartSupplier(Entity):
 
 
 class Customer(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['customer_key'], [['nation_key']])
+    dc.metadata({Meta: Meta(['customer_key'], [['nation_key']])})
 
     customer_key: int = dc.field(metadata={Column: Column('c_custkey', Column.Type.IDENTIFIER)})
     name: str = dc.field(metadata={Column: Column('c_name', Column.Type.VARCHAR, precision=25)})
@@ -102,7 +102,7 @@ class Customer(Entity):
 
 
 class Order(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['order_key'], [['customer_key']])
+    dc.metadata({Meta: Meta(['order_key'], [['customer_key']])})
 
     order_key: int = dc.field(metadata={Column: Column('o_orderkey', Column.Type.IDENTIFIER)})
     customer_key: int = dc.field(metadata={Column: Column('o_custkey', Column.Type.IDENTIFIER)})
@@ -116,7 +116,7 @@ class Order(Entity):
 
 
 class LineItem(Entity):
-    __meta__: ta.ClassVar[Meta] = Meta(['order_key', 'line_number'], [['part_key'], ['supp_key']])
+    dc.metadata({Meta: Meta(['order_key', 'line_number'], [['part_key'], ['supp_key']])})
 
     order_key: int = dc.field(metadata={Column: Column('l_orderkey', Column.Type.IDENTIFIER)})
     part_key: int = dc.field(metadata={Column: Column('l_partkey', Column.Type.IDENTIFIER)})
