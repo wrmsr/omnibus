@@ -45,6 +45,7 @@ _read_about()
 
 INCLUDED_STATIC_FILE_PATHS = {
     '*.cc',
+    '*.dss',
     '*.g4',
     '*.h',
     '*.interp',

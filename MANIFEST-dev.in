@@ -2,14 +2,15 @@ include README.md
 include LICENSE
 include LICENSE-*
 
-global-include .revision
+include .revision
+include omnibus/.revision
 
 exclude omnibus
 
 include omnibus/__init__.py
 include omnibus/__about__.py
 
-global-include **/dev/**
+recursive-include omnibus dev
 
 global-exclude *.py[cod]
 global-exclude *.so

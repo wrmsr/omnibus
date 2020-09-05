@@ -279,6 +279,22 @@ test-verbose:
 
 ### Dist
 
+.PHONY: test-install
+test-install:
+	if [ ! -d .venv-install ] ; then \
+		if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
+			python -m venv .venv-install ; \
+		else \
+			"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
+			"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-install ; \
+		fi ; \
+	fi
+
+	.venv-install/bin/pip install -r requirements.txt
+	.venv-install/bin/pip uninstall -y $(PROJECT)
+	.venv-install/bin/python setup.py install
+	cd .venv-install && bin/python -c 'import $(PROJECT); $(PROJECT)._test_install()'
+
 define do-dist
 	$(eval DIST_BUILD_DIR:=$(if $(filter "$(3)", "1"), $(shell mktemp -d -t $(PROJECT)-build-XXXXXXXXXX), build))
 	echo $(DIST_BUILD_DIR)
@@ -329,21 +345,21 @@ define do-dist
 	cp $(DIST_BUILD_DIR)/dist/* ./dist/
 endef
 
-.PHONY: test-install
-test-install: dist
-	rm -rf .venv-install
+.PHONY: test-dist
+test-dist: dist
+	rm -rf .venv-dist
 
 	if [ "$$(python --version)" == "Python $(PYTHON_VERSION)" ] ; then \
-		python -m venv .venv-install ; \
+		python -m venv .venv-dist ; \
 	else \
 		"$(PYENV_BIN)" install -s $(PYTHON_VERSION) ; \
-		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-install ; \
+		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv-dist ; \
 	fi ; \
 
-	.venv-install/bin/pip install --force-reinstall $(PIP_ARGS) \
-		$$(find dist/*.zip)$$(.venv-install/bin/python -c 'import setup; e=setup.EXTRAS_REQUIRE; print(("["+",".join(e)+"]") if e else "")')
+	.venv-dist/bin/pip install --force-reinstall $(PIP_ARGS) \
+		$$(find dist/*.zip)$$(.venv-dist/bin/python -c 'import setup; e=setup.EXTRAS_REQUIRE; print(("["+",".join(e)+"]") if e else "")')
 
-	cd .venv-install && bin/python -c 'import $(PROJECT); $(PROJECT)._test_install()'
+	cd .venv-dist && bin/python -c 'import $(PROJECT); $(PROJECT)._test_install()'
 
 .PHONY: dist
 dist: venv
@@ -364,7 +380,7 @@ dist-dev: venv
 ### Publish
 
 .PHONY:
-publish: clean dist test-install
+publish: clean dist test-dist
 	if [ ! -z "$$(git status -s)" ] ; then \
 		echo dirty ; \
 		exit 1 ; \

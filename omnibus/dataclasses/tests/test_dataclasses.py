@@ -628,3 +628,12 @@ def test_allow_setattr():
     del c.b
     with pytest.raises(AttributeError):
         c.b  # noqa
+
+
+def test_metadata():
+    @api_.dataclass(frozen=True)
+    class C:
+        dc.metadata(int, 'a int')
+        dc.metadata('hi')
+
+    # assert dc.met

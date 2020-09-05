@@ -2,23 +2,25 @@ include README.md
 include LICENSE
 include LICENSE-*
 
-exclude omnibus/_ext/cy/**.cpp
-exclude omnibus/_ext/cy/**/*.cpp
+recursive-exclude omnibus/_ext/cy *.cpp
 
-global-include *.g4
-global-include *.interp
-global-include *.tokens
-global-include .revision
+recursive-include omnibus *.dss
+recursive-include omnibus *.g4
+recursive-include omnibus *.interp
+recursive-include omnibus *.tokens
 
-include omnibus/_ext/cc/**.cc
-include omnibus/_ext/cc/**.h
-include omnibus/_ext/cy/**.pxd
-include omnibus/_ext/cy/**.pyi
-include omnibus/_ext/cy/**.pyx
-include omnibus/_ext/cy/**/*.h
-include omnibus/_ext/cy/**/*.pyx
-include omnibus/_ext/m/**.h
-include omnibus/_ext/m/**.m
+include .revision
+include omnibus/.revision
+
+recursive-include omnibus/_ext/cc *.cc
+recursive-include omnibus/_ext/cc *.h
+recursive-include omnibus/_ext/cy *.h
+recursive-include omnibus/_ext/cy *.pxd
+recursive-include omnibus/_ext/cy *.pyi
+recursive-include omnibus/_ext/cy *.pyx
+recursive-include omnibus/_ext/cy *.pyx
+recursive-include omnibus/_ext/m *.h
+recursive-include omnibus/_ext/m *.m
 
 global-exclude **/dev/**
 
