@@ -636,6 +636,11 @@ def test_metadata():
         api_.metadata({int: 5})
         api_.metadata({str: 'hi'})
 
-    cdd = reflect_.get_cls_spec(C)
-    mds = cdd.rmro_extras_by_cls[types_.Metadata]
-    assert mds
+    assert api_.metadatas_dict(C) == {int: 5, str: 'hi'}
+
+    @api_.dataclass(frozen=True)
+    class D(C):
+        api_.metadata({float: 420.})
+        api_.metadata({str: 'bye'})
+
+    assert api_.metadatas_dict(D) == {int: 5, float: 420., str: 'bye'}

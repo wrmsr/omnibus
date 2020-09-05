@@ -79,6 +79,9 @@ from .types import PostInit
 from .types import Validator
 
 
+_reflect = lang.proxy_import('.reflect', __package__)
+
+
 T = ta.TypeVar('T')
 
 
@@ -339,3 +342,13 @@ def metadata(cls_dct, *args, **kwargs) -> None:
     if kwargs:
         objs.append(Metadata(kwargs))
     cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).extend(objs)
+
+
+def metadatas_dict(cls: type) -> ta.Mapping[ta.Any, ta.Any]:
+    if not isinstance(cls, type) or not is_dataclass(cls):
+        raise TypeError(cls)
+    spec = _reflect.get_cls_spec(cls)  # noqa
+    dct = {}
+    for md in spec.rmro_extras_by_cls[Metadata]:
+        dct.update(md.metadata)
+    return dct
