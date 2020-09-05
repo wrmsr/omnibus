@@ -95,6 +95,7 @@ PARAMS_CONFER_DEFAULTS = dict(
 
 @dc.dataclass(frozen=True)
 class ExtraParams(lang.Final):
+    metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None
     validate: ta.Optional[bool] = None
     field_attrs: bool = False
     cache_hash: ta.Union[bool, str] = False
@@ -106,6 +107,7 @@ class ExtraParams(lang.Final):
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
     def __post_init__(self) -> None:
+        check.isinstance(self.metadata, (ta.Mapping, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.validate, (bool, NONE_TYPE, MISSING_TYPE))
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
         check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))

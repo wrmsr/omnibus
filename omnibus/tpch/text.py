@@ -245,6 +245,8 @@ class PyTextPoolGen:
             if i % 1000 == 0:
                 print(self._pos)
 
+        del self._buf[size:]
+
     @property
     def buf(self) -> bytearray:
         return self._buf
@@ -333,7 +335,12 @@ def py_gen_text_pool(size: int, max_sentence_length: int, dists: TextDists) -> b
     return PyTextPoolGen(size, max_sentence_length, dists).buf
 
 
+_CY_ENABLED = True
+
 try:
+    if not _CY_ENABLED:
+        raise ImportError
+
     from .._ext.cy.tpch import gen_text_pool as _cy_gen_text_pool
     from .._ext.cy.tpch import TextDist as CyTextDist
     from .._ext.cy.tpch import TextDists as CyTextDists
@@ -369,7 +376,7 @@ class TextPool:
 
     def get_text(self, begin: int, end: int) -> str:
         check.arg(end <= len(self._buf))
-        return self._buf[begin:end - begin].decode('utf-8')
+        return self._buf[begin:end].decode('utf-8')
 
 
 class RandomText(GenRandom):

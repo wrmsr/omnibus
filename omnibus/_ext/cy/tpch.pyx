@@ -11,9 +11,9 @@ DEF INT_MODULUS = 2147483647L
 
 cdef class IntGen:
 
-    cdef int _expected_usage_per_row
-    cdef long _seed
-    cdef int _usage
+    cdef public int _expected_usage_per_row
+    cdef public long _seed
+    cdef public int _usage
 
     def __init__(self, long seed, int expected_usage_per_row):
         self._seed = seed
@@ -58,9 +58,9 @@ DEF LONG_MODULUS_32 = 2147483647
 
 cdef class LongGen:
 
-    cdef int _expected_usage_per_row
-    cdef long _seed
-    cdef int _usage
+    cdef public int _expected_usage_per_row
+    cdef public long _seed
+    cdef public int _usage
 
     def __init__(self, long seed, int expected_usage_per_row):
         self._seed = seed
@@ -104,8 +104,8 @@ cdef struct TextDistItem:
 
 cdef class TextDist:
 
-    cdef list lst
-    cdef int size
+    cdef public list lst
+    cdef public int size
     cdef TextDistItem* items
 
     def __init__(self, items):
@@ -155,6 +155,8 @@ cpdef cppclass TextPoolGen:
 
         while this._pos < size:
             this._generate_sentence()
+
+        del this._buf[size:]
 
     void _write(char* p, int sz):
         if not sz:

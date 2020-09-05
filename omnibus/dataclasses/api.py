@@ -255,6 +255,7 @@ def dataclass(
         unsafe_hash: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
         frozen: ta.Union[bool, MISSING_TYPE] = MISSING,  # False
 
+        metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None,
         validate: ta.Union[bool, MISSING_TYPE] = MISSING,
         field_attrs: ta.Union[bool, MISSING_TYPE] = MISSING,
         cache_hash: ta.Union[bool, str, MISSING_TYPE] = MISSING,
@@ -270,6 +271,12 @@ def dataclass(
     if confer is not MISSING and confer is not None:
         confer = dict(confer) if isinstance(confer, ta.Mapping) else set(confer)
 
+    if metadata is not None:
+        if not isinstance(metadata, ta.Mapping):
+            raise TypeError(metadata)
+    else:
+        metadata = {}
+
     params = DataclassParams(
         init=init,
         repr=repr,
@@ -280,6 +287,7 @@ def dataclass(
     )
 
     extra_params = ExtraParams(
+        metadata=metadata,
         validate=validate,
         field_attrs=field_attrs,
         cache_hash=cache_hash,
