@@ -344,11 +344,15 @@ def metadata(cls_dct, *args, **kwargs) -> None:
     cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).extend(objs)
 
 
-def metadatas_dict(cls: type) -> ta.Mapping[ta.Any, ta.Any]:
+def metadatas_dict(cls: type, *, shallow: bool = False) -> ta.Mapping[ta.Any, ta.Any]:
     if not isinstance(cls, type) or not is_dataclass(cls):
         raise TypeError(cls)
     spec = _reflect.get_cls_spec(cls)  # noqa
     dct = {}
-    for md in spec.rmro_extras_by_cls[Metadata]:
+    if shallow:
+        mds = spec.shallow_extras_by_cls[Metadata]
+    else:
+        mds = spec.rmro_extras_by_cls[Metadata]
+    for md in mds:
         dct.update(md.metadata)
     return dct

@@ -637,6 +637,7 @@ def test_metadata():
         api_.metadata({str: 'hi'})
 
     assert api_.metadatas_dict(C) == {int: 5, str: 'hi'}
+    assert api_.metadatas_dict(C, shallow=True) == {int: 5, str: 'hi'}
 
     @api_.dataclass(frozen=True)
     class D(C):
@@ -644,3 +645,4 @@ def test_metadata():
         api_.metadata({str: 'bye'})
 
     assert api_.metadatas_dict(D) == {int: 5, float: 420., str: 'bye'}
+    assert api_.metadatas_dict(D, shallow=True) == {float: 420., str: 'bye'}
