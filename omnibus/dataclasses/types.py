@@ -34,6 +34,11 @@ class Deriver(lang.Final):
 
 
 @dc.dataclass(frozen=True)
+class Metadata(lang.Final):
+    metadata: ta.Mapping[ta.Any, ta.Any]
+
+
+@dc.dataclass(frozen=True)
 class PostInit(lang.Final):
     fn: ta.Callable[[T], None]
 

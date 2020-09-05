@@ -72,6 +72,7 @@ from .types import ExtraFieldParams
 from .types import ExtraParams
 from .types import Extras
 from .types import Mangler
+from .types import Metadata
 from .types import METADATA_ATTR
 from .types import MISSING_TYPE
 from .types import PostInit
@@ -323,3 +324,18 @@ check_ = functools.partial(install, Checker)
 derive = functools.partial(install, Deriver)
 post_init = functools.partial(install, PostInit)
 validate = functools.partial(install, Validator)
+
+
+@lang.cls_dct_fn()
+def metadata(cls_dct, *args, **kwargs) -> None:
+    objs = []
+    for arg in args:
+        if isinstance(arg, Metadata):
+            objs.append(arg)
+        elif isinstance(arg, ta.Mapping):
+            objs.append(Metadata(dict(arg)))
+        else:
+            raise TypeError(arg)
+    if kwargs:
+        objs.append(Metadata(kwargs))
+    cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).extend(objs)

@@ -633,7 +633,9 @@ def test_allow_setattr():
 def test_metadata():
     @api_.dataclass(frozen=True)
     class C:
-        dc.metadata(int, 'a int')
-        dc.metadata('hi')
+        api_.metadata({int: 5})
+        api_.metadata({str: 'hi'})
 
-    # assert dc.met
+    cdd = reflect_.get_cls_spec(C)
+    mds = cdd.rmro_extras_by_cls[types_.Metadata]
+    assert mds
