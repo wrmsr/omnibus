@@ -3,8 +3,10 @@ import typing as ta
 
 from .. import lang
 from ..collections import IdentityKeyDict
-from .types import Scope
 from .types import Binding
+from .types import Key
+from .types import Provider
+from .types import Scope
 
 
 T = ta.TypeVar('T')
@@ -54,6 +56,7 @@ class ThreadScope(Scope):
         self._local = threading.local()
 
     def provide(self, binding: Binding[T]) -> T:
+        values: ta.MutableMapping[Binding, ta.Any]
         try:
             values = self._local.values
         except AttributeError:
@@ -62,4 +65,24 @@ class ThreadScope(Scope):
             return values[binding]
         except KeyError:
             value = values[binding] = binding.provider()
+            return value
+
+
+class SimpleScope(Scope):
+
+    def __init__(self) -> None:
+        super().__init__()
+
+        self._values: ta.MutableMapping[Binding, ta.Any] = IdentityKeyDict()
+
+    def reset(self, seed: ta.Optional[ta.Mapping[Key, Provider]] = None) -> None:
+        if seed:
+            raise NotImplementedError
+        self._values.clear()
+
+    def provide(self, binding: Binding[T]) -> T:
+        try:
+            return self._values[binding]
+        except KeyError:
+            value = self._values[binding] = binding.provider()
             return value
