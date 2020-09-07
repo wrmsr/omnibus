@@ -1,10 +1,12 @@
 import dataclasses as dc
+import threading
 import typing as ta
 
 import pytest
 
 from .. import bind as bind_
 from .. import inject as inject_
+from .. import scopes as scopes_
 from .. import types as types_
 
 
@@ -236,3 +238,50 @@ def test_dataclasses():
     c = injector.get(C)
     assert isinstance(c, C)
     assert c.x == 420
+
+
+def test_scopes0():
+    def next_seq() -> int:
+        nonlocal seq
+        seq += 1
+        return seq
+    seq = 0
+
+    binder = bind_.create_binder()
+    binder.bind_callable(next_seq)
+
+    injector = inject_.create_injector(binder)
+    assert injector[int] == 1
+    assert injector[int] == 2
+
+
+def test_scopes1():
+    def next_seq() -> int:
+        nonlocal seq
+        seq += 1
+        return seq
+    seq = 0
+
+    binder = bind_.create_binder()
+    binder.bind_callable(next_seq, in_=scopes_.ThreadScope)
+
+    class Thing:
+        pass
+
+    thing = Thing()
+    binder.bind(thing)
+
+    injector = inject_.create_injector(binder)
+    assert injector[int] == 1
+    assert injector[int] == 1
+    assert injector[Thing] is thing
+
+    def proc(n):
+        assert injector[int] == n
+        assert injector[int] == n
+        assert injector[Thing] is thing
+
+    for i in range(2, 4):
+        t = threading.Thread(target=lambda: proc(i))
+        t.start()
+        t.join()

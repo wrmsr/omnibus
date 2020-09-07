@@ -48,7 +48,7 @@ class EagerSingletonScope(AbstractSingletonScope, lang.Final):
 
 class ThreadScope(Scope):
 
-    def __init_(self) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
         self._local = threading.local()
