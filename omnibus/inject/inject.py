@@ -128,7 +128,7 @@ class InjectorImpl(Injector):
 
     class State:
 
-        def __init__(self, injector: 'Injector') -> None:
+        def __init__(self, injector: 'InjectorImpl') -> None:
             super().__init__()
 
             self._injector = injector
