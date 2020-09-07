@@ -409,11 +409,11 @@ deps: venv
 	$(call do-deps,.venv,$(REQUIREMENTS_TXT))
 
 .PHONY: deps-37
-deps-37: venv
+deps-37: venv-37
 	$(call do-deps,.venv-37,$(REQUIREMENTS_TXT))
 
 .PHONY: deps-39
-deps-39: venv
+deps-39: venv-39
 	$(call do-deps,.venv-39,requirements.txt)
 
 .PHONY: dep-freze
