@@ -285,3 +285,56 @@ def test_scopes1():
         t = threading.Thread(target=lambda: proc(i))
         t.start()
         t.join()
+
+
+def test_scopes2():
+    def next_seq() -> int:
+        nonlocal seq
+        seq += 1
+        return seq
+    seq = 0
+
+    binder = bind_.create_binder()
+    binder.bind_callable(next_seq, in_=scopes_.ThreadScope)
+
+    class StaticThing:
+
+        def __init__(self) -> None:
+            super().__init__()
+
+    binder.bind(StaticThing, as_singleton=True)
+
+    @dc.dataclass(frozen=True)
+    class Thing:
+        i: int
+        st: StaticThing
+
+    binder.bind(Thing)
+
+    injector = inject_.create_injector(binder)
+    assert injector[int] == 1
+    assert injector[int] == 1
+
+    ts = []
+
+    def proc(n):
+        assert injector[int] == n
+        assert injector[int] == n
+        t0 = injector[Thing]
+        t1 = injector[Thing]
+        ts.append(t0)
+        ts.append(t1)
+        assert t0.i == n
+        assert t1 == t0
+        assert t1 is not t0
+
+    for i in range(2, 4):
+        t = threading.Thread(target=lambda: proc(i))
+        t.start()
+        t.join()
+
+    t = injector[Thing]
+    ts.append(t)
+    assert t.i == 1
+
+    assert len({id(t.st) for t in ts}) == 1
