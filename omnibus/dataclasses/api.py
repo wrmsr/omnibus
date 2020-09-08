@@ -345,12 +345,13 @@ def metadata(cls_dct, *args, **kwargs) -> None:
     cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).extend(objs)
 
 
-_METADATAS_BY_CLS: ta.MutableMapping[type, ta.Sequence[ta.Mapping[ta.Any, ta.Any]]] = weakref.WeakKeyDictionary()
+_METADATAS_CACHE: ta.Mapping[bool, ta.MutableMapping[type, ta.Sequence[ta.Mapping[ta.Any, ta.Any]]]] = \
+    {shallow: weakref.WeakKeyDictionary() for shallow in [False, True]}
 
 
 def metadatas(cls: type, *, shallow: bool = False) -> ta.Sequence[ta.Mapping[ta.Any, ta.Any]]:
     try:
-        return _METADATAS_BY_CLS[cls]
+        return _METADATAS_CACHE[shallow][cls]
     except KeyError:
         if not isinstance(cls, type) or not is_dataclass(cls):
             raise TypeError(cls)
@@ -359,7 +360,7 @@ def metadatas(cls: type, *, shallow: bool = False) -> ta.Sequence[ta.Mapping[ta.
             mds = spec.shallow_extras_by_cls[Metadata]
         else:
             mds = spec.rmro_extras_by_cls[Metadata]
-        ret = _METADATAS_BY_CLS[cls] = tuple(md.metadata for md in mds)
+        ret = _METADATAS_CACHE[shallow][cls] = tuple(md.metadata for md in mds)
         return ret
 
 
