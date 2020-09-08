@@ -82,7 +82,9 @@ class _ValueEnumMeta(type):
             owner._by_value = by_value
             return by_value
 
-    def __new__(mcls, name, bases, namespace, *, unique=False, **kwargs):
+    def __new__(mcls, name, bases, namespace, *, unique=False, ignore=(), **kwargs):
+        if isinstance(ignore, str):
+            raise TypeError(ignore)
         cls = super().__new__(mcls, name, bases, namespace, **kwargs)
         for k in mcls.ILLEGAL_ATTRS:
             if k in namespace:
@@ -92,7 +94,7 @@ class _ValueEnumMeta(type):
             if mrocls in mcls.IGNORED_BASES:
                 continue
             for k, v in mrocls.__dict__.items():
-                if k not in by_name and k not in mcls.ILLEGAL_ATTRS and not is_dunder(k):
+                if k not in by_name and k not in mcls.ILLEGAL_ATTRS and k not in ignore and not is_dunder(k):
                     by_name[k] = v
         cls._by_name = by_name
         cls._by_value = mcls._ByValueDescriptor()

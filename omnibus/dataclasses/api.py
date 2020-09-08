@@ -61,6 +61,7 @@ import keyword
 import types
 import typing  # noqa
 import typing as ta
+import weakref
 
 from . import process
 from .. import lang
@@ -344,15 +345,22 @@ def metadata(cls_dct, *args, **kwargs) -> None:
     cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).extend(objs)
 
 
+_METADATAS_BY_CLS: ta.MutableMapping[type, ta.Sequence[ta.Mapping[ta.Any, ta.Any]]] = weakref.WeakKeyDictionary()
+
+
 def metadatas(cls: type, *, shallow: bool = False) -> ta.Sequence[ta.Mapping[ta.Any, ta.Any]]:
-    if not isinstance(cls, type) or not is_dataclass(cls):
-        raise TypeError(cls)
-    spec = _reflect.get_cls_spec(cls)  # noqa
-    if shallow:
-        mds = spec.shallow_extras_by_cls[Metadata]
-    else:
-        mds = spec.rmro_extras_by_cls[Metadata]
-    return [md.metadata for md in mds]
+    try:
+        return _METADATAS_BY_CLS[cls]
+    except KeyError:
+        if not isinstance(cls, type) or not is_dataclass(cls):
+            raise TypeError(cls)
+        spec = _reflect.get_cls_spec(cls)  # noqa
+        if shallow:
+            mds = spec.shallow_extras_by_cls[Metadata]
+        else:
+            mds = spec.rmro_extras_by_cls[Metadata]
+        ret = _METADATAS_BY_CLS[cls] = tuple(md.metadata for md in mds)
+        return ret
 
 
 def metadatas_dict(cls: type, *, shallow: bool = False) -> ta.Mapping[ta.Any, ta.Any]:
