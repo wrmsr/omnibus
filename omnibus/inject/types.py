@@ -146,6 +146,7 @@ class InjectorConfig(lang.Final):
     enable_jit_bindings: bool = False
     fail_early: bool = False
     lock: bool = None
+    track_children: bool = True
 
 
 class Injector(lang.Abstract):
@@ -210,6 +211,10 @@ class Injector(lang.Abstract):
             parent: bool = False,
             children: bool = False,
     ) -> ta.List[Binding]:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def reset(self) -> None:
         raise NotImplementedError
 
 

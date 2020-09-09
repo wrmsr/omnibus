@@ -4,8 +4,6 @@ import typing as ta
 from .. import lang
 from ..collections import IdentityKeyDict
 from .types import Binding
-from .types import Key
-from .types import Provider
 from .types import Scope
 
 
@@ -74,11 +72,6 @@ class SimpleScope(Scope):
         super().__init__()
 
         self._values: ta.MutableMapping[Binding, ta.Any] = IdentityKeyDict()
-
-    def reset(self, seed: ta.Optional[ta.Mapping[Key, Provider]] = None) -> None:
-        if seed:
-            raise NotImplementedError
-        self._values.clear()
 
     def provide(self, binding: Binding[T]) -> T:
         try:

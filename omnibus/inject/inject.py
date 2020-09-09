@@ -5,6 +5,7 @@ https://github.com/google/guice/blob/extensions/mini/src/com/google/inject/mini/
 TODO:
  - ** PROVIDER DEPENDENCY INTROSPECTION - include defaults
  - ** type converters **
+ - overhaul (remove?) invalidation
  - listeners
   - children
   - toposort deps
@@ -89,7 +90,7 @@ class InjectorImpl(Injector):
 
         self._config = config
         self._parent: ta.Optional[Injector] = parent
-        self._children: ta.List[Injector] = []
+        self._children: ta.Optional[ta.List[Injector]] = [] if config.track_children else None
 
         self._lock = lang.default_lock(
             config.lock, lock if lock is None else config.lock if config.lock is not None else True)
@@ -117,12 +118,14 @@ class InjectorImpl(Injector):
                     self._elements.append(element)
 
         self._scopes: ta.Dict[ta.Type[Scope], Scope] = {}
+        self._scope_bindings: ta.List[ScopeBinding] = []
         self._required_keys = collections.deque()
         self._bindings: ta.List[Binding] = []
         self._blacklisted_keys: ta.Set[Key] = set()
 
         self._process_elements(self._elements)
 
+        self._original_required_keys: ta.List[RequiredKey] = list(self._required_keys)
         self._add_jit_bindings()
         self._load_eager_singletons()
 
@@ -159,7 +162,12 @@ class InjectorImpl(Injector):
     def _invalidate_self(self) -> None:
         self._current_state = None
 
-    def _invalidate(self) -> None:
+    def _invalidate(
+            self,
+            *,
+            parent: bool = False,
+            children: bool = False,
+    ) -> None:
         seen = IdentitySet()
         stack = [self]
         while stack:
@@ -168,9 +176,11 @@ class InjectorImpl(Injector):
                 continue
             seen.add(cur)
             cur._invalidate_self()
-            if cur._parent is not None:
+            if parent and cur._parent is not None:
                 stack.append(cur._parent)
-            stack.extend(cur._children)
+            if children:
+                check.state(self._config.track_children)
+                stack.extend(cur._children)
 
     def _process_elements(self, elements: ta.Iterable[Element]) -> None:
         for e in elements:
@@ -204,7 +214,8 @@ class InjectorImpl(Injector):
             config=self._config,
             parent=self,
         )
-        self._children.append(child)
+        if self._config.track_children:
+            self._children.append(child)
         return child
 
     @lang.context_wrapped('_locking')
@@ -289,6 +300,7 @@ class InjectorImpl(Injector):
         ret.extend(self._state.elements_by_type.get(cls, []))
 
         if children:
+            check.state(self._config.track_children)
             for child in self._children:
                 ret.extend(child.get_elements_by_type(cls, children=True))
 
@@ -318,10 +330,19 @@ class InjectorImpl(Injector):
         ret.extend(self_bindings)
 
         if children:
+            check.state(self._config.track_children)
             for child in self._children:
                 ret.extend(child.get_bindings(key, children=True))
 
         return ret
+
+    @lang.context_wrapped('_locking')
+    def reset(self) -> None:
+        self._scopes = {sb.scoping: self._construct_scope(sb) for sb in self._scope_bindings}
+        self._required_keys = collections.deque(self._original_required_keys)
+        self._add_jit_bindings()
+        self._load_eager_singletons()
+        self._invalidate(children=self._config.track_children)
 
     def _require_key(
             self,
@@ -346,7 +367,7 @@ class InjectorImpl(Injector):
         self._bindings.append(binding)
         if self._parent is not None:
             self._parent._blacklist(binding.key)
-        self._invalidate()
+        self._invalidate(children=self._config.track_children)
 
     def _add_private_elements(self, private_elements: PrivateElements) -> None:
         child = self.create_child(private_elements.elements)
@@ -356,11 +377,14 @@ class InjectorImpl(Injector):
                 binding = Binding(e.key, provider, NoScope, BindingSource.EXPOSED_PRIVATE)
                 self._add_binding(binding)
 
+    def _construct_scope(self, scope_binding: ScopeBinding) -> Scope:
+        return check.issubclass(scope_binding.scoping, Scope)()
+
     def _add_scope_binding(self, scope_binding: ScopeBinding) -> None:
         check.not_in(scope_binding.scoping, self._scopes)
-        scope = check.issubclass(scope_binding.scoping, Scope)()
-        self._scopes[scope_binding.scoping] = scope
-        self._invalidate()
+        self._scope_bindings.append(scope_binding)
+        self._scopes[scope_binding.scoping] = self._construct_scope(scope_binding)
+        self._invalidate(children=self._config.track_children)
 
     def _load_eager_singletons(self) -> None:
         for binding in self._bindings:
