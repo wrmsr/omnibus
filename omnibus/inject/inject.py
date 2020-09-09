@@ -274,7 +274,7 @@ class InjectorImpl(Injector):
 
             if not isinstance(binding, ProvisionListenerBinding):
                 for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
-                    functools.partial(listener_binding.listener, self, target, fn)
+                    fn = functools.partial(listener_binding.listener, self, target, fn)
 
             instance = fn()
             return instance
