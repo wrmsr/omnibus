@@ -20,7 +20,8 @@ def bind_contextmanager_lifecycle(binder: inject.Binder, target: ta.Union[inject
         lifecycles.ContextManagerLifecycle,
         key=inject.Key(lifecycles.ContextManagerLifecycle, target),
         kwargs={'obj': target},
-        as_eager_singleton=True)
+        as_eager_singleton=True,
+    )
 
 
 class LifecycleRegistrar:
@@ -29,7 +30,8 @@ class LifecycleRegistrar:
         super().__init__()
         self._seen = ocol.IdentitySet()
 
-    def __call__(self, injector: inject.Injector, key, instance) -> None:
+    def __call__(self, injector: inject.Injector, key, fn):
+        instance = fn()
         if (
                 isinstance(instance, lifecycles.Lifecycle) and
                 not isinstance(instance, lifecycles.LifecycleManager) and
@@ -38,6 +40,7 @@ class LifecycleRegistrar:
             man = injector.get(lifecycles.LifecycleManager)
             man.add(instance)
             self._seen.add(instance)
+        return instance
 
 
 class ReplServerThread(lifecycles.ContextManageableLifecycle):

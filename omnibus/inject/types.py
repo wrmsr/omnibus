@@ -91,7 +91,7 @@ class ScopeBinding(Element):
     scoping: ta.Type[Scope]
 
 
-ProvisionListener = ta.Callable[['Injector', ta.Union[Key, ta.Any], ta.Any], None]
+ProvisionListener = ta.Callable[['Injector', ta.Union[Key, ta.Any], ta.Callable[[], ta.Any]], None]
 
 
 @dc.dataclass(frozen=True)
@@ -146,7 +146,6 @@ class InjectorConfig(lang.Final):
     enable_jit_bindings: bool = False
     fail_early: bool = False
     lock: bool = None
-    track_children: bool = True
 
 
 class Injector(lang.Abstract):
@@ -211,10 +210,6 @@ class Injector(lang.Abstract):
             parent: bool = False,
             children: bool = False,
     ) -> ta.List[Binding]:
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def reset(self) -> None:
         raise NotImplementedError
 
 

@@ -35,6 +35,7 @@ TODO:
   - *maybe* a @inj.inject_kwargs(SuperThing[.__init__?])
 """
 import collections
+import functools
 import typing as ta
 
 from .. import check
@@ -90,7 +91,7 @@ class InjectorImpl(Injector):
 
         self._config = config
         self._parent: ta.Optional[Injector] = parent
-        self._children: ta.Optional[ta.List[Injector]] = [] if config.track_children else None
+        self._children: ta.List[Injector] = []
 
         self._lock = lang.default_lock(
             config.lock, lock if lock is None else config.lock if config.lock is not None else True)
@@ -179,7 +180,6 @@ class InjectorImpl(Injector):
             if parent and cur._parent is not None:
                 stack.append(cur._parent)
             if children:
-                check.state(self._config.track_children)
                 stack.extend(cur._children)
 
     def _process_elements(self, elements: ta.Iterable[Element]) -> None:
@@ -214,8 +214,7 @@ class InjectorImpl(Injector):
             config=self._config,
             parent=self,
         )
-        if self._config.track_children:
-            self._children.append(child)
+        self._children.append(child)
         return child
 
     @lang.context_wrapped('_locking')
@@ -271,12 +270,13 @@ class InjectorImpl(Injector):
             return default
 
         with self._CURRENT(self):
-            instance = binding.provide()
+            fn = binding.provide
 
             if not isinstance(binding, ProvisionListenerBinding):
                 for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
-                    listener_binding.listener(self, target, instance)
+                    functools.partial(listener_binding.listener, self, target, fn)
 
+            instance = fn()
             return instance
 
     def _blacklist(self, key: Key) -> None:
@@ -300,7 +300,6 @@ class InjectorImpl(Injector):
         ret.extend(self._state.elements_by_type.get(cls, []))
 
         if children:
-            check.state(self._config.track_children)
             for child in self._children:
                 ret.extend(child.get_elements_by_type(cls, children=True))
 
@@ -330,19 +329,10 @@ class InjectorImpl(Injector):
         ret.extend(self_bindings)
 
         if children:
-            check.state(self._config.track_children)
             for child in self._children:
                 ret.extend(child.get_bindings(key, children=True))
 
         return ret
-
-    @lang.context_wrapped('_locking')
-    def reset(self) -> None:
-        self._scopes = {sb.scoping: self._construct_scope(sb) for sb in self._scope_bindings}
-        self._required_keys = collections.deque(self._original_required_keys)
-        self._add_jit_bindings()
-        self._load_eager_singletons()
-        self._invalidate(children=self._config.track_children)
 
     def _require_key(
             self,
@@ -367,7 +357,7 @@ class InjectorImpl(Injector):
         self._bindings.append(binding)
         if self._parent is not None:
             self._parent._blacklist(binding.key)
-        self._invalidate(children=self._config.track_children)
+        self._invalidate()
 
     def _add_private_elements(self, private_elements: PrivateElements) -> None:
         child = self.create_child(private_elements.elements)
@@ -384,7 +374,7 @@ class InjectorImpl(Injector):
         check.not_in(scope_binding.scoping, self._scopes)
         self._scope_bindings.append(scope_binding)
         self._scopes[scope_binding.scoping] = self._construct_scope(scope_binding)
-        self._invalidate(children=self._config.track_children)
+        self._invalidate()
 
     def _load_eager_singletons(self) -> None:
         for binding in self._bindings:
