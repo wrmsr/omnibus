@@ -10,6 +10,7 @@ import abc
 import functools
 import types
 import typing as ta
+import weakref
 
 
 T = ta.TypeVar('T')
@@ -323,3 +324,26 @@ class Override:
 
 def override(fn: T) -> T:
     return ta.cast(T, Override(fn))
+
+
+_FINALS: ta.MutableSet[ta.Any] = weakref.WeakSet()
+
+
+def final(obj):
+    _FINALS.add(obj)
+    return obj
+
+
+def check_finals(cls: type, bcls: type) -> type:
+    if not issubclass(cls, bcls):
+        raise TypeError(cls, bcls)
+    c = 0
+    for a, o in bcls.__dict__.items():
+        if o not in _FINALS:
+            continue
+        c += 1
+        if getattr(cls, a) is not o:
+            raise TypeError(cls, bcls, a)
+    if not c:
+        raise TypeError('no finals', bcls)
+    return cls

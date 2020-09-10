@@ -1,4 +1,9 @@
+import contextlib
+import typing as ta
+
+from .. import check
 from .. import lang
+from .. import pydevd
 from .controller import LifecycleController
 from .controller import LifecycleState
 from .controller import LifecycleStates
@@ -11,13 +16,23 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
     def __init__(self: lang.Self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+        def _lifecycle_stop() -> None:
+            if self._lifecycle_exit_stack_instance is not None:
+                self._lifecycle_exit_stack_instance.__exit__(None, None, None)
+            self._do_lifecycle_stop()
+
         self._lifecycle_delegate = CallbackLifecycle(
             construct=self._do_lifecycle_construct,
             start=self._do_lifecycle_start,
-            stop=self._do_lifecycle_stop,
+            stop=_lifecycle_stop,
             destroy=self._do_lifecycle_destroy,
         )
         self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self._lifecycle_delegate)
+        self._lifecycle_exit_stack_instance: ta.Optional[contextlib.ExitStack] = None
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        lang.check_finals(cls, AbstractLifecycle)
 
     @property
     def lifecycle_controller(self) -> 'LifecycleController[lang.Self]':
@@ -31,24 +46,37 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
     def is_lifecycle_started(self) -> bool:
         return self._lifecycle_controller.state == LifecycleStates.STARTED
 
+    @property
+    def _lifecycle_exit_stack(self) -> contextlib.ExitStack:
+        if self._lifecycle_exit_stack_instance is None:
+            pydevd.forbid_debugger_call()
+            check.state(self._lifecycle_controller.state.phase >= LifecycleStates.STARTED.phase)
+            self._lifecycle_exit_stack_instance = contextlib.ExitStack()
+            self._lifecycle_exit_stack_instance.__enter__()
+        return self._lifecycle_exit_stack_instance
+
+    @lang.final
     def lifecycle_construct(self) -> None:
         self._lifecycle_controller.lifecycle_construct()
 
     def _do_lifecycle_construct(self) -> None:
         pass
 
+    @lang.final
     def lifecycle_start(self) -> None:
         self._lifecycle_controller.lifecycle_start()
 
     def _do_lifecycle_start(self) -> None:
         pass
 
+    @lang.final
     def lifecycle_stop(self) -> None:
         self._lifecycle_controller.lifecycle_stop()
 
     def _do_lifecycle_stop(self) -> None:
         pass
 
+    @lang.final
     def lifecycle_destroy(self) -> None:
         self._lifecycle_controller.lifecycle_destroy()
 

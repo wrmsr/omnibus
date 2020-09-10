@@ -5,7 +5,9 @@ from .restrict import abstract  # noqa
 from .restrict import access_forbidden  # noqa
 from .restrict import AccessForbiddenDescriptor  # noqa
 from .restrict import AttrAccessForbiddenException  # noqa
+from .restrict import check_finals  # noqa
 from .restrict import Final  # noqa
+from .restrict import final  # noqa
 from .restrict import FinalException  # noqa
 from .restrict import Interface  # noqa
 from .restrict import is_abstract  # noqa

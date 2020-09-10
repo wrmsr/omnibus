@@ -4,9 +4,11 @@ from .classes import access_forbidden  # noqa
 from .classes import AccessForbiddenDescriptor  # noqa
 from .classes import AttrAccessForbiddenException  # noqa
 from .classes import Callable  # noqa
+from .classes import check_finals  # noqa
 from .classes import Descriptor  # noqa
 from .classes import Extension  # noqa
 from .classes import Final  # noqa
+from .classes import final  # noqa
 from .classes import FinalException  # noqa
 from .classes import Inner  # noqa
 from .classes import Interface  # noqa
