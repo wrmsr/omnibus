@@ -80,8 +80,27 @@ class LifecycleManager(AbstractLifecycle):
             lifecycle: Lifecycle,
             dependencies: ta.Iterable[Lifecycle] = (),
     ) -> Entry:
+        check.state(self.state.phase < LifecycleStates.STOPPING.phase and not self.state.is_failed)
+
         with self._lock():
-            return self._add_internal(lifecycle, dependencies)
+            entry = self._add_internal(lifecycle, dependencies)
+
+            if self.state.phase >= LifecycleStates.CONSTRUCTING.phase:
+                def rec(e):
+                    if e.controller.state.phase < LifecycleStates.CONSTRUCTED.phase:
+                        for dep in e.dependencies:
+                            rec(dep)
+                        e.controller.lifecycle_construct()
+                rec(entry)
+            if self.state.phase >= LifecycleStates.STARTING.phase:
+                def rec(e):
+                    if e.controller.state.phase < LifecycleStates.STARTED.phase:
+                        for dep in e.dependencies:
+                            rec(dep)
+                        e.controller.lifecycle_start()
+                rec(entry)
+
+            return entry
 
     def construct(self) -> None:
         self.lifecycle_construct()
