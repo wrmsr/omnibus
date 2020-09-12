@@ -1,3 +1,4 @@
+import dataclasses as dc
 import functools
 import inspect
 import typing as ta
@@ -305,6 +306,7 @@ class BinderImpl(Binder):
             annotated_with: ta.Any = MISSING,
 
             kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+            assists: ta.AbstractSet[str] = None,
 
             as_singleton: bool = MISSING,
             as_eager_singleton: bool = MISSING,
@@ -318,7 +320,11 @@ class BinderImpl(Binder):
             key = self._get_callable_key(callable, annotated_with=annotated_with)
         check.isinstance(key, Key)
 
-        provide = self._make_callable_provider(callable, kwargs=kwargs)
+        if assists:
+            key = dc.replace(key, type=ta.Callable[..., key.type])
+            provide = self._make_assisted_callable_provider(callable, assists, kwargs=kwargs)
+        else:
+            provide = self._make_callable_provider(callable, kwargs=kwargs)
 
         scoping = self._get_scoping(
             as_singleton=as_singleton,
@@ -363,6 +369,8 @@ class BinderImpl(Binder):
             *,
             key: Key[T] = None,
 
+            assists: ta.AbstractSet[str] = None,
+
             as_singleton: bool = MISSING,
             as_eager_singleton: bool = MISSING,
             in_: ta.Union[ta.Type[Scope], ta.Type[MISSING]] = MISSING,
@@ -375,7 +383,11 @@ class BinderImpl(Binder):
             key = Key(cls)
         check.isinstance(key, Key)
 
-        provide = self._make_class_provider(cls)
+        if assists:
+            key = dc.replace(key, type=ta.Callable[..., key.type])
+            provide = self._make_assisted_class_provider(cls, assists)
+        else:
+            provide = self._make_class_provider(cls)
 
         scoping = self._get_scoping(
             as_singleton=as_singleton,

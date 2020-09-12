@@ -146,6 +146,7 @@ class InjectorConfig(lang.Final):
     enable_jit_bindings: bool = False
     fail_early: bool = False
     lock: bool = None
+    weak_children: bool = False
 
 
 class Injector(lang.Abstract):
@@ -249,6 +250,7 @@ class Binder(lang.Abstract):
             annotated_with: ta.Any = MISSING,
 
             kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+            assists: ta.AbstractSet[str] = None,
 
             as_singleton: bool = MISSING,
             as_eager_singleton: bool = MISSING,
@@ -264,6 +266,8 @@ class Binder(lang.Abstract):
             cls: ta.Type[T],
             *,
             key: Key[T] = None,
+
+            assists: ta.AbstractSet[str] = None,
 
             as_singleton: bool = MISSING,
             as_eager_singleton: bool = MISSING,

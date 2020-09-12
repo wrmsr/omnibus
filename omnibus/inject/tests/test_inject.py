@@ -338,3 +338,17 @@ def test_scopes2():
     assert t.i == 1
 
     assert len({id(t.st) for t in ts}) == 1
+
+
+def test_assist():
+    def f(x: int, y: int) -> int:
+        return x + y
+
+    binder = bind_.create_binder()
+    binder.bind(420)
+    binder.bind_callable(f, annotated_with='out', assists={'y'})
+
+    injector = inject_.create_injector(binder)
+
+    af = injector[types_.Key(ta.Callable[..., int], 'out')]
+    assert af(y=1) == 421

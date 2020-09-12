@@ -37,8 +37,10 @@ TODO:
 import collections
 import functools
 import typing as ta
+import weakref
 
 from .. import check
+from .. import collections as ocol
 from .. import lang
 from .. import properties
 from .. import reflect as rfl
@@ -91,7 +93,7 @@ class InjectorImpl(Injector):
 
         self._config = config
         self._parent: ta.Optional[Injector] = parent
-        self._children: ta.List[Injector] = []
+        self._children: ta.MutableSet[Injector] = weakref.WeakSet() if config.weak_children else ocol.OrderedSet()
 
         self._lock = lang.default_lock(
             config.lock, lock if lock is None else config.lock if config.lock is not None else True)
@@ -214,7 +216,7 @@ class InjectorImpl(Injector):
             config=self._config,
             parent=self,
         )
-        self._children.append(child)
+        self._children.add(child)
         return child
 
     @lang.context_wrapped('_locking')
