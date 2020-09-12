@@ -25,6 +25,7 @@ from .types import Binding
 from .types import BindingSource
 from .types import Element
 from .types import ExposedKey
+from .types import InjectionOpaqueError
 from .types import Injector
 from .types import Key
 from .types import MISSING
@@ -244,29 +245,43 @@ class BinderImpl(Binder):
             prototype: ta.Callable[..., T] = None,
             kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
             assists: ta.Iterable[str] = None,
+            is_method: bool = False,
             provider_factory: ta.Callable[..., Provider[T]] = CallableProvider[T],
     ) -> Provider[T]:
         check.callable(callable)
         if prototype is None:
             prototype = callable
         check.callable(prototype)
-
-        sig = inspect.signature(prototype)
         if kwargs is None:
             kwargs = self._get_callable_kwargs(prototype)
         if assists is not None:
             assists = set(check.not_isinstance(assists, str))
         else:
             assists = set()
-        kwargs_and_defaults = {
-            k: (self._get_key(v), (
-                sig.parameters[k].default
-                if k in sig.parameters and sig.parameters[k].default is not inspect._empty
-                else MISSING
-            ))
-            for k, v in kwargs.items()
-            if k not in assists
-        }
+
+        sig = inspect.signature(prototype)
+        opaques = [
+            p.name
+            for ps in [list(sig.parameters.values())]
+            for p in (ps[1:] if is_method else ps)
+            if p.kind not in (inspect._VAR_POSITIONAL, inspect._VAR_KEYWORD)
+            and p.annotation is inspect._empty
+            and p.default is inspect._empty
+        ]
+        if opaques:
+            raise InjectionOpaqueError(opaques)
+
+        kwargs_and_defaults = {}
+        for k, v in kwargs.items():
+            if k in assists:
+                continue
+            vk = self._get_key(v)
+            if k in sig.parameters and sig.parameters[k].default is not inspect._empty:
+                vd = sig.parameters[k].default
+            else:
+                vd = MISSING
+            kwargs_and_defaults[k] = (vk, vd)
+
         for k, (v, d) in kwargs_and_defaults.items():
             check.isinstance(k, str)
             check.isinstance(v, Key)
@@ -345,6 +360,7 @@ class BinderImpl(Binder):
         return self._make_callable_provider(
             cls,
             prototype=init,
+            is_method=True,
             provider_factory=lambda c: ClassProvider(c, cls),
         )
 
@@ -360,6 +376,7 @@ class BinderImpl(Binder):
             cls,
             prototype=init,
             assists=assists,
+            is_method=True,
             provider_factory=lambda c: AssistedClassProvider(c, assists, init, cls),
         )
 

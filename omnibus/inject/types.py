@@ -138,6 +138,11 @@ class InjectionBlacklistedKeyError(InjectionKeyError):
     pass
 
 
+@dc.dataclass(frozen=True)
+class InjectionOpaqueError(InjectionError):
+    params: ta.Sequence[str]
+
+
 Source = ta.Union['PrivateBinder', 'Binder', ta.Iterable[Element]]
 
 

@@ -354,3 +354,14 @@ def test_assist():
 
     with types_.Injector._CURRENT(injector):  # FIXME
         assert af(y=1) == 421
+
+
+def test_reject_opaque():
+    binder = bind_.create_binder()
+
+    def bad(x: int, y) -> str:
+        return x + y
+
+    binder.bind(420)
+    with pytest.raises(types_.InjectionOpaqueError):
+        binder.bind_callable(bad)
