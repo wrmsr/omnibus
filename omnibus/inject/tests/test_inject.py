@@ -351,4 +351,6 @@ def test_assist():
     injector = inject_.create_injector(binder)
 
     af = injector[types_.Key(ta.Callable[..., int], 'out')]
-    assert af(y=1) == 421
+
+    with types_.Injector._CURRENT(injector):  # FIXME
+        assert af(y=1) == 421
