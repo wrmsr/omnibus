@@ -9,6 +9,8 @@ from .multi import DictBinding
 from .multi import DictProvider
 from .multi import SetBinding
 from .multi import SetProvider
+from .proividers import AssistedCallableProvider
+from .proividers import AssistedClassProvider
 from .proividers import CallableProvider
 from .proividers import ClassProvider
 from .proividers import LinkedProvider
@@ -240,6 +242,7 @@ class BinderImpl(Binder):
             *,
             prototype: ta.Callable[..., T] = None,
             kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+            assists: ta.Iterable[str] = None,
             provider_factory: ta.Callable[..., Provider[T]] = CallableProvider[T],
     ) -> Provider[T]:
         check.callable(callable)
@@ -250,6 +253,10 @@ class BinderImpl(Binder):
         sig = inspect.signature(prototype)
         if kwargs is None:
             kwargs = self._get_callable_kwargs(prototype)
+        if assists is not None:
+            assists = set(check.not_isinstance(assists, str))
+        else:
+            assists = set()
         kwargs_and_defaults = {
             k: (self._get_key(v), (
                 sig.parameters[k].default
@@ -257,6 +264,7 @@ class BinderImpl(Binder):
                 else MISSING
             ))
             for k, v in kwargs.items()
+            if k not in assists
         }
         for k, (v, d) in kwargs_and_defaults.items():
             check.isinstance(k, str)
@@ -264,11 +272,30 @@ class BinderImpl(Binder):
             if d is MISSING:
                 self._require_key(v, callable)
 
-        def provide():
+        def provide(**provided_kwargs):
+            if set(provided_kwargs) != assists:
+                raise TypeError(f'Expected kwargs {assists}, got {(set(provided_kwargs))}')
             instance_kwargs = {k: Injector.current.get(v, d) for k, (v, d) in kwargs_and_defaults.items()}
-            return callable(**instance_kwargs)
+            return callable(**provided_kwargs, **instance_kwargs)
 
         return provider_factory(provide)
+
+    def _make_assisted_callable_provider(
+            self,
+            callable: ta.Callable[..., T],
+            assists: ta.Iterable[str] = None,
+            *,
+            prototype: ta.Callable[..., T] = None,
+            kwargs: ta.Mapping[str, ta.Union[Key, ta.Type]] = None,
+    ) -> Provider[T]:
+        assists = set(check.not_isinstance(assists, str))
+        return self._make_callable_provider(
+            callable,
+            assists=assists,
+            prototype=prototype,
+            kwargs=kwargs,
+            provider_factory=lambda c: AssistedCallableProvider(c, assists, callable),
+        )
 
     def bind_callable(
             self,
@@ -313,6 +340,21 @@ class BinderImpl(Binder):
             cls,
             prototype=init,
             provider_factory=lambda c: ClassProvider(c, cls),
+        )
+
+    def _make_assisted_class_provider(
+            self,
+            cls: ta.Type[T],
+            assists: ta.Iterable[str],
+    ) -> Provider[T]:
+        check.isinstance(cls, type)
+        init = getattr(cls, '__init__')
+        assists = set(check.not_isinstance(assists, str))
+        return self._make_callable_provider(
+            cls,
+            prototype=init,
+            assists=assists,
+            provider_factory=lambda c: AssistedClassProvider(c, assists, init, cls),
         )
 
     def bind_class(

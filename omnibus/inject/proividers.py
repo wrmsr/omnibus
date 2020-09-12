@@ -54,3 +54,18 @@ class DelegatedProvider(Provider[T], lang.Final):
 
     def __call__(self) -> T:
         return self.injector.get(self.key)
+
+
+@dc.dataclass(frozen=True)
+class AssistedCallableProvider(Provider[ta.Callable[..., T]]):
+    assist_callable: ta.Callable[..., T]
+    assists: ta.AbstractSet[str]
+    wrapped_callable: ta.Callable[..., T]
+
+    def __call__(self) -> ta.Callable[..., T]:
+        return self.assist_callable
+
+
+@dc.dataclass(frozen=True)
+class AssistedClassProvider(AssistedCallableProvider[T], lang.Final):
+    cls: ta.Type[T]
