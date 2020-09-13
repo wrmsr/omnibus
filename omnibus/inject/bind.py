@@ -435,7 +435,7 @@ class BinderImpl(Binder):
 
     class SetBinder(Binder.SetBinder[T]):
 
-        def __init__(self, binder: 'Binder', set_key: Key[ta.Set[T]]) -> None:
+        def __init__(self, binder: 'Binder', set_key: Key[ta.AbstractSet[T]]) -> None:
             super().__init__(binder)
 
             self._set_key = set_key
@@ -483,7 +483,7 @@ class BinderImpl(Binder):
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binder.SetBinder:
-        set_key = Key(ta.Set[value], annotated_with)
+        set_key = Key(ta.AbstractSet[value], annotated_with)
 
         scoping = self._get_scoping(
             as_singleton=as_singleton,
@@ -499,7 +499,7 @@ class BinderImpl(Binder):
 
     class DictBinder(Binder.DictBinder[K, V]):
 
-        def __init__(self, binder: 'Binder', dict_key: Key[ta.Dict[K, V]]) -> None:
+        def __init__(self, binder: 'Binder', dict_key: Key[ta.Mapping[K, V]]) -> None:
             super().__init__(binder)
 
             self._dict_key = dict_key
@@ -549,7 +549,7 @@ class BinderImpl(Binder):
 
             source: BindingSource = BindingSource.EXPLICIT,
     ) -> Binder.DictBinder:
-        dict_key = Key(ta.Dict[key, value], annotated_with)
+        dict_key = Key(ta.Mapping[key, value], annotated_with)
 
         scoping = self._get_scoping(
             as_singleton=as_singleton,

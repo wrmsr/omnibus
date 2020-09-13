@@ -129,7 +129,7 @@ def test_set():
 
     injector = inject_.create_injector(binder)
 
-    s = injector.get(ta.Set[int])
+    s = injector.get(ta.AbstractSet[int])
     assert s == {4, 5}
 
 
@@ -140,7 +140,7 @@ def test_dict():
 
     injector = inject_.create_injector(binder)
 
-    s = injector.get(ta.Dict[int, str])
+    s = injector.get(ta.Mapping[int, str])
     assert s == {4: 'four', 5: 'five'}
 
 
@@ -217,12 +217,12 @@ def test_nested_private():
     binder2.new_set_binder(int).bind(to_instance=2)
     injector2 = injector0.create_child(binder2)
 
-    print(injector0.get(ta.Set[int]))
-    print(injector0.get(ta.Set[int]))
+    print(injector0.get(ta.AbstractSet[int]))
+    print(injector0.get(ta.AbstractSet[int]))
 
     # FIXME: SetProvider.__call__ -> get_bindings parent=True?
-    print(injector1.get(ta.Set[int]))
-    print(injector2.get(ta.Set[int]))
+    print(injector1.get(ta.AbstractSet[int]))
+    print(injector2.get(ta.AbstractSet[int]))
 
 
 def test_dataclasses():

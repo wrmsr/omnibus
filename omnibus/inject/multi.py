@@ -20,10 +20,10 @@ class SetBinding(MultiBinding[T], lang.Final):
 
 
 @dc.dataclass(frozen=True)
-class SetProvider(MultiProvider[ta.Set[T]], lang.Final):
-    set_key: Key[ta.Set[T]]
+class SetProvider(MultiProvider[ta.AbstractSet[T]], lang.Final):
+    set_key: Key[ta.AbstractSet[T]]
 
-    def __call__(self) -> ta.Set[T]:
+    def __call__(self) -> ta.AbstractSet[T]:
         ret = set()
         bindings = Injector.current.get_bindings(Key(SetBinding[self.set_key.type], self.set_key.annotation))
         for binding in bindings:
@@ -38,10 +38,10 @@ class DictBinding(MultiBinding[T], lang.Final):
 
 
 @dc.dataclass(frozen=True)
-class DictProvider(MultiProvider[ta.Dict[K, V]], lang.Final):
-    dict_key: Key[ta.Dict[K, V]]
+class DictProvider(MultiProvider[ta.Mapping[K, V]], lang.Final):
+    dict_key: Key[ta.Mapping[K, V]]
 
-    def __call__(self) -> ta.Dict[K, V]:
+    def __call__(self) -> ta.Mapping[K, V]:
         ret = {}
         bindings = Injector.current.get_bindings(Key(DictBinding[self.dict_key.type], self.dict_key.annotation))
         for binding in bindings:
