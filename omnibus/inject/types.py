@@ -126,7 +126,6 @@ class InjectionError(Exception):
 @dc.dataclass(frozen=True)
 class InjectionKeyError(InjectionError):
     key: Key
-    required_by: ta.Any = None
 
 
 @dc.dataclass(frozen=True)

@@ -282,6 +282,7 @@ class BinderImpl(Binder):
             for ps in [list(sig.parameters.values())]
             for p in (ps[1:] if is_method else ps)
             if p.kind not in (inspect._VAR_POSITIONAL, inspect._VAR_KEYWORD)
+            and p.name not in kwargs and p.name not in assists
             and p.annotation is inspect._empty
             and p.default is inspect._empty
         ]
