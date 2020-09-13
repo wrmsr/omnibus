@@ -396,7 +396,8 @@ class InjectorImpl(Injector):
             self._add_jit_binding(key, required_key.required_by)
 
     def _add_jit_binding(self, key: Key, required_by: ta.Any) -> None:
-        check.state(self._config.enable_jit_bindings)
+        if not self._config.enable_jit_bindings:
+            raise InjectionKeyError(key, required_by)
         check.none(key.annotation)
         cls = check.isinstance(key.type, type)
         jit_binder = create_binder()

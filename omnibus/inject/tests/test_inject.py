@@ -365,3 +365,19 @@ def test_reject_opaque():
     binder.bind(420)
     with pytest.raises(types_.InjectionOpaqueError):
         binder.bind_callable(bad)
+
+
+def test_optional():
+    def f(x: int = None) -> str:
+        return f'f({x})'
+
+    binder = bind_.create_binder()
+    binder.bind_callable(f)
+    injector = inject_.create_injector(binder)
+    assert injector[str] == 'f(None)'
+
+    binder = bind_.create_binder()
+    binder.bind(5)
+    binder.bind_callable(f)
+    injector = inject_.create_injector(binder)
+    assert injector[str] == 'f(5)'

@@ -86,6 +86,14 @@ def make_box(
     return lang.new_type(name, (Box,) + tuple(bases), {'TYPE': type})
 
 
+def _get_optional_annotation_item(t: ta.Any) -> ta.Optional[ta.Any]:
+    if isinstance(t, ta._GenericAlias) and t.__origin__ is ta.Union and len(t.__args__) == 2 and type(None) in t.__args__:  # Noqa
+        [t] = [a for a in t.__args__ if a is not type(None)]  # noqa
+        return t
+    else:
+        return None
+
+
 class BinderImpl(Binder):
 
     def __init__(self) -> None:
@@ -229,14 +237,23 @@ class BinderImpl(Binder):
         self._add_binding(binding)
         return binding
 
+    def _get_type_hints(self, obj: ta.Any) -> ta.Mapping[str, ta.Any]:
+        dct = {}
+        for n, t in ta.get_type_hints(obj).items():
+            # ta.get_type_hints automatically wraps None defaults in Optional:
+            #  https://github.com/python/cpython/blob/bf50b0e80a8a0d651af2f953b662eeadd27c7c93/Lib/typing.py#L1265-L1266
+            ot = _get_optional_annotation_item(t)
+            dct[n] = ot if ot is not None else t
+        return dct
+
     def _get_callable_key(self, callable: ta.Callable, annotated_with: ta.Any = MISSING) -> Key:
         annotations = get_annotations(callable)
         key_ann = annotated_with if annotated_with is not MISSING else annotations.get('return')
-        return Key(ta.get_type_hints(callable)['return'], key_ann)
+        return Key(self._get_type_hints(callable)['return'], key_ann)
 
     def _get_callable_kwargs(self, callable: ta.Callable) -> ta.Dict[str, Key]:
         annotations = get_annotations(callable)
-        return {k: Key(v, annotations.get(k)) for k, v in ta.get_type_hints(callable).items() if k != 'return'}
+        return {k: Key(v, annotations.get(k)) for k, v in self._get_type_hints(callable).items() if k != 'return'}
 
     def _make_callable_provider(
             self,
