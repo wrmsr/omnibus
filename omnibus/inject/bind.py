@@ -1,10 +1,10 @@
-import dataclasses as dc
 import functools
 import inspect
 import typing as ta
 import weakref
 
 from .. import check
+from .. import dataclasses as dc
 from .. import lang
 from .multi import DictBinding
 from .multi import DictProvider

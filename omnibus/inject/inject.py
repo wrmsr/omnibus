@@ -100,9 +100,9 @@ class InjectorImpl(Injector):
         self._current_state: InjectorImpl.State = None
         self._locking = lambda *a, **k: self._lock()
 
-        self._elements: ta.List[Element] = []
+        src_elements: ta.List[Element] = []
 
-        self._elements.extend([
+        src_elements.extend([
             ScopeBinding(NoScope),
             ScopeBinding(SingletonScope),
             ScopeBinding(EagerSingletonScope),
@@ -112,13 +112,13 @@ class InjectorImpl(Injector):
 
         for source in sources:
             if isinstance(source, PrivateBinder):
-                self._elements.append(source._private_elements)
+                src_elements.append(source._private_elements)
             elif isinstance(source, Binder):
-                self._elements.extend(source._elements)
+                src_elements.extend(source._elements)
             else:
                 for element in source:
                     check.isinstance(element, Element)
-                    self._elements.append(element)
+                    src_elements.append(element)
 
         self._scopes: ta.Dict[ta.Type[Scope], Scope] = {}
         self._scope_bindings: ta.List[ScopeBinding] = []
@@ -126,6 +126,7 @@ class InjectorImpl(Injector):
         self._bindings: ta.List[Binding] = []
         self._blacklisted_keys: ta.Set[Key] = set()
 
+        self._elements: ta.List[Element] = [e.possess(self) for e in src_elements]
         self._process_elements(self._elements)
 
         self._original_required_keys: ta.List[RequiredKey] = list(self._required_keys)
@@ -153,8 +154,11 @@ class InjectorImpl(Injector):
             return {e.key for e in self.elements_by_type.get(ExposedKey)}
 
         @properties.cached
-        def bound_keys(self) -> ta.Set[Key]:
-            return {b.key for b in self._injector._bindings}
+        def recursive_bound_keys(self) -> ta.Set[Key]:
+            ret = {b.key for b in self._injector._bindings}
+            if self._injector._parent is not None:
+                ret |= self._injector._parent._state.recursive_bound_keys
+            return ret
 
     @property
     def _state(self) -> State:
@@ -355,7 +359,7 @@ class InjectorImpl(Injector):
                 (isinstance(spec, rfl.ParameterizedGenericTypeSpec) and issubclass(spec.erased_cls, MultiBinding))
         ):
             if self._config.fail_early:
-                check.not_in(binding.key, self._state.bound_keys)
+                check.not_in(binding.key, self._state.recursive_bound_keys)
         self._bindings.append(binding)
         if self._parent is not None:
             self._parent._blacklist(binding.key)
@@ -366,7 +370,7 @@ class InjectorImpl(Injector):
         for e in private_elements.elements:
             if isinstance(e, ExposedKey):
                 provider = DelegatedProvider(e.key, child)
-                binding = Binding(e.key, provider, NoScope, BindingSource.EXPOSED_PRIVATE)
+                binding = Binding(e.key, provider, NoScope, BindingSource.EXPOSED_PRIVATE).possess(self)
                 self._add_binding(binding)
 
     def _construct_scope(self, scope_binding: ScopeBinding) -> Scope:
@@ -386,7 +390,7 @@ class InjectorImpl(Injector):
     def _add_jit_bindings(self) -> None:
         while self._required_keys:
             required_key: RequiredKey = self._required_keys.popleft()
-            if required_key.key in self._state.bound_keys:
+            if required_key.key in self._state.recursive_bound_keys:
                 continue
 
             key = required_key.key
@@ -402,7 +406,8 @@ class InjectorImpl(Injector):
         cls = check.isinstance(key.type, type)
         jit_binder = create_binder()
         jit_binder.bind_class(cls, key=key, source=JitBindingSource(required_by))
-        self._process_elements(jit_binder._elements)
+        jit_elements = [e.possess(self) for e in jit_binder._elements]
+        self._process_elements(jit_elements)
 
 
 def create_injector(

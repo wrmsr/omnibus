@@ -2,7 +2,6 @@ import typing as ta
 
 from .. import check
 from .. import dataclasses as dc
-from .. import lang
 from .types import Injector
 from .types import Key
 from .types import MultiBinding
@@ -14,13 +13,11 @@ K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
-@dc.dataclass(frozen=True)
-class SetBinding(MultiBinding[T], lang.Final):
+class SetBinding(dc.Pure, MultiBinding[T]):
     pass
 
 
-@dc.dataclass(frozen=True)
-class SetProvider(MultiProvider[ta.AbstractSet[T]], lang.Final):
+class SetProvider(dc.Pure, MultiProvider[ta.AbstractSet[T]]):
     set_key: Key[ta.AbstractSet[T]]
 
     def __call__(self) -> ta.AbstractSet[T]:
@@ -32,13 +29,11 @@ class SetProvider(MultiProvider[ta.AbstractSet[T]], lang.Final):
         return ret
 
 
-@dc.dataclass(frozen=True)
-class DictBinding(MultiBinding[T], lang.Final):
+class DictBinding(dc.Pure, MultiBinding[T]):
     assignment: K
 
 
-@dc.dataclass(frozen=True)
-class DictProvider(MultiProvider[ta.Mapping[K, V]], lang.Final):
+class DictProvider(dc.Pure, MultiProvider[ta.Mapping[K, V]]):
     dict_key: Key[ta.Mapping[K, V]]
 
     def __call__(self) -> ta.Mapping[K, V]:

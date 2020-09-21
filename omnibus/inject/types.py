@@ -11,6 +11,7 @@ from .. import properties
 T = ta.TypeVar('T')
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
+Self = ta.TypeVar('Self')
 
 
 class MISSING(lang.Marker):
@@ -18,11 +19,12 @@ class MISSING(lang.Marker):
 
 
 class Element(lang.Abstract):
-    pass
+
+    def possess(self: Self, injector: 'Injector') -> Self:  # noqa
+        return self
 
 
-@dc.dataclass(frozen=True, unsafe_hash=True)
-class Key(ta.Generic[T], lang.Final):
+class Key(dc.Pure, ta.Generic[T], unsafe_hash=True):
     type: ta.Type[T]
     annotation: ta.Any = None
 
@@ -30,8 +32,7 @@ class Key(ta.Generic[T], lang.Final):
         hash(self)
 
 
-@dc.dataclass(frozen=True)
-class RequiredKey(Element, ta.Generic[T], lang.Final):
+class RequiredKey(dc.Pure, Element, ta.Generic[T]):
     key: Key[T]
     required_by: ta.Any
 
@@ -60,23 +61,28 @@ BindingSource.INTERNAL = _special_binding_source('Internal')
 BindingSource.EXPOSED_PRIVATE = _special_binding_source('ExposedPrivate')
 
 
-@dc.dataclass(frozen=True)
-class JitBindingSource(BindingSource, lang.Final):
+class JitBindingSource(dc.Pure, BindingSource):
     required_by: ta.Any
 
 
-@dc.dataclass(frozen=True)
-class Binding(Element, ta.Generic[T]):
+class Binding(dc.Frozen, Element, ta.Generic[T], reorder=True):
     key: Key[T]
     provider: Provider[T]
     scoping: ta.Type['Scope']
     source: BindingSource
 
+    _injector: ta.Optional['Injector'] = dc.field(None, kwonly=True)
+
     def __post_init__(self) -> None:
         check.isinstance(self.scoping, type)
 
+    def possess(self: Self, injector: 'Injector') -> Self:
+        check.none(self._injector)
+        return dc.replace(self, _injector=check.isinstance(injector, Injector))
+
     def provide(self) -> T:
-        return Injector.current._scopes[self.scoping].provide(self)
+        with Injector._CURRENT(check.not_none(self._injector)):
+            return self._injector._scopes[self.scoping].provide(self)
 
 
 class Scope(lang.Abstract):
@@ -86,36 +92,30 @@ class Scope(lang.Abstract):
         raise NotImplementedError
 
 
-@dc.dataclass(frozen=True)
-class ScopeBinding(Element):
+class ScopeBinding(dc.Pure, Element):
     scoping: ta.Type[Scope]
 
 
 ProvisionListener = ta.Callable[['Injector', ta.Union[Key, ta.Any], ta.Callable[[], ta.Any]], None]
 
 
-@dc.dataclass(frozen=True)
-class ProvisionListenerBinding(Element):
+class ProvisionListenerBinding(dc.Pure, Element):
     listener: ProvisionListener
 
 
-@dc.dataclass(frozen=True)
 class MultiBinding(Binding[T], lang.Abstract):
     pass
 
 
-@dc.dataclass(frozen=True)
 class MultiProvider(Provider[T], lang.Abstract):
     pass
 
 
-@dc.dataclass(frozen=True)
-class PrivateElements(Element, lang.Final):
+class PrivateElements(dc.Pure, Element):
     elements: ta.List[Element]
 
 
-@dc.dataclass(frozen=True)
-class ExposedKey(Element, ta.Generic[T], lang.Final):
+class ExposedKey(dc.Pure, Element, ta.Generic[T]):
     key: Key[T]
 
 
@@ -123,31 +123,26 @@ class InjectionError(Exception):
     pass
 
 
-@dc.dataclass(frozen=True)
-class InjectionKeyError(InjectionError):
+class InjectionKeyError(dc.Frozen, InjectionError):
     key: Key
 
 
-@dc.dataclass(frozen=True)
 class InjectionRequiredKeyError(InjectionKeyError):
     required_by: ta.Any = None
 
 
-@dc.dataclass(frozen=True)
 class InjectionBlacklistedKeyError(InjectionKeyError):
     pass
 
 
-@dc.dataclass(frozen=True)
-class InjectionOpaqueError(InjectionError):
+class InjectionOpaqueError(dc.Frozen, InjectionError):
     params: ta.Sequence[str]
 
 
 Source = ta.Union['PrivateBinder', 'Binder', ta.Iterable[Element]]
 
 
-@dc.dataclass(frozen=True)
-class InjectorConfig(lang.Final):
+class InjectorConfig(dc.Pure):
     enable_jit_bindings: bool = False
     fail_early: bool = False
     lock: bool = None
