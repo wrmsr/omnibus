@@ -10,10 +10,10 @@ wcwidth==0.2.5
 ## transitive dependencies
 
 arviz==0.9.0
-attrs==20.1.0
+attrs==20.2.0
 cachetools==4.1.1
 certifi==2020.6.20
-cffi==1.14.2
+cffi==1.14.3
 cftime==1.2.1
 cli-helpers==2.1.0
 cryptography==3.1
@@ -41,7 +41,7 @@ Theano==1.0.5
 tqdm==4.49.0
 typing-extensions==3.7.4.3
 urllib3==1.25.10
-xarray==0.16.0
+xarray==0.16.1
 yarl==1.5.1
 
 
