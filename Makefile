@@ -3,7 +3,7 @@ SHELL:=/bin/bash
 PROJECT:=omnibus
 
 PYTHON_VERSION:=3.8.5
-PYTHON_37_VERSION:=3.7.8
+PYTHON_37_VERSION:=3.7.9
 PYTHON_39_VERSION:=3.9.0rc1
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
@@ -16,6 +16,9 @@ PYENV_BREW_DEPS:= \
 	readline \
 	sqlite3 \
 	zlib \
+
+BREW_DEPS:= \
+	$(PYENV_BREW_DEPS) \
 
 ANTLR_VERSION=4.8
 
@@ -75,9 +78,13 @@ clean: clean-build
 
 ### Venvs
 
-.PHONY: brew
-brew:
-	brew install $(PYENV_BREW_DEPS)
+.PHONY: brew-install
+brew-install:
+	brew install $(BREW_DEPS)
+
+.PHONY: brew-upgrade
+brew-upgrade:
+	brew install $(BREW_DEPS)
 
 define do-venv
 	set -e ; \
