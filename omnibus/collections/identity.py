@@ -45,6 +45,10 @@ class IdentityKeyDict(ta.MutableMapping[K, V]):
         for k, v in yield_dict_init(*args, **kwargs):
             self[k] = v
 
+    @property
+    def debug(self) -> ta.Sequence[ta.Tuple[K, V]]:
+        return list(self.items())
+
     def __repr__(self) -> str:
         return lang.attr_repr(self, '_dict')
 
@@ -75,6 +79,10 @@ class IdentitySet(ta.MutableSet[T]):
         if init is not None:
             for item in init:
                 self.add(item)
+
+    @property
+    def debug(self) -> ta.Sequence[T]:
+        return list(self)
 
     def __repr__(self) -> str:
         return lang.attr_repr(self, '_dict')

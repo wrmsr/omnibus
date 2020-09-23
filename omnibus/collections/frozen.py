@@ -39,6 +39,10 @@ class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
         self._dct = {}
         self._dct.update(yield_dict_init(*args, **kwargs))
 
+    @property
+    def debug(self) -> ta.Mapping[K, V]:
+        return dict(self._dct)
+
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._dct)
 
@@ -87,6 +91,10 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
 
         self._tup: tuple = tuple(it) if it is not None else ()
         self._hash = None
+
+    @property
+    def debug(self) -> ta.Sequence[T]:
+        return list(self)
 
     def __repr__(self) -> str:
         return '%s([%s])' % (type(self).__name__, ', '.join(map(repr, self._tup)))
