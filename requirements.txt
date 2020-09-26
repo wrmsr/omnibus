@@ -6,24 +6,24 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.15.2
-botocore==1.18.2
+boto3==1.15.6
+botocore==1.18.6
 bson==0.5.10
 cbor==1.0.0
-cytoolz==0.10.1
+cytoolz==0.11.0
 docker==4.3.1
 google-api-core==1.22.2
-google-api-python-client==1.12.1
+google-api-python-client==1.12.2
 google-auth-httplib2==0.0.4
-google-auth==1.21.2
-greenlet==0.4.16
+google-auth==1.21.3
+greenlet==0.4.17
 httptools==0.1.1
 kazoo==2.8.0
 lz4==3.1.0
 msgpack==1.0.0
 mysql-connector-python==8.0.21
 numpy==1.19.2
-orjson==3.3.1; python_version < '3.9'
+orjson==3.4.0; python_version < '3.9'
 pg8000==1.16.5
 psutil==5.7.2
 psycopg2==2.8.6
@@ -37,7 +37,7 @@ redis==3.5.3
 sortedcontainers==2.2.2
 SQLAlchemy==1.3.19
 toml==0.10.1
-toolz==0.10.0
+toolz==0.11.1
 ujson==3.2.0
 wrapt==1.12.1
 zstd==1.4.5.1

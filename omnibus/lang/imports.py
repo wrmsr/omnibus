@@ -19,7 +19,7 @@ class UnstableWarning(Warning):
 
 
 def warn_unstable():
-    warnings.warn('unstable', category=UnstableWarning, stacklevel=2)
+    warnings.warn('omnibus module is marked as unstable', category=UnstableWarning, stacklevel=2)
 
 
 def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
