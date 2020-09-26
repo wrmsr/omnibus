@@ -51,6 +51,7 @@ from .objs import get_code_flag_names  # noqa
 from .objs import get_code_function  # noqa
 from .objs import instruction_bytes  # noqa
 from .objs import recode_func  # noqa
+from .objs import typed_lambda  # noqa
 from .protocols import CodeProtocol  # noqa
 from .protocols import FrameProtocol  # noqa
 from .protocols import TracebackProtocol  # noqa

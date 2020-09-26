@@ -1,3 +1,9 @@
+from .coerce import set  # noqa
+from .coerce import set_of  # noqa
+from .coerce import map  # noqa
+from .coerce import map_of  # noqa
+from .coerce import seq  # noqa
+from .coerce import seq_of  # noqa
 from .collections import histogram  # noqa
 from .collections import toposort  # noqa
 from .frozen import Frozen  # noqa
