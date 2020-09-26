@@ -89,8 +89,6 @@ class Validation(Aspect):
                     continue
                 chk_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check
                 chk_ty_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check_type
-                if chk_md is not None and chk_ty_md is not None:
-                    raise TypeError
                 if chk_ty_md is not None:
                     if isinstance(chk_ty_md, tuple) and None in chk_ty_md:
                         chk_ty_md = tuple(filter(None, chk_ty_md)) + (type(None),)
@@ -100,7 +98,7 @@ class Validation(Aspect):
                         f'if not {self.fctx.nsb.put(isinstance)}({fld.name}, {self.fctx.nsb.put(chk_ty_md)}): '
                         f'{self.fctx.nsb.put(bound_build_chk_exc)}({fld.name})'
                     )
-                elif callable(chk_md):
+                if callable(chk_md):
                     bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk_md, [fld.name])
                     ret.append(
                         f'if not {self.fctx.nsb.put(chk_md)}({fld.name}): '
