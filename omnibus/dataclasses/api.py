@@ -215,6 +215,7 @@ def field(
         coerce: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], ta.Any]]] = None,
         derive: ta.Optional[ta.Callable[..., ta.Any]] = None,
         check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None,
+        check_type: ta.Union[ta.Type, ta.Tuple, None] = None,
         validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None,
 ) -> Field:
     extra_field_params = ExtraFieldParams(
@@ -226,6 +227,7 @@ def field(
         coerce=coerce,
         derive=derive,
         check=check,
+        check_type=check_type,
         validate=validate,
     )
 

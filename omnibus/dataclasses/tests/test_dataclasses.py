@@ -102,6 +102,23 @@ def test_check():
     with pytest.raises(Exception):
         C(2)
 
+    @api_.dataclass()
+    class D:
+        x: int = api_.field(check_type=int)
+
+    assert D(5).x == 5
+    with pytest.raises(Exception):
+        D(5.)
+
+    @api_.dataclass()
+    class D:
+        x: ta.Union[int, float] = api_.field(check_type=(int, float))
+
+    assert D(5).x == 5
+    assert D(5.).x == 5.
+    with pytest.raises(Exception):
+        D('5')
+
 
 def test_validate():
     def raise_if_falsey(o):
