@@ -68,7 +68,7 @@ def is_abstract_method(obj: ta.Any) -> bool:
 def is_abstract_class(obj: ta.Any) -> bool:
     return bool(getattr(obj, '__abstractmethods__', [])) or (
         isinstance(obj, type) and
-        issubclass(obj, Abstract) and
+        Abstract in obj.__mro__ and
         getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
     )
 
@@ -165,7 +165,7 @@ class Final(Abstract):
                 raise FinalException(base)
             elif base is Final:
                 continue
-            elif issubclass(base, Final):
+            elif Final in base.__mro__:
                 raise FinalException(base)
             else:
                 abstracts.update(getattr(base, '__abstractmethods__', []))
@@ -335,7 +335,7 @@ def final(obj):
 
 
 def check_finals(cls: type, bcls: type) -> type:
-    if not issubclass(cls, bcls):
+    if bcls not in cls.__mro__:
         raise TypeError(cls, bcls)
     c = 0
     for a, o in bcls.__dict__.items():
