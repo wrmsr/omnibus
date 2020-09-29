@@ -346,6 +346,7 @@ class Distribution(distutils.core.Distribution):
 
 
 if __name__ == '__main__':
+    breakpoint()
     sys.stderr.write(repr(sys.argv) + '\n')
     setuptools.setup(
         name=ABOUT['__title__'],
