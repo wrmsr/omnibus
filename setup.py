@@ -334,6 +334,8 @@ class Distribution(distutils.core.Distribution):
                     *([] if self.dev else ['dev', '*.dev', '*.dev.*'])
                 ],
             )
+        sys.stderr.write('?????????????? ' + repr(os.environ) + '\n')
+        sys.stderr.write('************* ' + repr(self.dev) + '\n')
         sys.stderr.write('!!!!!!!!!!!!!!!!!!!!!!! ' + repr(self._packages) + '\n')
         return self._packages
 
