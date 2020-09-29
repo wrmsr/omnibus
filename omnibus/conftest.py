@@ -11,8 +11,16 @@ from omnibus.lang.imports import ignore_unstable_warn
 ignore_unstable_warn()
 
 
+from .inject.dev import pytest as injp  # noqa
+
+
+from .docker.dev import pytest as dckp  # noqa
+
+injp.bind_instance(injp.Session, dckp.Prefix('omnibus-'))
+injp.bind_instance(injp.Session, dckp.ComposePath(os.path.join(os.path.dirname(__file__), '../docker/docker-compose.yml')))  # noqa
+
+
 from .dev.pytest import plugins  # noqa
-from .inject.dev import pytest as _  # noqa
 
 
 def pytest_addhooks(pluginmanager):

@@ -329,3 +329,10 @@ def bind(inj_scope: ta.Type[_InjectorScope], *, eager: bool = False):
         return obj
     check.issubclass(inj_scope, _InjectorScope)
     return inner
+
+
+def bind_instance(inj_scope: ta.Type[_InjectorScope], obj: T, **kwargs) -> T:
+    check.issubclass(inj_scope, _InjectorScope)
+    binder = register(inj.create_binder())
+    binder.bind(type(obj), to_instance=obj, **kwargs)
+    return obj

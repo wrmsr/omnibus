@@ -1,4 +1,5 @@
 from .harness import bind  # noqa
+from .harness import bind_instance  # noqa
 from .harness import Class  # noqa
 from .harness import Function  # noqa
 from .harness import Harness  # noqa
