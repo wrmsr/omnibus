@@ -292,7 +292,7 @@ def _rewrite_sdist_template(template, distribution):
         l
         for l in lines
         for l in [l.strip()]
-        if not (distribution.dev and l.endswith('#@dev'))
+        if not (distribution.is_dev and l.endswith('#@dev'))
     ]
 
     template = os.path.join(tmp_dir, os.path.basename(template))
@@ -317,11 +317,15 @@ class Distribution(distutils.core.Distribution):
         ('dev', None, 'install dev'),
     ]
 
-    dev = int(os.environ.get(f'__{PROJECT}_DEV', '0'))
+    dev = 0
 
     def run_commands(self):
         self._packages = None
         super().run_commands()
+
+    @property
+    def is_dev(self):
+        return self.dev or int(os.environ.get(f'__{PROJECT}_DEV', '0'))
 
     @property
     def packages(self):
@@ -331,11 +335,11 @@ class Distribution(distutils.core.Distribution):
                 exclude=[
                     'tests', '*.tests', '*.tests.*',
                     'conftest', '*.conftest',
-                    *([] if self.dev else ['dev', '*.dev', '*.dev.*'])
+                    *([] if self.is_dev else ['dev', '*.dev', '*.dev.*'])
                 ],
             )
         sys.stderr.write('?????????????? ' + repr(os.environ) + '\n')
-        sys.stderr.write('************* ' + repr(self.dev) + '\n')
+        sys.stderr.write('************* ' + repr(self.is_dev) + '\n')
         sys.stderr.write('!!!!!!!!!!!!!!!!!!!!!!! ' + repr(self._packages) + '\n')
         return self._packages
 
