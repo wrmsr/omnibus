@@ -126,27 +126,3 @@ def create_detour(arg_spec: ArgSpecable, target: ta.Callable) -> types.CodeType:
     kw = {a: getattr(gfn.__code__, 'co_' + a) for a in CODE_ARGS}
     kw['consts'] = (None, target)
     return types.CodeType(*[kw[a] for a in CODE_ARGS])
-
-
-def typed_lambda(**kw):
-    def inner(fn):
-        ns = {}
-        ns['__fn'] = fn
-        proto = 'def __lam('
-        call = 'return __fn('
-        for i, (n, t) in enumerate(kw.items()):
-            if i:
-                proto += ', '
-                call += ', '
-            ns['__ann_' + n] = t
-            proto += f'{n}: __ann_{n}'
-            call += n
-        proto += '):'
-        call += ')'
-        src = f'{proto} {call}'
-        exec(src, ns)
-        return ns['__lam']
-    for k in kw:
-        if k.startswith('__'):
-            raise NameError(k)
-    return inner
