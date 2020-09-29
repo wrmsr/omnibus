@@ -346,6 +346,7 @@ class Distribution(distutils.core.Distribution):
 
 
 if __name__ == '__main__':
+    print(sys.argv)
     setuptools.setup(
         name=ABOUT['__title__'],
         version=ABOUT['__version__'],
