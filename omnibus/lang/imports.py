@@ -18,8 +18,12 @@ class UnstableWarning(Warning):
     pass
 
 
-def warn_unstable():
+def warn_unstable() -> None:
     warnings.warn('omnibus module is marked as unstable', category=UnstableWarning, stacklevel=2)
+
+
+def ignore_unstable_warn() -> None:
+    warnings.filterwarnings('ignore', category=UnstableWarning)
 
 
 def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:

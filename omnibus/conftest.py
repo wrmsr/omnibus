@@ -1,13 +1,18 @@
 import os.path
 
-
 with open(os.path.join(os.path.dirname(__file__), '../setup.py'), 'r') as f:
     _setup_header = f.readline()
 if _setup_header.strip() != '#@omnibus':
     raise EnvironmentError('Should not be present')
 
 
-from .dev.pytest import plugins
+from omnibus.lang.imports import ignore_unstable_warn
+
+ignore_unstable_warn()
+
+
+from .dev.pytest import plugins  # noqa
+from .inject.dev import pytest as _  # noqa
 
 
 def pytest_addhooks(pluginmanager):
