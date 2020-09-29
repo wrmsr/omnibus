@@ -1,3 +1,4 @@
+#@omnibus
 import fnmatch
 import functools
 import glob
