@@ -12,8 +12,6 @@ ignore_unstable_warn()
 
 
 from .inject.dev import pytest as injp  # noqa
-
-
 from .docker.dev import pytest as dckp  # noqa
 
 injp.bind_instance(injp.Session, dckp.Prefix('omnibus-'))
