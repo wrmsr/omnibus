@@ -325,7 +325,7 @@ class Distribution(distutils.core.Distribution):
 
     @property
     def is_dev(self):
-        return self.dev or int(os.environ.get(f'__{PROJECT}_DEV', '0'))
+        return self.dev or int(os.environ.get(f'__{PROJECT.upper()}_DEV', '0'))
 
     @property
     def packages(self):
