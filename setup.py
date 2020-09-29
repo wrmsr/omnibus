@@ -317,7 +317,7 @@ class Distribution(distutils.core.Distribution):
         ('dev', None, 'install dev'),
     ]
 
-    dev = 0
+    dev = int(os.environ.get(f'__{PROJECT}_DEV', '0'))
 
     def run_commands(self):
         self._packages = None
@@ -346,7 +346,6 @@ class Distribution(distutils.core.Distribution):
 
 
 if __name__ == '__main__':
-    sys.stderr.write('!!!!!!!!!!!!!!!!!!!!!!!!! ' + repr(sys.argv) + '\n')
     setuptools.setup(
         name=ABOUT['__title__'],
         version=ABOUT['__version__'],
