@@ -10,7 +10,6 @@ import textwrap
 import traceback
 
 import setuptools.command.build_ext
-import setuptools.command.egg_info  # noqa
 import setuptools.command.sdist
 
 import distutils.ccompiler
@@ -284,19 +283,32 @@ distutils.command.build_ext.build_ext.initialize_options = new_build_ext_init_op
 # region Subclasses
 
 
+def _rewrite_sdist_template(template, distribution):
+    tmp_dir = tempfile.mkdtemp()
+    with open(template, 'r') as f:
+        lines = f.readlines()
+
+    lines = [
+        l
+        for l in lines
+        for l in [l.strip()]
+        if not (distribution.dev and l.endswith('#@dev'))
+    ]
+
+    template = os.path.join(tmp_dir, os.path.basename(template))
+    with open(template, 'w') as f:
+        f.write('\n'.join(lines))
+
+    return template
+
+
 def new_sdist_read_template(self):
     self.filelist.distribution = self.distribution
+    self.template = _rewrite_sdist_template(self.template, self.distribution)
     old_sdist_read_template(self)
 
 old_sdist_read_template = setuptools.command.sdist.sdist.read_template  # noqa
 setuptools.command.sdist.sdist.read_template = new_sdist_read_template  # noqa
-
-def new_FileList_process_template_line(self, line):  # noqa
-    if self.distribution.dev and line.endswith('#@dev'):
-        old_FileList_process_template_line(self, line)
-
-old_FileList_process_template_line = setuptools.command.egg_info.FileList.process_template_line  # noqa
-setuptools.command.egg_info.FileList.process_template_line = new_FileList_process_template_line  # noqa
 
 
 class Distribution(distutils.core.Distribution):
@@ -316,7 +328,11 @@ class Distribution(distutils.core.Distribution):
         if self._packages is None:
             self._packages = setuptools.find_packages(
                 include=[PROJECT, PROJECT + '.*'],
-                exclude=['tests', '*.tests', '*.tests.*'] + ([] if self.dev else ['dev', '*.dev', '*.dev.*']),
+                exclude=[
+                    'tests', '*.tests', '*.tests.*',
+                    'conftest', '*.conftest',
+                    *([] if self.dev else ['dev', '*.dev', '*.dev.*'])
+                ],
             )
         return self._packages
 
