@@ -6,7 +6,7 @@ import typing as ta
 from .. import local as local_
 from ... import lang
 from ... import properties
-from ...dev.testing.helpers import skip_if_cant_import
+from ...dev.pytest import skip_if_cant_import
 
 if ta.TYPE_CHECKING:
     import pyspark as ps

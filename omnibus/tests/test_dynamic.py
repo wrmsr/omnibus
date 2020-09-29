@@ -1,7 +1,7 @@
 import contextlib
 
 from .. import dynamic as dyn
-from ..dev.testing import helpers
+from ..dev.pytest import skip_if_cant_import
 
 
 def test_dyn():
@@ -92,7 +92,7 @@ def test_cm():
     assert v() == 420
 
 
-@helpers.skip_if_cant_import('greenlet')
+@skip_if_cant_import('greenlet')
 def test_greenlet():
     import greenlet
 

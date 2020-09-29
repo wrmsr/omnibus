@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from .... import lang
-from ....dev.testing.helpers import skip_if_cant_import
+from ....dev.pytest import skip_if_cant_import
 
 
 pcre2 = lang.proxy_import('..pcre2', __package__)

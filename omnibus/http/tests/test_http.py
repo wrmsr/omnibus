@@ -11,7 +11,7 @@ from .. import consts as consts_
 from .. import nginx as nginx_
 from .. import wsgiref as wsgiref_
 from ... import json
-from ...dev.testing import helpers
+from ...dev.testing import run_with_timeout
 
 
 def test_inline_http():
@@ -78,7 +78,7 @@ def test_http():
                 pass
             time.sleep(0.1)
 
-    helpers.run_with_timeout(fn0, fn1)
+    run_with_timeout(fn0, fn1)
 
 
 def test_json_http():

@@ -10,10 +10,14 @@ import textwrap
 import traceback
 
 import setuptools.command.build_ext
+import setuptools.command.egg_info  # noqa
+import setuptools.command.sdist
 
-import distutils.log
 import distutils.ccompiler
+import distutils.command.build_ext
+import distutils.core
 import distutils.errors
+import distutils.log
 import distutils.sysconfig
 
 
@@ -270,9 +274,56 @@ def new_build_ext_init_opts(self, *args, **kwargs):
     old_build_ext_init_opts(self, *args, **kwargs)
     self.parallel = os.cpu_count()
 
-import distutils.command.build_ext  # noqa
 old_build_ext_init_opts = distutils.command.build_ext.build_ext.initialize_options  # noqa
 distutils.command.build_ext.build_ext.initialize_options = new_build_ext_init_opts  # noqa
+
+
+# endregion
+
+
+# region Subclasses
+
+
+def new_sdist_read_template(self):
+    self.filelist.distribution = self.distribution
+    old_sdist_read_template(self)
+
+old_sdist_read_template = setuptools.command.sdist.sdist.read_template  # noqa
+setuptools.command.sdist.sdist.read_template = new_sdist_read_template  # noqa
+
+def new_FileList_process_template_line(self, line):  # noqa
+    if self.distribution.dev and line.endswith('#@dev'):
+        old_FileList_process_template_line(self, line)
+
+old_FileList_process_template_line = setuptools.command.egg_info.FileList.process_template_line  # noqa
+setuptools.command.egg_info.FileList.process_template_line = new_FileList_process_template_line  # noqa
+
+
+class Distribution(distutils.core.Distribution):
+
+    global_options = distutils.core.Distribution.global_options + [  # noqa
+        ('dev', None, 'install dev'),
+    ]
+
+    dev = 0
+
+    def run_commands(self):
+        self._packages = None
+        super().run_commands()
+
+    @property
+    def packages(self):
+        if self._packages is None:
+            self._packages = setuptools.find_packages(
+                include=[PROJECT, PROJECT + '.*'],
+                exclude=['tests', '*.tests', '*.tests.*'] + ([] if self.dev else ['dev', '*.dev', '*.dev.*']),
+            )
+        return self._packages
+
+    @packages.setter
+    def packages(self, v):
+        if v is not None:
+            raise TypeError(v)
 
 
 # endregion
@@ -286,15 +337,13 @@ if __name__ == '__main__':
         author=ABOUT['__author__'],
         url=ABOUT['__url__'],
 
+        distclass=Distribution,
+
         python_requires=ABOUT['__python_requires__'],
         classifiers=ABOUT['__classifiers__'],
 
         setup_requires=['setuptools'],
 
-        packages=setuptools.find_packages(
-            include=[PROJECT, PROJECT + '.*'],
-            exclude=['tests', '*.tests', '*.tests.*'],
-        ),
         py_modules=[PROJECT],
 
         package_data={PROJECT: PACKAGE_DATA},

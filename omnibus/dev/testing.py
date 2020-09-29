@@ -7,13 +7,6 @@ import time
 import traceback
 import typing as ta
 
-from ... import lang
-
-if ta.TYPE_CHECKING:
-    import pytest
-else:
-    pytest = lang.proxy_import('pytest')
-
 
 DEFAULT_TIMEOUT_S = 30
 
@@ -120,10 +113,6 @@ def can_import(*args, **kwargs) -> bool:
         return False
     else:
         return True
-
-
-def skip_if_cant_import(module: str, *args, **kwargs):
-    return pytest.mark.skipif(not can_import(module, *args, **kwargs), reason=f'requires import {module}')
 
 
 def xfail(fn):

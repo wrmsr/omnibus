@@ -1,7 +1,7 @@
 import random
 
 from .. import sorted as sorted_
-from ...dev.testing import helpers
+from ...dev.pytest import skip_if_cant_import
 
 
 def test_skiplist():
@@ -50,6 +50,6 @@ def test_skiplistdict():
     _test_sorteddict(sorted_.SkipListDict())
 
 
-@helpers.skip_if_cant_import('sortedcontainers')
+@skip_if_cant_import('sortedcontainers')
 def test_sortedcontainers():
     _test_sorteddict(sorted_.SortedContainersDict.new())

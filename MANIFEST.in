@@ -22,7 +22,7 @@ recursive-include omnibus/_ext/cy *.pyx
 recursive-include omnibus/_ext/m *.h
 recursive-include omnibus/_ext/m *.m
 
-global-exclude **/dev/**
+global-exclude **/dev/**  #@dev
 
 global-exclude *.py[cod]
 global-exclude *.so

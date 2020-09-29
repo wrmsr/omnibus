@@ -7,7 +7,7 @@ import time
 
 from .. import server as server_
 from ... import lang
-from ...dev.testing import helpers
+from ...dev.testing import run_with_timeout
 
 
 def test_replserver():
@@ -69,4 +69,4 @@ def test_replserver():
             thread.join(3)
 
     path = os.path.join(tempfile.mkdtemp(), 'sock')
-    helpers.run_with_timeout(inner)
+    run_with_timeout(inner)

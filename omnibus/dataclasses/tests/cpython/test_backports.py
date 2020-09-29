@@ -4,7 +4,7 @@ import unittest
 import unittest.mock as um
 
 from ... import api as dc
-from ....dev.testing.helpers import xfail
+from ....dev.testing import xfail
 
 
 class TestBackports(unittest.TestCase):
