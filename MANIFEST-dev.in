@@ -10,7 +10,7 @@ exclude omnibus
 include omnibus/__init__.py
 include omnibus/__about__.py
 
-recursive-include omnibus dev
+recursive-include omnibus/**/dev/** *
 
 global-exclude *.py[cod]
 global-exclude *.so
