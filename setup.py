@@ -10,9 +10,11 @@ import textwrap
 import traceback
 
 import setuptools.command.build_ext
+import setuptools.command.build_py
 import setuptools.command.sdist
 
 import distutils.ccompiler
+import distutils.command.build
 import distutils.command.build_ext
 import distutils.core
 import distutils.errors
@@ -280,7 +282,7 @@ distutils.command.build_ext.build_ext.initialize_options = new_build_ext_init_op
 # endregion
 
 
-# region Subclasses
+# region Hooks
 
 
 def _rewrite_sdist_template(template, distribution):
@@ -309,6 +311,16 @@ def new_sdist_read_template(self):
 
 old_sdist_read_template = setuptools.command.sdist.sdist.read_template  # noqa
 setuptools.command.sdist.sdist.read_template = new_sdist_read_template  # noqa
+
+
+def new_build_py_find_package_modules(self, package, package_dir):
+    modules = old_build_py_find_package_modules(self, package, package_dir)
+    if package == PROJECT:
+        modules = [t for t in modules if t[1] != 'conftest']
+    return modules
+
+old_build_py_find_package_modules = setuptools.command.build_py.build_py.find_package_modules  # noqa
+setuptools.command.build_py.build_py.find_package_modules = new_build_py_find_package_modules  # noqa
 
 
 class Distribution(distutils.core.Distribution):
