@@ -16,6 +16,7 @@ from .api import make_dataclass  # noqa
 from .api import metadata  # noqa
 from .api import metadatas_dict  # noqa
 from .api import MISSING  # noqa
+from .api import only  # noqa
 from .api import post_init  # noqa
 from .api import replace  # noqa
 from .api import validate  # noqa

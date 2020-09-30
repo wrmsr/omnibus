@@ -107,6 +107,8 @@ from .lang import register_on  # noqa
 from .lang import Self  # noqa
 from .lang import SimpleProxy  # noqa
 from .lang import super_meta  # noqa
+from .lang import ticking_timeout  # noqa
+from .lang import TimeoutException  # noqa
 from .lang import unwrap_func  # noqa
 from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import Void  # noqa

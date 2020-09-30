@@ -663,3 +663,29 @@ def test_metadata():
 
     assert api_.metadatas_dict(D) == {int: 5, float: 420., str: 'bye'}
     assert api_.metadatas_dict(D, shallow=True) == {float: 420., str: 'bye'}
+
+
+def test_only():
+    @dc.dataclass(frozen=True)
+    class Pt:
+        x: ta.Optional[int] = None
+        y: ta.Optional[int] = None
+        xs: ta.Optional[ta.Sequence[int]] = None
+        ys: ta.Optional[ta.Sequence[int]] = None
+
+    assert api_.only(Pt(), [])
+
+    assert api_.only(Pt(x=0), ['x'])
+    assert api_.only(Pt(x=0), ['x'], all=True)
+
+    assert not api_.only(Pt(x=0), [])
+    assert not api_.only(Pt(x=0, y=1), ['x'])
+
+    assert not api_.only(Pt(x=0, y=1), ['x'])
+    assert api_.only(Pt(x=0, y=1), ['x', 'y'])
+    assert api_.only(Pt(x=0, y=1), ['x', 'y'], all=True)
+    assert api_.only(Pt(x=0), ['x', 'y'])
+    assert not api_.only(Pt(x=0), ['x', 'y'], all=True)
+
+    assert api_.only(Pt(xs=[]), ['xs'])
+    assert not api_.only(Pt(xs=[]), ['xs'], all=True)

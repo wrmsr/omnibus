@@ -38,11 +38,11 @@ rsa==4.6
 scipy==1.5.2
 scramp==1.2.0
 Theano==1.0.5
-tqdm==4.49.0
+tqdm==4.50.0
 typing-extensions==3.7.4.3
 urllib3==1.25.10
 xarray==0.16.1
-yarl==1.5.1
+yarl==1.6.0
 
 
 ## potential optional integrations
@@ -83,7 +83,7 @@ pyspark==3.0.1
 python-pcre==0.7
 python-snappy==0.5.4
 pyzmq==19.0.2
-regex==2020.7.14
+regex==2020.9.27
 rocksdb==0.7.0
 slackclient==2.9.1
 sympy==1.6.2

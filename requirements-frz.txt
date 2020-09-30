@@ -7,12 +7,12 @@ astpretty==2.0.0
 async-generator==1.10
 async-timeout==3.0.1
 attrs==20.2.0
-awscli==1.18.147
+awscli==1.18.149
 backcall==0.2.0
 billiard==3.6.3.0
 bleach==3.2.1
-boto3==1.15.6
-botocore==1.18.6
+boto3==1.15.8
+botocore==1.18.8
 bsddb3==6.2.7
 bson==0.5.10
 cachetools==4.1.1
@@ -44,9 +44,10 @@ fastavro==1.0.0.post1
 fastparquet==0.4.1
 fastprogress==1.0.0
 flake8==3.8.3
-google-api-core==1.22.2
-google-api-python-client==1.12.2
-google-auth==1.21.3
+future==0.18.2
+google-api-core==1.22.0
+google-api-python-client==1.12.3
+google-auth==1.22.0
 google-auth-httplib2==0.0.4
 googleapis-common-protos==1.52.0
 gprof2dot==2019.11.30
@@ -76,7 +77,7 @@ jsonschema==3.2.0
 jupyter-client==6.1.7
 jupyter-console==6.2.0
 jupyter-core==4.6.3
-jupyterlab-pygments==0.1.1
+jupyterlab-pygments==0.1.2
 kafka-python==2.0.1
 kazoo==2.8.0
 keyring==21.4.0
@@ -100,7 +101,7 @@ mysql-connector-python==8.0.21
 nbclient==0.5.0
 nbconvert==6.0.6
 nbformat==5.0.7
-nest-asyncio==1.4.0
+nest-asyncio==1.4.1
 netCDF4==1.5.4
 nose==1.3.7
 notebook==6.1.4
@@ -143,6 +144,7 @@ pycparser==2.20
 pyflakes==2.2.0
 pyglet==1.5.7
 Pygments==2.7.1
+PyHive==0.6.3
 PyJWT==1.7.1
 pykafka==2.8.0
 pymc3==3.9.3
@@ -175,7 +177,7 @@ PyYAML==5.3.1
 pyzmq==19.0.2
 readme-renderer==26.0
 redis==3.5.3
-regex==2020.7.14
+regex==2020.9.27
 requests==2.24.0
 requests-toolbelt==0.9.1
 retrying==1.3.3
@@ -184,6 +186,7 @@ rocksdb==0.7.0
 rsa==4.6
 s3cmd==2.1.0
 s3transfer==0.3.3
+sasl==0.2.1
 scipy==1.5.2
 scramp==1.2.0
 Send2Trash==1.5.0
@@ -202,10 +205,11 @@ terminaltables==3.1.0
 testpath==0.4.4
 Theano==1.0.5
 thrift==0.13.0
+thrift-sasl==0.4.2
 toml==0.10.1
 toolz==0.11.1
 tornado==6.0.4
-tqdm==4.49.0
+tqdm==4.50.0
 traitlets==5.0.4
 twine==3.2.0
 typed-ast==1.4.1
@@ -220,5 +224,5 @@ websocket-client==0.57.0
 wrapt==1.12.1
 xarray==0.16.1
 yappi==1.2.5
-yarl==1.5.1
+yarl==1.6.0
 zstd==1.4.5.1

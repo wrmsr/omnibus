@@ -89,6 +89,13 @@ def get_sock_cred(conn: socket.socket) -> ta.Tuple[int, int, int]:
     return pid, uid, gid
 
 
+def find_free_port() -> int:
+    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(('', 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
+
+
 def set_cloexec_flag(fd: int, value: bool) -> int:
     oldflags = fcntl.fcntl(fd, fcntl.F_GETFD, 0)
     if oldflags < 0:

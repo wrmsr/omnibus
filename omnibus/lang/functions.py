@@ -2,7 +2,12 @@ import functools
 import typing as ta
 
 
-def typed_lambda(*ret, **kw):
+def _update_wrapper(wrapper, wrapped):
+    functools.update_wrapper(wrapper, wrapped, assigned=list(set(functools.WRAPPER_ASSIGNMENTS) - {'__annotations__'}))
+    return wrapper
+
+
+def typed_lambda(**kw):
     def inner(fn):
         ns = {}
         ns['__fn'] = fn
@@ -25,10 +30,7 @@ def typed_lambda(*ret, **kw):
         call += ')'
         src = f'{proto} {call}'
         exec(src, ns)
-        return ns['__lam']
-    if ret:
-        [ret] = ret
-        kw['return'] = ret
+        return _update_wrapper(ns['__lam'], fn)
     for k in kw:
         if k.startswith('__'):
             raise NameError(k)
@@ -40,6 +42,6 @@ def typed_partial(fn, **kw):
         if k.startswith('__'):
             raise NameError(k)
     th = ta.get_type_hints(fn)
-    lam = typed_lambda(**{n: h for n, h in th.items() if n not in kw})(lambda **lkw: fn(**lkw, **kw))
-    functools.update_wrapper(lam, fn, assigned=list(set(functools.WRAPPER_ASSIGNMENTS) - {'__annotations__'}))
-    return lam
+    inner = _update_wrapper(lambda **lkw: fn(**lkw, **kw), fn)
+    lam = typed_lambda(**{n: h for n, h in th.items() if n not in kw})(inner)
+    return _update_wrapper(lam, fn)
