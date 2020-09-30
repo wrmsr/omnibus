@@ -19,7 +19,7 @@ class UnstableWarning(Warning):
 
 
 def warn_unstable() -> None:
-    warnings.warn('omnibus module is marked as unstable', category=UnstableWarning, stacklevel=2)
+    warnings.warn(f'{__package__.split(".")[0]} module is marked as unstable', category=UnstableWarning, stacklevel=2)
 
 
 def ignore_unstable_warn() -> None:

@@ -6,8 +6,8 @@ import io
 import typing as ta
 import xml
 
-from omnibus import dataclasses as dc
-from omnibus import lang
+from .. import dataclasses as dc
+from .. import lang
 
 
 class Exclusion(dc.Pure):

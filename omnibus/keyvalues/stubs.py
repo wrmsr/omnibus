@@ -1,15 +1,14 @@
 import typing as ta
 
-from omnibus import iterables as it
-
+from .. import iterables as it
 from .base import BatchedIterableKeyValue
 from .base import BatchedKeyValue
 from .base import BatchedSortedIterableKeyValue
-from .wrappers import WrapperKeyValue
-from .wrappers import WrapperIterableKeyValue
-from .wrappers import WrapperSortedIterableKeyValue
 from .base import NOT_SET
 from .iterators import ManagedIterator
+from .wrappers import WrapperIterableKeyValue
+from .wrappers import WrapperKeyValue
+from .wrappers import WrapperSortedIterableKeyValue
 
 
 T = ta.TypeVar('T')
