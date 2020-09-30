@@ -1,7 +1,8 @@
 # flake8: noqa
+# type: ignore
 # Generated from Minml.g4 by ANTLR 4.8
 # encoding: utf-8
-from omnibus._vendor.antlr4 import *
+from ....._vendor.antlr4 import *
 from io import StringIO
 import sys
 if sys.version_info[1] > 5:

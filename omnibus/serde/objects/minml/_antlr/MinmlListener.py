@@ -1,6 +1,7 @@
 # flake8: noqa
+# type: ignore
 # Generated from Minml.g4 by ANTLR 4.8
-from omnibus._vendor.antlr4 import *
+from ....._vendor.antlr4 import *
 if __name__ is not None and "." in __name__:
     from .MinmlParser import MinmlParser
 else:
