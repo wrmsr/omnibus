@@ -19,6 +19,11 @@ PYENV_BREW_DEPS:= \
 
 BREW_DEPS:= \
 	$(PYENV_BREW_DEPS) \
+	graphviz \
+	libyaml \
+	node \
+	pipx \
+	protobuf \
 
 ANTLR_VERSION=4.8
 
@@ -55,7 +60,7 @@ clean-build:
 		-name '__pycache__' -delete -or \
 		-name 'test-*.xml' -delete -or \
 		\
-		-name 'NeVeRmAtCh' -delete
+		-name NeVeRmAtCh
 
 	if [ -d $(PROJECT)/_ext/cy ]; then \
 		find $(PROJECT)/_ext/cy \
@@ -70,6 +75,7 @@ clean-build:
 
 .PHONY: clean
 clean: clean-build
+	-rm -rf .benchmarks
 	-rm -rf .cache
 	-rm -rf .mypy_cache
 	-rm -rf .pytest_cache
