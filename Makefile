@@ -375,7 +375,7 @@ test-dist: dist
 	cd .venv-dist && bin/python -c 'import $(PROJECT); $(PROJECT)._test_install()'
 
 .PHONY: dist
-dist: venv
+dist: venv build
 	$(call do-dist,.venv,0,0)
 
 .PHONY: dist-37
