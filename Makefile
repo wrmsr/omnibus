@@ -393,7 +393,7 @@ dist-dev: venv
 ### Publish
 
 .PHONY:
-publish: clean dist test-dist
+publish: clean build test dist test-dist
 	if [ ! -z "$$(git status -s)" ] ; then \
 		echo dirty ; \
 		exit 1 ; \
