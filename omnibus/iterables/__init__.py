@@ -1,3 +1,4 @@
+from .delim import yield_delimited_str_chunks  # noqa
 from .iterators import PeekIterator  # noqa
 from .iterators import PrefetchIterator  # noqa
 from .iterators import ProxyIterator  # noqa
