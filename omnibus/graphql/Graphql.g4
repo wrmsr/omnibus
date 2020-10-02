@@ -99,7 +99,7 @@ fragmentSpread
     ;
 
 fragmentDefinition
-    : FRAGMENT_ fragmentName ON_ typeCondition directives? selectionSet
+    : FRAGMENT_ fragmentName typeCondition directives? selectionSet
     ;
 
 fragmentName
