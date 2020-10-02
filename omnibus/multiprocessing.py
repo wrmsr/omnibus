@@ -75,9 +75,9 @@ def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.ContextManager[
         kwargs['mp_context'] = get_context('fork')  # noqa
 
     with cf.ProcessPoolExecutor(*args, **kwargs) as exe:
-        pwi = _PendingWorkItems(exe._pending_work_items, fn)
+        pwi = _PendingWorkItems(exe._pending_work_items, fn)  # noqa
         exe._pending_work_items = pwi
-        exe._call_queue.pending_work_items = pwi
+        exe._call_queue.pending_work_items = pwi  # noqa
 
         for o in [exe, exe._call_queue]:
             for a, v in o.__dict__.items():
@@ -92,7 +92,7 @@ def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.ContextManager[
                 v = cf.process._CallItem(v.work_id, fn, v.args, v.kwargs)  # noqa
             return v
 
-        orig_call_queue_get = exe._call_queue.get
-        exe._call_queue.get = call_queue_get
+        orig_call_queue_get = exe._call_queue.get  # noqa
+        exe._call_queue.get = call_queue_get  # noqa
 
         yield exe

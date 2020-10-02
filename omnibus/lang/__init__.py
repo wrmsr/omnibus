@@ -62,8 +62,6 @@ from .datetimes import to_seconds  # noqa
 from .enums import AutoEnum  # noqa
 from .enums import parse_enum  # noqa
 from .enums import ValueEnum  # noqa
-from .functions import typed_lambda  # noqa
-from .functions import typed_partial  # noqa
 from .imports import import_all  # noqa
 from .imports import import_module  # noqa
 from .imports import import_module_attr  # noqa
@@ -138,3 +136,5 @@ from .strings import is_sunder  # noqa
 from .strings import prefix_lines  # noqa
 from .strings import redact  # noqa
 from .strings import Redacted  # noqa
+from .typing import typed_lambda  # noqa
+from .typing import typed_partial  # noqa
