@@ -3,6 +3,14 @@ TODO:
  - dataclasses
  - dispatch (class/property)
  - async/await ugh - require ta.cast(None) or smth
+ - no_bool (+ runtime) - sqla bindparam equiv,
+  - mypy-time virtual abc registration - register MethodType/FunctionType as NoBool, force explicit is_null
+  - generic machinery working on __bool__
+  - NoStrSeq, NoStrIter
+  - NotIterable no_iter_set
+  - usecase is enforcing callees not defensively copying (when coll will be mutating and that is **intended**)
+ - NoDiscard
+ - Raises - force handle
 
 https://mypy-lang.blogspot.com/2019/03/
 https://github.com/python/mypy/wiki/Type-Checker

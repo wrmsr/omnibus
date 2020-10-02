@@ -353,6 +353,13 @@ class Binder(lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def bind_scope(
+            self,
+            scoping: ta.Type[Scope],
+    ) -> None:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def bind_provision_listener(
             self,
             target: ProvisionListener,

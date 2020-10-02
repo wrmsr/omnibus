@@ -36,6 +36,7 @@ from .types import ProvisionListener
 from .types import ProvisionListenerBinding
 from .types import RequiredKey
 from .types import Scope
+from .types import ScopeBinding
 
 
 T = ta.TypeVar('T')
@@ -563,6 +564,14 @@ class BinderImpl(Binder):
         binding = Binding(dict_key, provider, scoping, source)
         self._add_binding(binding)
         return self.DictBinder(self, dict_key)
+
+    def bind_scope(
+            self,
+            scoping: ta.Type[Scope],
+    ) -> None:
+        check.issubclass(scoping, Scope)
+
+        self._elements.append(ScopeBinding(scoping))
 
     def bind_provision_listener(
             self,
