@@ -15,6 +15,7 @@ import setuptools.command.build_py
 import setuptools.command.sdist
 
 import distutils.ccompiler
+import distutils.cmd
 import distutils.command.build
 import distutils.command.build_ext
 import distutils.core
@@ -325,7 +326,6 @@ setuptools.command.build_py.build_py.find_package_modules = new_build_py_find_pa
 
 
 class Distribution(distutils.core.Distribution):
-
     global_options = distutils.core.Distribution.global_options + [  # noqa
         ('dev', None, 'install dev'),
     ]
@@ -362,6 +362,48 @@ class Distribution(distutils.core.Distribution):
 # endregion
 
 
+# region Extras
+
+
+class CyamlCommand(distutils.cmd.Command):
+    description = 'install cyaml'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        self.announce('Installing cyaml')
+
+        import tempfile
+        dp = tempfile.mkdtemp()
+
+        import os.path
+        fp = os.path.join(dp, 'cyaml.tar.gz')
+
+        import urllib.request
+        urllib.request.urlretrieve('https://pyyaml.org/download/pyyaml/PyYAML-5.3.1.tar.gz', fp)
+
+        import hashlib
+        sha = hashlib.sha1()
+        with open(fp, 'rb') as f:
+            sha.update(f.read())
+        digest = sha.hexdigest()
+        if digest != '3b20272e119990b2bbeb03815a1dd3f3e48af07e':
+            raise ValueError(f'Hash cyaml mismatch: {digest}')
+
+        os.system(
+            f'cd {dp} && '
+            f'{os.path.abspath(sys.executable)} -m pip install cyaml.tar.gz --global-option="--with-libyaml"'
+        )
+
+
+# endregion
+
+
 if __name__ == '__main__':
     setuptools.setup(
         name=ABOUT['__title__'],
@@ -371,6 +413,9 @@ if __name__ == '__main__':
         url=ABOUT['__url__'],
 
         distclass=Distribution,
+        cmdclass={
+            'cyaml': CyamlCommand,
+        },
 
         python_requires=ABOUT['__python_requires__'],
         classifiers=ABOUT['__classifiers__'],

@@ -441,6 +441,10 @@ dep-tree: venv
 dep-updates: venv
 	.venv/bin/pip list -o --format=columns
 
+.PHONY: dep-cyaml
+dep-cyaml: venv
+	.venv/bin/python setup.py cyaml
+
 
 ### Docker
 
