@@ -78,6 +78,7 @@ class Config(
     confer={
         'frozen',
         'reorder',
+        'confer',
     },
 ):
     pass
