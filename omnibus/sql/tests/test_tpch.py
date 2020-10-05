@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 
 from .. import tpch
-from ...tests.fixtures import sqlite_engine  # noqa
+from .fixtures import sqlite_engine  # noqa
 
 
 def test_tpch(sqlite_engine):  # noqa
