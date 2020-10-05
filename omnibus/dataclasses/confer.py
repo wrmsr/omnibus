@@ -61,9 +61,11 @@ def confer_params(
             for att, val in confer_defaults.items():
                 if getattr(given_params, att) is not dc.MISSING or att not in confer:
                     continue
+                weak = False
                 if isinstance(confer, ta.Mapping):
                     if isinstance(confer[att], Conferrer):
                         val = confer[att].fn(att, sub, sup, bases)
+                        weak = confer[att].weak
                     else:
                         val = confer[att]
                 elif base_params is not None:
@@ -71,7 +73,7 @@ def confer_params(
                 if val is dc.MISSING:
                     continue
                 if att in conferred:
-                    if conferred[att] != val:
+                    if conferred[att] != val and not weak:
                         raise ValueError(f'Incompatible conferred params: base={base} a={att}')
                 else:
                     conferred[att] = val

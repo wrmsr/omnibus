@@ -69,23 +69,10 @@ https://github.com/google/gin-config - ghetto injection
 https://github.com/spf13/viper - merging
  / https://gitlab.com/dashwav/gila
 """
-import typing as ta
-
 from .. import dataclasses as dc
 
 
 def _confer_confer(att, sub, sup, bases):
-    scs = [
-        bcc
-        for b in bases
-        if dc.is_dataclass(b) and b is not Config
-        for bc in [dc.get_cls_spec(b)]
-        if bc.extra_params.confer is not None
-        for bcc in [bc.extra_params.confer.get('confer')]
-        if isinstance(bcc, ta.Mapping)
-    ]
-    if scs:
-        return scs[0]
     return sub['confer'] if sub['confer'] is not dc.MISSING else sup['confer']
 
 
@@ -97,7 +84,7 @@ class Config(
     confer={
         'frozen': dc.SUPER,
         'reorder': dc.SUPER,
-        'confer': dc.Conferrer(_confer_confer),
+        'confer': dc.Conferrer(_confer_confer, weak=True),
     },
 ):
     pass

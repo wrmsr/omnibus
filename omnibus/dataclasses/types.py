@@ -84,6 +84,7 @@ Mangler = ta.Callable[[str], str]
 @dc.dataclass(frozen=True)
 class Conferrer(lang.Final):
     fn: ta.Callable[[str, ta.Mapping[str, ta.Any], ta.Mapping[str, ta.Any], ta.Sequence[type]], ta.Any]
+    weak: bool = False
 
 
 SUPER = Conferrer(lambda att, sub, sup, bases: sup[att])
