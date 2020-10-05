@@ -6,6 +6,7 @@ should be used sparingly (once per sql statement executed not once per inner fun
 TODO:
  - clj-style binding conveyance
  - contextvar/async interop
+ - 'partializer'
 """
 import contextlib
 import functools

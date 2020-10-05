@@ -44,3 +44,4 @@ from .util import is_special_generic  # noqa
 from .util import is_subclass_dependent  # noqa
 from .util import unerase_generic  # noqa
 from .util import UnionVirtual  # noqa
+from .util import unpack_optional  # noqa

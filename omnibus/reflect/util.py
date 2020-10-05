@@ -4,7 +4,6 @@ import typing as ta
 
 from .. import check
 from .. import lang
-
 from .types import GenericAlias
 from .types import TypeLike
 
@@ -88,8 +87,8 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
             )
             for b in bases
             if b is not ta.Generic and not (
-                    isinstance(b, GenericAlias) and
-                    b.__origin__ is ta.Generic
+                isinstance(b, GenericAlias) and
+                b.__origin__ is ta.Generic
             )
         ]
 
@@ -146,6 +145,18 @@ def is_subclass_dependent(cls: ta.Type) -> bool:
 
 def is_dependent(cls: ta.Type) -> bool:
     return is_abc_dependent(cls) or is_instance_dependent(cls) or is_subclass_dependent(cls)
+
+
+def unpack_optional(cls: TypeLike) -> ta.Optional[TypeLike]:
+    if (
+            is_generic(cls) and
+            getattr(cls, '__origin__', None) is ta.Union and
+            len(cls.__args__) == 2 and
+            type(None) in cls.__args__
+    ):
+        [arg] = [a for a in fty.__args__ if a is not type(None)]  # noqa
+        return arg
+    return None
 
 
 class AnnotationAdapter(lang.Final):
