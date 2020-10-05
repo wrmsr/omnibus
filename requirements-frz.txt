@@ -7,13 +7,13 @@ astpretty==2.0.0
 async-generator==1.10
 async-timeout==3.0.1
 attrs==20.2.0
-awscli==1.18.151
+awscli==1.18.152
 backcall==0.2.0
 billiard==3.6.3.0
 bleach==3.2.1
-boto3==1.15.10
-boto3-stubs==1.15.10.0
-botocore==1.18.10
+boto3==1.15.11
+boto3-stubs==1.15.11.0
+botocore==1.18.11
 bsddb3==6.2.7
 bson==0.5.10
 cachetools==4.1.1
@@ -44,9 +44,9 @@ execnet==1.7.1
 fastavro==1.0.0.post1
 fastparquet==0.4.1
 fastprogress==1.0.0
-flake8==3.8.3
+flake8==3.8.4
 future==0.18.2
-google-api-core==1.22.2
+google-api-core==1.22.3
 google-api-python-client==1.12.3
 google-auth==1.22.0
 google-auth-httplib2==0.0.4
@@ -60,7 +60,7 @@ h5py==2.10.0
 httpie==2.2.0
 httplib2==0.18.1
 httptools==0.1.1
-humanize==3.0.0
+humanize==3.0.1
 hyperscan==0.1.5
 idna==2.10
 importlib-resources==3.0.0
@@ -100,7 +100,7 @@ mypy==0.782
 mypy-extensions==0.4.3
 mysql-connector-python==8.0.21
 nbclient==0.5.0
-nbconvert==6.0.6
+nbconvert==6.0.7
 nbformat==5.0.7
 nest-asyncio==1.4.1
 netCDF4==1.5.4
@@ -158,7 +158,7 @@ pyrasite==2.0
 pyroaring==0.2.9
 pyrsistent==0.17.3
 pyspark==3.0.1
-pytest==6.1.0
+pytest==6.1.1
 pytest-asyncio==0.14.0
 pytest-benchmark==3.2.3
 pytest-clarity==0.3.0a0

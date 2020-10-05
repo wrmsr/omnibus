@@ -154,7 +154,7 @@ def unpack_optional(cls: TypeLike) -> ta.Optional[TypeLike]:
             len(cls.__args__) == 2 and
             type(None) in cls.__args__
     ):
-        [arg] = [a for a in fty.__args__ if a is not type(None)]  # noqa
+        [arg] = [a for a in cls.__args__ if a is not type(None)]  # noqa
         return arg
     return None
 

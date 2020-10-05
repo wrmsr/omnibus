@@ -70,5 +70,13 @@ https://github.com/spf13/viper - merging
 from .. import dataclasses as dc
 
 
-class Config(dc.Frozen, abstract=True, reorder=True):
+class Config(
+    dc.Frozen,
+    abstract=True,
+    reorder=True,
+    confer={
+        'frozen',
+        'reorder',
+    },
+):
     pass

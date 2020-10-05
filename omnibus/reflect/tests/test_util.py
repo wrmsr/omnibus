@@ -73,3 +73,10 @@ def test_subclass_dependents():
         pass
 
     assert not util_.is_subclass_dependent(C)
+
+
+def test_unpack_optional():
+    assert util_.unpack_optional(ta.Optional[int]) is int
+    assert util_.unpack_optional(int) is None
+    assert util_.unpack_optional(ta.Union[None, int]) is int
+    assert util_.unpack_optional(ta.Union[None, int, str]) is None
