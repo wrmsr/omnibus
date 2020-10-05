@@ -277,7 +277,7 @@ class Pure(
     pass
 
 
-def _confer_enum_final(att, sub, sup):
+def _confer_enum_final(att, sub, sup, bases):
     return sub['abstract'] is dc.MISSING or not sub['abstract']
 
 

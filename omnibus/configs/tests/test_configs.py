@@ -35,3 +35,15 @@ def test_configs():
         comment='a comment',
     )
     assert db_config.url == 'a url'
+
+
+class EnumCfg(dc.Enum, configs_.Config):
+    pass
+
+
+class AEnumCfg(EnumCfg):
+    pass
+
+
+class BEnumCfg(EnumCfg):
+    pass

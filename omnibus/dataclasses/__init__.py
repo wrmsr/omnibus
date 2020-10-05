@@ -30,11 +30,13 @@ from .reflect import DataSpec  # noqa
 from .reflect import get_cls_spec  # noqa
 from .types import Checker  # noqa
 from .types import CheckException  # noqa
+from .types import Conferrer  # noqa
 from .types import Deriver  # noqa
 from .types import FieldValidation  # noqa
 from .types import FieldValidator  # noqa
 from .types import Metadata  # noqa
 from .types import PostInit  # noqa
+from .types import SUPER  # noqa
 from .types import Validator  # noqa
 from .validation import build_default_field_validation  # noqa
 from .validation import DEFAULT_FIELD_VALIDATION_DISPATCHER  # noqa

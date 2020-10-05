@@ -5,6 +5,8 @@ POSS:
    - hocon has 'aliases', need to take it over? or push it down? interop/share?
 
 TODO:
+ - * dc's *:
+  - frozen? updatable? dc.Enum compat? ??
  - *DECREE* NOW BUILT ON TOP OF / IN TERMS OF DATACLASSES.
   - DIFFS:
    - non-local, non-inherited, injected defaults: db.timeout = global.defualt
@@ -67,7 +69,24 @@ https://github.com/google/gin-config - ghetto injection
 https://github.com/spf13/viper - merging
  / https://gitlab.com/dashwav/gila
 """
+import typing as ta
+
 from .. import dataclasses as dc
+
+
+def _confer_confer(att, sub, sup, bases):
+    scs = [
+        bcc
+        for b in bases
+        if dc.is_dataclass(b) and b is not Config
+        for bc in [dc.get_cls_spec(b)]
+        if bc.extra_params.confer is not None
+        for bcc in [bc.extra_params.confer.get('confer')]
+        if isinstance(bcc, ta.Mapping)
+    ]
+    if scs:
+        return scs[0]
+    return sub['confer'] if sub['confer'] is not dc.MISSING else sup['confer']
 
 
 class Config(
@@ -76,9 +95,9 @@ class Config(
     frozen=True,
     reorder=True,
     confer={
-        'frozen',
-        'reorder',
-        'confer',
+        'frozen': dc.SUPER,
+        'reorder': dc.SUPER,
+        'confer': dc.Conferrer(_confer_confer),
     },
 ):
     pass

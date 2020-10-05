@@ -63,7 +63,7 @@ def confer_params(
                     continue
                 if isinstance(confer, ta.Mapping):
                     if isinstance(confer[att], Conferrer):
-                        val = confer[att].fn(att, sub, sup)
+                        val = confer[att].fn(att, sub, sup, bases)
                     else:
                         val = confer[att]
                 elif base_params is not None:

@@ -266,7 +266,7 @@ def test_enum():
 
 
 def test_confer():
-    def _confer_enum_final(att, sub, sup):
+    def _confer_enum_final(att, sub, sup, bases):
         return sub['abstract'] is dc.MISSING or not sub['abstract']
 
     class A(

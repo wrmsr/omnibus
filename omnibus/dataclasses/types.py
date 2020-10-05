@@ -83,10 +83,10 @@ Mangler = ta.Callable[[str], str]
 
 @dc.dataclass(frozen=True)
 class Conferrer(lang.Final):
-    fn: ta.Callable[[str, ta.Mapping[str, ta.Any], ta.Mapping[str, ta.Any]], ta.Any]
+    fn: ta.Callable[[str, ta.Mapping[str, ta.Any], ta.Mapping[str, ta.Any], ta.Sequence[type]], ta.Any]
 
 
-SUPER = Conferrer(lambda att, sub, sup: sup[att])
+SUPER = Conferrer(lambda att, sub, sup, bases: sup[att])
 
 
 PARAMS_CONFER_DEFAULTS = dict(
