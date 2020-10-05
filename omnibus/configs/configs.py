@@ -71,8 +71,9 @@ from .. import dataclasses as dc
 
 
 class Config(
-    dc.Frozen,
+    dc.Data,
     abstract=True,
+    frozen=True,
     reorder=True,
     confer={
         'frozen',
