@@ -39,7 +39,7 @@ def test_const():
     assert pickle.loads(pickle.dumps(c))() == 4
 
 
-def test_empty_mmap():
+def test_empty_map():
     ed = lang_.EmptyMap()
     assert len(ed) == 0
     with pytest.raises(KeyError):
