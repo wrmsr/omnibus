@@ -168,8 +168,7 @@ venv-37:
 venv-39:
 	if [ ! -d .venv-39 ] ; then \
 		$(call do-venv,.venv-39,$(PYTHON_39_VERSION)) ; \
-		$(call do-deps,.venv,requirements.txt) ; \
-		.venv-39/bin/pip install ipython ; \
+		$(call do-deps,.venv,requirements-dev.txt) ; \
 	fi
 
 
@@ -278,12 +277,16 @@ type-ignore-vendor:
 ### Test
 
 .PHONY: test
-test:
+test: venv
 	.venv/bin/pytest -v -n auto $(PROJECT)
 
 .PHONY: test-37
-test-37:
+test-37: venv-37
 	.venv-37/bin/pytest -v -n auto $(PROJECT)
+
+.PHONY: test-39
+test-39: venv-39
+	.venv-39/bin/pytest -v -n auto $(PROJECT)
 
 .PHONY: test-verbose
 test-verbose:

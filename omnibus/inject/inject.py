@@ -204,6 +204,10 @@ class InjectorImpl(Injector):
             self._provisions_by_binding: ta.MutableMapping[Binding, ta.Any] = ocol.IdentityKeyDict()
 
         def handle_binding(self, binding: Binding) -> ta.Optional[ta.Any]:
+            try:
+                return self._provisions_by_binding[binding]
+            except KeyError:
+                pass
             if binding in self._seen_bindings:
                 if not self._injector._config.enable_cyclic_proxies:
                     raise InjectionRecursionException(binding.key)
