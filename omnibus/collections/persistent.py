@@ -29,7 +29,7 @@ class PersistentSequence(ta.Sequence[T], Persistent, lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set(self, idx: int, item: T) -> 'PeresistentSequence[T]':
+    def set(self, idx: int, item: T) -> 'PersistentSequence[T]':
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -48,7 +48,7 @@ class PersistentSet(ta.AbstractSet[T], Persistent, lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def remove(self, item: T) -> 'PeresistentSet[T]':
+    def remove(self, item: T) -> 'PersistentSet[T]':
         raise NotImplementedError
 
 
@@ -87,7 +87,7 @@ class SimplePersistentSequence(PersistentSequence[T]):
     def extend(self, items: ta.Iterable[T]) -> 'PersistentSequence[T]':
         return SimplePersistentSequence(self._tuple + tuple(items))
 
-    def set(self, idx: int, item: T) -> 'PeresistentSequence[T]':
+    def set(self, idx: int, item: T) -> 'PersistentSequence[T]':
         if idx >= 0:
             t = self._tuple[:idx] + (item,) + self._tuple[idx + 1:]
         else:
@@ -106,8 +106,8 @@ class SimplePersistentSequence(PersistentSequence[T]):
                 t = self._tuple[:idx] + (self._tuple[idx+1:] if idx < -1 else ())
         return SimplePersistentSequence(t)
 
-    def __getitem__(self, i: ta.Union[int, slice]) -> T:
-        return self._tuple[i]
+    def __getitem__(self, i: ta.Union[int, slice]) -> T:  # type: ignore
+        return self._tuple[i]  # type: ignore
 
     def __len__(self) -> int:
         return len(self._tuple)
@@ -138,7 +138,7 @@ class SimplePersistentSet(PersistentSet[T]):
     def update(self, items: ta.Iterable[T]) -> 'PersistentSet[T]':
         return SimplePersistentSet(self._set | frozenset(items))
 
-    def remove(self, item: T) -> 'PeresistentSet[T]':
+    def remove(self, item: T) -> 'PersistentSet[T]':
         return SimplePersistentSet(self._set - frozenset([item]))
 
     def __contains__(self, x: object) -> bool:
@@ -155,7 +155,7 @@ class SimplePersistentMapping(PersistentMapping[K, V]):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__()
-        self._dct = FrozenDict(*args, **kwargs)
+        self._dct: ta.Mapping[K, V] = FrozenDict(*args, **kwargs)
 
     def __hash__(self) -> int:
         return hash(self._dct)
@@ -217,7 +217,7 @@ class PyrsistentSequence(PersistentSequence[T]):
             items = items._p
         return PyrsistentSequence(self._p.extend(items))
 
-    def set(self, idx: int, item: T) -> 'PeresistentSequence[T]':
+    def set(self, idx: int, item: T) -> 'PersistentSequence[T]':
         return PyrsistentSequence(self._p.set(idx, item))
 
     def delete(self, idx: int, stop: int = None) -> 'PersistentSequence[T]':
@@ -259,7 +259,7 @@ class PyrsistentSet(PersistentSet[T]):
             items = items._p
         return PyrsistentSet(self._p.update(items))
 
-    def remove(self, item: T) -> 'PeresistentSet[T]':
+    def remove(self, item: T) -> 'PersistentSet[T]':
         return PyrsistentSet(self._p.remove(item))
 
     def __contains__(self, x: object) -> bool:

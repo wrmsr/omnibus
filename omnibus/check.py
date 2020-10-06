@@ -7,8 +7,10 @@ import typing as ta
 
 T = ta.TypeVar('T')
 MR = ta.TypeVar('MR', bound=ta.Union[None, str, ta.Tuple])
-IH = ta.TypeVar('IH', bound=ta.Iterable[ta.Hashable])
+HashableT = ta.TypeVar('HashableT', bound=ta.Hashable)
+IterableHashableT = ta.TypeVar('IterableHashableT', bound=ta.Iterable[HashableT])  # type: ignore
 Messageable = ta.Union[None, str, ta.Callable[..., MR]]
+SizedT = ta.TypeVar('SizedT', bound=ta.Sized)
 
 
 _isinstance = isinstance
@@ -25,9 +27,9 @@ def _raise(
         **kwargs: ta.Any
 ) -> ta.NoReturn:
     if _callable(message):
-        message = message(*args, **kwargs)
+        message = ta.cast(ta.Callable, message)(*args, **kwargs)
         if _isinstance(message, tuple):
-            message, *args = message
+            message, *args = message  # type: ignore
     if message is None:
         message = default
     if message is not None:
@@ -46,29 +48,29 @@ def arg(condition: bool, message: Messageable = None) -> None:
 
 
 def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if _isinstance(spec, tuple) and None in spec:
-        spec = tuple(filter(None, spec)) + (_NONE_TYPE,)
+    if _isinstance(spec, tuple) and None in spec:  # type: ignore
+        spec = tuple(filter(None, spec)) + (_NONE_TYPE,)  # type: ignore
     if not _isinstance(obj, spec):
         _raise(TypeError, 'Must be instance', message, spec)
     return obj
 
 
 def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if not _issubclass(obj, spec):
+    if not _issubclass(obj, spec):  # type: ignore
         _raise(TypeError, 'Must be subclass', message, spec)
     return obj
 
 
 def not_isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if _isinstance(spec, tuple) and None in spec:
-        spec = tuple(filter(None, spec)) + (_NONE_TYPE,)
+    if _isinstance(spec, tuple) and None in spec:  # type: ignore
+        spec = tuple(filter(None, ta.cast(ta.Sequence, spec))) + (_NONE_TYPE,)
     if _isinstance(obj, spec):
         _raise(TypeError, 'Must be not instance', message, spec)
     return obj
 
 
 def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if _issubclass(obj, spec):
+    if _issubclass(obj, spec):  # type: ignore
         _raise(TypeError, 'Must be not subclass', message, spec)
     return obj
 
@@ -76,7 +78,7 @@ def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messag
 def cast(obj: ta.Any, cls: ta.Type[T], message: Messageable = None) -> T:
     if not _isinstance(obj, cls):
         _raise(TypeError, 'Must be instance', message, cls)
-    return ta.cast(cls, obj)
+    return obj
 
 
 def not_none(obj: T, message: Messageable = None) -> T:
@@ -88,16 +90,16 @@ def not_none(obj: T, message: Messageable = None) -> T:
 def none(obj: T, message: Messageable = None) -> None:
     if obj is not None:
         _raise(TypeError, 'Must be None', message)
-    return None
+    return None  # type: ignore
 
 
-def empty(obj: ta.Sized, message: Messageable = None) -> T:
+def empty(obj: SizedT, message: Messageable = None) -> SizedT:
     if len(obj) != 0:
         _raise(RuntimeError, 'Must be empty', message)
     return obj
 
 
-def not_empty(obj: ta.Sized, message: Messageable = None) -> T:
+def not_empty(obj: SizedT, message: Messageable = None) -> SizedT:
     if len(obj) == 0:
         _raise(RuntimeError, 'May not be empty', message)
     return obj
@@ -112,8 +114,8 @@ def single(obj: ta.Iterable[T], message: Messageable = None) -> T:
         return value
 
 
-def unique(it: IH, message: Messageable = None) -> IH:
-    dupes = [e for e, c in collections.Counter(it).items() if c > 1]
+def unique(it: IterableHashableT, message: Messageable = None) -> IterableHashableT:
+    dupes = [e for e, c in collections.Counter(it).items() if c > 1]  # type: ignore
     if dupes:
         _raise(ValueError, 'Must be unique', message, dupes)
     return it
@@ -203,7 +205,7 @@ def one_of(*items: T, **kwargs) -> T:
                 raise ValueError(f'Expected exactly one of {items}, got {value} and {item}', items, value, item)
             value = item
     if value is not not_set:
-        return value
+        return ta.cast(T, value)
     if default is not not_set:
         return default
     if default_factory is not not_set:

@@ -46,7 +46,7 @@ def new(
 
 
 try:
-    from ._ext.cy import uuid as _uuid
+    from ._ext.cy import uuid as _uuid  # type: ignore
 except ImportError:
     globals()['new'] = uuid.UUID
 else:

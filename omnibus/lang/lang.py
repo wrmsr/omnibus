@@ -143,7 +143,7 @@ def super_meta(
         meta: ta.Type,
         name: str,
         bases: ta.Sequence[ta.Any],
-        namespace: ta.Mapping[str, ta.Any],
+        namespace: ta.MutableMapping[str, ta.Any],
         **kwargs
 ) -> ta.Type:
     """Per types.new_class"""
@@ -152,7 +152,7 @@ def super_meta(
         if '__orig_bases__' in namespace:
             raise TypeError((bases, resolved_bases))
         namespace['__orig_bases__'] = bases
-    return super_meta.__new__(meta, name, resolved_bases, namespace, **kwargs)
+    return super_meta.__new__(meta, name, resolved_bases, dict(namespace), **kwargs)  # type: ignore
 
 
 def is_lambda(f: ta.Any) -> bool:
@@ -171,7 +171,7 @@ def is_descriptor(obj: ta.Any) -> bool:
 def unwrap_instance_weakproxy(proxy: weakref.ProxyType, cls: ta.Type[T]) -> T:
     if not isinstance(proxy, weakref.ProxyType):
         raise TypeError(proxy)
-    inst = proxy.__repr__.__self__
+    inst = proxy.__repr__.__self__  # type: ignore
     if not isinstance(inst, cls):
         raise TypeError(inst)
     return inst
@@ -249,7 +249,7 @@ def dir_dict(
 def unwrap_func(fn: ta.Callable) -> ta.Callable:
     while True:
         if isinstance(fn, (classmethod, staticmethod)):
-            fn = fn.__func__
+            fn = fn.__func__  # type: ignore
         elif isinstance(fn, functools.partial):
             fn = fn.func
         else:
@@ -330,8 +330,8 @@ class _CachedNullaryDescriptor(_CachedNullary[T]):
 
 def cached_nullary(fn: ta.Callable[[], T]) -> ta.Callable[[], T]:
     if isinstance(fn, staticmethod):
-        return _CachedNullary(fn, value_fn=unwrap_func(fn))
-    scope = classmethod if isinstance(fn, classmethod) else None
+        return _CachedNullary(fn, value_fn=unwrap_func(fn))  # type: ignore
+    scope = classmethod if isinstance(fn, classmethod) else None  # type: ignore
     return _CachedNullaryDescriptor(fn, scope)
 
 
@@ -361,7 +361,7 @@ def identity(obj: T) -> T:
 
 
 try:
-    from .._ext.cy.lang import identity  # noqa
+    from .._ext.cy.lang import identity  # type: ignore  # noqa
 except ImportError:
     pass
 
@@ -389,7 +389,7 @@ def make_cell(value: ta.Any) -> 'CellType':
     return fn.__closure__[0]
 
 
-CellType = type(make_cell(None))
+CellType = type(make_cell(None))  # type: ignore
 
 
 class EmptyMap(ta.Mapping[K, V]):

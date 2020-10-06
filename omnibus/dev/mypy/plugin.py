@@ -56,6 +56,13 @@ class Plugin(mp.Plugin):
     def get_attribute_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.AttributeContext], mt.Type]]:
         return super().get_attribute_hook(fullname)
 
+    def get_class_decorator_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
+        if fullname == 'omnibus.dev.mypy.tests.dcs.my_dataclass':
+            from mypy.plugins import dataclasses
+            return dataclasses.dataclass_class_maker_callback
+
+        return None
+
 
 def plugin(version: str) -> ta.Type[mp.Plugin]:
     # max_stack = resource.getrlimit(resource.RLIMIT_STACK)[1]

@@ -22,7 +22,7 @@ class OrderedSet(ta.MutableSet[T]):
     def __len__(self) -> int:
         return len(self._map)
 
-    def __contains__(self, item: T) -> bool:
+    def __contains__(self, item: ta.Any) -> bool:
         return item in self._map
 
     def add(self, item: T) -> None:
@@ -71,7 +71,9 @@ class OrderedSet(ta.MutableSet[T]):
 
 class OrderedFrozenSet(ta.FrozenSet[T]):
 
-    def __new__(cls, items: ta.Iterable[T]) -> ta.FrozenSet[T]:
+    _list: ta.Sequence[T]
+
+    def __new__(cls, items: ta.Iterable[T]) -> ta.FrozenSet[T]:  # type: ignore
         item_set = set()
         item_list = []
         for item in items:
@@ -79,7 +81,7 @@ class OrderedFrozenSet(ta.FrozenSet[T]):
                 item_set.add(item)
                 item_list.append(item)
         obj = super(cls, OrderedFrozenSet).__new__(cls, item_set)
-        obj._list = item_list
+        obj._list = item_list  # type: ignore  # noqa
         return obj
 
     def __repr__(self) -> str:

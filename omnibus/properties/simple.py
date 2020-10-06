@@ -54,7 +54,7 @@ class ClassProperty(Property[T]):
     ) -> None:
         super().__init__()
 
-        functools.update_wrapper(self, func)
+        functools.update_wrapper(ta.cast(ta.Callable, self), func)
         self._func = self._unwrap(func)
 
     @classmethod
@@ -68,4 +68,4 @@ class ClassProperty(Property[T]):
 
 
 def class_(fn: ta.Callable[..., T]) -> T:
-    return ClassProperty(fn)
+    return ClassProperty(fn)  # type: ignore

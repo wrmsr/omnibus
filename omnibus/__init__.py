@@ -6,7 +6,7 @@ if not sys.version_info >= (3, 7):
 
 
 import pkgutil
-__path__ = pkgutil.extend_path(__path__, __name__)
+__path__ = pkgutil.extend_path(__path__, __name__)  # type: ignore
 
 
 def _test_install():

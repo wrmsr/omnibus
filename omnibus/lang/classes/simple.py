@@ -18,10 +18,10 @@ def singleton(*args, **kwargs) -> ta.Callable[[ta.Type[T]], ta.Callable[..., T]]
 
 class SimpleMetaDict(dict):
 
-    def update(self, m: ta.Mapping[K, V], **kwargs: V) -> None:
+    def update(self, m: ta.Mapping[K, V], **kwargs: V) -> None:  # type: ignore
         for k, v in m.items():
             self[k] = v
-        for k, v in kwargs.items():
+        for k, v in kwargs.items():  # type: ignore
             self[k] = v
 
 
@@ -62,12 +62,12 @@ class _InnerMeta(abc.ABCMeta):
 
 class Inner(ta.Generic[T], metaclass=_InnerMeta):
 
-    __outer__: T = None
+    __outer__: ta.Optional[T] = None
 
     def __init__(self, *args, **kwargs) -> None:
         if self.__outer__ is None:
             raise TypeError
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # type: ignore
 
     @property
     def _outer(self) -> T:

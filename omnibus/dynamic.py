@@ -11,6 +11,7 @@ TODO:
 import contextlib
 import functools
 import sys
+import types
 import typing as ta
 import weakref
 
@@ -20,7 +21,7 @@ from . import lang
 T = ta.TypeVar('T')
 
 
-_HOISTED_CODE_DEPTH = weakref.WeakKeyDictionary()
+_HOISTED_CODE_DEPTH: ta.MutableMapping[types.CodeType, int] = weakref.WeakKeyDictionary()
 _MAX_HOIST_DEPTH = 0
 
 
@@ -62,7 +63,7 @@ class Var(ta.Generic[T]):
         else:
             self._new = new
         self._validate = validate
-        self._bindings_by_frame = weakref.WeakValueDictionary()
+        self._bindings_by_frame: ta.MutableMapping[types.FrameType, Binding] = weakref.WeakValueDictionary()
 
     def __call__(self, *args, **kwargs) -> ta.Union[T, ta.ContextManager[T]]:
         if not args:

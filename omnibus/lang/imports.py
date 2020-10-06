@@ -27,7 +27,7 @@ def ignore_unstable_warn() -> None:
 
 
 def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
-    return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))
+    return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))  # type: ignore  # noqa
 
 
 def proxy_import(name: str, package: str = None) -> types.ModuleType:

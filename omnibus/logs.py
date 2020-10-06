@@ -30,7 +30,7 @@ class DictConfig:
     formatters: ta.Dict[str, 'FormatterConfig'] = dc.field(default_factory=dict)
     handlers: ta.Dict[str, 'HandlerConfig'] = dc.field(default_factory=dict)
     loggers: ta.Dict[str, 'LoggerConfig'] = dc.field(default_factory=dict)
-    root: 'LoggerConfig' = None
+    root: ta.Optional['LoggerConfig'] = None
 
 
 FilterConfig = ta.Dict[str, ta.Any]
@@ -41,7 +41,7 @@ LoggerConfig = ta.Dict[str, ta.Any]
 
 class LogFormatter(logging.Formatter):
 
-    converter = datetime.datetime.fromtimestamp
+    converter = datetime.datetime.fromtimestamp  # type: ignore
 
     def formatTime(self, record, datefmt=None):
         ct = self.converter(record.created)
@@ -57,7 +57,7 @@ try:
     from ._ext.cc.os import gettid as _gettid
 
 except (ImportError, OSError):
-    def _gettid() -> int:
+    def _gettid() -> ta.Optional[int]:
         return threading.current_thread().ident
 
 

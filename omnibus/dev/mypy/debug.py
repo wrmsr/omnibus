@@ -15,20 +15,20 @@ class MypyDebugPathFinder(importlib.machinery.PathFinder):
         for entry in path:
             if not isinstance(entry, (str, bytes)):
                 continue
-            finder = cls._path_importer_cache(entry)
+            finder = cls._path_importer_cache(entry)  # noqa
             if finder is not None:
                 if isinstance(finder, importlib.machinery.FileFinder):
                     finder = importlib.machinery.FileFinder(
                         finder.path,
                         *[
-                            (i, [s]) for s, i in finder._loaders
+                            (i, [s]) for s, i in finder._loaders  # noqa
                             if not _is_instance_or_subclass(i, importlib.machinery.ExtensionFileLoader)
                         ]
                     )
                 if hasattr(finder, 'find_spec'):
                     spec = finder.find_spec(fullname, target)
                 else:
-                    spec = cls._legacy_get_spec(fullname, finder)
+                    spec = cls._legacy_get_spec(fullname, finder)  # noqa
                 if spec is None:
                     continue
                 if spec.loader is not None:
@@ -53,7 +53,7 @@ class MypyDebugPathFinder(importlib.machinery.PathFinder):
             namespace_path = spec.submodule_search_locations
             if namespace_path:
                 spec.origin = None
-                spec.submodule_search_locations = importlib.machinery._NamespacePath(
+                spec.submodule_search_locations = importlib.machinery._NamespacePath(  # noqa
                     fullname,
                     namespace_path,
                     cls._get_spec,

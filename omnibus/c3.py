@@ -61,7 +61,8 @@ def merge(sequences: ta.MutableSequence[ta.List[T]]) -> ta.List[T]:
     Adapted from http://www.python.org/download/releases/2.3/mro/.
     """
 
-    result = []
+    result: ta.List[T] = []
+    candidate: ta.Optional[T]
     while True:
         sequences = [s for s in sequences if s]   # purge empty sequences
         if not sequences:
@@ -88,7 +89,7 @@ def mro(
         abcs: ta.Sequence[T] = None,
         *,
         getbases: ta.Callable[[T], ta.Sequence[T]] = operator.attrgetter('__bases__'),
-        issubclass: ta.Callable[[T, T], bool] = issubclass,
+        issubclass: ta.Callable[[T, T], bool] = issubclass,  # type: ignore
 ) -> ta.List[T]:
     """Computes the method resolution order using extended C3 linearization.
 
@@ -142,7 +143,8 @@ def compose_mro(
         *,
         getmro: ta.Callable[[T], ta.Optional[ta.Sequence[T]]] = operator.attrgetter('__mro__'),
         getbases: ta.Callable[[T], ta.Sequence[T]] = operator.attrgetter('__bases__'),
-        issubclass: ta.Callable[[T, T], bool] = issubclass,
+        issubclass: ta.Callable[[T, T], bool] = issubclass,  # type: ignore
+        getsubclasses: ta.Callable[[T], ta.Iterable[T]] = operator.attrgetter('__subclasses__'),
 ) -> ta.List[T]:
     """Calculates the method resolution order for a given class *cls*.
 
@@ -150,7 +152,7 @@ def compose_mro(
     the *types* list. Uses a modified C3 linearization algorithm.
     """
 
-    bases = set(getmro(cls))
+    bases = set(getmro(cls) or [])
 
     # Remove entries which are already present in the __mro__ or unrelated.
     def is_related(typ):
@@ -173,7 +175,7 @@ def compose_mro(
     _mro = []
     for typ in types:
         found = []
-        for sub in typ.__subclasses__():
+        for sub in getsubclasses(typ):
             if sub not in bases and issubclass(cls, sub):
                 found.append([s for s in getmro(sub) if s in type_set])
         if not found:

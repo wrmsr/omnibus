@@ -88,7 +88,7 @@ class ItemSeqTypeMap(ta.Generic[T]):
         self._items = list(items)
         self._weak = bool(weak)
 
-        self._cache = weakref.WeakKeyDictionary() if weak else {}
+        self._cache: ta.MutableMapping[ta.Type[T], ta.Sequence[T]] = weakref.WeakKeyDictionary() if weak else {}
 
     @property
     def items(self) -> ta.Sequence[T]:

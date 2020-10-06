@@ -15,9 +15,12 @@ EnumT = ta.TypeVar('EnumT', bound=enum.Enum)
 V = ta.TypeVar('V')
 
 
+_EnumDict = enum._EnumDict  # type: ignore
+
+
 def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
     if isinstance(obj, cls):
-        return cls
+        return ta.cast(EnumT, cls)
     elif not isinstance(obj, str) or obj.startswith('__'):
         raise ValueError(f'Illegal {cls!r} name: {obj!r}')
     else:
@@ -26,9 +29,9 @@ def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
 
 class _AutoEnumMeta(enum.EnumMeta):
 
-    class Dict(SimpleMetaDict, enum._EnumDict):
+    class Dict(SimpleMetaDict, _EnumDict):
 
-        def __init__(self, src: enum._EnumDict) -> None:
+        def __init__(self, src: _EnumDict) -> None:
             super().__init__()
             self.update(src)
             if hasattr(src, '_generate_next_value'):

@@ -355,7 +355,7 @@ def metadatas(cls: type, *, shallow: bool = False) -> ta.Sequence[ta.Mapping[ta.
     try:
         return _METADATAS_CACHE[shallow][cls]
     except KeyError:
-        if not isinstance(cls, type) or not is_dataclass(cls):
+        if not isinstance(cls, type) or not is_dataclass(cls):  # type: ignore
             raise TypeError(cls)
         spec = _reflect.get_cls_spec(cls)  # noqa
         if shallow:

@@ -66,7 +66,7 @@ def toposort(data: ta.Mapping[T, ta.AbstractSet[T]]) -> ta.Iterator[ta.Set[T]]:
 
 
 def histogram(seq: ta.Iterable[ta.Any]) -> ta.Dict[ta.Any, int]:
-    ret = {}
+    ret: ta.Dict[ta.Any, int] = {}
     for item in seq:
         try:
             ret[item] += 1

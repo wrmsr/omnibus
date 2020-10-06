@@ -36,7 +36,7 @@ class IndentWriter:
         self._has_indented = False
 
     @contextlib.contextmanager
-    def indent(self, num: int = 1) -> ta.Generator[None, None, None]:
+    def indent(self, num: int = 1) -> ta.Iterator[None]:
         self._level += num
         try:
             yield
@@ -91,8 +91,9 @@ class CodeGen:
         return self._namer
 
     @contextlib.contextmanager
-    def indent(self, num: int = 1) -> ta.Generator[None, None, None]:
-        return self._writer.indent(num)
+    def indent(self, num: int = 1) -> ta.Iterator[None]:
+        with self._writer.indent(num):
+            yield
 
     def write(self, s: str) -> None:
         self._writer.write(s)

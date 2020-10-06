@@ -15,7 +15,7 @@ def camelize(name: str) -> str:
 
 def decamelize(name: str) -> str:
     uppers: ta.List[ta.Optional[int]] = [i for i, c in enumerate(name) if c.isupper()]
-    return '_'.join([name[l:r].lower() for l, r in zip([None] + uppers, uppers + [None])]).strip('_')
+    return '_'.join([name[l:r].lower() for l, r in zip([None] + uppers, uppers + [None])]).strip('_')  # type: ignore
 
 
 def prefix_lines(s: str, p: str) -> str:
@@ -61,7 +61,7 @@ class DelimitedEscaping:
         self._escaped_chars = frozenset(escaped_chars)
 
         for c in [delimit_char, quote_char, escape_char]:
-            if not isinstance(c, str) or len(c) != 1:
+            if not isinstance(c, str) or len(c) != 1:  # type: ignore
                 raise TypeError(c)
         for c in self._escaped_chars:
             if not isinstance(c, str):
