@@ -43,7 +43,7 @@ class ReplServer:
         check.not_empty(config.path)
         self._config = check.isinstance(config, ReplServer.Config)
 
-        self._socket: sock.socket = None
+        self._socket: ta.Optional[sock.socket] = None
         self._is_running = False
         self._consoles_by_threads: ta.MutableMapping[threading.Thread, InteractiveSocketConsole] = weakref.WeakKeyDictionary()  # noqa
         self._is_shutdown = threading.Event()

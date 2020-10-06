@@ -381,3 +381,40 @@ def test_optional():
     binder.bind_callable(f)
     injector = inject_.create_injector(binder)
     assert injector[str] == 'f(5)'
+
+
+@dc.dataclass()
+class CycA:
+    b: 'CycB'
+
+
+@dc.dataclass()
+class CycB:
+    a: CycA
+
+
+def test_cyclic_exc():
+    binder = bind_.create_binder()
+    binder.bind_class(CycA, as_singleton=True)
+    binder.bind_class(CycB, as_singleton=True)
+    injector = inject_.create_injector(binder)
+    with pytest.raises(inject_.InjectionRecursionException):
+        a = injector[CycA]  # noqa
+        b = injector[CycB]  # noqa
+
+
+def test_cyclic_prox():
+    binder = bind_.create_binder()
+    binder.bind_class(CycA, as_singleton=True)
+    binder.bind_class(CycB, as_singleton=True)
+    injector = inject_.create_injector(binder, config=inject_.InjectorConfig(enable_cyclic_proxies=True))
+    a = injector[CycA]
+    b = injector[CycB]
+    a.x = 5
+    b.y = 10
+    assert a.b is b
+    assert b.a is not a
+    assert b.a.b is b
+    assert a.b.a is not a
+    assert a.b.y == 10
+    assert b.a.x == 5

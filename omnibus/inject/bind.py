@@ -6,6 +6,7 @@ import weakref
 from .. import check
 from .. import dataclasses as dc
 from .. import lang
+from .. import reflect as rfl
 from .multi import DictBinding
 from .multi import DictProvider
 from .multi import SetBinding
@@ -85,14 +86,6 @@ def make_box(
         bases: ta.Iterable[type] = (),
 ) -> ta.Type[Box[T]]:
     return lang.new_type(name, (Box,) + tuple(bases), {'TYPE': type})
-
-
-def _get_optional_annotation_item(t: ta.Any) -> ta.Optional[ta.Any]:
-    if isinstance(t, ta._GenericAlias) and t.__origin__ is ta.Union and len(t.__args__) == 2 and type(None) in t.__args__:  # Noqa
-        [t] = [a for a in t.__args__ if a is not type(None)]  # noqa
-        return t
-    else:
-        return None
 
 
 class BinderImpl(Binder):
@@ -243,7 +236,7 @@ class BinderImpl(Binder):
         for n, t in ta.get_type_hints(obj).items():
             # ta.get_type_hints automatically wraps None defaults in Optional:
             #  https://github.com/python/cpython/blob/bf50b0e80a8a0d651af2f953b662eeadd27c7c93/Lib/typing.py#L1265-L1266
-            ot = _get_optional_annotation_item(t)
+            ot = rfl.unpack_optional(t)
             dct[n] = ot if ot is not None else t
         return dct
 

@@ -227,8 +227,8 @@ class _GeneratorContextManager(contextlib._GeneratorContextManager):
         return super().__enter__()
 
 
-def contextmanager(fn):
+def contextmanager(fn: ta.Callable[..., ta.Iterator[T]]) -> ta.ContextManager[T]:
     @functools.wraps(fn)
     def helper(*args, **kwds):
         return _GeneratorContextManager(fn, args, kwds)
-    return helper
+    return helper  # noqa

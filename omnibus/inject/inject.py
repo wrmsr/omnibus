@@ -15,7 +15,6 @@ TODO:
  - more generic support - bind_class takes type, take spec
  - freezing?
  - parent/child traversing multis
- - proxies / circular injection
  - redundant providers / resolve
  - override
  - custom scopes: async/cvar/dyn?
@@ -33,6 +32,8 @@ TODO:
  - injection super __init__ kwargs inspection?
   - almost certainly NOT. force manually forwarding. shouldn't have that many deps - if a lot then break out to compo.
   - *maybe* a @inj.inject_kwargs(SuperThing[.__init__?])
+ - * completeness / recursion checking *
+ - 'internal' equiv
 """
 import collections
 import functools
@@ -41,6 +42,7 @@ import weakref
 
 from .. import check
 from .. import collections as ocol
+from .. import dynamic as dyn
 from .. import lang
 from .. import properties
 from .. import reflect as rfl
@@ -49,6 +51,7 @@ from .bind import create_binder
 from .bind import PrivateBinder
 from .proividers import DelegatedProvider
 from .proividers import ValueProvider
+from .proxy import _build_cyclic_dependency_proxy
 from .scopes import EagerSingletonScope
 from .scopes import NoScope
 from .scopes import SingletonScope
@@ -60,6 +63,7 @@ from .types import Element
 from .types import ExposedKey
 from .types import InjectionBlacklistedKeyError
 from .types import InjectionKeyError
+from .types import InjectionRecursionException
 from .types import InjectionRequiredKeyError
 from .types import Injector
 from .types import InjectorConfig
@@ -86,19 +90,20 @@ class InjectorImpl(Injector):
             self,
             *sources: Source,
             config: InjectorConfig = InjectorConfig(),
-            parent: 'Injector' = None,
+            parent: ta.Optional['Injector'] = None,
             lock: lang.DefaultLockable = None,
     ) -> None:
         super().__init__()
 
         self._config = config
-        self._parent: ta.Optional[Injector] = parent
+        self._parent: ta.Optional[InjectorImpl] = check.isinstance(parent, (InjectorImpl, None))
         self._children: ta.MutableSet[Injector] = weakref.WeakSet() if config.weak_children else ocol.OrderedSet()
 
         self._lock = lang.default_lock(
             config.lock, lock if lock is None else config.lock if config.lock is not None else True)
-        self._current_state: InjectorImpl.State = None
+        self._current_state: ta.Optional[InjectorImpl.State] = None
         self._locking = lambda *a, **k: self._lock()
+        self._current_request_var = dyn.Var()
 
         src_elements: ta.List[Element] = []
 
@@ -188,6 +193,52 @@ class InjectorImpl(Injector):
             if children:
                 stack.extend(cur._children)
 
+    class Request:
+
+        def __init__(self, injector: 'InjectorImpl') -> None:
+            super().__init__()
+
+            self._injector = injector
+            self._seen_bindings: ta.MutableSet[Binding] = ocol.IdentitySet()
+            self._proxies_by_binding: ta.MutableMapping[Binding, ta.Any] = ocol.IdentityKeyDict()
+            self._provisions_by_binding: ta.MutableMapping[Binding, ta.Any] = ocol.IdentityKeyDict()
+
+        def handle_binding(self, binding: Binding) -> ta.Optional[ta.Any]:
+            if binding in self._seen_bindings:
+                if not self._injector._config.enable_cyclic_proxies:
+                    raise InjectionRecursionException(binding.key)
+                try:
+                    prox = self._proxies_by_binding[binding]
+                except KeyError:
+                    Prox, _ = _build_cyclic_dependency_proxy()
+                    prox = self._proxies_by_binding[binding] = Prox(binding)
+                return prox
+            self._seen_bindings.add(binding)
+            return None
+
+        def handle_provision(self, binding: Binding, provision: T) -> T:
+            check.not_in(binding, self._provisions_by_binding)
+            self._provisions_by_binding[binding] = provision
+            return provision
+
+        def __enter__(self) -> 'InjectorImpl.Request':
+            return self
+
+        def __exit__(self, et, e, tb):
+            for binding, prox in self._proxies_by_binding.items():
+                provision = self._provisions_by_binding[binding]
+                _, setter = _build_cyclic_dependency_proxy()
+                setter(prox, provision)
+
+    @dyn.contextmanager
+    def _current_request(self) -> ta.Iterator[Request]:
+        try:
+            yield self._current_request_var()
+        except dyn.UnboundVarError:
+            with self.Request(self) as request:
+                with self._current_request_var(request):
+                    yield request
+
     def _process_elements(self, elements: ta.Iterable[Element]) -> None:
         for e in elements:
             if isinstance(e, ScopeBinding):
@@ -275,15 +326,21 @@ class InjectorImpl(Injector):
             check.state(default is not MISSING)
             return default
 
-        with self._CURRENT(self):
-            fn = binding.provide
+        with self._current_request() as request:
+            prox = request.handle_binding(binding)
+            if prox is not None:
+                return prox
 
-            if not isinstance(binding, ProvisionListenerBinding):
-                for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
-                    fn = functools.partial(listener_binding.listener, self, target, fn)
+            with self._CURRENT(self):
+                fn = binding.provide
 
-            instance = fn()
-            return instance
+                if not isinstance(binding, ProvisionListenerBinding):
+                    for listener_binding in self.get_elements_by_type(ProvisionListenerBinding, parent=True):
+                        fn = functools.partial(listener_binding.listener, self, target, fn)
+
+                provision = fn()
+                request.handle_provision(binding, provision)
+                return provision
 
     def _blacklist(self, key: Key) -> None:
         if self._parent is not None:

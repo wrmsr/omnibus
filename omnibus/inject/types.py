@@ -139,14 +139,19 @@ class InjectionOpaqueError(dc.Frozen, InjectionError):
     params: ta.Sequence[str]
 
 
+class InjectionRecursionException(dc.Frozen, InjectionError):
+    key: Key[T]
+
+
 Source = ta.Union['PrivateBinder', 'Binder', ta.Iterable[Element]]
 
 
 class InjectorConfig(dc.Pure):
-    enable_jit_bindings: bool = False
-    fail_early: bool = False
-    lock: bool = None
-    weak_children: bool = False
+    enable_jit_bindings: bool = dc.field(False, kwonly=True)
+    fail_early: bool = dc.field(False, kwonly=True)
+    lock: lang.DefaultLockable = dc.field(None, kwonly=True)
+    weak_children: bool = dc.field(False, kwonly=True)
+    enable_cyclic_proxies: bool = dc.field(False, kwonly=True)
 
 
 class Injector(lang.Abstract):
