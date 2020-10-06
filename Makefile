@@ -4,7 +4,7 @@ PROJECT:=omnibus
 
 PYTHON_VERSION:=3.8.6
 PYTHON_37_VERSION:=3.7.9
-PYTHON_39_VERSION:=3.9.0rc1
+PYTHON_39_VERSION:=3.9.0
 
 PYENV_ROOT:=$(shell if [ -z "$${PYENV_ROOT}" ]; then echo "$${HOME}/.pyenv" ; else echo "$${PYENV_ROOT%/}" ; fi)
 PYENV_BIN:=$(shell if [ -f "$${HOME}/.pyenv/bin/pyenv" ] ; then echo "$${HOME}/.pyenv/bin/pyenv" ; else echo pyenv ; fi)
