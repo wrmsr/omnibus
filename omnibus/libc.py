@@ -183,7 +183,7 @@ class Mmap:
             desired_base: int = 0,
             lock: bool = False
     ) -> None:
-        super(Mmap, self).__init__()
+        super().__init__()
 
         if flags is None:
             if LINUX:
@@ -208,7 +208,7 @@ class Mmap:
     def base(self) -> ta.Optional[int]:
         return self._base
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self) -> 'Mmap':
         base = mmap(self._desired_base, self._length, self._prot, self._flags, self._fd, self._offset)
         if base == MAP_FAILED:
             err, msg = lasterr()
@@ -423,7 +423,7 @@ if LINUX:
 if LINUX or DARWIN:
     SCM_RIGHTS = 1
 
-    ct.c_ssize_t = ct.c_size_t
+    ct.c_ssize_t = ct.c_size_t  # type: ignore
 
     class iovec(ct.Structure):
         pass

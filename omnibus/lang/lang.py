@@ -389,7 +389,7 @@ def make_cell(value: ta.Any) -> 'CellType':
     return fn.__closure__[0]
 
 
-CellType = type(make_cell(None))  # type: ignore
+CellType = type(make_cell(None))
 
 
 class EmptyMap(ta.Mapping[K, V]):
@@ -418,7 +418,7 @@ class EmptyMap(ta.Mapping[K, V]):
 
     def __iter__(self) -> ta.Iterator[K]:
         return
-        yield
+        yield  # type: ignore
 
 
 EmptyMap.INSTANCE = object.__new__(EmptyMap)

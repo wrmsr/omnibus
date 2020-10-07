@@ -76,6 +76,10 @@ def _main():
     from mypy.__main__ import console_entry
 
     sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
+
+    if not any(k in sys.argv[1:] for k in ['--show-traceback', '--tb']):
+        sys.argv.insert(1, '--show-traceback')
+
     sys.exit(console_entry())
 
 

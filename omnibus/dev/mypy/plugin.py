@@ -31,9 +31,15 @@ https://github.com/python/mypy/issues/1862
 import resource  # noqa
 import typing as ta
 
+import mypy.nodes as mn
 import mypy.options as mo
 import mypy.plugin as mp
 import mypy.types as mt
+
+from ... import check
+
+
+PREFIX = __package__.split('.')[0]
 
 
 class Plugin(mp.Plugin):
@@ -57,9 +63,23 @@ class Plugin(mp.Plugin):
         return super().get_attribute_hook(fullname)
 
     def get_class_decorator_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
-        if fullname == 'omnibus.dev.mypy.tests.dcs.my_dataclass':
+        if fullname in [
+            PREFIX + '.dataclasses.api.dataclass',
+            PREFIX + '.dev.mypy.tests.dcs.my_dataclass',
+        ]:
             from mypy.plugins import dataclasses
             return dataclasses.dataclass_class_maker_callback
+
+        return None
+
+    def get_base_class_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
+        stn = self.lookup_fully_qualified(fullname)
+        if stn is not None:
+            if isinstance(stn.node, mn.TypeInfo):
+                mro = check.isinstance(stn.node, mn.TypeInfo).mro
+                if any(bc.fullname == PREFIX + '.dataclasses.metaclass.Data' for bc in mro):
+                    from mypy.plugins import dataclasses
+                    return dataclasses.dataclass_class_maker_callback
 
         return None
 

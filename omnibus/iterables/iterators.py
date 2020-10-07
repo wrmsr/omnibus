@@ -10,6 +10,9 @@ import typing as ta
 T = ta.TypeVar('T')
 
 
+_MISSING = object()
+
+
 class PeekIterator(ta.Iterator[T]):
 
     def __init__(self, it: ta.Iterator[T]) -> None:
@@ -17,6 +20,9 @@ class PeekIterator(ta.Iterator[T]):
 
         self._it = it
         self._pos = -1
+        self._next_item: ta.Any = _MISSING
+
+    _item: T
 
     def __iter__(self) -> ta.Iterator[T]:
         return self
@@ -30,9 +36,9 @@ class PeekIterator(ta.Iterator[T]):
             return True
 
     def __next__(self) -> T:
-        if hasattr(self, '_next_item'):
-            self._item = self._next_item
-            del self._next_item
+        if self._next_item is not _MISSING:
+            self._item = ta.cast(T, self._next_item)
+            self._next_item = _MISSING
         else:
             try:
                 self._item = next(self._it)
@@ -42,13 +48,13 @@ class PeekIterator(ta.Iterator[T]):
         return self._item
 
     def peek(self) -> T:
-        if hasattr(self, '_next_item'):
-            return self._next_item
+        if self._next_item is not _MISSING:
+            return ta.cast(T, self._next_item)
         try:
             self._next_item = next(self._it)
         except StopIteration:
             raise
-        return self._next_item
+        return ta.cast(T, self._next_item)
 
     def next_peek(self) -> T:
         next(self)

@@ -257,7 +257,7 @@ flake: venv
 
 .PHONY: typecheck
 typecheck: venv
-	PYTHONPATH=. .venv/bin/mypy --ignore-missing-imports $(PROJECT)
+	PYTHONPATH=. .venv/bin/mypy $(PROJECT)
 
 .PHONY: type-ignore-vendor
 type-ignore-vendor:

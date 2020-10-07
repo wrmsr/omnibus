@@ -44,10 +44,10 @@ class Abstract(abc.ABC):
 
     def __init_subclass__(cls, **kwargs) -> None:
         if Abstract in cls.__bases__:
-            cls.__forceabstract__ = Abstract.__forceabstract__
+            cls.__forceabstract__ = Abstract.__forceabstract__  # type: ignore
         else:
-            cls.__forceabstract__ = False
-        super().__init_subclass__(**kwargs)
+            cls.__forceabstract__ = False  # type: ignore
+        super().__init_subclass__(**kwargs)  # type: ignore
         if not _DISABLE_CHECKS and Abstract not in cls.__bases__:
             ams = {a for a, o in cls.__dict__.items() if is_abstract_method(o)}
             seen = set(cls.__dict__)
@@ -199,7 +199,7 @@ class Sealed:
                 if Sealed in base.__bases__:
                     if cls.__module__ != base.__module__:
                         raise SealedException(base)
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__(**kwargs)  # type: ignore
 
 
 class PackageSealed:
@@ -211,7 +211,7 @@ class PackageSealed:
                 if PackageSealed in base.__bases__:
                     if cls.__module__.split('.')[:-1] != base.__module__.split('.')[:-1]:
                         raise SealedException(base)
-        super().__init_subclass__(**kwargs)
+        super().__init_subclass__(**kwargs)  # type: ignore
 
 
 class NotInstantiable(Abstract):
@@ -306,7 +306,7 @@ class Override:
 
         self._fn = fn
         functools.update_wrapper(self, fn)
-        self.__call__ = fn.__call__
+        self.__call__ = fn.__call__  # type: ignore
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._fn!r})'
@@ -316,7 +316,7 @@ class Override:
             raise TypeError(name)
 
     def __get__(self, instance: ta.Any, owner: ta.Optional[ta.Type] = None) -> ta.Callable:
-        return self._fn.__get__(instance, owner)
+        return self._fn.__get__(instance, owner)  # type: ignore
 
     def __call__(self, *args, **kwargs):
         return self._fn(*args, **kwargs)

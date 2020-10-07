@@ -83,30 +83,30 @@ StackTrace = ta.Sequence[str]
 
 @dc.dataclass()
 class Node:
-    import_name: str = None
-    import_fromlist: ta.Iterable[str] = None
-    import_level: int = None
+    import_name: ta.Optional[str] = None
+    import_fromlist: ta.Optional[ta.Iterable[str]] = None
+    import_level: ta.Optional[int] = None
 
-    pid: int = None
-    tid: int = None
+    pid: ta.Optional[int] = None
+    tid: ta.Optional[int] = None
 
-    stack_trace: StackTrace = None
-    exception: Exception = None
+    stack_trace: ta.Optional[StackTrace] = None
+    exception: ta.Optional[Exception] = None
 
     children: ta.List['Node'] = dc.field(default_factory=list)
 
-    cached_id: int = None
+    cached_id: ta.Optional[int] = None
 
-    loaded_name: str = None
-    loaded_file: str = None
-    loaded_id: int = None
+    loaded_name: ta.Optional[str] = None
+    loaded_file: ta.Optional[str] = None
+    loaded_id: ta.Optional[int] = None
 
-    start_stats: Stats = None
-    exclusive_stats: Stats = None
-    cumulative_stats: Stats = None
-    end_stats: Stats = None
+    start_stats: ta.Optional[Stats] = None
+    exclusive_stats: ta.Optional[Stats] = None
+    cumulative_stats: ta.Optional[Stats] = None
+    end_stats: ta.Optional[Stats] = None
 
-    seq: int = None
+    seq: ta.Optional[int] = None
     depth: int = 0
 
 
