@@ -144,7 +144,7 @@ def compose_mro(
         getmro: ta.Callable[[T], ta.Optional[ta.Sequence[T]]] = operator.attrgetter('__mro__'),
         getbases: ta.Callable[[T], ta.Sequence[T]] = operator.attrgetter('__bases__'),
         issubclass: ta.Callable[[T, T], bool] = issubclass,  # type: ignore
-        getsubclasses: ta.Callable[[T], ta.Iterable[T]] = operator.attrgetter('__subclasses__'),
+        getsubclasses: ta.Callable[[T], ta.Iterable[T]] = operator.methodcaller('__subclasses__'),
 ) -> ta.List[T]:
     """Calculates the method resolution order for a given class *cls*.
 
