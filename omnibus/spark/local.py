@@ -1,6 +1,5 @@
 import importlib.util
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -10,6 +9,7 @@ import typing as ta
 
 from .. import properties
 from .. import pydevd
+from ..jvm.jdk import find_java_home
 
 
 class LocalLauncher:
@@ -46,23 +46,7 @@ class LocalLauncher:
 
     @properties.cached
     def java_home(self) -> ta.Optional[str]:
-        if sys.platform != self.OSX_PLATFORM:
-            return None
-        if not (os.path.exists(self.OSX_JDK_PATH) and os.path.isdir(self.OSX_JDK_PATH)):
-            return None
-        jdk_minor_home_pairs = [
-            (int(match.groupdict()['minor']), home)
-            for item in os.listdir(self.OSX_JDK_PATH)
-            for full_path in [os.path.join(self.OSX_JDK_PATH, item)]
-            if os.path.isdir(full_path)
-            for match in [re.fullmatch(r'jdk1\.8\.0_(?P<minor>[0-9]+)\.jdk', item)]
-            if match
-            for home in [os.path.join(full_path, 'Contents', 'Home')]
-            if os.path.exists(home) and os.path.isdir(home)
-        ]
-        if not jdk_minor_home_pairs:
-            return None
-        return sorted(jdk_minor_home_pairs, key=lambda t: -t[0])[0][1]
+        return find_java_home()
 
     @properties.cached
     def submit_env(self) -> ta.Dict[str, str]:

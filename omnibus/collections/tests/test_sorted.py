@@ -53,3 +53,8 @@ def test_skiplistdict():
 @skip_if_cant_import('sortedcontainers')
 def test_sortedcontainers():
     _test_sorteddict(sorted_.SortedContainersDict.new())
+
+
+def test_sorted_list_dict():
+    assert dict(sorted_.SkipListDict()) == {}
+    assert dict(sorted_.SkipListDict({3: 4, 1: 2})) == {1: 2, 3: 4}

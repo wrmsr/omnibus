@@ -170,3 +170,21 @@ def test_peek():
     v, it = lang_.peek(it)
     assert v == 0
     assert list(it) == [0, 1, 2, 3]
+
+
+def test_no_bool():
+    @lang_.no_bool
+    def f():
+        return 1
+
+    assert f() == 1
+    assert bool(f())
+    with pytest.raises(TypeError):
+        bool(f)
+
+    class C(lang_.NoBool):
+        pass
+
+    assert C
+    with pytest.raises(TypeError):
+        bool(C())

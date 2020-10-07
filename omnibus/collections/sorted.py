@@ -8,6 +8,7 @@ import random
 import typing as ta
 
 from .. import lang
+from .maps import yield_dict_init
 
 
 T = ta.TypeVar('T')
@@ -270,7 +271,10 @@ class SortedListDict(SortedMutableMapping[K, V]):
     def __init__(self, impl: SortedCollection[Item], *args, **kwargs) -> None:
         self._impl = impl
 
-        super().__init__(*args, **kwargs)
+        super().__init__()
+
+        for k, v in yield_dict_init(*args, **kwargs):
+            self[k] = v
 
     def __getitem__(self, key: K) -> V:
         item = self._impl.find((key, None))

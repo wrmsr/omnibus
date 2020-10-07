@@ -18,6 +18,7 @@ cftime==1.2.1
 cli-helpers==2.1.0
 cryptography==3.1.1
 fastprogress==1.0.0
+graphviz==0.14.2
 humanize==3.0.1
 importlib-resources==3.0.0
 iniconfig==1.0.1
@@ -39,7 +40,7 @@ rsa==4.6
 scipy==1.5.2
 scramp==1.2.0
 Theano==1.0.5
-tqdm==4.50.0
+tqdm==4.50.1
 typing-extensions==3.7.4.3
 urllib3==1.25.10
 xarray==0.16.1

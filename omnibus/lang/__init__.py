@@ -96,6 +96,8 @@ from .lang import iterable  # noqa
 from .lang import make_cell  # noqa
 from .lang import maybe_call  # noqa
 from .lang import new_type  # noqa
+from .lang import no_bool  # noqa
+from .lang import NoBool  # noqa
 from .lang import peek  # noqa
 from .lang import public  # noqa
 from .lang import public_as  # noqa

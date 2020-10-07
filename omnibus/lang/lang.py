@@ -6,6 +6,9 @@ TODO:
  - s/cached/memoized/?
  - @classmethod with instancemethod override/overload
  - functools.partial but check prototype fits (kwargs, #args)
+ - curry
+  - functions.py..
+ - no_bool class/staticmethod
 """
 import collections.abc
 import functools
@@ -280,6 +283,9 @@ class _CachedNullary(ta.Generic[T]):
     def reset(self) -> None:
         self._value = _MISSING
 
+    def __bool__(self) -> bool:
+        raise TypeError
+
     def __call__(self) -> T:
         if self._value is not _MISSING:
             return self._value
@@ -333,6 +339,37 @@ def cached_nullary(fn: ta.Callable[[], T]) -> ta.Callable[[], T]:
         return _CachedNullary(fn, value_fn=unwrap_func(fn))  # type: ignore
     scope = classmethod if isinstance(fn, classmethod) else None  # type: ignore
     return _CachedNullaryDescriptor(fn, scope)
+
+
+class NoBool:
+
+    def __bool__(self) -> bool:
+        raise TypeError
+
+
+class _NoBoolDescriptor:
+
+    def __init__(self, fn, instance=None, owner=None) -> None:
+        super().__init__()
+        self._fn = fn
+        self._instance = instance
+        self._owner = owner
+        functools.update_wrapper(self, fn)
+
+    def __bool__(self) -> bool:
+        raise TypeError
+
+    def __get__(self, instance, owner=None):
+        if instance is self._instance and owner is self._owner:
+            return self
+        return _NoBoolDescriptor(self._fn.__get__(instance, owner), instance, owner)
+
+    def __call__(self, *args, **kwargs):
+        return self._fn(*args, **kwargs)
+
+
+def no_bool(fn):
+    return _NoBoolDescriptor(fn)
 
 
 class VoidException(Exception):
