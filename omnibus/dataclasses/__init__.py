@@ -23,6 +23,7 @@ from .api import validate  # noqa
 from .metaclass import Data  # noqa
 from .metaclass import Enum  # noqa
 from .metaclass import Frozen  # noqa
+from .metaclass import Meta  # noqa
 from .metaclass import Pure  # noqa
 from .metaclass import Tuple  # noqa
 from .pickling import SimplePickle  # noqa

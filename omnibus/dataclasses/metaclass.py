@@ -60,7 +60,7 @@ class _MetaBuilder:
         self._name = name
 
         self._mbase = check.isinstance(mbase, type)
-        self._msuper = msuper if msuper is not None else super(_Meta, mcls)
+        self._msuper = msuper if msuper is not None else super(Meta, mcls)
         check.issubclass(mcls, mbase)
 
         self._orig_bases = list(bases)
@@ -137,7 +137,7 @@ class _MetaBuilder:
             try:
                 return cloned_base_dct[bcls]
             except KeyError:
-                cbase = self._mbase if isinstance(bcls, self._mcls) else type(bcls)
+                cbase = self._mbase if isinstance(bcls, Meta) else type(bcls)
                 ccls = cloned_base_dct[bcls] = cbase(
                     bcls.__name__,
                     tuple(clone_base(bbcls) for bbcls in bcls.__bases__),
@@ -212,7 +212,7 @@ class _MetaBuilder:
         return cls
 
 
-class _Meta(abc.ABCMeta):
+class Meta(abc.ABCMeta):
 
     def __new__(
             mcls,
@@ -231,7 +231,7 @@ class _Meta(abc.ABCMeta):
         return bld.build()
 
 
-class Data(metaclass=_Meta):
+class Data(metaclass=Meta):
 
     def __post_init__(self, *args, **kwargs) -> None:
         try:
