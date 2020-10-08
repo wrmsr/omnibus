@@ -436,6 +436,10 @@ deps-39: venv-39
 dep-freeze: venv
 	.venv/bin/pip freeze > requirements-frz.txt
 
+.PHONY: dep-unfreeze
+dep-unfreeze: venv
+	.venv/bin/pip install -r requirements-frz.txt
+
 .PHONY: dep-tree
 dep-tree: venv
 	.venv/bin/pipdeptree

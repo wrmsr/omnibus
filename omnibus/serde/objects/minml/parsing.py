@@ -14,9 +14,9 @@ from .... import antlr
 from .... import check
 from .... import lang
 from ...._vendor import antlr4
-from ._antlr.MinmlLexer import MinmlLexer
-from ._antlr.MinmlParser import MinmlParser
-from ._antlr.MinmlVisitor import MinmlVisitor
+from ._antlr.MinmlLexer import MinmlLexer  # type: ignore
+from ._antlr.MinmlParser import MinmlParser  # type: ignore
+from ._antlr.MinmlVisitor import MinmlVisitor  # type: ignore
 
 
 class NULL(lang.Marker):

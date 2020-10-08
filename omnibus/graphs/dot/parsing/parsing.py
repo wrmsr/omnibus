@@ -2,9 +2,9 @@ import typing as ta
 
 from .... import antlr
 from ...._vendor import antlr4
-from ._antlr.DotLexer import DotLexer
-from ._antlr.DotParser import DotParser
-from ._antlr.DotVisitor import DotVisitor
+from ._antlr.DotLexer import DotLexer  # type: ignore
+from ._antlr.DotParser import DotParser  # type: ignore
+from ._antlr.DotVisitor import DotVisitor  # type: ignore
 
 
 class _ParseVisitor(DotVisitor):

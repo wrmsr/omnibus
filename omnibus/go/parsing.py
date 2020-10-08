@@ -3,9 +3,9 @@ import typing as ta
 from .. import antlr
 from .. import lang  # noqa
 from .._vendor import antlr4
-from ._antlr.GoLexer import GoLexer
-from ._antlr.GoParser import GoParser
-from ._antlr.GoVisitor import GoVisitor
+from ._antlr.GoLexer import GoLexer  # type: ignore
+from ._antlr.GoParser import GoParser  # type: ignore
+from ._antlr.GoVisitor import GoVisitor  # type: ignore
 
 
 T = ta.TypeVar('T')

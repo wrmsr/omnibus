@@ -19,9 +19,9 @@ import typing as ta
 from ...._vendor import antlr4
 
 from .... import check
-from ._antlr.HoconLexer import HoconLexer
-from ._antlr.HoconListener import HoconListener
-from ._antlr.HoconParser import HoconParser
+from ._antlr.HoconLexer import HoconLexer  # type: ignore
+from ._antlr.HoconListener import HoconListener  # type: ignore
+from ._antlr.HoconParser import HoconParser  # type: ignore
 from .types import CompoundValue
 from .types import NumberValue
 from .types import ObjectValue
@@ -44,7 +44,7 @@ class _ParseListener(HoconListener):
         self._parser = parser
 
         self._stack: ta.List[ta.Union[dict, list]] = [{}]
-        self._compound: ta.List[Value] = None
+        self._compound: ta.Optional[ta.List[Value]] = None
 
     @classmethod
     def _reference_path(cls, path: str) -> str:

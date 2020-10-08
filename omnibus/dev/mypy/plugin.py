@@ -36,52 +36,79 @@ import mypy.options as mo
 import mypy.plugin as mp
 import mypy.types as mt
 
-from ... import check
+
+T = ta.TypeVar('T')
 
 
 PREFIX = __package__.split('.')[0]
 
 
-class Plugin(mp.Plugin):
+class ChainedPlugin(mp.Plugin):
 
-    def __init__(self, options: mo.Options) -> None:
+    def __init__(self, options: mp.Options, plugins: ta.List[mp.Plugin]) -> None:
         super().__init__(options)
+        self._plugins = plugins
+
+    def set_modules(self, modules: ta.Dict[str, mn.MypyFile]) -> None:
+        for plugin in self._plugins:
+            plugin.set_modules(modules)
+
+    def report_config_data(self, ctx: mp.ReportConfigContext) -> ta.Any:
+        config_data = [plugin.report_config_data(ctx) for plugin in self._plugins]
+        return config_data if any(x is not None for x in config_data) else None
+
+    def get_additional_deps(self, file: mn.MypyFile) -> ta.List[ta.Tuple[int, str, int]]:
+        deps = []
+        for plugin in self._plugins:
+            deps.extend(plugin.get_additional_deps(file))
+        return deps
 
     def get_type_analyze_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.AnalyzeTypeContext], mt.Type]]:
-        return super().get_type_analyze_hook(fullname)
+        return self._find_hook(lambda plugin: plugin.get_type_analyze_hook(fullname))
 
     def get_function_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.FunctionContext], mt.Type]]:
-        return super().get_function_hook(fullname)
+        return self._find_hook(lambda plugin: plugin.get_function_hook(fullname))
 
     def get_method_signature_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.MethodSigContext], mt.CallableType]]:  # noqa
-        return super().get_method_signature_hook(fullname)
+        return self._find_hook(lambda plugin: plugin.get_method_signature_hook(fullname))
 
     def get_method_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.MethodContext], mt.Type]]:
-        return super().get_method_hook(fullname)
+        return self._find_hook(lambda plugin: plugin.get_method_hook(fullname))
 
     def get_attribute_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.AttributeContext], mt.Type]]:
-        return super().get_attribute_hook(fullname)
+        return self._find_hook(lambda plugin: plugin.get_attribute_hook(fullname))
 
     def get_class_decorator_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
-        if fullname in [
-            PREFIX + '.dataclasses.api.dataclass',
-            PREFIX + '.dev.mypy.tests.dcs.my_dataclass',
-        ]:
-            from mypy.plugins import dataclasses
-            return dataclasses.dataclass_class_maker_callback
+        return self._find_hook(lambda plugin: plugin.get_class_decorator_hook(fullname))
 
-        return None
+    def get_metaclass_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
+        return self._find_hook(lambda plugin: plugin.get_metaclass_hook(fullname))
 
     def get_base_class_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
-        stn = self.lookup_fully_qualified(fullname)
-        if stn is not None:
-            if isinstance(stn.node, mn.TypeInfo):
-                mro = check.isinstance(stn.node, mn.TypeInfo).mro
-                if any(bc.fullname == PREFIX + '.dataclasses.metaclass.Data' for bc in mro):
-                    from mypy.plugins import dataclasses
-                    return dataclasses.dataclass_class_maker_callback
+        return self._find_hook(lambda plugin: plugin.get_base_class_hook(fullname))
 
+    def get_customize_class_mro_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.ClassDefContext], None]]:
+        return self._find_hook(lambda plugin: plugin.get_customize_class_mro_hook(fullname))
+
+    def get_dynamic_class_hook(self, fullname: str) -> ta.Optional[ta.Callable[[mp.DynamicClassDefContext], None]]:
+        return self._find_hook(lambda plugin: plugin.get_dynamic_class_hook(fullname))
+
+    def _find_hook(self, lookup: ta.Callable[[mp.Plugin], T]) -> ta.Optional[T]:
+        for plugin in self._plugins:
+            hook = lookup(plugin)
+            if hook:
+                return hook
         return None
+
+
+class Plugin(ChainedPlugin):
+
+    def __init__(self, options: mo.Options) -> None:
+        from ...dataclasses.dev.mypy import DataclassPlugin
+
+        super().__init__(options, [
+            DataclassPlugin(options),
+        ])
 
 
 def plugin(version: str) -> ta.Type[mp.Plugin]:

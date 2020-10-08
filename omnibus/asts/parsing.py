@@ -4,9 +4,9 @@ from . import nodes as n
 from .. import antlr
 from .. import check
 from .._vendor import antlr4
-from ._antlr.Python3Lexer import Python3Lexer
-from ._antlr.Python3Parser import Python3Parser
-from ._antlr.Python3Visitor import Python3Visitor
+from ._antlr.Python3Lexer import Python3Lexer  # type: ignore
+from ._antlr.Python3Parser import Python3Parser  # type: ignore
+from ._antlr.Python3Visitor import Python3Visitor  # type: ignore
 
 
 T = ta.TypeVar('T')

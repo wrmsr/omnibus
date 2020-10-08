@@ -2,9 +2,9 @@ from . import nodes as n
 from .. import antlr
 from .. import check
 from .._vendor import antlr4
-from ._antlr.JmespathLexer import JmespathLexer
-from ._antlr.JmespathParser import JmespathParser
-from ._antlr.JmespathVisitor import JmespathVisitor
+from ._antlr.JmespathLexer import JmespathLexer  # type: ignore
+from ._antlr.JmespathParser import JmespathParser  # type: ignore
+from ._antlr.JmespathVisitor import JmespathVisitor  # type: ignore
 
 
 class _ParseVisitor(JmespathVisitor):
