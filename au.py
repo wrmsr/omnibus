@@ -1,4 +1,3 @@
-# .venv/bin/pip list -o --format=json
 import json
 import re
 import sys
