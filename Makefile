@@ -475,7 +475,7 @@ for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: 
         f.write(''.join(rlines)) \n\
 ls = ['Package', 'Version', 'Latest', 'Type'] \n\
 ks = ['name', 'version', 'latest_version', 'latest_filetype'] \n\
-ps = [max([len(l)] + [len(e[k]) for e in lst]) for l, k in zip(ls, ks)] \n\
+ps = [max([len(l)] + [len(e[k]) for e in lst if e['name'] not in seen]) for l, k in zip(ls, ks)] \n\
 print(' '.join(l.ljust(p) for l, p in zip(ls, ps))) \n\
 print(' '.join('-' * p for p in ps)) \n\
 for e in lst: \n\
