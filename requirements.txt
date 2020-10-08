@@ -6,14 +6,14 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.15.14  #@auto
-botocore==1.18.14  #@auto
+boto3==1.15.15  #@auto
+botocore==1.18.15  #@auto
 bson==0.5.10
 cbor==1.0.0
 cytoolz==0.11.0
 docker==4.3.1
 google-api-core==1.22.4  #@auto
-google-api-python-client==1.12.3  #@auto
+google-api-python-client==1.12.2  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.22.1  #@auto
 PyHive[hive]==0.6.3

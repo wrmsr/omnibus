@@ -52,7 +52,7 @@ yarl==1.6.0
 bsddb3==6.2.7
 chardet==3.0.4
 datadog==0.39.0
-ddtrace==0.42.0
+ddtrace==0.43.0
 dnspython==2.0.0
 duckdb==0.2.1
 elasticsearch==7.9.1

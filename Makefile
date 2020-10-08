@@ -455,22 +455,32 @@ dep-autoupdate: venv
 import json \n\
 import re \n\
 import sys \n\
-dct = json.loads(sys.stdin.read()) \n\
-vers = {e['name']: e['latest_version'] for e in dct} \n\
-rpls = [(re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
+lst = json.loads(sys.stdin.read()) \n\
+vers = {e['name']: e['latest_version'] for e in lst} \n\
+rpls = [(n, re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
+seen = set() \n\
 for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: \n\
     with open(fn, 'r') as f: \n\
         lines = f.readlines() \n\
     rlines = [] \n\
     for line in lines: \n\
-        for pat, rpl in rpls: \n\
+        for n, pat, rpl in rpls: \n\
             if pat.fullmatch(line.strip()): \n\
                 rlines.append(rpl + '\\\\n') \n\
+                seen.add(n) \n\
                 break \n\
         else: \n\
             rlines.append(line) \n\
     with open(fn, 'w') as f: \n\
         f.write(''.join(rlines)) \n\
+ls = ['Package', 'Version', 'Latest', 'Type'] \n\
+ks = ['name', 'version', 'latest_version', 'latest_filetype'] \n\
+ps = [max([len(l)] + [len(e[k]) for e in lst]) for l, k in zip(ls, ks)] \n\
+print(' '.join(l.ljust(p) for l, p in zip(ls, ps))) \n\
+print(' '.join('-' * p for p in ps)) \n\
+for e in lst: \n\
+    if e['name'] not in seen: \n\
+        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
 " > $$F ; \
 	.venv/bin/pip list -o --format=json | .venv/bin/python "$$F"
 
