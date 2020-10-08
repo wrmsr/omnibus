@@ -457,7 +457,7 @@ import re \n\
 import sys \n\
 dct = json.loads(sys.stdin.read()) \n\
 vers = {e['name']: e['latest_version'] for e in dct} \n\
-rpls = [(re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
+rpls = [(re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
 for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: \n\
     with open(fn, 'r') as f: \n\
         lines = f.readlines() \n\
@@ -465,7 +465,7 @@ for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: 
     for line in lines: \n\
         for pat, rpl in rpls: \n\
             if pat.fullmatch(line.strip()): \n\
-                rlines.append(rpl + '\\n') \n\
+                rlines.append(rpl + '\\\\n') \n\
                 break \n\
         else: \n\
             rlines.append(line) \n\
