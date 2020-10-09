@@ -26,10 +26,10 @@ def test_instrument_sqlite():
 
 
 def test_instrument_postgres(harness: har.Harness):
-    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)])
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
     for c in [
-        f'o_postgresql+psycopg2://omnibus:omnibus@{host}:{port}'
-        f'o_postgresql://omnibus:omnibus@{host}:{port}'
+        f'o_postgresql+psycopg2://omnibus:omnibus@{host}:{port}',
+        f'o_postgresql://omnibus:omnibus@{host}:{port}',
     ]:
         for _ in range(2):
             engine: sa.engine.Engine

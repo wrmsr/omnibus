@@ -128,7 +128,8 @@ PATH=\"~/.pyenv/bin:\$PATH\" \n\
 
 # js
 
-RUN npm install -g yarn
+# FIXME: https://github.com/yarnpkg/yarn/issues/8358 jfc
+RUN npm install -g yarn@1.22.5
 
 
 # jp

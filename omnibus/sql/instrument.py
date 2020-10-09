@@ -13,7 +13,7 @@ from .. import lang
 
 AFFIX = 'o'
 
-_CLS_NAME_SUFFIX = '__omnibus_sql_instrumented'
+_CLS_NAME_SUFFIX = '__' + __name__.replace('.', '_')
 
 
 class DialectInstrumentation:

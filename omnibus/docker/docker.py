@@ -1,6 +1,13 @@
 """
 TODO:
  - Dockerfile r/w
+
+ARM DOCKER
+ - https://www.stereolabs.com/docs/docker/building-arm-container-on-x86/
+ - https://github.com/multiarch/qemu-user-static/
+ - https://hub.docker.com/r/arm64v8/ubuntu/
+ - https://docs.docker.com/docker-for-mac/multi-arch/
+ - https://github.com/docker/buildx#installing
 """
 import contextlib
 import io

@@ -1,14 +1,14 @@
 import typing as ta
 
-import pytest
 import sqlalchemy as sa
 import sqlalchemy.sql.elements
 
 from .. import caching as caching_
 from .. import mysql as mysql_
 from ... import dataclasses as dc
-from ... import docker
 from ... import lang
+from ...docker.dev.pytest import DockerManager
+from ...inject.dev.pytest import harness as har
 from .fixtures import sqlite_engine  # noqa
 
 
@@ -16,18 +16,8 @@ def test_pymysql():
     assert mysql_.pymysql_render_statement(sa.select([1])) == 'SELECT 1'
 
 
-@pytest.mark.xfail()
-def test_docker_mysql():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-mysql-master', 3306
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-mysql-master_1', 3306)])
-
-        [(host, port)] = eps.values()
+def test_docker_mysql(harness: har.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('mysql-master', 3306)]).values()
 
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'mysql+mysqlconnector://omnibus:omnibus@{host}:{port}')) as engine:
@@ -36,18 +26,8 @@ def test_docker_mysql():
             print(conn.scalar(sa.select([sa.func.version()])))
 
 
-@pytest.mark.xfail()
-def test_docker_postgres():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-postgres-master', 5432
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-postgres-master_1', 5432)])
-
-        [(host, port)] = eps.values()
+def test_docker_postgres(harness: har.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
 
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'postgresql+psycopg2://omnibus:omnibus@{host}:{port}')) as engine:
