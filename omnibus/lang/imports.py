@@ -11,7 +11,7 @@ import typing as ta
 import warnings
 
 from .classes import staticfunction
-from .lang import cached_nullary
+from .functions import cached_nullary
 
 
 class UnstableWarning(Warning):
