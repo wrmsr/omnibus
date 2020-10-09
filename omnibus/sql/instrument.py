@@ -10,8 +10,8 @@ from .. import check
 from .. import lang
 
 
-PREFIX = __package__.replace('.', '_') + '_'
-SUFFIX = '__omnibus_sql_instrumented'
+SUFFIX = 'o'
+_CLS_NAME_SUFFIX = '__omnibus_sql_instrumented'
 
 
 class DialectInstrumentation:
@@ -32,7 +32,7 @@ class DialectInstrumentation:
         yield statement
 
 
-class InstrumentationDialectMixin:
+class InstrumentationDialectMixin(sa.engine.Dialect, lang.Abstract):  # noqa
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -100,7 +100,7 @@ class InstrumentationDialectMixin:
 @lang.context_wrapped(threading.RLock())
 def create_instrumented_dialect(base: ta.Type[sa.engine.Dialect]) -> ta.Type[sa.engine.Dialect]:
     check.issubclass(base, sa.engine.Dialect)
-    name = base.__name__ + SUFFIX
+    name = base.__name__ + _CLS_NAME_SUFFIX
 
     if name in globals():
         existing = globals()[name]
@@ -110,7 +110,7 @@ def create_instrumented_dialect(base: ta.Type[sa.engine.Dialect]) -> ta.Type[sa.
             raise NameError(name)
         return base
 
-    dialect = type(name, (InstrumentationDialectMixin, base), {})
+    dialect = type(name, (InstrumentationDialectMixin, base), {'__module__': __name__})
     globals()[name] = dialect
-    sa.dialects.registry.register(PREFIX + base.driver, dialect.__module__, name)
+    sa.dialects.registry.register(base.name + '.' + SUFFIX, dialect.__module__, name)
     return dialect

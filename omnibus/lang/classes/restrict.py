@@ -47,7 +47,9 @@ class Abstract(abc.ABC):
             cls.__forceabstract__ = Abstract.__forceabstract__  # type: ignore
         else:
             cls.__forceabstract__ = False  # type: ignore
+
         super().__init_subclass__(**kwargs)  # type: ignore
+
         if not _DISABLE_CHECKS and Abstract not in cls.__bases__:
             ams = {a for a, o in cls.__dict__.items() if is_abstract_method(o)}
             seen = set(cls.__dict__)

@@ -19,7 +19,7 @@ def test_instrument():
     engine: sa.engine.Engine
     with lang.disposing(
             sa.create_engine(
-                'sqlite__omnibus_sql_instrumented://',
+                'sqlite+o+pysqlite://',
                 connect_args={'check_same_thread': False},
                 poolclass=sa.pool.StaticPool,
             )
