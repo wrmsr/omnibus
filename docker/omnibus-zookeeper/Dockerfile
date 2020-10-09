@@ -1,2 +1,2 @@
-FROM zookeeper:3.6.1
+FROM zookeeper:3.6.2
 COPY .dockertimestamp /

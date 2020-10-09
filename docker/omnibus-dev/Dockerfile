@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20200720
+FROM ubuntu:focal-20200925
 COPY .dockertimestamp /
 
 
@@ -9,11 +9,8 @@ RUN ( \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y apt-utils \
-)
-
-RUN ( \
-    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y apt-utils && \
+\
     apt-get install -y \
 \
         aria2 \
