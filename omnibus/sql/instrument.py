@@ -3,6 +3,7 @@ import functools
 import threading
 import typing as ta
 
+import pkg_resources
 import sqlalchemy as sa
 import sqlalchemy.dialects
 
@@ -10,7 +11,8 @@ from .. import check
 from .. import lang
 
 
-SUFFIX = 'o'
+AFFIX = 'o'
+
 _CLS_NAME_SUFFIX = '__omnibus_sql_instrumented'
 
 
@@ -108,9 +110,65 @@ def create_instrumented_dialect(base: ta.Type[sa.engine.Dialect]) -> ta.Type[sa.
         check.issubclass(existing, InstrumentationDialectMixin)
         if not issubclass(existing, base):
             raise NameError(name)
-        return base
+        return existing
 
+    check.not_empty(base.driver)
     dialect = type(name, (InstrumentationDialectMixin, base), {'__module__': __name__})
     globals()[name] = dialect
-    sa.dialects.registry.register(base.name + '.' + SUFFIX, dialect.__module__, name)
+    rname = f'{AFFIX}_{base.name}.{base.driver}'
+    sa.dialects.registry.register(rname, dialect.__module__, name)
     return dialect
+
+
+class _Dist(pkg_resources.Distribution):
+
+    class _EntryPoint(pkg_resources.EntryPoint):
+        def __init__(self):
+            super().__init__(_Dist._EntryPoint._Name(), __name__)
+
+        def load(self, *args, **kwargs):
+            n = check.not_none(self.name._name)
+            check.state(n.startswith(AFFIX + '_'))
+            on = n[len(AFFIX) + 1:]
+            cls = sa.dialects.registry.load(on)
+            return create_instrumented_dialect(cls)
+
+        @functools.total_ordering
+        class _Name:
+            _DEFAULT = '_dummy'
+
+            def __init__(self):
+                super().__init__()
+                self._name = None
+
+            def __hash__(self):
+                if self._name is None:
+                    self._name = self._DEFAULT
+                return hash(self._name)
+
+            def __eq__(self, other):
+                if not isinstance(other, str):
+                    raise TypeError
+                if self._name is not None:
+                    return other == self._name
+                if not other.startswith(AFFIX + '_'):
+                    self._name = self._DEFAULT
+                    return False
+                self._name = other
+                return True
+
+            def __lt__(self, other):
+                if self._name is None:
+                    self._name = self._DEFAULT
+                return self._name < other
+
+    def get_entry_map(self, group=None):
+        if group == 'sqlalchemy.dialects':
+            return {__name__: _Dist._EntryPoint()}
+        return {}
+
+    def activate(self, *args, **kwargs):
+        pass
+
+
+pkg_resources.working_set.add(_Dist(), __name__.replace('.', '_'))

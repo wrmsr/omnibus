@@ -1,28 +1,38 @@
 import sqlalchemy as sa
 import sqlalchemy.pool  # noqa
 
-import pytest
-
-from .. import instrument as inst
+from .. import instrument as inst  # noqa
 from ... import lang
+from ...docker.dev.pytest import DockerManager
+from ...inject.dev.pytest import harness as har
 
 
-@pytest.mark.xfail()
-def test_instrument():
-    from sqlalchemy.dialects.postgresql.pg8000 import PGDialect_pg8000
-    dia = inst.create_instrumented_dialect(PGDialect_pg8000)
-    assert issubclass(dia, PGDialect_pg8000)
+def test_instrument_sqlite():
+    for c in [
+        'o_sqlite://',
+        'o_sqlite+pysqlite://',
+    ]:
+        for _ in range(2):
+            engine: sa.engine.Engine
+            with lang.disposing(
+                    sa.create_engine(
+                        c,
+                        connect_args={'check_same_thread': False},
+                        poolclass=sa.pool.StaticPool,
+                    )
+            ) as engine:
+                with engine.connect() as conn:
+                    print(list(conn.execute('select 1')))
 
-    from sqlalchemy.dialects.sqlite import dialect as sqlite_dialect
-    inst.create_instrumented_dialect(sqlite_dialect)
 
-    engine: sa.engine.Engine
-    with lang.disposing(
-            sa.create_engine(
-                'sqlite+o+pysqlite://',
-                connect_args={'check_same_thread': False},
-                poolclass=sa.pool.StaticPool,
-            )
-    ) as engine:
-        with engine.connect() as conn:
-            print(list(conn.execute('select 1')))
+def test_instrument_postgres(harness: har.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)])
+    for c in [
+        f'o_postgresql+psycopg2://omnibus:omnibus@{host}:{port}'
+        f'o_postgresql://omnibus:omnibus@{host}:{port}'
+    ]:
+        for _ in range(2):
+            engine: sa.engine.Engine
+            with lang.disposing(sa.create_engine(c)) as engine:
+                with engine.connect() as conn:
+                    print(list(conn.execute('select 1')))
