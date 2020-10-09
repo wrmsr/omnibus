@@ -36,7 +36,7 @@ ipython==7.18.1
 iredis==1.9.1
 litecli==1.4.1
 mycli==1.22.2
-mypy==0.782
+mypy==0.790
 objgraph==3.4.1
 pgcli==3.0.0
 pipdeptree==1.0.0
