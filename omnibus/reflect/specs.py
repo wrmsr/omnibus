@@ -47,6 +47,8 @@ T = ta.TypeVar('T')
 
 Specable = ta.NewType('Specable', ta.Any)  # ta.Union[Spec, ta.Type, Var, None]
 
+_NONE_TYPE = type(None)
+
 
 _DEBUG = False
 
@@ -208,6 +210,13 @@ class UnionSpec(Spec, lang.Final):
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_union_spec(self)
+
+    @properties.cached
+    def optional_arg(self) -> ta.Optional[Spec]:
+        if len(self.cls_args) == 2 and _NONE_TYPE in self.cls_args:
+            return check.single(a for a in self.args if a.cls is not _NONE_TYPE)
+        else:
+            return None
 
 
 class AnyUnionSpec(Spec, lang.Final):
