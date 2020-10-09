@@ -30,7 +30,7 @@ class DialectInstrumentation:
         EXECUTE_NO_PARAMS = ...
 
     @contextlib.contextmanager
-    def instrument_statement(self, mode, cursor, statement, parameters, context=None) -> ta.ContextManager[str]:
+    def instrument_statement(self, mode, cursor, statement, parameters, context=None) -> ta.Iterator[str]:
         yield statement
 
 
@@ -58,7 +58,7 @@ class InstrumentationDialectMixin(sa.engine.Dialect, lang.Abstract):  # noqa
         return connect(*cargs, **cparams)
 
     @contextlib.contextmanager
-    def instrument_statement(self, mode, cursor, statement, parameters, context=None) -> ta.ContextManager[str]:
+    def instrument_statement(self, mode, cursor, statement, parameters, context=None) -> ta.Iterator[str]:
         with contextlib.ExitStack() as es:
             for inst in self._instrumentations:
                 statement = es.enter_context(inst.instrument_statement(mode, cursor, statement, parameters, context))
