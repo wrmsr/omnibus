@@ -84,6 +84,9 @@ class CountDownLatch:
                 self._lock.notify_all()
 
     def wait(self, timeout: ta.Union[int, float] = -1) -> None:
-        with self._lock.acquire(timeout=timeout):
+        self._lock.acquire(timeout=timeout)
+        try:
             while self._count > 0:
                 self._lock.wait()
+        finally:
+            self._lock.release()
