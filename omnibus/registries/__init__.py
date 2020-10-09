@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .composites import CompositeMultiRegistry  # noqa
 from .composites import CompositeRegistry  # noqa
 from .dicts import DictMultiRegistry  # noqa
@@ -21,4 +21,4 @@ from .types import Registry  # noqa
 from .types import Registry  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

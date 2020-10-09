@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .compress import bz2  # noqa
 from .compress import Bz2Codec  # noqa
 from .compress import gzip  # noqa
@@ -44,4 +44,4 @@ from .types import Decoder  # noqa
 from .types import Encoder  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

@@ -1,10 +1,9 @@
 import sqlalchemy as sa
 import sqlalchemy.pool  # noqa
 
-from .. import instrument as inst  # noqa
-from ... import lang
-from ...docker.dev.pytest import DockerManager
-from ...inject.dev.pytest import harness as har
+from .... import lang
+from ....docker.dev.pytest import DockerManager
+from ....inject.dev.pytest import harness as har
 
 
 def test_instrument_sqlite():

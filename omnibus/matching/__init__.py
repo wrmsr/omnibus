@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .matchers import DefaultMatcher  # noqa
 from .matchers import Matcher  # noqa
 from .patterns import CapturePattern  # noqa
@@ -14,4 +14,4 @@ from .types import Property  # noqa
 from .types import PropertyPatternPair  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

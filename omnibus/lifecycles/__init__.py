@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .abstract import AbstractLifecycle  # noqa
 from .controller import LifecycleController  # noqa
 from .manager import context_manage  # noqa
@@ -14,4 +14,4 @@ from .types import LifecycleStates  # noqa
 from .types import LifecycleStates  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

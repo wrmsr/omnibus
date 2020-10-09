@@ -28,7 +28,7 @@ class DialectInstrumentation:
 
 class InstrumentationDialectMixin(sa.engine.Dialect, lang.Abstract):  # noqa
 
-    def __init__(self, instrumentations: ta.Iterable[DialectInstrumentation], **kwargs) -> None:
+    def __init__(self, instrumentations: ta.Iterable[DialectInstrumentation] = (), **kwargs) -> None:
         super().__init__(**kwargs)
 
         self._instrumentations: ta.List[DialectInstrumentation] = [

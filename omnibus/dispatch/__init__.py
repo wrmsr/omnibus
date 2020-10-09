@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .caching import AbcCacheGuard  # noqa
 from .caching import CachingDispatcher  # noqa
 from .classes import Class  # noqa
@@ -16,4 +16,4 @@ from .types import Manifest  # noqa
 from .types import UnregisteredDispatchError  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

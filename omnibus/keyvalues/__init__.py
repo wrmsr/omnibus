@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 from .base import BatchedIterableKeyValue  # noqa
 from .base import BatchedKeyValue  # noqa
 from .base import BatchedSortedIterableKeyValue  # noqa
@@ -34,4 +34,4 @@ from .wrappers import WrapperKeyValue  # noqa
 from .wrappers import WrapperSortedIterableKeyValue  # noqa
 
 
-lang.warn_unstable()
+_lang.warn_unstable()

@@ -1,4 +1,4 @@
-from .. import lang
+from .. import lang as _lang
 
 
-lang.warn_unstable()
+_lang.warn_unstable()
