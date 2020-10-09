@@ -1,5 +1,9 @@
+import contextlib
 import io
 import typing as ta
+
+import sqlalchemy as sa
+import sqlalchemy.exc  # noqa
 
 from .. import check
 
@@ -27,3 +31,45 @@ def yield_sql_statements(body: str) -> ta.Iterator[str]:
         stmt = buf.getvalue().strip()
         if stmt:
             yield stmt
+
+
+@contextlib.contextmanager
+def transaction_context(
+        conn: sa.engine.Connection,
+        *,
+        passthrough: bool = False,
+        nonest: bool = False,
+) -> ta.Iterator[ta.Optional[sa.engine.Transaction]]:
+    if passthrough:
+        yield
+    elif nonest and conn.in_transaction():
+        yield
+    else:
+        transaction = conn.begin()
+        state = None
+
+        def hook(method_name, new_state):
+            def inner(*args, **kwargs):
+                nonlocal state
+                state = new_state
+                return old(*args, **kwargs)
+
+            old = getattr(transaction, method_name)
+            setattr(transaction, method_name, inner)
+
+        hook('_do_commit', 'commit')
+        hook('_do_rollback', 'rollback')
+
+        try:
+            yield transaction
+
+            if not transaction._parent.is_active:
+                raise sa.exc.InvalidRequestError(f'This transaction is inactive: state={state}')
+
+            transaction.commit()
+
+        except Exception:
+            if transaction._parent.is_active:
+                transaction.rollback()
+
+            raise
