@@ -1,7 +1,8 @@
 import types
+import typing as ta
 
 
-PERMITTED_KEYS = {
+PERMITTED_KEYS: ta.Set[str] = {
     'abs',
     'all',
     'any',
@@ -86,11 +87,12 @@ PERMITTED_KEYS = {
 }
 
 
-PERMITTED_TYPES = {
-}
+PERMITTED_TYPES: ta.Set[type] = set([
+
+])
 
 
-PERMITTED_BASETYPES = {
+PERMITTED_BASETYPES: ta.Set[type] = {
     BaseException,
     Warning,
 }

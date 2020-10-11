@@ -54,7 +54,7 @@ class PeekIterator(ta.Iterator[T]):
             self._next_item = next(self._it)
         except StopIteration:
             raise
-        return ta.cast(T, self._next_item)
+        return self._next_item
 
     def next_peek(self) -> T:
         next(self)
@@ -105,7 +105,7 @@ class PrefetchIterator(ta.Iterator[T]):
         super().__init__()
 
         self._fn = fn
-        self._deque = collections.deque()
+        self._deque: ta.Deque[T] = collections.deque()
 
     def __iter__(self) -> ta.Iterator[T]:
         return self
@@ -128,7 +128,7 @@ class RetainIterator(ta.Iterator[T]):
         super().__init__()
 
         self._fn = fn
-        self._deque = collections.deque()
+        self._deque: ta.Deque[T] = collections.deque()
 
     def __iter__(self) -> ta.Iterator[T]:
         return self
@@ -145,13 +145,13 @@ class RetainIterator(ta.Iterator[T]):
 def unzip(it: ta.Iterable[T], width: int = None) -> ta.List:
     if width is None:
         if not isinstance(it, PeekIterator):
-            it = PeekIterator(it)
+            it = PeekIterator(iter(it))
         try:
             width = len(it.peek())
         except StopIteration:
             return []
 
-    its = []
+    its: ta.List[PrefetchIterator[T]] = []
 
     def next_fn(idx):
         if not next_fn.running:

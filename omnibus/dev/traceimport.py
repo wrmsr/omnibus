@@ -70,7 +70,7 @@ class StatsFactory:
 
         status = {}
 
-        for key, field in cls.PROC_MEM_KEYS_BY_FIELD.iteritems():
+        for key, field in cls.PROC_MEM_KEYS_BY_FIELD.items():
             num, unit = status_fields[field].split()
 
             status[key] = int(float(num) * cls.PROC_MEM_SCALE[unit.lower()])

@@ -74,6 +74,7 @@ def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.Iterator[cf.Exe
     if 'mp_context' not in kwargs:
         kwargs['mp_context'] = get_context('fork')  # noqa
 
+    exe: ta.Any
     with cf.ProcessPoolExecutor(*args, **kwargs) as exe:
         pwi = _PendingWorkItems(exe._pending_work_items, fn)  # noqa
         exe._pending_work_items = pwi
@@ -95,4 +96,4 @@ def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.Iterator[cf.Exe
         orig_call_queue_get = exe._call_queue.get  # noqa
         exe._call_queue.get = call_queue_get  # noqa
 
-        yield exe
+        yield ta.cast(cf.ProcessPoolExecutor, exe)

@@ -10,7 +10,7 @@ class Protobuf3PrintListener(Protobuf3Listener):
 
     def __init__(
             self,
-            stream: antlr4.BufferedTokenStream.BufferedTokenStream,
+            stream: antlr4.BufferedTokenStream.BufferedTokenStream,  # type: ignore
             parser: Protobuf3Parser
     ) -> None:
         super().__init__()

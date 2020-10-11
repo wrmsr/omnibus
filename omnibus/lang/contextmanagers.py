@@ -31,7 +31,7 @@ class ContextManaged:
             exc_val: ta.Optional[Exception],
             exc_tb: ta.Optional[types.TracebackType]
     ) -> ta.Optional[bool]:
-        return
+        return None
 
 
 class NopContextManaged(ContextManaged):
@@ -74,12 +74,12 @@ class ExitStacked:
     @property
     def _exit_stack(self) -> contextlib.ExitStack:
         try:
-            return self.__exit_stack
+            return self.__exit_stack  # type: ignore
         except AttributeError:
             es = self.__exit_stack = contextlib.ExitStack()
             return es
 
-    def _enter_context(self, context_manager: ContextManageable[T]) -> T:
+    def _enter_context(self, context_manager: ContextManageable[T]) -> T:  # type: ignore
         return self._exit_stack.enter_context(context_manager)
 
     def __enter__(self: ExitStackedT) -> ExitStackedT:

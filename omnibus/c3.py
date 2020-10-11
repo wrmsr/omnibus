@@ -164,7 +164,7 @@ def compose_mro(
     # in the MRO anyway.
     def is_strict_base(typ):
         for other in types:
-            if typ != other and typ in getmro(other):
+            if typ != other and typ in (getmro(other) or []):
                 return True
         return False
     types = [n for n in types if not is_strict_base(n)]
@@ -174,18 +174,18 @@ def compose_mro(
     type_set = set(types)
     _mro = []
     for typ in types:
-        found = []
+        found: ta.List[ta.List[T]] = []
         for sub in getsubclasses(typ):
             if sub not in bases and issubclass(cls, sub):
-                found.append([s for s in getmro(sub) if s in type_set])
+                found.append([s for s in (getmro(sub) or []) if s in type_set])
         if not found:
             _mro.append(typ)
             continue
 
         # Favor subclasses with the biggest number of useful bases
         found.sort(key=len, reverse=True)
-        for sub in found:
-            for subcls in sub:
+        for lst in found:
+            for subcls in lst:
                 if subcls not in _mro:
                     _mro.append(subcls)
 

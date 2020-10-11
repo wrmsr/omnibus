@@ -251,7 +251,7 @@ if LINUX:
     SPLICE_F_GIFT = 8      # Pages passed in are a gift.
 
 
-libc.errno = ct.cast(libc.errno, ct.POINTER(ct.c_int))
+libc.errno = ct.cast(libc.errno, ct.POINTER(ct.c_int))  # type: ignore
 
 
 def lasterr():
@@ -260,7 +260,7 @@ def lasterr():
 
 
 # int raise(int sig);
-libc._raise = libc['raise']
+libc._raise = libc['raise']  # type: ignore
 libc._raise.restype = ct.c_int
 libc._raise.argtypes = [ct.c_int]
 _raise = libc._raise
@@ -270,12 +270,12 @@ def sigtrap():
     libc._raise(signal.SIGTRAP)
 
 
-libc.malloc = libc['malloc']
+libc.malloc = libc['malloc']  # type: ignore
 libc.malloc.restype = ct.c_void_p
 libc.malloc.argtypes = [ct.c_size_t]
 
 
-libc.free = libc['free']
+libc.free = libc['free']  # type: ignore
 libc.free.restype = None
 libc.free.argtypes = [ct.c_void_p]
 

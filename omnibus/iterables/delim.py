@@ -30,7 +30,7 @@ def yield_delimited_str_chunks(
                 if not chunk:
                     chunk = None
                     if last_chunk:
-                        if delimiter in last_chunk:
+                        if delimiter in last_chunk:  # type: ignore
                             out, _, chunk = last_chunk.partition(delimiter)
                             yield out
                         else:
@@ -38,7 +38,7 @@ def yield_delimited_str_chunks(
                         last_chunk = None
                     break
 
-            combined = (last_chunk or '') + chunk
+            combined = (last_chunk or '') + chunk  # type: ignore
             if delimiter in combined:
                 out, _, chunk = combined.partition(delimiter)
                 yield out

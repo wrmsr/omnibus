@@ -24,7 +24,7 @@ Bindings = ta.Mapping['Variable', 'Term']
 class Term(abc.ABC):
 
     @abc.abstractmethod
-    def match_bindings(self, other: 'Term') -> Bindings:
+    def match_bindings(self, other: 'Term') -> ta.Optional[Bindings]:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -65,7 +65,7 @@ class Compound(Term):
     def __repr__(self) -> str:
         return str(self)
 
-    def match_bindings(self, other: Term) -> Bindings:
+    def match_bindings(self, other: Term) -> ta.Optional[Bindings]:
         if isinstance(other, Variable):
             return other.match_bindings(self)
 
@@ -74,7 +74,9 @@ class Compound(Term):
                 return None
 
             matched_argument_bindings = [l.match_bindings(r) for l, r in zip(self._arguments, other.arguments)]
-            return functools.reduce(Database.merge_bindings, [{}] + matched_argument_bindings)
+            return functools.reduce(Database.merge_bindings, [{}] + matched_argument_bindings)  # type: ignore
+
+        return None
 
     def substitute_bindings(self, bindings: Bindings) -> Term:
         return Compound(
@@ -216,10 +218,11 @@ class Database:
 
                 for matching_item in tail_item.query(self):
                     tail_bindings = tail_item.match_bindings(matching_item)
-                    yield head_item.substitute_bindings(tail_bindings)
+                    if tail_bindings is not None:
+                        yield head_item.substitute_bindings(tail_bindings)
 
     @staticmethod
-    def merge_bindings(left: Bindings, right: Bindings) -> ta.Optional[Bindings]:
+    def merge_bindings(left: ta.Optional[Bindings], right: ta.Optional[Bindings]) -> ta.Optional[Bindings]:
         if left is None or right is None:
             return None
 
@@ -256,8 +259,8 @@ class Database:
         solutions = defaultdict(list)
         for match in matches:
             matching_bindings = query.match_bindings(match)
-
-            for variable_name, variable in variables_by_name.items():
-                solutions[variable_name].append(matching_bindings.get(variable))
+            if matching_bindings is not None:
+                for variable_name, variable in variables_by_name.items():
+                    solutions[variable_name].append(matching_bindings.get(variable))
 
         return solutions

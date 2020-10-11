@@ -98,7 +98,7 @@ class staticfunction(staticmethod):
 
     def __init__(self, fn: ta.Callable) -> None:
         if isinstance(fn, staticmethod):
-            fn = fn.__func__  # noqa
+            fn = fn.__func__  # type: ignore  # noqa
         super().__init__(fn)
         functools.update_wrapper(self, fn)
 
@@ -227,7 +227,7 @@ class constant(ta.Generic[T]):  # noqa
 
 
 try:
-    from .._ext.cy.lang import constant  # noqa
+    from .._ext.cy.lang import constant  # type: ignore  # noqa
 except ImportError:
     pass
 

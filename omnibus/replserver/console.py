@@ -147,7 +147,7 @@ class InteractiveSocketConsole:
             symbol: str = 'single'
     ) -> ta.Optional[types.CodeType]:
         if isinstance(source, ast.AST):
-            return self._compiler.compiler(source, filename, symbol)
+            return self._compiler.compiler(source, filename, symbol)  # type: ignore
         else:
             return self._compiler(source, filename, symbol)
 
@@ -170,11 +170,15 @@ class InteractiveSocketConsole:
 
         # Case 3 (complete)
         try:
-            node = ast.parse(source)
+            node = ast.parse(source)  # type: ignore
         except (OverflowError, SyntaxError, ValueError):
             return True
 
-        if isinstance(node, ast.Module) and node.body and isinstance(node.body[-1], ast.Expr):
+        if (
+                isinstance(node, ast.Module) and  # type: ignore
+                node.body and
+                isinstance(node.body[-1], ast.Expr)
+        ):
             expr = node.body[-1]
             source = ast.Interactive(
                 [

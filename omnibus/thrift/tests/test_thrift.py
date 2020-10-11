@@ -10,7 +10,7 @@ class ThriftPrintListener(ThriftListener):
 
     def __init__(
             self,
-            stream: antlr4.BufferedTokenStream.BufferedTokenStream,
+            stream: antlr4.BufferedTokenStream.BufferedTokenStream,  # type: ignore
             parser: ThriftParser
     ) -> None:
         super().__init__()

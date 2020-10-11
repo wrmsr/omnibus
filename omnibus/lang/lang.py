@@ -215,10 +215,10 @@ def void(*args, **kwargs) -> ta.NoReturn:
     raise VoidException
 
 
-def make_cell(value: ta.Any) -> 'CellType':
+def make_cell(value: ta.Any) -> 'CellType':  # type: ignore
     def fn():
         nonlocal value
-    return fn.__closure__[0]
+    return fn.__closure__[0]  # type: ignore
 
 
 CellType = type(make_cell(None))
@@ -226,7 +226,7 @@ CellType = type(make_cell(None))
 
 class EmptyMap(ta.Mapping[K, V]):
 
-    INSTANCE: 'EmptyMap[K, V]' = None
+    INSTANCE: ta.Optional['EmptyMap[K, V]'] = None
 
     def __init_subclass__(cls, **kwargs):
         raise TypeError
@@ -253,7 +253,7 @@ class EmptyMap(ta.Mapping[K, V]):
         yield  # type: ignore
 
 
-EmptyMap.INSTANCE = object.__new__(EmptyMap)
+EmptyMap.INSTANCE = object.__new__(EmptyMap)  # type: ignore
 
 
 def empty_map():
@@ -276,7 +276,7 @@ def peek(vs: ta.Iterable[T]) -> ta.Tuple[T, ta.Iterator[T]]:
 
 class SimpleProxy(ta.Generic[T]):
 
-    class Descriptor(ta.Generic[T]):
+    class Descriptor:
 
         def __init__(self, attr: str) -> None:
             super().__init__()
