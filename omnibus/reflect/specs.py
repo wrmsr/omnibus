@@ -491,6 +491,8 @@ _SPECS_BY_TYPE: ta.MutableMapping[type, Spec] = weakref.WeakKeyDictionary()
 
 
 def spec(cls: Specable) -> Spec:
+    if isinstance(spec, Spec):
+        return cls
     if isinstance(cls, type):
         try:
             return _SPECS_BY_TYPE[cls]
