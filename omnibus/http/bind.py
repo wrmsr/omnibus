@@ -13,7 +13,7 @@ from .. import lang
 log = logging.getLogger(__name__)
 
 
-Self = ta.TypeVar('Self')
+BinderT = ta.TypeVar('BinderT', bound='Binder')
 ClientAddress = ta.Tuple[str, int]
 
 
@@ -62,7 +62,7 @@ class Binder(lang.Abstract):
     def fileno(self) -> int:
         return self.socket.fileno()
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: BinderT) -> BinderT:
         if self._socket is not None:
             raise TypeError('Already initialized')
         self._init_socket()

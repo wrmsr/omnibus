@@ -4,7 +4,7 @@ import typing as ta
 from .. import lang
 
 
-Self = ta.TypeVar('Self')
+AppT = ta.TypeVar('AppT', bound='App')
 Environ = ta.Dict[str, ta.Any]
 StartResponse = ta.Callable[[str, ta.List[ta.Tuple[str, str]]], ta.Callable[[lang.BytesLike], None]]
 RawApp = ta.Callable[[Environ, StartResponse], ta.Iterable[lang.BytesLike]]
@@ -18,7 +18,7 @@ class BadRequestException(Exception):
 
 class App(lang.Abstract):
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: AppT) -> AppT:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:

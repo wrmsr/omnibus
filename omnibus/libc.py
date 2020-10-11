@@ -11,9 +11,6 @@ import sys
 import typing as ta
 
 
-Self = ta.TypeVar('Self')
-
-
 LINUX_PLATFORMS = ('linux', 'linux2')
 DARWIN_PLATFORMS = ('darwin',)
 

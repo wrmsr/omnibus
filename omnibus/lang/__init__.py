@@ -105,7 +105,6 @@ from .lang import no_bool  # noqa
 from .lang import NoBool  # noqa
 from .lang import peek  # noqa
 from .lang import register_on  # noqa
-from .lang import Self  # noqa
 from .lang import SimpleProxy  # noqa
 from .lang import super_meta  # noqa
 from .lang import ticking_timeout  # noqa

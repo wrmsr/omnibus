@@ -15,9 +15,6 @@ from .types import Environ
 log = logging.getLogger(__name__)
 
 
-Self = ta.TypeVar('Self')
-
-
 WsgiRequestHandler = wsgiref.simple_server.WSGIRequestHandler
 
 

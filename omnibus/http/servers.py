@@ -37,7 +37,6 @@ from .types import App
 log = logging.getLogger(__name__)
 
 
-Self = ta.TypeVar('Self')
 ClientAddress = ta.Tuple[str, int]
 
 

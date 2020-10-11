@@ -277,8 +277,8 @@ class BinderImpl(Binder):
             for p in (ps[1:] if is_method else ps)
             if p.kind not in (inspect._VAR_POSITIONAL, inspect._VAR_KEYWORD)
             and p.name not in kwargs and p.name not in assists
-            and p.annotation is inspect._empty
-            and p.default is inspect._empty
+            and p.annotation is inspect.Signature.empty
+            and p.default is inspect.Signature.empty
         ]
         if opaques:
             raise InjectionOpaqueError(opaques)
@@ -288,7 +288,7 @@ class BinderImpl(Binder):
             if k in assists:
                 continue
             vk = self._get_key(v)
-            if k in sig.parameters and sig.parameters[k].default is not inspect._empty:
+            if k in sig.parameters and sig.parameters[k].default is not inspect.Signature.empty:
                 vd = sig.parameters[k].default
             else:
                 vd = MISSING

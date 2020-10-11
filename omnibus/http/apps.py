@@ -20,7 +20,7 @@ from .types import StartResponse
 log = logging.getLogger(__name__)
 
 
-Self = ta.TypeVar('Self')
+WrapperAppT = ta.TypeVar('WrapperAppT', bound='WrapperApp')
 
 
 class WrapperApp(App):
@@ -34,7 +34,7 @@ class WrapperApp(App):
     def app(self) -> AppLike:
         return self._app
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: WrapperAppT) -> WrapperAppT:
         if hasattr(self._app, '__enter__'):
             self._app.__enter__()
 

@@ -23,7 +23,6 @@ T = ta.TypeVar('T')
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
-Self = ta.TypeVar('Self')
 BytesLike = ta.Union[bytes, bytearray]
 
 

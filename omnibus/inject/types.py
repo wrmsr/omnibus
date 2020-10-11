@@ -11,7 +11,8 @@ from .. import properties
 T = ta.TypeVar('T')
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
-Self = ta.TypeVar('Self')
+ElementT = ta.TypeVar('ElementT', bound='Element')
+BindingT = ta.TypeVar('BindingT', bound='Binding')
 
 
 class MISSING(lang.Marker):
@@ -20,7 +21,7 @@ class MISSING(lang.Marker):
 
 class Element(lang.Abstract):
 
-    def possess(self: Self, injector: 'Injector') -> Self:  # noqa
+    def possess(self: ElementT, injector: 'Injector') -> ElementT:  # noqa
         return self
 
 
@@ -76,7 +77,7 @@ class Binding(dc.Frozen, Element, ta.Generic[T], reorder=True):
     def __post_init__(self) -> None:
         check.isinstance(self.scoping, type)
 
-    def possess(self: Self, injector: 'Injector') -> Self:
+    def possess(self: BindingT, injector: 'Injector') -> BindingT:
         check.none(self._injector)
         return dc.replace(self, _injector=check.isinstance(injector, Injector))
 

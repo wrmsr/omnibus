@@ -11,17 +11,18 @@ import types
 import typing as ta
 
 from .classes import Protocol
-from .lang import Self
 
 
 T = ta.TypeVar('T')
 IteratorTOrT = ta.Union[ta.Iterator[T], T]
 CallableT = ta.TypeVar('CallableT', bound=ta.Callable)
+ContextManagedT = ta.TypeVar('ContextManagedT', bound='ContextManaged')
+ExitStackedT = ta.TypeVar('ExitStackedT', bound='ExitStacked')
 
 
 class ContextManaged:
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: ContextManagedT) -> ContextManagedT:
         return self
 
     def __exit__(
@@ -81,7 +82,7 @@ class ExitStacked:
     def _enter_context(self, context_manager: ContextManageable[T]) -> T:
         return self._exit_stack.enter_context(context_manager)
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: ExitStackedT) -> ExitStackedT:
         try:
             superfn = super().__enter__
         except AttributeError:

@@ -16,6 +16,10 @@ from .types import LifecycleStates
 
 T = ta.TypeVar('T')
 
+ContextManageableLifecycleT = ta.TypeVar('ContextManageableLifecycleT', bound='ContextManageableLifecycle')
+LifecycleContextManagerT = ta.TypeVar('LifecycleContextManagerT', bound='LifecycleContextManager')
+LifecycleManagerT = ta.TypeVar('LifecycleManagerT', bound='LifecycleManager')
+
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +43,7 @@ class LifecycleManager(AbstractLifecycle):
         self._entries_by_lifecycle: ta.MutableMapping[Lifecycle, LifecycleManager.Entry] = ocol.IdentityKeyDict()
 
     @property
-    def controller(self) -> 'LifecycleController[lang.Self]':
+    def controller(self: LifecycleManagerT) -> 'LifecycleController[LifecycleManagerT]':
         return self.lifecycle_controller
 
     @property
@@ -171,14 +175,14 @@ class LifecycleContextManager:
         return self._manager
 
     def add(
-            self: lang.Self,
+            self: LifecycleContextManagerT,
             lifecycle: Lifecycle,
             dependencies: ta.Iterable[Lifecycle] = (),
-    ) -> lang.Self:
+    ) -> LifecycleContextManagerT:
         self._manager.add(lifecycle, dependencies)
         return self
 
-    def __enter__(self: lang.Self) -> lang.Self:
+    def __enter__(self: LifecycleContextManagerT) -> LifecycleContextManagerT:
         try:
             self._manager.construct()
             self._manager.start()
@@ -227,7 +231,7 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
         lang.check_finals(cls, ContextManageableLifecycle)
 
     @lang.final
-    def __enter__(self: lang.Self) -> lang.Self:
+    def __enter__(self: ContextManageableLifecycleT) -> ContextManageableLifecycleT:
         check.none(self._lifecycle_context_manager)
         self._lifecycle_context_manager = LifecycleContextManager()
         self._lifecycle_context_manager.add(self)

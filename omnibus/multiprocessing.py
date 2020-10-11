@@ -62,7 +62,7 @@ class _PendingWorkItems:
 
 
 @contextlib.contextmanager
-def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.ContextManager[cf.Executor]:
+def forking_process_pool(fn: ta.Callable, *args, **kwargs) -> ta.Iterator[cf.Executor]:
     """
     Workaround for https://bugs.python.org/issue33725 to force forking (enabling CoW of non-picklable state). Per ticket
     can't be safely used in a process touching obj-c runtime internals. Caller beware.

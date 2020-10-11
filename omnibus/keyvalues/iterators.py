@@ -7,7 +7,7 @@ T = ta.TypeVar('T')
 FT = ta.TypeVar('FT')
 TT = ta.TypeVar('TT')
 
-Self = ta.TypeVar('Self')
+WrapperManagedIteratorT = ta.TypeVar('WrapperManagedIteratorT', bound='WrapperManagedIterator')
 
 
 class ManagedIterator(lang.Abstract, lang.ContextManaged, ta.Iterator[T]):
@@ -21,7 +21,7 @@ class WrapperManagedIterator(ManagedIterator[T]):
 
         self._wrapped = self.__wrapped__ = wrapped
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: WrapperManagedIteratorT) -> WrapperManagedIteratorT:
         self._wrapped.__enter__()
         return self
 

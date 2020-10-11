@@ -11,9 +11,12 @@ from .types import CallbackLifecycle
 from .types import Lifecycle
 
 
+AbstractLifecycleT = ta.TypeVar('AbstractLifecycleT', bound='AbstractLifecycle')
+
+
 class AbstractLifecycle(Lifecycle, lang.Abstract):
 
-    def __init__(self: lang.Self, *args, **kwargs) -> None:
+    def __init__(self: AbstractLifecycleT, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         def _lifecycle_stop() -> None:
@@ -27,7 +30,7 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
             stop=_lifecycle_stop,
             destroy=self._do_lifecycle_destroy,
         )
-        self._lifecycle_controller: LifecycleController[lang.Self] = LifecycleController(self._lifecycle_delegate)
+        self._lifecycle_controller: LifecycleController[AbstractLifecycleT] = LifecycleController(self._lifecycle_delegate)  # noqa
         self._lifecycle_exit_stack_instance: ta.Optional[contextlib.ExitStack] = None
 
     def __init_subclass__(cls, **kwargs) -> None:
@@ -35,7 +38,7 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
         lang.check_finals(cls, AbstractLifecycle)
 
     @property
-    def lifecycle_controller(self) -> 'LifecycleController[lang.Self]':
+    def lifecycle_controller(self: AbstractLifecycleT) -> 'LifecycleController[AbstractLifecycleT]':
         return self._lifecycle_controller
 
     @property

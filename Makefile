@@ -292,6 +292,10 @@ test-39: venv-39
 test-verbose:
 	.venv/bin/pytest -svvv $(PROJECT)
 
+.PHONY: test-no-docker
+test-no-docker: venv
+	.venv/bin/pytest -v -n auto --no-docker $(PROJECT)
+
 
 ### Dist
 
