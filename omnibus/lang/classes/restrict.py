@@ -21,15 +21,15 @@ _DISABLE_CHECKS = False
 
 def make_abstract(obj: T) -> T:
     if callable(obj):
-        return abc.abstractmethod(obj)
+        return ta.cast(T, abc.abstractmethod(obj))
     elif isinstance(obj, property):
-        return property(
-            abc.abstractmethod(obj.fget) if obj.fget is not None else None,
-            abc.abstractmethod(obj.fset) if obj.fset is not None else None,
-            abc.abstractmethod(obj.fdel) if obj.fdel is not None else None,
-        )
+        return ta.cast(T, property(
+            abc.abstractmethod(obj.fget) if obj.fget is not None else None,  # type: ignore
+            abc.abstractmethod(obj.fset) if obj.fset is not None else None,  # type: ignore
+            abc.abstractmethod(obj.fdel) if obj.fdel is not None else None,  # type: ignore
+        ))
     elif isinstance(obj, (classmethod, staticmethod)):
-        return type(obj)(abc.abstractmethod(obj.__func__))
+        return ta.cast(T, type(obj)(abc.abstractmethod(obj.__func__)))
     else:
         return obj
 
@@ -219,7 +219,7 @@ class PackageSealed:
 class NotInstantiable(Abstract):
     __slots__ = ()
 
-    def __new__(cls, *args, **kwargs) -> ta.NoReturn:
+    def __new__(cls, *args, **kwargs) -> ta.NoReturn:  # type: ignore
         raise TypeError
 
 
@@ -233,7 +233,7 @@ class NotPicklable:
         raise TypeError
 
 
-_MARKER_NAMESPACE_KEYS: ta.Set[str] = None
+_MARKER_NAMESPACE_KEYS: ta.Optional[ta.Set[str]] = None
 
 
 class _MarkerMeta(abc.ABCMeta):
@@ -276,7 +276,7 @@ Namespace = _Namespace()
 class AttrAccessForbiddenException(Exception):
 
     def __init__(self, name: str = None, *args, **kwargs) -> None:
-        super().__init__(*((name,) if name is not None else ()), *args, **kwargs)
+        super().__init__(*((name,) if name is not None else ()), *args, **kwargs)  # type: ignore
         self.name = name
 
 
@@ -325,7 +325,7 @@ class Override:
 
 
 def override(fn: T) -> T:
-    return ta.cast(T, Override(fn))
+    return ta.cast(T, Override(fn))  # type: ignore
 
 
 _FINALS: ta.MutableSet[ta.Any] = weakref.WeakSet()

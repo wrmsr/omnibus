@@ -79,12 +79,12 @@ class ExitStacked:
             es = self.__exit_stack = contextlib.ExitStack()
             return es
 
-    def _enter_context(self, context_manager: ContextManageable[T]) -> T:  # type: ignore
-        return self._exit_stack.enter_context(context_manager)
+    def _enter_context(self, context_manager: ContextManageable[T]) -> T:
+        return self._exit_stack.enter_context(ta.cast(ta.ContextManager, context_manager))
 
     def __enter__(self: ExitStackedT) -> ExitStackedT:
         try:
-            superfn = super().__enter__
+            superfn = super().__enter__  # type: ignore
         except AttributeError:
             ret = self
         else:
@@ -100,7 +100,7 @@ class ExitStacked:
     ) -> ta.Optional[bool]:
         self._exit_stack.__exit__(exc_type, exc_val, exc_tb)
         try:
-            superfn = super().__exit__
+            superfn = super().__exit__  # type: ignore
         except AttributeError:
             return None
         else:
@@ -108,16 +108,16 @@ class ExitStacked:
 
 
 @contextlib.contextmanager
-def maybe_managing(obj: T) -> T:
+def maybe_managing(obj: T) -> ta.Iterator[T]:
     if isinstance(obj, ContextManageable):
         with obj:
-            yield obj
+            yield ta.cast(T, obj)
     else:
         yield obj
 
 
 @contextlib.contextmanager
-def disposing(obj: T, attr: str = 'dispose') -> T:
+def disposing(obj: T, attr: str = 'dispose') -> ta.Iterator[T]:
     try:
         yield obj
     finally:
@@ -125,7 +125,7 @@ def disposing(obj: T, attr: str = 'dispose') -> T:
 
 
 @contextlib.contextmanager
-def defer(fn: ta.Callable):
+def defer(fn: ta.Callable) -> ta.Iterator[ta.Callable]:
     try:
         yield fn
     finally:
@@ -197,7 +197,7 @@ def context_wrapped(cm: ContextWrappable) -> ta.Callable[[CallableT], CallableT]
 
 
 @contextlib.contextmanager
-def context_var_setting(var: contextvars.ContextVar[T], val: T) -> T:
+def context_var_setting(var: contextvars.ContextVar[T], val: T) -> ta.Iterator[T]:
     token = var.set(val)
     try:
         yield val
@@ -229,13 +229,13 @@ def default_lock(value: DefaultLockable, default: DefaultLockable) -> Lockable:
         value = default
     if value is True:
         lock = threading.RLock()
-        return lambda: lock
+        return lambda: lock  # type: ignore
     elif value is False or value is None:
-        return nop_context_manager
+        return nop_context_manager  # type: ignore
     elif callable(value):
         return value
     elif isinstance(value, ContextManageable):
-        return lambda: value
+        return lambda: value  # type: ignore
     else:
         raise TypeError(value)
 

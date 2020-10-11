@@ -165,6 +165,6 @@ def unzip(it: ta.Iterable[T], width: int = None) -> ta.List:
             its[item_idx].push(item)
         return next(its[idx])
 
-    next_fn.running = True
+    next_fn.running = True  # type: ignore
     its.extend(PrefetchIterator(functools.partial(next_fn, idx)) for idx in range(width))
     return its

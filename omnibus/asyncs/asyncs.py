@@ -26,7 +26,7 @@ def async_once(fn: CallableT) -> CallableT:
             future = asyncio.create_task(fn(*args, **kwargs))
         return await future
     future = None
-    return inner
+    return ta.cast(CallableT, inner)
 
 
 def sync_await(fn: ta.Callable[..., T], *args, **kwargs) -> T:
@@ -42,7 +42,7 @@ def sync_await(fn: ta.Callable[..., T], *args, **kwargs) -> T:
             pass
         if ret is missing or cr.cr_await is not None or cr.cr_running:
             raise TypeError('Not terminated')
-    return ret
+    return ta.cast(T, ret)
 
 
 def sync_list(fn: ta.Callable[..., ta.AsyncIterator[T]], *args, **kwargs) -> ta.List[T]:
@@ -53,7 +53,7 @@ def sync_list(fn: ta.Callable[..., ta.AsyncIterator[T]], *args, **kwargs) -> ta.
     sync_await(inner)
     if not isinstance(lst, list):
         raise TypeError(lst)
-    return lst
+    return lst  # type: ignore
 
 
 async def async_list(fn: ta.Callable[..., ta.AsyncIterator[T]], *args, **kwargs) -> ta.List[T]:
@@ -182,7 +182,7 @@ def await_dependent_futures(
             if fn in dependency_sets_by_fn[dep]:
                 raise Exception(f'Cyclic dependencies: {fn} <-> {dep}', fn, dep)
 
-    dependent_sets_by_fn = {fn: set() for fn in dependency_sets_by_fn}
+    dependent_sets_by_fn: ta.Dict[ta.Callable, ta.Set[ta.Callable]] = {fn: set() for fn in dependency_sets_by_fn}
     for fn, deps in dependency_sets_by_fn.items():
         for dep in deps:
             dependent_sets_by_fn[dep].add(fn)
@@ -190,7 +190,7 @@ def await_dependent_futures(
         fn: set(dependencies) for fn, dependencies in dependency_sets_by_fn.items()
     }
     root_fns = {fn for fn, deps in remaining_dep_sets_by_fn.items() if not deps}
-    fns_by_fut = {fut: fn for fn in root_fns for fut in [executor.submit(fn)] if fut is not None}
+    fns_by_fut = {fut: fn for fn in root_fns for fut in [executor.submit(fn)] if fut is not None}  # type: ignore
 
     def cancel():
         for cancel_fut in fns_by_fut:

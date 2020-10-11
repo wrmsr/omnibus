@@ -247,7 +247,7 @@ class Database:
 
         return merged
 
-    def find_solutions(self, query: Compound) -> ta.Union[bool, ta.Mapping[str, Term], None]:
+    def find_solutions(self, query: Compound) -> ta.Union[bool, ta.Mapping[str, ta.Sequence[Term]], None]:
         matches = list(self.query(query))
 
         variables_by_name = {arg.name: arg for arg in query.arguments if isinstance(arg, Variable)}
@@ -261,6 +261,7 @@ class Database:
             matching_bindings = query.match_bindings(match)
             if matching_bindings is not None:
                 for variable_name, variable in variables_by_name.items():
-                    solutions[variable_name].append(matching_bindings.get(variable))
+                    if variable in matching_bindings:
+                        solutions[variable_name].append(matching_bindings[variable])
 
         return solutions

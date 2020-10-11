@@ -49,14 +49,10 @@ def unique_list(it: ta.Iterable[T]) -> ta.List[T]:
     return lst
 
 
-TrueT = T
-FalseT = T
-
-
 def split_filter(
         pred: ta.Callable[[T], bool],
         it: ta.Iterable[T],
-) -> ta.Tuple[ta.Sequence[TrueT], ta.Sequence[FalseT]]:
+) -> ta.Tuple[ta.Sequence[T], ta.Sequence[T]]:
     true = []
     false = []
     for e in it:

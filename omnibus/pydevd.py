@@ -64,7 +64,7 @@ def is_present() -> bool:
 
 def get_setup() -> ta.Optional[ta.Dict]:
     if is_present():
-        return _pydevd().SetupHolder.setup
+        return _pydevd().SetupHolder.setup  # type: ignore
     else:
         return None
 
@@ -78,8 +78,8 @@ ARGS_ENV_VAR = 'PYDEVD_ARGS'
 
 def get_args() -> ta.List[str]:
     check.state(is_present())
-    setup = get_setup()
-    args = [_pydevd().__file__]
+    setup = check.not_none(get_setup())
+    args = [_pydevd().__file__]  # type: ignore
 
     for k in [
         'port',

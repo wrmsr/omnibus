@@ -25,6 +25,8 @@ import traceback
 import types
 import typing as ta
 
+from .. import check
+
 
 log = logging.getLogger(__name__)
 
@@ -199,7 +201,7 @@ class InteractiveSocketConsole:
             ast.fix_missing_locations(source)
             self._write_count = self._count
 
-        code = self.compile(source, filename, symbol)
+        code = check.not_none(self.compile(source, filename, symbol))
         self.run_code(code)
         return False
 
@@ -220,7 +222,7 @@ class InteractiveSocketConsole:
         sys.last_type, sys.last_value, last_tb = ei = sys.exc_info()
         sys.last_traceback = last_tb
         try:
-            lines = traceback.format_exception(ei[0], ei[1], last_tb.tb_next)
+            lines = traceback.format_exception(ei[0], ei[1], last_tb.tb_next)  # type: ignore
             self.write(''.join(lines))
         finally:
             last_tb = ei = None

@@ -29,13 +29,13 @@ def parse_enum(obj: ta.Union[EnumT, str], cls: ta.Type[EnumT]) -> EnumT:
 
 class _AutoEnumMeta(enum.EnumMeta):
 
-    class Dict(SimpleMetaDict, _EnumDict):
+    class Dict(SimpleMetaDict, _EnumDict):  # type: ignore
 
-        def __init__(self, src: _EnumDict) -> None:
+        def __init__(self, src: _EnumDict) -> None:  # type: ignore
             super().__init__()
             self.update(src)
             if hasattr(src, '_generate_next_value'):
-                self._generate_next_value = src._generate_next_value
+                self._generate_next_value = src._generate_next_value  # type: ignore
 
         def __setitem__(self, key, value):
             if value is Ellipsis:

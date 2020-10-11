@@ -1,6 +1,6 @@
 import pytest
 
-from .. import stl as stl_
+from .. import stl as stl_  # type: ignore
 
 
 @pytest.mark.xfail()
