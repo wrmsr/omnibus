@@ -63,7 +63,7 @@ class Var(ta.Generic[T]):
         else:
             self._new = new
         self._validate = validate
-        self._bindings_by_frame: ta.MutableMapping[types.FrameType, Binding] = weakref.WeakValueDictionary()
+        self._bindings_by_frame: ta.MutableMapping[types.FrameType, ta.MutableMapping[int, Binding]] = weakref.WeakValueDictionary()  # noqa
 
     def __call__(self, *args, **kwargs) -> ta.Union[T, ta.ContextManager[T]]:
         if not args:

@@ -20,7 +20,7 @@ def multikey_dict(dct: ta.Mapping[ta.Union[ta.Iterable[K], K], V], *, deep: bool
     ret = {}
     for k, v in dct.items():
         if deep and isinstance(v, dict):
-            v = multikey_dict(v, deep=True)
+            v = multikey_dict(v, deep=True)  # type: ignore
         if isinstance(k, tuple):
             for sk in k:
                 ret[sk] = v
@@ -88,7 +88,7 @@ class ItemSeqTypeMap(ta.Generic[T]):
         self._items = list(items)
         self._weak = bool(weak)
 
-        self._cache: ta.MutableMapping[ta.Type[T], ta.Sequence[T]] = weakref.WeakKeyDictionary() if weak else {}
+        self._cache: ta.MutableMapping[ta.Type[T], ta.Sequence[T]] = weakref.WeakKeyDictionary() if weak else {}  # type: ignore  # noqa
 
     @property
     def items(self) -> ta.Sequence[T]:

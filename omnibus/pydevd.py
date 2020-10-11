@@ -78,7 +78,7 @@ ARGS_ENV_VAR = 'PYDEVD_ARGS'
 
 def get_args() -> ta.List[str]:
     check.state(is_present())
-    setup = check.not_none(get_setup())
+    setup = check.isinstance(get_setup(), dict)
     args = [_pydevd().__file__]  # type: ignore
 
     for k in [
