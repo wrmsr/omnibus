@@ -19,7 +19,8 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
     Policy = ta.Callable[[ta.Iterable[Registry[K, V]]], ta.Mapping[K, V]]
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def FIRST_ONE(children):
         ret = {}
         for child in children:
@@ -28,7 +29,8 @@ class CompositeRegistry(BaseRegistry[K, V]):
                     ret[k] = v
         return ret
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def ONLY_ONE(children):
         ret = {}
         for child in children:
@@ -114,7 +116,8 @@ class CompositeRegistry(BaseRegistry[K, V]):
 
 class CompositeMultiRegistry(CompositeRegistry[K, ta.AbstractSet[V]], MultiRegistry[K, V]):
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def MERGE(children):
         ret = {}
         for child in children:

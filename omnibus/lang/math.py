@@ -7,7 +7,7 @@ import functools
 import typing as ta
 
 from .classes import Final
-from .classes import staticfunction
+from .functions import staticfunction
 
 
 def isclose(a: float, b: float, *, rel_tol: float = 1e-09, abs_tol: float = 0.0) -> float:
