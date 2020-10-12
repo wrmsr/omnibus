@@ -624,6 +624,7 @@ ci:
 
 .PHONY: ci-test
 ci-test:
+	env | sort
 	flake8 $(PROJECT)
 	python setup.py build_ext --inplace
 
