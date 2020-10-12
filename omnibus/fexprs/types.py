@@ -110,7 +110,7 @@ Instr = dis.Instruction
 
 class Stack(lang.Final):
 
-    NIL: 'Stack' = None
+    NIL: ta.Optional['Stack'] = None
 
     def __init__(self, value: Value, prev: 'Stack') -> None:
         super().__init__()
@@ -196,7 +196,7 @@ class Stack(lang.Final):
         return f'{{{{{", ".join(repr(e) for e in self)}}}}}'
 
 
-Stack.NIL = Stack(None, None)
+Stack.NIL = Stack(None, None)  # type: ignore
 
 
 class Stream(lang.Final):

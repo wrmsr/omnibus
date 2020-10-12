@@ -7,7 +7,7 @@ T = ta.TypeVar('T')
 Value = ta.Union[int, float, str]
 
 
-def _build_glyph_dict(*objs: ta.Sequence[T]) -> ta.Mapping[str, T]:
+def _build_glyph_dict(*objs: 'TypeCode') -> ta.Mapping[str, 'TypeCode']:
     d = {}
     for o in objs:
         if o.glyph in objs:

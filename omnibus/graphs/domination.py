@@ -78,7 +78,7 @@ class DominatorTree(ta.Generic[V, E]):
 
     @properties.cached
     def dominator_tree(self) -> SetMap[V, V]:
-        tree = {}
+        tree: ta.Dict[V, ta.Set[V]] = {}
         for node, dom in self.immediate_dominators.items():
             tree.setdefault(dom, set()).add(node)
         return tree
@@ -86,7 +86,7 @@ class DominatorTree(ta.Generic[V, E]):
     @properties.cached
     def deep_dominated(self) -> SetMap[V, V]:
         seen: ta.Set[V] = set()
-        ret: SetMap[V, V] = {}
+        ret: ta.Dict[V, ta.Set[V]] = {}
 
         def rec(node: V) -> ta.Collection[V]:
             check.not_in(node, seen)

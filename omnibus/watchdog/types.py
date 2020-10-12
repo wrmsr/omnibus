@@ -1,3 +1,4 @@
+import abc
 import contextlib
 import threading
 import typing as ta
@@ -19,46 +20,39 @@ class Watch(lang.Abstract):
     def __exit__(self, et, e, tb) -> None:
         return None
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def thread(self) -> ta.Optional[threading.Thread]:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def thread_ident(self) -> int:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def obj(self) -> ta.Optional[ta.Any]:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def obj_id(self) -> int:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def age(self) -> float:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def staleness(self) -> float:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def suspended(self) -> bool:
         raise NotImplementedError
 
-    @lang.abstract
+    @abc.abstractmethod
     def checkpoint(self) -> None:
         raise NotImplementedError
 
-    @lang.abstract
+    @abc.abstractmethod
     def suspend(self, duration: FloatOrInt = None) -> ta.ContextManager[None]:
         raise NotImplementedError
 
@@ -97,7 +91,7 @@ class NopWatch(Watch):
         pass
 
     @contextlib.contextmanager
-    def suspend(self, duration: FloatOrInt = None) -> ta.ContextManager[None]:
+    def suspend(self, duration: FloatOrInt = None) -> ta.Iterator[None]:
         yield
 
 
@@ -113,13 +107,11 @@ class Watchdog(lc.ContextManageableLifecycle, lang.Abstract):
     ) -> ta.ContextManager[Watch]:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def current(self) -> ta.Set[Watch]:
         raise NotImplementedError
 
-    @property
-    @lang.abstract
+    @abc.abstractproperty
     def thread_current(self) -> ta.Set[Watch]:
         raise NotImplementedError
 
@@ -198,7 +190,7 @@ class Report(dc.Pure):
     violations: ta.List[WatchReport]
     others: ta.List[WatchReport]
     threads: ta.List[ThreadReport]
-    meta: ta.Mapping[str, ta.Any] = None
+    meta: ta.Optional[ta.Mapping[str, ta.Any]] = None
 
 
 class Reporter(lang.Abstract):

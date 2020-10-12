@@ -41,9 +41,9 @@ def transaction_context(
         nonest: bool = False,
 ) -> ta.Iterator[ta.Optional[sa.engine.Transaction]]:
     if passthrough:
-        yield
+        yield None
     elif nonest and conn.in_transaction():
-        yield
+        yield None
     else:
         transaction = conn.begin()
         state = None
@@ -63,13 +63,13 @@ def transaction_context(
         try:
             yield transaction
 
-            if not transaction._parent.is_active:
+            if not transaction._parent.is_active:  # type: ignore
                 raise sa.exc.InvalidRequestError(f'This transaction is inactive: state={state}')
 
             transaction.commit()
 
         except Exception:
-            if transaction._parent.is_active:
+            if transaction._parent.is_active:  # type: ignore
                 transaction.rollback()
 
             raise

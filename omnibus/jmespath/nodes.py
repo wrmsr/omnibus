@@ -30,7 +30,7 @@ class Compare(Operator):
         LT = '<'
         LE = '<='
 
-    Op._by_value = {v: k for k, v in Op._by_name.items()}
+    Op._by_value = {v: k for k, v in Op._by_name.items()}  # type: ignore
 
     op: Op
     left: Node

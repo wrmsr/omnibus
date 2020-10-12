@@ -12,19 +12,20 @@ from .maps import yield_dict_init
 
 
 T = ta.TypeVar('T')
+U = ta.TypeVar('U')
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
 
 
 class SortedCollection(lang.Abstract, ta.Collection[T]):
 
-    Comparator = ta.Callable[[T, T], int]
+    Comparator = ta.Callable[[U, U], int]
 
     @staticmethod
     def default_comparator(a: T, b: T) -> int:
         """https://docs.python.org/3.0/whatsnew/3.0.html#ordering-comparisons"""
 
-        return (a > b) - (a < b)
+        return (a > b) - (a < b)  # type: ignore
 
     @abc.abstractmethod
     def __len__(self) -> int:
@@ -35,7 +36,7 @@ class SortedCollection(lang.Abstract, ta.Collection[T]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def __contains__(self, value: T) -> bool:
+    def __contains__(self, value: T) -> bool:  # type: ignore
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -95,7 +96,7 @@ class SkipList(SortedCollection[T]):
             self,
             *,
             max_height: int = 16,
-            comparator: SortedCollection.Comparator[T] = None,
+            comparator: ta.Optional[SortedCollection.Comparator[T]] = None,
     ) -> None:
         super().__init__()
 
@@ -114,7 +115,7 @@ class SkipList(SortedCollection[T]):
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self.iter())
 
-    def __contains__(self, value: T) -> bool:
+    def __contains__(self, value: T) -> bool:  # type: ignore
         return self.find(value) is not None
 
     def _random_level(self) -> int:

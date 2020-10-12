@@ -29,7 +29,7 @@ class SetProvider(dc.Pure, MultiProvider[ta.AbstractSet[T]]):
         return ret
 
 
-class DictBinding(dc.Pure, MultiBinding[T]):
+class DictBinding(dc.Pure, MultiBinding[K]):
     assignment: K
 
 

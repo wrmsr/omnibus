@@ -37,7 +37,7 @@ class Parser:
         super().__init__()
 
         self._tokens = parse_tokens_from_string(input_text)
-        self._scope = None
+        self._scope: ta.Optional[ta.Dict[str, Term]] = None
 
     def parse_rules(self) -> ta.Sequence[Rule]:
         rules = []
@@ -75,11 +75,12 @@ class Parser:
             if functor == '_':
                 return Variable('_')
 
-            variable = self._scope.get(functor)
+            scope = check.not_none(self._scope)
+            variable = scope.get(functor)
 
             if variable is None:
-                self._scope[functor] = Variable(functor)
-                variable = self._scope[functor]
+                scope[functor] = Variable(functor)
+                variable = scope[functor]
 
             return variable
 

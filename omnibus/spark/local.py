@@ -17,7 +17,7 @@ class LocalLauncher:
     def __init__(
             self,
             code: str,
-            args: ta.Sequence[str] = None,
+            args: ta.Optional[ta.Sequence[str]] = None,
             env: ta.Optional[ta.Mapping[str, str]] = None,
             *,
             jvm_debug_port: ta.Optional[int] = None,

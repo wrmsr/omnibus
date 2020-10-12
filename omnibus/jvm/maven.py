@@ -30,7 +30,7 @@ class Dependency(dc.Pure):
     scope: ta.Optional[Scope] = None
 
 
-NestedStrMap = ta.Mapping[str, ta.Union[str, 'NestedStrMap', ta.Sequence['NestedStrMap']]]
+NestedStrMap = ta.Mapping[str, ta.Union[str, 'NestedStrMap', ta.Sequence['NestedStrMap']]]  # type: ignore
 
 
 class Goal(dc.Pure):
@@ -46,7 +46,7 @@ class Plugin(dc.Pure):
     artifact_id: str
     version: str
     configuration: ta.Optional[NestedStrMap] = None
-    executions: ta.Optional[Execution] = None
+    executions: ta.Optional[ta.Sequence[Execution]] = None
 
 
 class Project(dc.Data):
@@ -118,7 +118,7 @@ def prettify(elem: xet.Element) -> str:
     rough_string = xet.tostring(elem, 'utf-8')
 
     __import__('xml.dom.minidom')
-    reparsed = xml.dom.minidom.parseString(rough_string)
+    reparsed = xml.dom.minidom.parseString(rough_string)  # type: ignore
 
     indent = '    '
     writer = io.StringIO()

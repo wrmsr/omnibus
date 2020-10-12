@@ -13,7 +13,7 @@ class _LifecycleRegistrar:
     def __init__(self) -> None:
         super().__init__()
 
-        self._seen = weakref.WeakSet()
+        self._seen: ta.MutableSet[ta.Any] = weakref.WeakSet()
         self._stack: ta.List[_LifecycleRegistrar.State] = []
 
     class State(dc.Pure):

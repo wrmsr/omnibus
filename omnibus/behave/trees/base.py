@@ -27,9 +27,9 @@ class Task(ta.Generic[E], lang.Abstract):
         super().__init__()
 
         self._status = Task.Status.FRESH
-        self._control: Task[E] = None
-        self._tree: 'BehaviorTree[E]' = tree
-        self._guard: Task[E] = guard
+        self._control: ta.Optional[Task[E]] = None
+        self._tree: ta.Optional['BehaviorTree[E]'] = tree
+        self._guard: ta.Optional[Task[E]] = guard
 
     @property
     def status(self) -> Status:
@@ -292,7 +292,7 @@ class BranchTask(Task[E], lang.Abstract):
 
 class Decorator(Task[E], lang.Abstract):
 
-    def __init__(self, child: Task[E] = None) -> None:
+    def __init__(self, child: ta.Optional[Task[E]] = None) -> None:
         super().__init__()
 
         self._child = child
@@ -372,7 +372,7 @@ class LeafTask(Task[E], lang.Abstract):
 
 class LoopDecorator(Decorator[E], lang.Abstract):
 
-    def __init__(self, child: Task[E] = None) -> None:
+    def __init__(self, child: ta.Optional[Task[E]] = None) -> None:
         super().__init__(child)
 
         self._loop = False
@@ -401,7 +401,7 @@ class LoopDecorator(Decorator[E], lang.Abstract):
 
 class SingleRunningChildBranch(BranchTask[E], lang.Abstract):
 
-    def __init__(self, children: ta.Sequence[Task[E]] = None) -> None:
+    def __init__(self, children: ta.Optional[ta.Sequence[Task[E]]] = None) -> None:
         super().__init__(children)
 
         self._running_child: ta.Optional[Task[E]] = None

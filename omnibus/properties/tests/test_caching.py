@@ -38,13 +38,13 @@ def test_caching_class_property():
         def cached(cls) -> str:
             nonlocal count
             count += 1
-            return f'cached {cls.__name__}'
+            return f'cached {cls.__name__}'  # type: ignore
 
         @caching_.locked_cached_class
         def locked_cached(cls) -> str:
             nonlocal count
             count += 1
-            return f'locked_cached {cls.__name__}'
+            return f'locked_cached {cls.__name__}'  # type: ignore
 
     for _ in range(2):
         assert C.cached == 'cached C'
@@ -88,7 +88,7 @@ def test_unwrapping():
         @caching_.cached
         @property
         def s(self) -> str:
-            nonlocal i
+            nonlocal i  # type: ignore
             i += 1
             return 'barf'
 

@@ -119,8 +119,8 @@ def mro(
     other_bases = list(getbases(cls)[boundary:])
     for base in abcs:
         if (
-                issubclass(cls, base) and
-                not any(issubclass(b, base) for b in getbases(cls))
+                issubclass(cls, base) and  # noqa
+                not any(issubclass(b, base) for b in getbases(cls))  # noqa
         ):
             # If *cls* is the class that introduces behaviour described by
             # an ABC *base*, insert said ABC to its MRO.
@@ -176,7 +176,7 @@ def compose_mro(
     for typ in types:
         found: ta.List[ta.List[T]] = []
         for sub in getsubclasses(typ):
-            if sub not in bases and issubclass(cls, sub):
+            if sub not in bases and issubclass(cls, sub):  # noqa
                 found.append([s for s in (getmro(sub) or []) if s in type_set])
         if not found:
             _mro.append(typ)

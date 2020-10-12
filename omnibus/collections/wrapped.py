@@ -45,32 +45,32 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
         return WrappedSequence(
             self._encoder,
             self._decoder,
-            self._target + list(map(self._encoder, o))
+            [*self._target, *map(self._encoder, o)],  # type: ignore
         )
 
     def __contains__(self, x: object) -> bool:
-        return self._encoder(x) in self._target
+        return self._encoder(x) in self._target  # type: ignore
 
     def __delitem__(self, idx: ta.Union[int, slice]) -> None:
         del self._target[idx]
 
     def __eq__(self, o: object) -> bool:
-        if not len(self._target) == len(o):
+        if not len(self._target) == len(o):  # type: ignore
             return False
-        for l, r in zip(self, o):
+        for l, r in zip(self, o):  # type: ignore
             if l != r:
                 return False
         return True
 
-    def __getitem__(self, i: ta.Union[int, slice]) -> TT:
-        return self._decoder(self._target[i])
+    def __getitem__(self, i: ta.Union[int, slice]) -> TT:  # type: ignore
+        return self._decoder(self._target[i])  # type: ignore
 
-    def __iadd__(self, it: ta.Iterable[TT]) -> ta.MutableSequence[TT]:
-        self._target += map(self._encoder, it)
+    def __iadd__(self, it: ta.Iterable[TT]) -> ta.MutableSequence[TT]:  # type: ignore
+        self._target += map(self._encoder, it)  # type: ignore
         return self
 
     def __iter__(self) -> ta.Iterator[TT]:
-        return map(self._decoder, self._target)
+        return map(self._decoder, self._target)  # type: ignore
 
     def __len__(self) -> int:
         return len(self._target)
@@ -92,18 +92,18 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
         return not self.__eq__(o)
 
     def __reversed__(self) -> ta.Iterator[TT]:
-        return map(self._decoder, reversed(self._target))
+        return map(self._decoder, reversed(self._target))  # type: ignore
 
     def __setitem__(self, idx: ta.Union[int, slice], obj: ta.Union[TT, ta.Iterable[TT]]) -> None:
         if isinstance(idx, int):
             self._target[idx] = self._encoder(obj)
         elif isinstance(idx, slice):
-            self._target[idx] = map(self._encoder, obj)
+            self._target[idx] = map(self._encoder, obj)  # type: ignore
         else:
             raise TypeError(idx)
 
     def append(self, obj: TT) -> None:
-        self._target.append(self._encoder(obj))
+        self._target.append(self._encoder(obj))  # type: ignore
 
     def clear(self) -> None:
         self._target.clear()
@@ -112,19 +112,19 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
         return self._target.count(self._encoder(x))
 
     def extend(self, it: ta.Iterable[TT]) -> None:
-        self._target.extend(map(self._encoder, it))
+        self._target.extend(map(self._encoder, it))  # type: ignore
 
-    def index(self, x: ta.Any, *args, **kwargs) -> int:
+    def index(self, x: ta.Any, *args, **kwargs) -> int:  # type: ignore
         return self._target.index(self._encoder(x), *args, **kwargs)
 
     def insert(self, idx: int, o: TT) -> None:
-        self._target.insert(idx, self._encoder(o))
+        self._target.insert(idx, self._encoder(o))  # type: ignore
 
     def pop(self, idx: int = -1) -> TT:
-        return self._target.pop(idx)
+        return self._target.pop(idx)  # type: ignore
 
     def remove(self, obj: TT) -> None:
-        self._target.remove(self._encoder(obj))
+        self._target.remove(self._encoder(obj))  # type: ignore
 
     def reverse(self) -> None:
         self._target.reverse()

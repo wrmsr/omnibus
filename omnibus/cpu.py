@@ -41,12 +41,12 @@ class Cpuid(ta.NamedTuple):
 
 
 def cpuid(leaf: int) -> Cpuid:
-    _, a, b, c, d = _cpu.cpuid(leaf)
+    _, a, b, c, d = _cpu.cpuid(leaf)  # type: ignore
     return Cpuid(a, b, c, d)
 
 
 def cpuid_count(leaf: int, subleaf: int) -> Cpuid:
-    _, a, b, c, d = _cpu.cpuid_count(leaf, subleaf)
+    _, a, b, c, d = _cpu.cpuid_count(leaf, subleaf)  # type: ignore
     return Cpuid(a, b, c, d)
 
 
@@ -60,11 +60,11 @@ def name() -> str:
 
 
 def rdtscp() -> ta.Tuple[int, int]:
-    return _cpu.rdtscp()
+    return _cpu.rdtscp()  # type: ignore
 
 
 def xgetbv(ctr: int) -> int:
-    return _cpu.xgetbv(ctr)
+    return _cpu.xgetbv(ctr)  # type: ignore
 
 
 class Ident(ta.NamedTuple):

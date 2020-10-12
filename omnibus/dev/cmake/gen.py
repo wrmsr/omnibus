@@ -8,7 +8,7 @@ from ... import dataclasses as dc
 class Command:
     name: str
     args: ta.Union[str, ta.Sequence[str]]
-    lines: ta.Sequence[str] = None
+    lines: ta.Optional[ta.Sequence[str]] = None
 
 
 @dc.dataclass(frozen=True)
@@ -22,13 +22,13 @@ class Target(abc.ABC):
     name: str
     source_files: ta.Sequence[str]
 
-    include_directories: ta.Sequence[str] = None
-    compile_options: ta.Sequence[str] = None
-    link_options: ta.Sequence[str] = None
+    include_directories: ta.Optional[ta.Sequence[str]] = None
+    compile_options: ta.Optional[ta.Sequence[str]] = None
+    link_options: ta.Optional[ta.Sequence[str]] = None
 
-    compile_flags_by_source_file: ta.Mapping[str, ta.Sequence[str]] = None
+    compile_flags_by_source_file: ta.Optional[ta.Mapping[str, ta.Sequence[str]]] = None
 
-    link_libraries: ta.Sequence[str] = None
+    link_libraries: ta.Optional[ta.Sequence[str]] = None
 
     @abc.abstractproperty
     def command_name(self) -> str:

@@ -65,10 +65,10 @@ class CallbackLifecycle(Lifecycle, lang.Final, ta.Generic[LifecycleT]):
     def __init__(
             self,
             *,
-            construct: LifecycleCallback[LifecycleT] = None,
-            start: LifecycleCallback[LifecycleT] = None,
-            stop: LifecycleCallback[LifecycleT] = None,
-            destroy: LifecycleCallback[LifecycleT] = None,
+            construct: ta.Optional[LifecycleCallback[LifecycleT]] = None,
+            start: ta.Optional[LifecycleCallback[LifecycleT]] = None,
+            stop: ta.Optional[LifecycleCallback[LifecycleT]] = None,
+            destroy: ta.Optional[LifecycleCallback[LifecycleT]] = None,
     ) -> None:
         super().__init__()
 

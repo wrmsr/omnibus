@@ -28,6 +28,7 @@ def build_arg_dict(
         args: ta.Iterable[ta.Any],
         kwargs: ta.Mapping[str, ta.Any]
 ) -> ta.Dict[str, ta.Union[int, ta.Iterable[int], ta.Mapping[str, int]]]:
+    args = tuple_(args)
     arg_names = get_arg_names(argspec)
     kwarg_defaults = dict(zip(argspec.args[-len(argspec.defaults):], argspec.defaults)) \
         if argspec.defaults else {}
@@ -43,7 +44,7 @@ def build_arg_dict(
 
 class Callable(lang.Sealed):
 
-    final_type = None
+    final_type: ta.Optional[type] = None
 
     def __init__(self, *args, **kwargs) -> None:
         if self.final_type is not None and type(self) is not self.final_type:

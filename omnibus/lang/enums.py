@@ -108,8 +108,8 @@ class _ValueEnumMeta(type):
 
 class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
 
-    _by_name: ta.Mapping[str, V]
-    _by_value: ta.Mapping[V, str]
+    _by_name: ta.ClassVar[ta.Mapping[str, V]]
+    _by_value: ta.ClassVar[ta.Mapping[V, str]]
 
     def __new__(cls, *args, **kwargs):
         raise TypeError

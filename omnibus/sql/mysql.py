@@ -100,7 +100,7 @@ def pymysql_render_statement(elem, *multiparams, **params) -> str:
     engine = _create_pymysql_dummy_engine()
     dialect = engine.dialect
 
-    distilled_params = sa.cutils._distill_params(multiparams, params)
+    distilled_params = sa.cutils._distill_params(multiparams, params)  # type: ignore
     if distilled_params:
         # note this is usually dict but we support RowProxy
         # as well; but dict.keys() as an iterable is OK

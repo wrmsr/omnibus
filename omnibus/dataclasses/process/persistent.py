@@ -56,7 +56,7 @@ class PersistentStorage(Storage):
         return '__%s_%x_seq' % (self.ctx.cls.__name__, id(self.ctx.cls))
 
     def check(self) -> None:
-        check.state(self.ctx.spec.params.frozen)
+        check.state(check.not_none(self.ctx.spec.params).frozen)
 
     def process(self) -> None:
         for idx, fld in enumerate(self.ctx.spec.fields.instance):

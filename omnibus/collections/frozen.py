@@ -57,7 +57,7 @@ class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            self._hash = hash((k, self[k]) for k in sorted(self))
+            self._hash = hash((k, self[k]) for k in sorted(self))  # type: ignore
         return self._hash
 
     def __iter__(self) -> ta.Iterator[K]:
@@ -90,7 +90,7 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
         super().__init__()
 
         self._tup: tuple = tuple(it) if it is not None else ()
-        self._hash = None
+        self._hash: ta.Optional[int] = None
 
     @property
     def debug(self) -> ta.Sequence[T]:
@@ -120,10 +120,10 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            self._hash = hash(self._tup)
+            self._hash = hash(self._tup)  # type: ignore
         return self._hash
 
-    def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':
+    def __getitem__(self, idx: ta.Union[int, slice]) -> 'FrozenList[T]':  # type: ignore
         if isinstance(idx, int):
             return self._tup[idx]
         else:
@@ -152,8 +152,8 @@ class FrozenList(ta.Sequence[T], Frozen, lang.Final):
     def count(self, x: ta.Any) -> int:
         return super().count(x)
 
-    def index(self, x: ta.Any, *args, **kwargs) -> int:
-        return self._tup.index(x, *args, **kwargs)
+    def index(self, x: ta.Any, *args, **kwargs) -> int:  # type: ignore
+        return self._tup.index(x, *args, **kwargs)  # type: ignore
 
 
 frozenlist = FrozenList

@@ -4,7 +4,7 @@ import typing as ta
 
 import pkg_resources
 import sqlalchemy as sa
-import sqlalchemy.dialects
+import sqlalchemy.dialects  # noqa
 
 from ... import check
 from ... import lang
@@ -29,10 +29,10 @@ def create_instrumented_dialect(base: ta.Type[sa.engine.Dialect]) -> ta.Type[sa.
             raise NameError(name)
         return existing
 
-    check.not_empty(base.driver)  # noqa
+    check.not_empty(base.driver)  # type: ignore  # noq
     dialect = type(name, (InstrumentationDialectMixin, base), {'__module__': __name__})
     globals()[name] = dialect
-    rname = f'{AFFIX}_{base.name}.{base.driver}'  # noqa
+    rname = f'{AFFIX}_{base.name}.{base.driver}'  # type: ignore  # noqa
     sa.dialects.registry.register(rname, dialect.__module__, name)
     return dialect  # noqa
 

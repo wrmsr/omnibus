@@ -17,7 +17,7 @@ AbstractLifecycleT = ta.TypeVar('AbstractLifecycleT', bound='AbstractLifecycle')
 class AbstractLifecycle(Lifecycle, lang.Abstract):
 
     def __init__(self: AbstractLifecycleT, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # type: ignore
 
         def _lifecycle_stop() -> None:
             if self._lifecycle_exit_stack_instance is not None:

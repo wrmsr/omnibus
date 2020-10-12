@@ -64,7 +64,7 @@ def signal_handling(
     previous_handlers = [
         signal.signal(
             sig,
-            handler if not isinstance(handler, signal.Handlers) else functools.partial(handler, sig))
+            handler if not isinstance(handler, signal.Handlers) else functools.partial(handler, sig))  # type: ignore
         for sig in sigs]
 
     try:
@@ -155,7 +155,7 @@ def tmp_dir(root_dir: str = None, cleanup: bool = True) -> ta.Iterator[str]:
 
 
 @contextlib.contextmanager
-def tmp_file(root_dir: str = None, cleanup: bool = True) -> ta.Iterator[tempfile._TemporaryFileWrapper]:  # noqa
+def tmp_file(root_dir: str = None, cleanup: bool = True) -> ta.Iterator[tempfile._TemporaryFileWrapper]:  # type: ignore  # noqa
     with tempfile.NamedTemporaryFile(dir=root_dir, delete=False) as f:
         try:
             yield f
@@ -206,10 +206,10 @@ class TempSubprocess:
         if not pid:
             if hasattr(libc, 'prctl'):
                 libc.prctl(libc.PR_SET_PDEATHSIG, deathsig, 0, 0, 0, 0)
-            os.execvp(args[0], args)
+            os.execvp(args[0], list(args))
             raise RuntimeError
         self._pid = pid
-        self._returncode: int = None
+        self._returncode: ta.Optional[int] = None
 
     @property
     def pid(self) -> int:

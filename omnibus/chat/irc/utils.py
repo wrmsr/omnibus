@@ -30,7 +30,7 @@ def levenshtein_distance(s: str, t: str) -> int:
         return m
     elif not m:
         return n
-    d = []
+    d: ta.List[ta.List[int]] = []
     for i in range(n + 1):
         d.append([])
         for j in range(m + 1):

@@ -22,7 +22,7 @@ def function(
         lock: lang.ContextManageable = None,
         **kwargs
 ) -> ta.Callable[[ta.Callable[..., R]], ta.Callable[..., R]]:
-    dispatcher = CachingDispatcher(
+    dispatcher: CachingDispatcher = CachingDispatcher(
         ErasingDispatcher(**kwargs),
         guard,
         lock=lock,

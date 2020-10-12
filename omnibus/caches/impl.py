@@ -36,7 +36,7 @@ class CacheImpl(Cache[K, V]):
     """
 
     try:
-        from .._ext.cy.caches import CacheLink as Link
+        from .._ext.cy.caches import CacheLink as Link  # type: ignore
 
     except ImportError:
         class Link:

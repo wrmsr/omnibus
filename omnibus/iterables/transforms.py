@@ -112,7 +112,7 @@ def discard(items):
     for _ in items:
         pass
     return
-    yield
+    yield  # type: ignore
 
 
 @constructor()
@@ -177,7 +177,7 @@ def unreachable(exception=lambda item: RuntimeError('Unreachable', item)):
         for item in items:
             raise exception(item)
         return
-        yield
+        yield  # type: ignore
     return run
 
 

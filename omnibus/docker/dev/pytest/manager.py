@@ -32,7 +32,7 @@ class DockerManager(lc.ContextManageableLifecycle):
 
         self._prefix = check.isinstance(prefix, Prefix).value
         self._compose_path = check.isinstance(compose_path, ComposePath).value if compose_path is not None else None
-        self._request = check.isinstance(request, (har.FixtureRequest, None))
+        self._request: ta.Optional[har.FixtureRequest] = check.isinstance(request, (har.FixtureRequest, None))
 
     @property
     def prefix(self) -> str:
@@ -42,7 +42,7 @@ class DockerManager(lc.ContextManageableLifecycle):
     def client(self):
         return self._lifecycle_exit_stack.enter_context(docker.client_context())
 
-    _container_tcp_endpoints = properties.cached(lambda self: {})
+    _container_tcp_endpoints: ta.MutableMapping[ta.Tuple[str, int], ta.Tuple[str, int]] = properties.cached(lambda self: {})  # noqa
 
     def get_container_tcp_endpoints(
             self,
@@ -65,7 +65,7 @@ class DockerManager(lc.ContextManageableLifecycle):
             self._container_tcp_endpoints.update(res)
         return ret
 
-    @properties.cached
+    @properties.cached  # type: ignore
     @property
     def compose_config(self) -> ta.Mapping[str, ta.Any]:
         with open(check.not_none(self._compose_path), 'r') as f:

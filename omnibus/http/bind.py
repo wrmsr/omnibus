@@ -35,19 +35,19 @@ class Binder(lang.Abstract):
     def address_family(self) -> int:
         raise NotImplementedError
 
-    _name: str = None
+    _name: ta.Optional[str] = None
 
     @property
     def name(self) -> str:
-        return self._name
+        return check.not_none(self._name)
 
-    _port: int = None
+    _port: ta.Optional[int] = None
 
     @property
     def port(self) -> int:
-        return self._port
+        return check.not_none(self._port)
 
-    _socket: sock.socket = None
+    _socket: ta.Optional[sock.socket] = None
 
     @property
     def socket(self) -> sock.socket:
@@ -68,8 +68,7 @@ class Binder(lang.Abstract):
         self._init_socket()
         if not isinstance(self._socket, sock.socket):
             raise TypeError('Initialization failure')
-
-        return self
+        return self  # type: ignore
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         if self._socket is not None:
@@ -87,16 +86,16 @@ class Binder(lang.Abstract):
     @classmethod
     def new(cls, target: ta.Union[ta.Tuple[str, int], str]) -> 'Binder':
         if isinstance(target, str):
-            return UnixBinder(target)
+            return UnixBinder(UnixBinder.Config(target))
 
         elif isinstance(target, tuple):
             host, port = target
-            if not isinstance(host, str) or not isinstance(port, int):
+            if not isinstance(host, str) or not isinstance(port, int):  # type: ignore
                 raise TypeError(target)
-            return TcpBinder(host, port)
+            return TcpBinder(TcpBinder.Config(host, port))
 
         elif isinstance(target, Binder):
-            return DupBinder(target)
+            return DupBinder(DupBinder.Config(target))
 
         else:
             raise TypeError(target)

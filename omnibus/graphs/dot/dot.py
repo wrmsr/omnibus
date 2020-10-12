@@ -69,7 +69,7 @@ class Raw(Value):
     raw: str
 
     @classmethod
-    def of(cls, obj: ta.Union['Raw', str]) -> 'Raw':
+    def of(cls, obj: ta.Union['Raw', str]) -> 'Raw':  # type: ignore
         if isinstance(obj, Raw):
             return obj
         elif isinstance(obj, str):
@@ -82,7 +82,7 @@ class Text(Value):
     text: str
 
     @classmethod
-    def of(cls, obj: ta.Union['Text', str]) -> 'Text':
+    def of(cls, obj: ta.Union['Text', str]) -> 'Text':  # type: ignore
         if isinstance(obj, Text):
             return obj
         elif isinstance(obj, str):
@@ -121,7 +121,7 @@ class Table(Value):
     rows: ta.Sequence[Row] = dc.field(coerce=col.seq)
 
     @classmethod
-    def of(cls, obj: ta.Union['Table', ta.Sequence[ta.Any]]) -> 'Table':
+    def of(cls, obj: ta.Union['Table', ta.Sequence[ta.Any]]) -> 'Table':  # type: ignore
         if isinstance(obj, Table):
             return obj
         elif isinstance(obj, str):
@@ -196,33 +196,33 @@ class Renderer(disp.Class):
     def __call__(self, item: Item) -> None:  # noqa
         raise TypeError(item)
 
-    def __call__(self, item: Raw) -> None:  # noqa
+    def __call__(self, item: Raw) -> None:  # type: ignore  # noqa
         self._out.write(item.raw)
 
-    def __call__(self, item: Text) -> None:  # noqa
+    def __call__(self, item: Text) -> None:  # type: ignore  # noqa
         self._out.write(html.escape(item.text))
 
-    def __call__(self, item: Cell) -> None:  # noqa
+    def __call__(self, item: Cell) -> None:  # type: ignore  # noqa
         self._out.write('<td>')
         self(item.value)
         self._out.write('</td>')
 
-    def __call__(self, item: Row) -> None:  # noqa
+    def __call__(self, item: Row) -> None:  # type: ignore  # noqa
         self._out.write('<tr>')
         for cell in item.cells:
             self(cell)
         self._out.write('</tr>')
 
-    def __call__(self, item: Table) -> None:  # noqa
+    def __call__(self, item: Table) -> None:  # type: ignore  # noqa
         self._out.write('<table>')
         for row in item.rows:
             self(row)
         self._out.write('</table>')
 
-    def __call__(self, item: Id) -> None:  # noqa
+    def __call__(self, item: Id) -> None:  # type: ignore  # noqa
         self._out.write(f'"{item.id}"')
 
-    def __call__(self, item: Attrs) -> None:  # noqa
+    def __call__(self, item: Attrs) -> None:  # type: ignore  # noqa
         if item.attrs:
             self._out.write('[')
             for i, (k, v) in enumerate(item.attrs.items()):
@@ -234,7 +234,7 @@ class Renderer(disp.Class):
                 self._out.write('>')
             self._out.write(']')
 
-    def __call__(self, item: Edge) -> None:  # noqa
+    def __call__(self, item: Edge) -> None:  # type: ignore  # noqa
         self(item.left)
         self._out.write(' -> ')
         self(item.right)
@@ -243,14 +243,14 @@ class Renderer(disp.Class):
             self(item.attrs)
         self._out.write(';\n')
 
-    def __call__(self, item: Node) -> None:  # noqa
+    def __call__(self, item: Node) -> None:  # type: ignore  # noqa
         self(item.id)
         if item.attrs.attrs:
             self._out.write(' ')
             self(item.attrs)
         self._out.write(';\n')
 
-    def __call__(self, item: Graph) -> None:  # noqa
+    def __call__(self, item: Graph) -> None:  # type: ignore  # noqa
         self._out.write('digraph ')
         self(item.id)
         self._out.write(' {\n')

@@ -76,7 +76,7 @@ class ValuelessItem(Item[None]):
     def __init__(self, prefix: Prefix, name: str) -> None:
         super().__init__(prefix, name, Separator.NONE)
 
-    def __call__(self) -> str:
+    def __call__(self) -> str:  # type: ignore
         return super().__call__('')
 
 
@@ -106,7 +106,7 @@ class DataSize(enum.Enum):
 
 class DataSizeItem(Item[DataSize]):
 
-    def __call__(self, value: int, unit: DataSize) -> str:
+    def __call__(self, value: int, unit: DataSize) -> str:  # type: ignore
         return super().__call__(str(value) + unit.value.suffix)
 
 
@@ -115,7 +115,7 @@ class ToggleItem(Item[bool]):
     def __init__(self, prefix: Prefix, name: str) -> None:
         super().__init__(prefix, name, Separator.NONE)
 
-    def __call__(self, value: bool) -> str:
+    def __call__(self, value: bool) -> str:  # type: ignore
         return self.prefix.value + ('+' if value else '-') + self.name
 
 
@@ -138,7 +138,7 @@ class FixedItem(StringItem):
     def value(self) -> str:
         return self._value
 
-    def __call__(self) -> str:
+    def __call__(self) -> str:  # type: ignore
         return super().__call__(self.value)
 
 
@@ -153,7 +153,7 @@ class BooleanPropertyItem(Item[bool]):
     def __init__(self, name: str) -> None:
         super().__init__(Prefix.PROPERTY, name, Separator.EQUALS)
 
-    def __call__(self, value: bool) -> str:
+    def __call__(self, value: bool) -> str:  # type: ignore
         return super().__call__('true' if value else 'false')
 
 
@@ -162,7 +162,7 @@ class IntPropertyItem(Item[int]):
     def __init__(self, name: str) -> None:
         super().__init__(Prefix.PROPERTY, name, Separator.EQUALS)
 
-    def __call__(self, value: int) -> str:
+    def __call__(self, value: int) -> str:  # type: ignore
         return super().__call__(str(value))
 
 

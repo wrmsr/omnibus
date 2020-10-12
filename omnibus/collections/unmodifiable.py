@@ -34,25 +34,25 @@ class UnmodifiableSequence(ta.Sequence[T], Unmodifiable, lang.Final):
         return self._target == o
 
     def __ge__(self, other: object) -> bool:
-        return self._target >= other
+        return self._target >= other  # type: ignore
 
-    def __getitem__(self, i: ta.Union[int, slice]) -> T:
-        return self._target[i]
+    def __getitem__(self, i: ta.Union[int, slice]) -> T:  # type: ignore
+        return self._target[i]  # type: ignore
 
     def __gt__(self, other: object) -> bool:
-        return self._target > other
+        return self._target > other  # type: ignore
 
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self._target)
 
     def __le__(self, other: object) -> bool:
-        return self._target <= other
+        return self._target <= other  # type: ignore
 
     def __len__(self) -> int:
         return len(self._target)
 
     def __lt__(self, other: object) -> bool:
-        return self._target < other
+        return self._target < other  # type: ignore
 
     def __ne__(self, o: object) -> bool:
         return self._target != o
@@ -63,7 +63,7 @@ class UnmodifiableSequence(ta.Sequence[T], Unmodifiable, lang.Final):
     def count(self, x: ta.Any) -> int:
         return self._target.count(x)
 
-    def index(self, x: ta.Any, *args, **kwargs) -> int:
+    def index(self, x: ta.Any, *args, **kwargs) -> int:  # type: ignore
         return self._target.index(x, *args, **kwargs)
 
 
@@ -107,13 +107,13 @@ class UnmodifiableSet(ta.AbstractSet[T], Unmodifiable, lang.Final):
     def __ne__(self, o: object) -> bool:
         return self._target != o
 
-    def __or__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:
+    def __or__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:  # type: ignore
         return self._target | s
 
     def __sub__(self, s: ta.AbstractSet[ta.Any]) -> ta.AbstractSet[T]:
         return self._target - s
 
-    def __xor__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:
+    def __xor__(self, s: ta.AbstractSet[T]) -> ta.AbstractSet[T]:  # type: ignore
         return self._target ^ s
 
     def isdisjoint(self, s: ta.Iterable[ta.Any]) -> bool:
@@ -137,30 +137,30 @@ class UnmodifiableMapping(ta.Mapping[K, V], Unmodifiable, lang.Final):
         return self._target == o
 
     def __ge__(self, other: object) -> bool:
-        return self._target >= other
+        return self._target >= other  # type: ignore
 
     def __getitem__(self, k: K) -> V:
         return self._target[k]
 
     def __gt__(self, other: object) -> bool:
-        return self._target > other
+        return self._target > other  # type: ignore
 
     def __iter__(self) -> ta.Iterator[T]:
-        return iter(self._target)
+        return iter(self._target)  # type: ignore
 
     def __le__(self, other: object) -> bool:
-        return self._target <= other
+        return self._target <= other  # type: ignore
 
     def __len__(self) -> int:
         return len(self._target)
 
     def __lt__(self, other: object) -> bool:
-        return self._target < other
+        return self._target < other  # type: ignore
 
     def __ne__(self, o: object) -> bool:
         return self._target != o
 
-    def get(self, k: K, default=None) -> ta.Optional[V]:
+    def get(self, k: K, default=None) -> ta.Optional[V]:  # type: ignore
         return self._target.get(k)
 
     def items(self) -> ta.AbstractSet[ta.Tuple[K, V]]:

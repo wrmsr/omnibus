@@ -12,12 +12,12 @@ from .collections import seq
 T = ta.TypeVar('T')
 
 
-class Enum(dc.Pure):
-    lst: ta.Sequence[str]
-    dct: ta.Mapping[str, int]
+class Enum(dc.Pure, ta.Generic[T]):
+    lst: ta.Sequence[T]
+    dct: ta.Mapping[T, int]
 
 
-def _enum(l: ta.Sequence[T]) -> ta.Mapping[T, int]:
+def _enum(l: ta.Sequence[T]) -> Enum[T]:
     return Enum(ocol.frozenlist(l), ocol.frozendict(map(reversed, enumerate(l))))
 
 

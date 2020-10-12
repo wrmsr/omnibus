@@ -2,10 +2,10 @@ import typing as ta
 
 from .. import check
 from .._vendor import antlr4
-from .._vendor.antlr4.error.Errors import LexerNoViableAltException
+from .._vendor.antlr4.error.Errors import LexerNoViableAltException  # type: ignore
 
 
-class DelimitingLexer(antlr4.Lexer):
+class DelimitingLexer(antlr4.Lexer):  # type: ignore
 
     def __init__(
             self,

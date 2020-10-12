@@ -27,10 +27,10 @@ class IdentityWrapper(ta.Generic[T]):
     def value(self) -> T:
         return self._value
 
-    def __eq__(self, other: T) -> bool:
+    def __eq__(self, other: T) -> bool:  # type: ignore
         return isinstance(other, IdentityWrapper) and other._value is self._value
 
-    def __ne__(self, other: T) -> bool:
+    def __ne__(self, other: T) -> bool:  # type: ignore
         return not (self == other)
 
     def __hash__(self):
@@ -41,7 +41,7 @@ class IdentityKeyDict(ta.MutableMapping[K, V]):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__()
-        self._dict = {}
+        self._dict: ta.Dict[int, ta.Tuple[K, V]] = {}
         for k, v in yield_dict_init(*args, **kwargs):
             self[k] = v
 
@@ -75,7 +75,7 @@ class IdentitySet(ta.MutableSet[T]):
 
     def __init__(self, init: ta.Iterable[T] = None):
         super().__init__()
-        self._dict = {}
+        self._dict: ta.Dict[int, T] = {}
         if init is not None:
             for item in init:
                 self.add(item)
@@ -100,7 +100,7 @@ class IdentitySet(ta.MutableSet[T]):
         for item in items:
             self.add(item)
 
-    def __contains__(self, item: T) -> bool:
+    def __contains__(self, item: T) -> bool:  # type: ignore
         return id(item) in self._dict
 
     def __len__(self) -> int:
@@ -112,7 +112,7 @@ class IdentitySet(ta.MutableSet[T]):
 
 class IdentityHashableDict(ta.Dict[K, V]):
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:  # type: ignore
         return id(self)
 
     def __eq__(self, other: ta.Any) -> bool:

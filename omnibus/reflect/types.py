@@ -6,10 +6,10 @@ from .. import lang
 
 NoneType = type(None)
 SpecialForm = ta._SpecialForm
-GenericAlias = ta._GenericAlias
-VariadicGenericAlias = ta._VariadicGenericAlias
+GenericAlias = ta._GenericAlias  # type: ignore
+VariadicGenericAlias = ta._VariadicGenericAlias  # type: ignore
 TypeLikes = (ta.Type, GenericAlias)
-TypeLike = ta.Union[ta.Type, GenericAlias]
+TypeLike = ta.Union[ta.Type, GenericAlias]  # type: ignore
 
 
 class Var(lang.NotInstantiable):

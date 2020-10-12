@@ -89,13 +89,13 @@ def resolve_references(value: Value) -> Value:
         if not changed:
             break
 
-    def rec(cur: Value) -> Value:
+    def rec2(cur: Value) -> Value:
         if isinstance(cur, ObjectValue):
-            return ObjectValue(ocol.FrozenDict({k: rec(v) for k, v in cur.value.items()}))
+            return ObjectValue(ocol.FrozenDict({k: rec2(v) for k, v in cur.value.items()}))
         elif isinstance(cur, ArrayValue):
-            return ArrayValue(tuple(map(rec, cur.value)))
+            return ArrayValue(tuple(map(rec2, cur.value)))
         elif isinstance(cur, CompoundValue):
-            return CompoundValue(tuple(map(rec, cur.value)))
+            return CompoundValue(tuple(map(rec2, cur.value)))
         elif isinstance(cur, ReferenceValue):
             return resolved.get(cur.value, cur)
         elif isinstance(cur, Value):
@@ -103,4 +103,4 @@ def resolve_references(value: Value) -> Value:
         else:
             raise TypeError(cur)
 
-    return rec(value)
+    return rec2(value)

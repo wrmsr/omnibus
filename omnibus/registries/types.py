@@ -16,6 +16,7 @@ from .. import lang
 
 K = ta.TypeVar('K')
 V = ta.TypeVar('V')
+Listener = ta.Callable[['Registry'], None]
 
 
 class MISSING(lang.Marker):
@@ -97,8 +98,6 @@ class Registry(lang.Abstract, ta.Mapping[K, V]):
             check.not_none(k)
         return inner
 
-    Listener = ta.Callable[['Registry[K, V]'], None]
-
     @abc.abstractmethod
     def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Listener]) -> None:
         raise NotImplementedError
@@ -122,22 +121,21 @@ class BaseRegistry(Registry[K, V], lang.Abstract):
 
     def __init__(
             self,
-            *args,
             lock: lang.DefaultLockable = None,
-            listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener] = None,
+            listeners_by_obj: ta.Mapping[ta.Any, Listener] = None,
             **kwargs
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
         self._lock = lang.default_lock(lock, True)
 
-        self._listeners_by_obj: ta.MutableMapping[ta.Any, Registry.Listener] = weakref.WeakKeyDictionary()
+        self._listeners_by_obj: ta.MutableMapping[ta.Any, Listener] = weakref.WeakKeyDictionary()
         for obj, listener in (listeners_by_obj or {}).items():
             self.add_listener(obj, listener)
 
     __hash__ = object.__hash__
 
-    def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Registry.Listener]) -> None:
+    def add_listeners(self, listeners_by_obj: ta.Mapping[ta.Any, Listener]) -> None:
         listeners_by_obj = dict(listeners_by_obj)
         if not listeners_by_obj:
             return

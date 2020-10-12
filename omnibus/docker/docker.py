@@ -19,6 +19,7 @@ import typing as ta
 
 import pkg_resources
 
+from .. import check
 from .. import lang
 
 
@@ -75,7 +76,7 @@ DOCKER_COMPOSE_PATTERN = re.compile(r'^((docker|compose)_)?(?P<name>.+?)(_[0-9]+
 
 def find_container_by_name(containers: ta.Iterable[ta.Dict], name: str) -> ta.Iterator[ta.Dict]:
     for c in containers:
-        cname = c.name
+        cname = c.name  # type: ignore
         if cname == name:
             yield c
         else:
@@ -103,7 +104,7 @@ def get_container_tcp_endpoints(
         if len(found_containers) != 1:
             raise EnvironmentError(f'Failed to find container: {name!r}')
         [container] = found_containers
-        hostname, external_port = get_container_tcp_host_port(container, internal_port)
+        hostname, external_port = check.not_none(get_container_tcp_host_port(container, internal_port))
         ret[(name, internal_port)] = (hostname, external_port)
 
     return ret
@@ -115,7 +116,7 @@ class TarBuilder:
         if fileobj is None:
             fileobj = io.BytesIO()
         self._fileobj = fileobj
-        self._tar: tarfile.TarFile = None
+        self._tar: ta.Optional[tarfile.TarFile] = None
 
     def flip(self):
         self._fileobj.seek(0)
@@ -132,7 +133,7 @@ class TarBuilder:
     def add_data(self, name: str, data: bytes) -> None:
         tar_info = tarfile.TarInfo(name=name)
         tar_info.size = len(data)
-        tar_info.mtime = time.time()
+        tar_info.mtime = int(time.time())
         # tarinfo.mode = 0600
         self._tar.addfile(tar_info, io.BytesIO(data))
 

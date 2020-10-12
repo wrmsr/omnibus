@@ -231,7 +231,7 @@ def default_lock(value: DefaultLockable, default: DefaultLockable) -> Lockable:
         lock = threading.RLock()
         return lambda: lock  # type: ignore
     elif value is False or value is None:
-        return nop_context_manager  # type: ignore
+        return nop_context_manager
     elif callable(value):
         return value
     elif isinstance(value, ContextManageable):

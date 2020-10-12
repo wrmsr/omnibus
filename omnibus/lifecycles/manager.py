@@ -246,8 +246,7 @@ class ContextManageableLifecycle(AbstractLifecycle, lang.Abstract):
             exc_val: ta.Optional[Exception],
             exc_tb: ta.Optional[types.TracebackType]
     ) -> ta.Optional[bool]:
-        check.not_none(self._lifecycle_context_manager)
-        return self._lifecycle_context_manager.__exit__(exc_type, exc_val, exc_tb)
+        return check.not_none(self._lifecycle_context_manager).__exit__(exc_type, exc_val, exc_tb)
 
 
 class ContextManagerLifecycle(ContextManageableLifecycle, lang.Final, ta.Generic[T]):
@@ -262,7 +261,7 @@ class ContextManagerLifecycle(ContextManageableLifecycle, lang.Final, ta.Generic
         return self._obj
 
     def _do_lifecycle_start(self) -> None:
-        self._obj.__enter__()
+        self._obj.__enter__()  # type: ignore
 
     def _do_lifecycle_stop(self) -> None:
-        self._obj.__exit__(None, None, None)
+        self._obj.__exit__(None, None, None)  # type: ignore

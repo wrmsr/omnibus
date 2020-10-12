@@ -30,7 +30,7 @@ class ReplServer:
     @dc.dataclass(frozen=True)
     class Config:
         path: str
-        file_mode: int = None
+        file_mode: ta.Optional[int] = None
         poll_interval: float = 0.5
         exit_timeout: float = 10.0
 

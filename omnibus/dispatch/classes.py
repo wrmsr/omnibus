@@ -114,9 +114,9 @@ class _ClassMeta(abc.ABCMeta):
 
         def __init__(self, props: ta.Mapping[str, Property]) -> None:
             super().__init__()
-            self._dict = {}
+            self._dict: ta.Dict[str, ta.Any] = {}
             self._props = dict(props)
-            self._used_props = set()
+            self._used_props: ta.Set[str] = set()
 
         def __contains__(self, item):
             return item in self._dict

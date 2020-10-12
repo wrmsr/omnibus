@@ -103,10 +103,10 @@ class SpecVisitor(ta.Generic[T]):
 
 class Spec(lang.Sealed, lang.Abstract):
 
-    def __init__(self, cls: Specable) -> None:
+    def __init__(self, cls: ta.Any) -> None:
         super().__init__()
 
-        self._raw_cls = cls
+        self._raw_cls = ta.cast(Specable, cls)
 
         if _DEBUG:
             self._cls_repr = repr(cls)
@@ -257,7 +257,7 @@ class TypeSpec(Spec, ta.Generic[T], lang.Sealed, lang.Abstract):
     def __init__(self, cls: TypeLike) -> None:
         super().__init__(cls)
 
-        check.arg(isinstance(cls, TypeLike.__args__))
+        check.arg(isinstance(cls, TypeLike.__args__))  # type: ignore
 
     @property
     def cls(self) -> TypeLike:
@@ -325,8 +325,8 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
         check.arg(isinstance(cls, GenericAlias))
         check.arg(not isinstance(cls, VariadicGenericAlias))
-        check.arg(cls.__args__)
-        check.arg(isinstance(cls.__origin__, type))
+        check.arg(cls.__args__)  # type: ignore
+        check.arg(isinstance(cls.__origin__, type))  # type: ignore
 
     @property
     def cls(self) -> GenericAlias:
@@ -334,7 +334,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @property
     def erased_cls(self) -> ta.Type:
-        return self.cls.__origin__
+        return self.cls.__origin__  # type: ignore
 
     @properties.cached
     def erased(self) -> TypeSpec:
@@ -342,7 +342,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @property
     def cls_args(self) -> ta.Sequence[Specable]:
-        return self.cls.__args__
+        return self.cls.__args__  # type: ignore
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
@@ -368,13 +368,13 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
         def reify_args(cls: Specable) -> TypeLike:
-            if not (isinstance(cls, GenericAlias) and cls.__args__):
+            if not (isinstance(cls, GenericAlias) and cls.__args__):  # type: ignore
                 return cls
             else:
-                check.state(cls.__origin__ is not None)
-                args = [self.vars[a].cls if isinstance(a, Var) else a for a in cls.__args__]
-                return cls.__origin__.__class_getitem__(tuple(args))
-        return [reify_args(b) for b in self._cls.__origin__.__orig_bases__ if erase_generic(b) is not ta.Generic]
+                check.state(cls.__origin__ is not None)  # type: ignore
+                args = [self.vars[a].cls if isinstance(a, Var) else a for a in cls.__args__]  # type: ignore
+                return cls.__origin__.__class_getitem__(tuple(args))  # type: ignore
+        return [reify_args(b) for b in self._cls.__origin__.__orig_bases__ if erase_generic(b) is not ta.Generic]  # type: ignore  # noqa
 
     @property
     @abc.abstractmethod
@@ -401,7 +401,7 @@ class ExplicitParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fi
 
     @properties.cached
     def cls_parameters(self) -> ta.Sequence[Var]:
-        return self.erased_cls.__parameters__
+        return self.erased_cls.__parameters__  # type: ignore
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_explicit_parameterized_generic_type_spec(self)

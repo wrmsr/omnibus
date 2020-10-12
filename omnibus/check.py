@@ -81,7 +81,7 @@ def cast(obj: ta.Any, cls: ta.Type[T], message: Messageable = None) -> T:
     return obj
 
 
-def not_none(obj: T, message: Messageable = None) -> T:
+def not_none(obj: ta.Optional[T], message: Messageable = None) -> T:
     if obj is None:
         _raise(TypeError, 'May not be None', message)
     return obj

@@ -43,8 +43,8 @@ from .._vendor import antlr4
 log = logging.getLogger(__name__)
 
 
-LexerT = ta.TypeVar('LexerT', bound=antlr4.Lexer, covariant=True)
-ParserT = ta.TypeVar('ParserT', bound=antlr4.Parser, covariant=True)
+LexerT = ta.TypeVar('LexerT', bound=antlr4.Lexer, covariant=True)  # type: ignore
+ParserT = ta.TypeVar('ParserT', bound=antlr4.Parser, covariant=True)  # type: ignore
 
 
 class Mark(dc.Pure):
@@ -61,17 +61,17 @@ def parse(
         lexer_cls: ta.Type[LexerT],
         parser_cls: ta.Type[ParserT]
 ) -> ParserT:
-    lexer = lexer_cls(antlr4.InputStream(buf))
-    stream = antlr4.CommonTokenStream(lexer)
+    lexer = lexer_cls(antlr4.InputStream(buf))  # type: ignore
+    stream = antlr4.CommonTokenStream(lexer)  # type: ignore
     stream.fill()
-    return parser_cls(stream)
+    return parser_cls(stream)  # type: ignore
 
 
 class ParseException(Exception):
     pass
 
 
-class SilentRaisingErrorListener(antlr4.error.ErrorListener.ErrorListener):
+class SilentRaisingErrorListener(antlr4.error.ErrorListener.ErrorListener):  # type: ignore
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
         raise ParseException(recognizer, offendingSymbol, line, column, msg, e)
@@ -149,7 +149,7 @@ class ProxyInputStream:
         return self._target.getText(start, stop)
 
     def __str__(self) -> str:
-        return str(self._targeet)
+        return str(self._target)
 
 
 class CaseInsensitiveInputStream(ProxyInputStream):

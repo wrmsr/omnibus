@@ -29,7 +29,7 @@ class DialectInstrumentation:
 class InstrumentationDialectMixin(sa.engine.Dialect, lang.Abstract):  # noqa
 
     def __init__(self, instrumentations: ta.Iterable[DialectInstrumentation] = (), **kwargs) -> None:
-        super().__init__(**kwargs)
+        super().__init__(**kwargs)  # type: ignore
 
         self._instrumentations: ta.List[DialectInstrumentation] = [
             check.isinstance(i, DialectInstrumentation) for i in (instrumentations or [])]
@@ -48,7 +48,7 @@ class InstrumentationDialectMixin(sa.engine.Dialect, lang.Abstract):  # noqa
         connect = super().connect
         for inst in self._instrumentations:
             connect = functools.partial(inst.connect, connect)
-        return connect(*cargs, **cparams)
+        return connect(*cargs, **cparams)  # type: ignore
 
     @contextlib.contextmanager
     def instrument_statement(self, mode, cursor, statement, parameters, context=None) -> ta.Iterator[str]:

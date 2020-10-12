@@ -88,7 +88,7 @@ class ChdBuilder:
                 return rand.randint(0, MAX_UINT64)
             rand = random.Random()
 
-        self._rand_u64 = rand_u64
+        self._rand_u64 = ta.cast(ta.Callable[[], uint64], rand_u64)
         self._max_iters = max_iters
 
         num_entries: uint64 = len(dct)
@@ -102,8 +102,8 @@ class ChdBuilder:
         self._r: ta.List[uint64] = []
         self._add(rand_u64())
 
-        self._keys: ta.List[bytes] = [None] * self._num_entries
-        self._values: ta.List[bytes] = [None] * self._num_entries
+        self._keys: ta.List[ta.Optional[bytes]] = [None] * self._num_entries
+        self._values: ta.List[ta.Optional[bytes]] = [None] * self._num_entries
 
         self._buckets: ta.List[Bucket] = [Bucket() for _ in range(self._num_buckets)]
         self._indices: ta.List[uint16] = [-1] * self._num_buckets

@@ -62,7 +62,7 @@ def is_present() -> bool:
     return _pydevd() is not None
 
 
-def get_setup() -> ta.Optional[ta.Dict]:
+def get_setup() -> ta.Optional[dict]:
     if is_present():
         return _pydevd().SetupHolder.setup  # type: ignore
     else:

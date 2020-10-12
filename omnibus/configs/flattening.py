@@ -47,7 +47,7 @@ class Flattening:
                     raise KeyError(k)
                 ret[k] = value
 
-        ret = {}
+        ret: ta.Dict[str, ta.Any] = {}
         rec([], unflattened)
         return ret
 
@@ -82,7 +82,7 @@ class Flattening:
         def __init__(self) -> None:
             super().__init__()
 
-            self._dict = {}
+            self._dict: ta.Dict[str, ta.Any] = {}
 
         def get(self, key: str) -> ta.Any:
             return self._dict.get(key, _MISSING)
@@ -99,7 +99,7 @@ class Flattening:
         def __init__(self) -> None:
             super().__init__()
 
-            self._list = []
+            self._list: ta.List[ta.Any] = []
 
         def get(self, key: int) -> ta.Any:
             check.arg(key >= 0)

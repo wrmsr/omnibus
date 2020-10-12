@@ -20,7 +20,7 @@ class ThreadLocalContext(lang.Abstract):
         super().__init__()
 
         self._exit_stack = contextlib.ExitStack()
-        self._previous: 'ThreadLocalContext' = None
+        self._previous: ta.Optional['ThreadLocalContext'] = None
 
     @property
     def previous(self) -> ta.Optional['ThreadLocalContext']:

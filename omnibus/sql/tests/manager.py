@@ -15,7 +15,7 @@ class DbManager(lc.ContextManageableLifecycle):
 
         self._dm = dm
 
-    @properties.stateful_cached
+    @properties.stateful_cached  # type: ignore
     @property
     def pg_url(self) -> str:
         [(host, port)] = self._dm.get_container_tcp_endpoints([('postgres-master', 5432)]).values()
@@ -23,12 +23,12 @@ class DbManager(lc.ContextManageableLifecycle):
         url = f"postgresql+psycopg2://{env['POSTGRES_USER']}:{env['POSTGRES_PASSWORD']}@{host}:{port}"
         return url
 
-    @properties.stateful_cached
+    @properties.stateful_cached  # type: ignore
     @property
     def pg_engine(self) -> sa.engine.Engine:
         return self._lifecycle_exit_stack.enter_context(lang.disposing(sa.engine.create_engine(self.pg_url)))
 
-    @properties.stateful_cached
+    @properties.stateful_cached  # type: ignore
     @property
     def mysql_url(self) -> str:
         [(host, port)] = self._dm.get_container_tcp_endpoints([('mysql-master', 3306)]).values()
@@ -36,7 +36,7 @@ class DbManager(lc.ContextManageableLifecycle):
         url = f"mysql+mysqlconnector://{env['MYSQL_USER']}:{env['MYSQL_PASSWORD']}@{host}:{port}"
         return url
 
-    @properties.stateful_cached
+    @properties.stateful_cached  # type: ignore
     @property
     def mysql_engine(self) -> sa.engine.Engine:
         return self._lifecycle_exit_stack.enter_context(lang.disposing(sa.engine.create_engine(self.mysql_url)))
