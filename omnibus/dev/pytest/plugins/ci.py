@@ -39,7 +39,7 @@ class CiPlugin:
             _CI = bool(session.config.getoption('--ci'))
 
     def pytest_collection_modifyitems(self, config, items):
-        if not config.getoption(f'--ci'):
+        if not _CI:
             return
         skip = pytest.mark.skip(reason='omit --ci to run')
         for item in items:
