@@ -11,7 +11,6 @@ from .... import lifecycles as lc
 from .... import os as oos
 from .... import properties
 from ....dev import timebomb
-from ....dev.pytest.plugins import switches
 from ....inject.dev import pytest as ptinj
 from ....spark import local as sl
 
@@ -19,10 +18,16 @@ from ....spark import local as sl
 @ptinj.bind(ptinj.Session)
 class SparkManager(lc.ContextManageableLifecycle):
 
-    def __init__(self, request: ptinj.FixtureRequest) -> None:
+    def __init__(
+            self,
+            request: ptinj.FixtureRequest,
+            *,
+            switches: ta.Optional[ptinj.Switches] = None,
+    ) -> None:
         super().__init__()
 
         self._request = check.isinstance(request, ptinj.FixtureRequest)
+        self._switches = switches
 
     TIMEOUT = 60
 
@@ -31,7 +36,8 @@ class SparkManager(lc.ContextManageableLifecycle):
     @properties.stateful_cached
     @property
     def thrift_url(self) -> str:
-        switches.skip_if_disabled(self._request, 'spark')
+        if self._switches:
+            self._switches.skip_if_not('spark')
 
         port = self.THRIFT_PORT or oos.find_free_port()
         url = f'hive://localhost:{port}/default'

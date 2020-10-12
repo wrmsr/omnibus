@@ -1,3 +1,5 @@
+import typing as ta
+
 import pytest
 
 from .... import check
@@ -21,6 +23,13 @@ def is_disabled(request, name: str) -> bool:
 def skip_if_disabled(request, name: str) -> None:
     if is_disabled(request, name):
         pytest.skip(f'{name} disabled')
+
+
+def get_switches(request) -> ta.Mapping[str, bool]:
+    return {
+        sw: request.config.getoption(f'--no-{sw}')
+        for sw in SWITCHES
+    }
 
 
 @register_plugin

@@ -6,7 +6,6 @@ from .... import check
 from .... import docker
 from .... import lifecycles as lc
 from .... import properties
-from ....dev.pytest.plugins import switches
 from ....inject.dev import pytest as ptinj
 
 
@@ -27,6 +26,7 @@ class DockerManager(lc.ContextManageableLifecycle):
             *,
             compose_path: ta.Optional[ComposePath] = None,
             request: ta.Optional[ptinj.FixtureRequest] = None,
+            switches: ta.Optional[ptinj.Switches] = None,
             ci: ta.Optional[ptinj.Ci] = None,
     ) -> None:
         super().__init__()
@@ -34,6 +34,7 @@ class DockerManager(lc.ContextManageableLifecycle):
         self._prefix = check.isinstance(prefix, Prefix).value
         self._compose_path = check.isinstance(compose_path, ComposePath).value if compose_path is not None else None
         self._request: ta.Optional[ptinj.FixtureRequest] = check.isinstance(request, (ptinj.FixtureRequest, None))
+        self._switches = switches
         self._ci = ci
 
     @property
@@ -50,9 +51,12 @@ class DockerManager(lc.ContextManageableLifecycle):
             self,
             name_port_pairs: ta.Iterable[ta.Tuple[str, int]],
     ) -> ta.Dict[ta.Tuple[str, int], ta.Tuple[str, int]]:
-        switches.skip_if_disabled(self._request, 'docker')
+        if self._switches:
+            self._switches.skip_if_not('docker')
+
         if self._ci or docker.is_in_docker():
             return {(h, p): (self._prefix + h, p) for h, p in name_port_pairs}
+
         ret = {}
         lut = {}
         for h, p in name_port_pairs:
@@ -60,11 +64,13 @@ class DockerManager(lc.ContextManageableLifecycle):
                 ret[(h, p)] = self._container_tcp_endpoints[(h, p)]
             except KeyError:
                 lut[(f'docker_{self._prefix}{h}_1', p)] = (h, p)
+
         if lut:
             dct = docker.get_container_tcp_endpoints(self.client, lut)
             res = {lut[k]: v for k, v in dct.items()}
             ret.update(res)
             self._container_tcp_endpoints.update(res)
+
         return ret
 
     @properties.cached  # type: ignore
@@ -73,8 +79,10 @@ class DockerManager(lc.ContextManageableLifecycle):
         with open(check.not_none(self._compose_path), 'r') as f:
             buf = f.read()
         dct = yaml.safe_load(buf)
+
         ret = {}
         for n, c in dct['services'].items():
             check.state(n.startswith(self._prefix))
             ret[n[len(self._prefix):]] = c
+
         return ret

@@ -1,4 +1,5 @@
 from .bindings import Ci  # noqa
+from .bindings import Switches  # noqa
 from .harness import bind  # noqa
 from .harness import bind_instance  # noqa
 from .harness import Class  # noqa
