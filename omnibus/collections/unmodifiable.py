@@ -4,7 +4,6 @@ TODO:
 """
 import typing as ta
 
-from .. import check
 from .. import lang
 
 
@@ -22,7 +21,9 @@ class UnmodifiableSequence(ta.Sequence[T], Unmodifiable, lang.Final):
     def __init__(self, target: ta.Sequence[T]) -> None:
         super().__init__()
 
-        self._target = check.not_none(target)
+        if target is None:
+            raise TypeError(target)
+        self._target = target
 
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
@@ -72,7 +73,9 @@ class UnmodifiableSet(ta.AbstractSet[T], Unmodifiable, lang.Final):
     def __init__(self, target: ta.AbstractSet[T]) -> None:
         super().__init__()
 
-        self._target = check.not_none(target)
+        if target is None:
+            raise TypeError(target)
+        self._target = target
 
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
@@ -125,7 +128,9 @@ class UnmodifiableMapping(ta.Mapping[K, V], Unmodifiable, lang.Final):
     def __init__(self, target: ta.Mapping[K, V]) -> None:
         super().__init__()
 
-        self._target = check.not_none(target)
+        if target is None:
+            raise TypeError(target)
+        self._target = target
 
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)

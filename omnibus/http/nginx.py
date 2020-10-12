@@ -71,14 +71,17 @@ import shlex
 import subprocess
 import typing as ta
 
+from .. import check
+from .. import code
+from .. import collections as col
 from .. import configs
 from .. import dataclasses as dc
 from .. import properties
 
 
 class ConfigItem(dc.Pure):
-    value: str
-    block: ta.Optional['ConfigItems'] = None
+    value: str = dc.field(check_type=str)
+    block: ta.Optional['ConfigItems'] = dc.field(None, coerce=lambda o: check.isinstance(o, (None, ConfigItems)))
 
     @classmethod
     def of(cls, *args) -> 'ConfigItem':
@@ -86,20 +89,34 @@ class ConfigItem(dc.Pure):
             [arg] = args
             if isinstance(arg, cls):
                 return arg
+            elif isinstance(arg, tuple):
+                [args] = args
             elif isinstance(arg, str):
                 return cls(arg)
-        elif len(args) == 2:
+        if len(args) == 2:
             arg0, arg1 = args
             if isinstance(arg0, str):
-                if arg1 is None:
-                    return cls(arg0, arg1)
-                else:
-                    return cls(arg1, ConfigItems.of(arg1))
+                return cls(arg0, ConfigItems.of(arg1))
         raise TypeError(args)
+
+    def render(self, out: ta.Optional[code.IndentWriter] = None) -> code.IndentWriter:
+        out = out or code.IndentWriter()
+        if self.block is None:
+            out.write(self.value)
+        else:
+            out.write(self.value + ' {\n')
+            with out.indent():
+                self.block.render(out)
+            out.write('}')
+        out.write('\n')
+        return out
 
 
 class ConfigItems(dc.Pure):
-    items: ta.Sequence[ConfigItem]
+    items: ta.Sequence[ConfigItem] = dc.field(coerce=col.seq_of(check.of_isinstance(ConfigItem)))
+
+    def __iter__(self) -> ta.Iterator[ConfigItem]:
+        return iter(self.items)
 
     @classmethod
     def of(cls, arg) -> 'ConfigItems':
@@ -109,6 +126,12 @@ class ConfigItems(dc.Pure):
             return cls(list(map(ConfigItem.of, arg)))
         else:
             raise TypeError(arg)
+
+    def render(self, out: ta.Optional[code.IndentWriter] = None) -> code.IndentWriter:
+        out = out or code.IndentWriter()
+        for item in self.items:
+            item.render(out)
+        return out
 
 
 class NginxProcess(configs.Configurable):

@@ -42,8 +42,22 @@ TODO:
 import functools
 import typing as ta
 
+from .. import lang
+from .identity import IdentityKeyDict
+from .identity import IdentitySet
+from .ordered import OrderedFrozenSet
+from .ordered import OrderedSet
+
 
 T = ta.TypeVar('T')
+T2 = ta.TypeVar('T2')
+K = ta.TypeVar('K')
+K2 = ta.TypeVar('K2')
+V = ta.TypeVar('V')
+V2 = ta.TypeVar('V2')
+
+ORDERING_TYPES = (ta.Sequence, OrderedSet, OrderedFrozenSet)
+OrderingT = ta.Union[ta.Sequence[T], OrderedSet[T], OrderedFrozenSet[T]]
 
 
 def mut_toposort(data: ta.Dict[T, ta.Set[T]]) -> ta.Iterator[ta.Set[T]]:
@@ -101,3 +115,85 @@ def unify(sets: ta.Iterable[ta.AbstractSet[T]]) -> ta.List[ta.Set[T]]:
             raise ValueError(ret)
 
     return ret
+
+
+def partition(items: ta.Iterable[T], pred: ta.Callable[[T], bool]) -> ta.Tuple[ta.List[T], ta.List[T]]:
+    t, f = [], []
+    for e in items:
+        if pred(e):
+            t.append(e)
+        else:
+            f.append(e)
+    return t, f
+
+
+def list_dict(
+        items: ta.Iterable[T],
+        key: ta.Callable[[V], K],
+        map: ta.Callable[[T], V] = lang.identity,
+        *,
+        identity_dict: bool = False,
+) -> ta.Dict[K, ta.List[V]]:
+    dct = IdentityKeyDict() if identity_dict else {}
+    for e in items:
+        k = key(e)
+        v = map(e)
+        dct.setdefault(k, []).append(v)
+    return dct
+
+
+def set_dict(
+        items: ta.Iterable[T],
+        key: ta.Callable[[T], K],
+        map: ta.Callable[[T], V] = lang.identity,
+        *,
+        identity_dict: bool = False,
+        identity_set: bool = False,
+) -> ta.Dict[K, ta.Set[V]]:
+    dct = IdentityKeyDict() if identity_dict else {}
+    for e in items:
+        k = key(e)
+        v = map(e)
+        dct.setdefault(k, IdentitySet() if identity_set else set()).add(v)
+    return dct
+
+
+def unique(it: ta.Iterable[T]) -> ta.Sequence[T]:
+    if isinstance(it, str):
+        raise TypeError(it)
+    ret = []
+    seen: ta.Set[T] = set()
+    for e in it:
+        if e not in seen:
+            seen.add(e)
+            ret.append(e)
+    return ret
+
+
+def unique_dict(items: ta.Iterable[ta.Tuple[K, V]], *, identity: bool = False) -> ta.Dict[K, V]:
+    dct = IdentityKeyDict() if identity else {}
+    for k, v in items:
+        if k in dct:
+            raise KeyError(k)
+        dct[k] = v
+    return dct
+
+
+def order_values(values: ta.Container[T], ordering: OrderingT) -> ta.List[T]:
+    if not isinstance(ordering, ORDERING_TYPES):
+        raise TypeError(ordering)
+    lst = []
+    seen = set()
+    for v in ordering:
+        if v in values and v not in seen:
+            lst.append(v)
+            seen.add(v)
+    return lst
+
+
+def order_set(values: ta.Container[T], ordering: OrderingT) -> OrderedSet[T]:
+    return OrderedSet(order_values(values, ordering))
+
+
+def order_frozen_set(values: ta.Container[T], ordering: OrderingT) -> OrderedFrozenSet[T]:
+    return OrderedFrozenSet(order_values(values, ordering))

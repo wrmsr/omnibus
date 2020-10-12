@@ -57,28 +57,6 @@ def test_base():
     assert isinstance(f, G)
 
 
-def test_box():
-    Name = bind_.make_box('Name', str)
-    Title = bind_.make_box('Title', str)
-
-    def make_title(name: Name) -> Title:
-        return Title(name.value + ' title')
-
-    binder = bind_.create_binder()
-    binder.bind(Name('some name'))
-    binder.bind_callable(make_title)
-
-    injector = inject_.create_injector(binder)
-
-    name = injector.get(Name)
-    assert isinstance(name, Name)
-    assert name.value == 'some name'
-
-    title = injector.get(Title)
-    assert isinstance(title, Title)
-    assert title.value == 'some name title'
-
-
 def test_annotation():
     @bind_.annotate('title', name='name')
     def make_title(name: str) -> str:

@@ -5,7 +5,6 @@ import weakref
 
 from .. import check
 from .. import dataclasses as dc
-from .. import lang
 from .. import reflect as rfl
 from .multi import DictBinding
 from .multi import DictProvider
@@ -63,29 +62,6 @@ def get_annotations(obj: ta.Any) -> ta.Mapping[str, ta.Any]:
         return ANNOTATIONS.get(obj, {})
     except TypeError:
         return {}
-
-
-class Box(lang.Abstract, ta.Generic[T]):
-
-    def __init__(self, value: T) -> None:
-        super().__init__()
-
-        self._value = value
-
-    TYPE: ta.Type[T] = MISSING
-
-    @property
-    def value(self) -> T:
-        return self._value
-
-
-def make_box(
-        name: str,
-        type: ta.Type[T] = object,
-        *,
-        bases: ta.Iterable[type] = (),
-) -> ta.Type[Box[T]]:
-    return lang.new_type(name, (Box,) + tuple(bases), {'TYPE': type})
 
 
 class BinderImpl(Binder):

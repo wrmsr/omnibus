@@ -2,13 +2,11 @@ import contextlib
 import threading
 import time
 
-import pytest
 import requests
 
 from .. import apps as apps_
 from .. import bind as bind_
 from .. import consts as consts_
-from .. import nginx as nginx_
 from .. import wsgiref as wsgiref_
 from ... import json
 from ...dev.testing import run_with_timeout
@@ -113,11 +111,3 @@ def test_json_http():
                 pass
 
     thread.join()
-
-
-@pytest.mark.xfail()
-def test_nginx():
-    with nginx_.NginxProcess() as proc:
-        print(proc._config.connect_timeout)
-        print(proc.nginx_version)
-        print(proc.nginx_cfg_args)

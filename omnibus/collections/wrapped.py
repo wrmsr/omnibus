@@ -7,7 +7,6 @@ import functools
 import itertools
 import typing as ta
 
-from .. import check
 from .. import lang
 
 
@@ -34,9 +33,15 @@ class WrappedSequence(ta.MutableSequence[TT], ta.Generic[TF, TT], Wrapped, lang.
     ) -> None:
         super().__init__()
 
-        self._encoder = check.callable(encoder)
-        self._decoder = check.callable(decoder)
-        self._target = check.not_none(target)
+        if not callable(encoder):
+            raise TypeError(encoder)
+        if not callable(decoder):
+            raise TypeError(decoder)
+        if target is None:
+            raise TypeError(target)
+        self._encoder = encoder
+        self._decoder = decoder
+        self._target = target
 
     def __repr__(self) -> str:
         return '%s(%r)' % (type(self).__name__, self._target)
