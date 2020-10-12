@@ -72,22 +72,55 @@ import subprocess
 import typing as ta
 
 from .. import configs
+from .. import dataclasses as dc
 from .. import properties
 
 
-class NginxConfig(configs.Config):
+class ConfigItem(dc.Pure):
+    value: str
+    block: ta.Optional['ConfigItems'] = None
 
-    connect_timeout = 75.
-    send_timeout = 15.
-    read_timeout = 5.
+    @classmethod
+    def of(cls, *args) -> 'ConfigItem':
+        if len(args) == 1:
+            [arg] = args
+            if isinstance(arg, cls):
+                return arg
+            elif isinstance(arg, str):
+                return cls(arg)
+        elif len(args) == 2:
+            arg0, arg1 = args
+            if isinstance(arg0, str):
+                if arg1 is None:
+                    return cls(arg0, arg1)
+                else:
+                    return cls(arg1, ConfigItems.of(arg1))
+        raise TypeError(args)
 
 
-class NginxProcess:
+class ConfigItems(dc.Pure):
+    items: ta.Sequence[ConfigItem]
 
-    def __init__(self, config: NginxConfig = NginxConfig()) -> None:
-        super().__init__()
+    @classmethod
+    def of(cls, arg) -> 'ConfigItems':
+        if isinstance(arg, cls):
+            return arg
+        elif isinstance(arg, ta.Iterable):
+            return cls(list(map(ConfigItem.of, arg)))
+        else:
+            raise TypeError(arg)
 
-        self._config = config
+
+class NginxProcess(configs.Configurable):
+
+    class Config(configs.Config):
+
+        connect_timeout = 75.
+        send_timeout = 15.
+        read_timeout = 5.
+
+    def __init__(self, config: Config = Config()) -> None:
+        super().__init__(config)
 
     @properties.cached
     def nginx_exe(self) -> str:
