@@ -2,6 +2,10 @@
 TODO:
  - Dockerfile r/w
 
+
+github actions:
+  ['12', 'devices', '/actions_job/44115d67f9b6631e4ba9be08855286723979dfb855525c7dd9c88190f1343cff']
+
 ARM DOCKER
  - https://www.stereolabs.com/docs/docker/building-arm-container-on-x86/
  - https://github.com/multiarch/qemu-user-static/

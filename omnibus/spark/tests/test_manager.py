@@ -5,6 +5,7 @@ from ...inject.dev import pytest as ptinj
 from ..dev.pytest.manager import SparkManager
 
 
+@pytest.mark.no_ci
 @pytest.mark.spark
 def test_sql(harness: ptinj.Harness):
     # conn = hive.Connection(host='localhost', port=10000)

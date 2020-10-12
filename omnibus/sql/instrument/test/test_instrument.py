@@ -1,3 +1,4 @@
+import pytest
 import sqlalchemy as sa
 import sqlalchemy.pool  # noqa
 
@@ -24,6 +25,7 @@ def test_instrument_sqlite():
                     print(list(conn.execute('select 1')))
 
 
+@pytest.mark.no_ci
 def test_instrument_postgres(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
     for c in [

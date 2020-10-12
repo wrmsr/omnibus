@@ -1,5 +1,6 @@
 import typing as ta
 
+import pytest
 import sqlalchemy as sa
 import sqlalchemy.sql.elements
 
@@ -26,6 +27,7 @@ def test_docker_mysql(harness: ptinj.Harness):
             print(conn.scalar(sa.select([sa.func.version()])))
 
 
+@pytest.mark.no_ci
 def test_docker_postgres(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
 
