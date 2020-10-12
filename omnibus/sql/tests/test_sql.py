@@ -8,7 +8,7 @@ from .. import mysql as mysql_
 from ... import dataclasses as dc
 from ... import lang
 from ...docker.dev.pytest import DockerManager
-from ...inject.dev.pytest import harness as har
+from ...inject.dev import pytest as ptinj
 from .fixtures import sqlite_engine  # noqa
 
 
@@ -16,7 +16,7 @@ def test_pymysql():
     assert mysql_.pymysql_render_statement(sa.select([1])) == 'SELECT 1'
 
 
-def test_docker_mysql(harness: har.Harness):
+def test_docker_mysql(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('mysql-master', 3306)]).values()
 
     engine: sa.engine.Engine
@@ -26,7 +26,7 @@ def test_docker_mysql(harness: har.Harness):
             print(conn.scalar(sa.select([sa.func.version()])))
 
 
-def test_docker_postgres(harness: har.Harness):
+def test_docker_postgres(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
 
     engine: sa.engine.Engine

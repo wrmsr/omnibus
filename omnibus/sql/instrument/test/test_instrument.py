@@ -3,7 +3,7 @@ import sqlalchemy.pool  # noqa
 
 from .... import lang
 from ....docker.dev.pytest import DockerManager
-from ....inject.dev.pytest import harness as har
+from ....inject.dev import pytest as ptinj
 
 
 def test_instrument_sqlite():
@@ -24,7 +24,7 @@ def test_instrument_sqlite():
                     print(list(conn.execute('select 1')))
 
 
-def test_instrument_postgres(harness: har.Harness):
+def test_instrument_postgres(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
     for c in [
         f'o_postgresql+psycopg2://omnibus:omnibus@{host}:{port}',

@@ -11,8 +11,14 @@ from omnibus.lang.imports import ignore_unstable_warn
 ignore_unstable_warn()
 
 
-from .inject.dev import pytest as injp  # noqa
+from .dev.pytest.plugins import ci  # noqa
+
+if 'OMNIBUS_CI' in os.environ:
+    ci.set_ci(int(os.environ.get('OMNIBUS_CI', '0').strip()) != 0)
+
+
 from .docker.dev import pytest as dckp  # noqa
+from .inject.dev import pytest as injp  # noqa
 
 injp.bind_instance(injp.Session, dckp.Prefix('omnibus-'))
 injp.bind_instance(injp.Session, dckp.ComposePath(os.path.join(os.path.dirname(__file__), '../docker/docker-compose.yml')))  # noqa

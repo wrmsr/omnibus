@@ -1,3 +1,4 @@
+from . import ci  # noqa
 from . import explicit_classes  # noqa
 from . import incremental  # noqa
 from . import logging  # noqa

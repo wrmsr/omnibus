@@ -6,7 +6,7 @@ import sqlalchemy as sa
 
 from .. import standard as std
 from .... import lang
-from ....inject.dev.pytest import harness as har
+from ....inject.dev import pytest as ptinj
 from ...tests.manager import DbManager
 from ...util import transaction_context
 
@@ -19,7 +19,7 @@ def parse_tags(stmt: str) -> ta.Dict[str, str]:
     }
 
 
-def test_query_tagging(harness: har.Harness, monkeypatch):
+def test_query_tagging(harness: ptinj.Harness, monkeypatch):
     import mysql.connector.connection
     import mysql.connector.cursor_cext
 

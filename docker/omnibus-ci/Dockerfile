@@ -71,7 +71,7 @@ RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 RUN ( \
     touch ~/.bashrc && \
-    echo 'export CI=true' >> ~/.bashrc \
+    echo 'export OMNIBUS_CI=1' >> ~/.bashrc \
 )
 
 RUN mkdir /build
@@ -80,10 +80,6 @@ WORKDIR /build
 COPY requirements.txt /build/requirements.txt
 COPY requirements-dev.txt /build/requirements-dev.txt
 RUN pip install --quiet --progress-bar=off -r requirements-dev.txt
-
-RUN ( \
-python -c "import sys; print(sys.platform); buf = open('/proc/1/cgroup', 'r').read(); tups = [line.strip().split(':') for line in buf.strip().splitlines()]; print(tups); dct = {k: tup for tup in tups for k in tup[1].split(',')}; print(dct); print(all(k in dct and dct[k][2].startswith('/docker/') for k in {'cpu', 'memory'}))" \
-)
 
 RUN mkdir /omnibus
 COPY . /omnibus/

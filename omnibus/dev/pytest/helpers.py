@@ -1,5 +1,8 @@
+import dataclasses as dc
+
 import pytest
 
+from ... import lang
 from ..testing import can_import
 
 

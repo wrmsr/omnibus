@@ -4,10 +4,10 @@ from ... import lang
 from ... import lifecycles as lc
 from ... import properties
 from ...docker.dev.pytest.manager import DockerManager
-from ...inject.dev.pytest import harness as har
+from ...inject.dev import pytest as ptinj
 
 
-@har.bind(har.Function)
+@ptinj.bind(ptinj.Function)
 class DbManager(lc.ContextManageableLifecycle):
 
     def __init__(self, dm: DockerManager) -> None:

@@ -10,19 +10,19 @@ from .... import lang
 from .... import lifecycles as lc
 from .... import os as oos
 from .... import properties
-from ....dev.pytest.plugins import switches
-from ....inject.dev.pytest import harness as har
-from ....spark import local as sl
 from ....dev import timebomb
+from ....dev.pytest.plugins import switches
+from ....inject.dev import pytest as ptinj
+from ....spark import local as sl
 
 
-@har.bind(har.Session)
+@ptinj.bind(ptinj.Session)
 class SparkManager(lc.ContextManageableLifecycle):
 
-    def __init__(self, request: har.FixtureRequest) -> None:
+    def __init__(self, request: ptinj.FixtureRequest) -> None:
         super().__init__()
 
-        self._request = check.isinstance(request, har.FixtureRequest)
+        self._request = check.isinstance(request, ptinj.FixtureRequest)
 
     TIMEOUT = 60
 

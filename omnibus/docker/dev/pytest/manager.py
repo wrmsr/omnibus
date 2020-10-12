@@ -7,7 +7,7 @@ from .... import docker
 from .... import lifecycles as lc
 from .... import properties
 from ....dev.pytest.plugins import switches
-from ....inject.dev.pytest import harness as har
+from ....inject.dev import pytest as ptinj
 
 
 class Prefix(ta.NamedTuple):
@@ -18,7 +18,7 @@ class ComposePath(ta.NamedTuple):
     value: str
 
 
-@har.bind(har.Session)
+@ptinj.bind(ptinj.Session)
 class DockerManager(lc.ContextManageableLifecycle):
 
     def __init__(
@@ -26,13 +26,15 @@ class DockerManager(lc.ContextManageableLifecycle):
             prefix: Prefix,
             *,
             compose_path: ta.Optional[ComposePath] = None,
-            request: ta.Optional[har.FixtureRequest] = None,
+            request: ta.Optional[ptinj.FixtureRequest] = None,
+            ci: ta.Optional[ptinj.Ci] = None,
     ) -> None:
         super().__init__()
 
         self._prefix = check.isinstance(prefix, Prefix).value
         self._compose_path = check.isinstance(compose_path, ComposePath).value if compose_path is not None else None
-        self._request: ta.Optional[har.FixtureRequest] = check.isinstance(request, (har.FixtureRequest, None))
+        self._request: ta.Optional[ptinj.FixtureRequest] = check.isinstance(request, (ptinj.FixtureRequest, None))
+        self._ci = ci
 
     @property
     def prefix(self) -> str:
@@ -49,7 +51,7 @@ class DockerManager(lc.ContextManageableLifecycle):
             name_port_pairs: ta.Iterable[ta.Tuple[str, int]],
     ) -> ta.Dict[ta.Tuple[str, int], ta.Tuple[str, int]]:
         switches.skip_if_disabled(self._request, 'docker')
-        if docker.is_in_docker():
+        if self._ci or docker.is_in_docker():
             return {(h, p): (self._prefix + h, p) for h, p in name_port_pairs}
         ret = {}
         lut = {}

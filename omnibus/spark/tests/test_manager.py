@@ -1,12 +1,12 @@
 import pytest
 import sqlalchemy as sa
 
-from ...inject.dev.pytest import harness as har
+from ...inject.dev import pytest as ptinj
 from ..dev.pytest.manager import SparkManager
 
 
 @pytest.mark.spark
-def test_sql(harness: har.Harness):
+def test_sql(harness: ptinj.Harness):
     # conn = hive.Connection(host='localhost', port=10000)
     # cur = conn.cursor()
     # print(list(cur.execute('select 1')))
