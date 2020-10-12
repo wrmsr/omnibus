@@ -1,20 +1,12 @@
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_memcache():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-memcached', 11211
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-memcached_1', 11211)])
-
-        [(host, port)] = eps.values()
+def test_memcache(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('memcached', 11211)]).values()
 
     from pymemcache.client.base import Client
     client = Client((host, port))

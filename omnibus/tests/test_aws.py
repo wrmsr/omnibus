@@ -5,21 +5,13 @@ import botocore.client
 import pytest
 import yaml
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_docker_s3():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-minio', 9000
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-minio_1', 9000)])
-
-        [(host, port)] = eps.values()
+def test_docker_s3(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('minio', 9000)]).values()
 
     with open(os.path.join(os.path.dirname(__file__), '../../docker/docker-compose.yml'), 'r') as f:
         dct = yaml.safe_load(f.read())
@@ -47,17 +39,8 @@ def test_docker_s3():
 
 
 @pytest.mark.xfail()
-def test_docker_sqs():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-elasticmq', 9324
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-elasticmq_1', 9324)])
-
-        [(host, port)] = eps.values()
+def test_docker_sqs(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('elasticmq', 9324)]).values()
 
     sqs = boto3.client(
         'sqs',

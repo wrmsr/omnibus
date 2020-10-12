@@ -1,20 +1,12 @@
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_zookeeper():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-zookeeper', 2181
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-zookeeper_1', 2181)])
-
-        [(host, port)] = eps.values()
+def test_zookeeper(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('zookeeper', 2181)]).values()
 
     from kazoo.client import KazooClient
 

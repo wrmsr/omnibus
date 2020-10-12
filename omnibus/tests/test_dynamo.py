@@ -1,21 +1,13 @@
 import boto3.dynamodb.conditions
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_docker_dynamo():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-dynamodb', 8000
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-dynamodb_1', 8000)])
-
-        [(host, port)] = eps.values()
+def test_docker_dynamo(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('dynamodb', 8000)]).values()
 
     dynamodb = boto3.resource(
         'dynamodb',

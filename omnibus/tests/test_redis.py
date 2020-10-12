@@ -1,20 +1,12 @@
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_redis():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-redis', 6379
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-redis_1', 6379)])
-
-        [(host, port)] = eps.values()
+def test_redis(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('redis', 6379)]).values()
 
     import redis
     r = redis.Redis(host=host, port=port, db=0)

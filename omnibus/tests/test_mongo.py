@@ -1,21 +1,13 @@
 import pymongo
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_docker_mongo():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-mongo', 27017
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-mongo_1', 27017)])
-
-        [(host, port)] = eps.values()
+def test_docker_mongo(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('mongo', 9200)]).values()
 
     client = pymongo.MongoClient(f'mongodb://root:omnibus@{host}:{port}')
     db = client['test-database']

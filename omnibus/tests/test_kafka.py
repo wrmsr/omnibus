@@ -6,7 +6,8 @@ evaluate:
 """
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 SCHEMA = {
@@ -39,7 +40,7 @@ def make_records(num_records=2000):
 
 
 @pytest.mark.xfail()
-def test_kafka():
+def test_kafka(harness: ptinj.Harness):
     import logging
     from .. import logs
     logs.configure_standard_logging(logging.INFO)
@@ -51,16 +52,7 @@ def test_kafka():
     # fastavro.writer(buf, SCHEMA, records)
     # print(buf)
 
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-kafka', 22214
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-kafka_1', 22214)])
-
-        [(host, port)] = eps.values()
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('redis', 22214)]).values()
 
     import kafka
 

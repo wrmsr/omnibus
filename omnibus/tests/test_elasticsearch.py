@@ -1,20 +1,12 @@
 import pytest
 
-from .. import docker
+from ..docker.dev.pytest import DockerManager
+from ..inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
-def test_elasticsearch():
-    if docker.is_in_docker():
-        (host, port) = 'omnibus-elasticsearch', 9200
-
-    else:
-        with docker.client_context() as client:
-            eps = docker.get_container_tcp_endpoints(
-                client,
-                [('docker_omnibus-elasticsearch_1', 9200)])
-
-        [(host, port)] = eps.values()
+def test_elasticsearch(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('elasticsearch', 9200)]).values()
 
     from datetime import datetime
     from elasticsearch import Elasticsearch
