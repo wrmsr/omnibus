@@ -632,7 +632,7 @@ ci-test:
 		rm test-results.xml ; \
 	fi
 
-	pytest -v -n auto --junitxml=test-results.xml $(PROJECT) && \
+	pytest -v -n auto --ci --junitxml=test-results.xml $(PROJECT) && \
 	\
 	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
 		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
