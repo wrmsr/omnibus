@@ -24,6 +24,7 @@ RUN ( \
         less \
         libpcre2-dev \
         libpq-dev \
+        libsasl2-dev \
         libsnappy-dev \
         make \
         moreutils \
