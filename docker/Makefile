@@ -121,7 +121,7 @@ ci-images:
 
 .PHONY: ci
 ci: ci-images
-	docker-compose run --rm $$OMNIBUS_CI_DOCKER_OPTS -e OMNIBUS_CI_OUTPUT_DIR="$$OMNIBUS_CI_OUTPUT_DIR" omnibus-ci
+	docker-compose run --rm $$OMNIBUS_CI_DOCKER_OPTS -e OMNIBUS_CI=1 -e OMNIBUS_CI_OUTPUT_DIR="$$OMNIBUS_CI_OUTPUT_DIR" omnibus-ci
 
 .PHONY: updates
 updates:
