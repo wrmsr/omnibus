@@ -9,6 +9,7 @@ wcwidth==0.2.5
 
 ## transitive dependencies
 
+aiohttp==3.6.3
 arviz==0.10.0
 attrs==20.2.0
 cachetools==4.1.1
@@ -16,6 +17,7 @@ certifi==2020.6.20
 cffi==1.14.3
 cftime==1.2.1
 cli-helpers==2.1.0
+colorama==0.4.4
 cryptography==3.1.1
 fastprogress==1.0.0
 graphviz==0.14.2
@@ -27,6 +29,7 @@ jedi==0.17.2
 jmespath==0.10.0
 keyring==21.4.0
 more-itertools==8.5.0
+multidict==5.0.0
 nbconvert==6.0.7
 netCDF4==1.5.4
 numba==0.51.2
@@ -45,7 +48,7 @@ tqdm==4.50.2
 typing-extensions==3.7.4.3
 urllib3==1.25.10
 xarray==0.16.1
-yarl==1.6.0
+yarl==1.6.2
 
 
 ## potential optional integrations

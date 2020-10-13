@@ -81,10 +81,10 @@ class Box(lang.Abstract, ta.Generic[T], metaclass=_BoxMeta):
 
     @classmethod
     def of(cls: BoxT, obj: ta.Union['BoxT', T]) -> BoxT:  # type: ignore
-        if isinstance(obj, cls):  # noqa  # type: ignore
+        if isinstance(obj, cls):  # type: ignore  # noqa
             return obj  # type: ignore
         elif isinstance(obj, cls._value_cls):
-            return cls(obj)   # noqa  # type: ignore
+            return cls(obj)   # type: ignore  # noqa
         else:
             raise TypeError(obj)
 

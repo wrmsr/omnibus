@@ -132,8 +132,10 @@ class SkipList(SortedCollection[T]):
         update = [None] * self._max_height
         cur = self._head
 
+        # begintypeignore
+
         for i in range(self._height - 1, -1, -1):
-            while cur.next[i] is not None and self._compare(value, cur.next[i].value) > 0:
+            while cur.next[i] is not None and self._compare(value, cur.next[i].value) > 0:  # type: ignore
                 cur = cur.next[i]
             update[i] = cur
 
@@ -154,6 +156,8 @@ class SkipList(SortedCollection[T]):
             cur = update[i]
             node.next[i] = cur.next[i]
             cur.next[i] = node
+
+        # endtypeignore
 
         self._length += 1
         return True

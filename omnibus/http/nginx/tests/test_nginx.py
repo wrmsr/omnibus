@@ -1,10 +1,11 @@
 import pytest
 
-from .. import nginx as ng
+from .. import configs as ngc
+from .. import process as ngp
 
 
 def test_config():
-    cfg = ng.ConfigItems.of([
+    cfg = ngc.ConfigItems.of([
         'abc;',
         'def;',
         ('ghi', [
@@ -20,7 +21,7 @@ def test_config():
 
 @pytest.mark.xfail()
 def test_nginx_process():
-    with ng.NginxProcess() as proc:
+    with ngp.NginxProcess() as proc:
         print(proc._config.connect_timeout)
         print(proc.nginx_version)
         print(proc.nginx_cfg_args)

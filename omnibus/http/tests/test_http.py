@@ -1,6 +1,7 @@
 import contextlib
 import threading
 import time
+import typing as ta
 
 import requests
 
@@ -13,7 +14,7 @@ from ...dev.testing import run_with_timeout
 
 
 def test_inline_http():
-    server: wsgiref_.WsgiServer = None
+    server: ta.Optional[wsgiref_.WsgiServer] = None
 
     def app(environ, start_response):
         assert environ['PATH_INFO'] == '/test'
@@ -49,7 +50,7 @@ def test_inline_http():
 
 def test_http():
     # FIXME: dynamic port
-    server: wsgiref_.WsgiServer = None
+    server: ta.Optional[wsgiref_.WsgiServer] = None
 
     def app(environ, start_response):
         assert environ['PATH_INFO'] == '/test'
@@ -80,7 +81,7 @@ def test_http():
 
 
 def test_json_http():
-    server: wsgiref_.WsgiServer = None
+    server: ta.Optional[wsgiref_.WsgiServer] = None
 
     def json_app(obj):
         server.shutdown()

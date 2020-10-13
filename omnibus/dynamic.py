@@ -56,12 +56,12 @@ class Var(ta.Generic[T]):
     ) -> None:
         super().__init__()
 
+        new: ta.Any
         if default is not MISSING and new is not MISSING:
             raise TypeError('Cannot set both default and new')
         elif default is not MISSING:
-            self._new = lambda: default
-        else:
-            self._new = new
+            new = lambda: default
+        self._new = ta.cast(ta.Union[ta.Type[MISSING], ta.Callable[[], T]], new)
         self._validate = validate
         self._bindings_by_frame: ta.MutableMapping[types.FrameType, ta.MutableMapping[int, Binding]] = weakref.WeakValueDictionary()  # noqa
 

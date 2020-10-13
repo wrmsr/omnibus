@@ -41,7 +41,7 @@ mypy==0.790
 objgraph==3.5.0
 pgcli==3.0.0
 pipdeptree==1.0.0
-prompt-toolkit==3.0.7
+prompt-toolkit==3.0.8
 pyflakes==2.2.0
 pyrasite==2.0
 s3cmd==2.1.0
