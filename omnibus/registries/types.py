@@ -125,7 +125,7 @@ class BaseRegistry(Registry[K, V], lang.Abstract):
             listeners_by_obj: ta.Mapping[ta.Any, Listener] = None,
             **kwargs
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(**kwargs)  # type: ignore
 
         self._lock = lang.default_lock(lock, True)
 

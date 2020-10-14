@@ -54,7 +54,7 @@ class DataclassAttribute:
         return mn.Var(self.name, self.type)
 
     def serialize(self) -> mn.JsonDict:
-        assert self.type
+        check.not_none(self.type)
         return {
             'name': self.name,
             'is_in_init': self.is_in_init,
@@ -146,7 +146,7 @@ class DataclassTransformer:
 
                 existing_method = info.get(method_name)
                 if existing_method is not None and not existing_method.plugin_generated:
-                    assert existing_method.node
+                    check.no_empty(existing_method.node)
                     ctx.api.fail(
                         'You may not have a custom %s method when order=True' % method_name,
                         existing_method.node,
@@ -180,7 +180,7 @@ class DataclassTransformer:
                     del info.names[attr.name]
                 else:
                     # Nodes of superclass InitVars not used in __init__ cannot be reached.
-                    assert attr.is_init_var
+                    check.state(attr.is_init_var)
                 for stmt in info.defn.defs.body:
                     if isinstance(stmt, mn.AssignmentStmt) and stmt.unanalyzed_type:
                         lvalue = stmt.lvalues[0]
@@ -276,7 +276,7 @@ class DataclassTransformer:
         if isinstance(node, mn.PlaceholderNode):
             # This node is not ready yet.
             raise _NotYetReady
-        assert isinstance(node, mn.Var)
+        check.isinstance(node, mn.Var)
 
         # x: ClassVar[int] is ignored by dataclasses.
         if node.is_classvar:
@@ -332,7 +332,7 @@ class DataclassTransformer:
             sym_node = info.names.get(attr.name)
             if sym_node is not None:
                 var = sym_node.node
-                assert isinstance(var, mn.Var)
+                check.isinstance(var, mn.Var)
                 var.is_property = True
             else:
                 var = attr.to_var()
@@ -365,7 +365,7 @@ def _collect_field_args(expr: mn.Expression) -> ta.Tuple[bool, ta.Dict[str, mn.E
             if i == 1 and name is None:
                 name = 'default'
             else:
-                assert name is not None
+                check.not_none(name)
             args[name] = arg
         return True, args
     return False, {}
@@ -377,8 +377,7 @@ class DataclassPlugin(mp.Plugin):
         if fullname in [
             PREFIX + '.api.dataclass',
         ]:
-            from mypy.plugins import dataclasses
-            return dataclasses.dataclass_class_maker_callback
+            return dataclass_class_maker_callback
 
         return None
 
@@ -388,7 +387,6 @@ class DataclassPlugin(mp.Plugin):
             if isinstance(stn.node, mn.TypeInfo):
                 mro = check.isinstance(stn.node, mn.TypeInfo).mro
                 if any(bc.fullname == PREFIX + '.metaclass.Data' for bc in mro):
-                    from mypy.plugins import dataclasses
-                    return dataclasses.dataclass_class_maker_callback
+                    return dataclass_class_maker_callback
 
         return None

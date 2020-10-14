@@ -20,7 +20,9 @@ from .types import OverweightException
 
 
 K = ta.TypeVar('K')
+K2 = ta.TypeVar('K2')
 V = ta.TypeVar('V')
+V2 = ta.TypeVar('V2')
 
 
 log = logging.getLogger(__name__)
@@ -36,7 +38,10 @@ class CacheImpl(Cache[K, V]):
     """
 
     try:
-        from .._ext.cy.caches import CacheLink as Link  # type: ignore
+        if not ta.TYPE_CHECKING:
+            from .._ext.cy.caches import CacheLink as Link
+        else:
+            raise ImportError
 
     except ImportError:
         class Link:
@@ -58,14 +63,14 @@ class CacheImpl(Cache[K, V]):
             ]
 
             seq: int
-            ins_prev: 'Cache.Link'
-            ins_next: 'Cache.Link'
-            lru_prev: 'Cache.Link'
-            lru_next: 'Cache.Link'
-            lfu_prev: 'Cache.Link'
-            lfu_next: 'Cache.Link'
-            key: ta.Union[K, weakref.ref]
-            value: ta.Union[V, weakref.ref]
+            ins_prev: ta.Optional['CacheImpl.Link']
+            ins_next: ta.Optional['CacheImpl.Link']
+            lru_prev: ta.Optional['CacheImpl.Link']
+            lru_next: ta.Optional['CacheImpl.Link']
+            lfu_prev: ta.Optional['CacheImpl.Link']
+            lfu_next: ta.Optional['CacheImpl.Link']
+            key: ta.Union[ta.Any, weakref.ref]
+            value: ta.Union[ta.Any, weakref.ref]
             weight: float
             written: float
             accessed: float
@@ -92,17 +97,20 @@ class CacheImpl(Cache[K, V]):
 
     _cache: ta.MutableMapping[ta.Union[K, int], Link]
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def LRU(cache: 'Cache') -> None:
-        cache._kill(cache._root.lru_next)
+        cache._kill(cache._root.lru_next)  # type: ignore
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def LRI(cache: 'Cache') -> None:
-        cache._kill(cache._root.ins_next)
+        cache._kill(cache._root.ins_next)  # type: ignore
 
-    @lang.staticfunction
+    @lang.staticfunction  # noqa
+    @staticmethod
     def LFU(cache: 'Cache') -> None:
-        cache._kill(cache._root.lfu_prev)
+        cache._kill(cache._root.lfu_prev)  # type: ignore
 
     DEFAULT_MAX_SIZE = 256
 
@@ -159,11 +167,13 @@ class CacheImpl(Cache[K, V]):
         if self._track_frequency:
             self._root.lfu_next = self._root.lfu_prev = self._root
 
+        weak_dead: ta.Optional[ta.Deque[CacheImpl.Link]]
         if weak_keys or weak_values:
-            self._weak_dead = collections.deque()
-            self._weak_dead_ref = weakref.ref(self._weak_dead)
+            weak_dead = collections.deque()
+            self._weak_dead_ref = weakref.ref(weak_dead)
         else:
-            self._weak_dead = self._weak_dead_ref = None
+            weak_dead = self._weak_dead_ref = None
+        self._weak_dead = weak_dead
 
         self._seq = 0
         self._size = 0
@@ -434,7 +444,7 @@ class CacheImpl(Cache[K, V]):
             try:
                 self._get_link(key)
             except KeyError:
-                raise False
+                return False
             else:
                 return True
 
@@ -444,7 +454,7 @@ class CacheImpl(Cache[K, V]):
 
             link = self._root.ins_prev
             while link is not self._root:
-                yield link
+                yield link.key
                 next = link.ins_prev
                 if next is link:
                     raise ValueError

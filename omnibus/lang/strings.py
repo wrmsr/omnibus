@@ -245,22 +245,22 @@ class Redacted(ta.Generic[T]):
         return hash(self._value)
 
     def __eq__(self, o: object) -> bool:
-        return self._value == (o._value if isinstance(o, Redacted) else o)
+        return self._value == (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
     def __ne__(self, o: object) -> bool:
-        return self._value != (o._value if isinstance(o, Redacted) else o)
+        return self._value != (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
     def __lt__(self, o: object) -> bool:
-        return self._value < (o._value if isinstance(o, Redacted) else o)
+        return self._value < (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
     def __le__(self, o: object) -> bool:
-        return self._value <= (o._value if isinstance(o, Redacted) else o)
+        return self._value <= (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
     def __gt__(self, o: object) -> bool:
-        return self._value > (o._value if isinstance(o, Redacted) else o)
+        return self._value > (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
     def __ge__(self, o: object) -> bool:
-        return self._value >= (o._value if isinstance(o, Redacted) else o)
+        return self._value >= (o._value if isinstance(o, Redacted) else o)  # type: ignore
 
 
 def redact(value: T) -> Redacted[T]:

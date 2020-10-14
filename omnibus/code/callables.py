@@ -53,7 +53,6 @@ class Callable(lang.Sealed):
         self._args = args
         self._kwargs = kwargs
         self._fn = check.callable(self.construct(*args, **kwargs))
-        self.__call__ = getattr(self._fn, '__call__', self._fn)
 
     @property
     def args(self):
@@ -99,12 +98,12 @@ class Lambda(Callable, lang.Final):
     @classmethod
     def construct(cls, *args) -> ta.Callable:
         if len(args) == 1:
-            args, body = '', args[0]
+            largs, body = '', args[0]
         elif len(args) == 2:
-            args, body = args
+            largs, body = args
         else:
             raise TypeError(args)
-        return eval('lambda %s: %s' % (args, body))
+        return eval('lambda %s: %s' % (largs, body))
 
 
 class Function(Callable, lang.Final):
@@ -119,15 +118,15 @@ class Function(Callable, lang.Final):
             namespace: ta.Mapping[str, ta.Any] = None
     ) -> ta.Callable:
         if len(args) == 1:
-            args, body, init = None, args[0], None
+            fargs, body, init = None, args[0], None
         elif len(args) == 2:
-            args, body, init = args[0], args[1], None
+            fargs, body, init = args[0], args[1], None
         elif len(args) == 3:
-            args, body, init = args
+            fargs, body, init = args
         else:
             raise TypeError(args)
 
-        def_mod_ast = ast.parse('def %s(%s): pass' % (cls.fn_name, args))
+        def_mod_ast = ast.parse('def %s(%s): pass' % (cls.fn_name, fargs))
         check.isinstance(def_mod_ast, ast.Module)
         def_ast = def_mod_ast.body[0]
         check.isinstance(def_ast, ast.FunctionDef)
@@ -155,15 +154,15 @@ class Function(Callable, lang.Final):
                 def_mod_ast.body.insert(0, import_ast)
 
         code = compile(def_mod_ast, '<fn>', 'exec')
-        code_namespace = namespace.copy() if namespace else {}
+        code_namespace = dict(namespace) if namespace else {}
         exec(code, code_namespace)
         return code_namespace[cls.fn_name]
 
 
 class Bindable(Callable):
 
-    arg_names = ()
-    argspec = None
+    arg_names: ta.Sequence[str] = ()
+    argspec: ta.Optional[inspect.FullArgSpec] = None
 
     def __repr__(self) -> str:
         if self.argspec is None:
@@ -171,7 +170,7 @@ class Bindable(Callable):
         else:
             args_dct = build_arg_dict(self.argspec, self.args, self.kwargs)
             args_str = ', '.join('%s=%r' % (k, args_dct.get(k)) for k in self.arg_names)
-            return '%s(%s)' % (self.final_type.__name__, args_str)
+            return '%s(%s)' % (check.not_none(self.final_type).__name__, args_str)
 
     @property
     def arg(self):

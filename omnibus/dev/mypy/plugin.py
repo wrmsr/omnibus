@@ -108,19 +108,21 @@ class ChainedPlugin(mp.Plugin):
 _HAS_INSTALLED_TYPEIGNOREREGIONPLUGIN_ERROR_HOOK = False  # noqa
 
 
-def _install_TypeIgnoreRegionPlugin_error_hook(dct: ta.Mapping[mn.MypyFile, ta.AbstractSet[int]]) -> None:  # noqa
+def _install_TypeIgnoreRegionPlugin_error_hook(ignored_line_by_file: ta.Mapping[str, ta.AbstractSet[int]]) -> None:  # noqa
     global _HAS_INSTALLED_TYPEIGNOREREGIONPLUGIN_ERROR_HOOK  # noqa
     if _HAS_INSTALLED_TYPEIGNOREREGIONPLUGIN_ERROR_HOOK:
         return
 
     from mypy.util import is_typeshed_file
 
-    def new_guie(self, file):
+    def new_guie(self: me.Errors, file: str) -> None:
         ignored_lines = self.ignored_lines[file]
         if not is_typeshed_file(file) and file not in self.ignored_files:
-            for line in set(ignored_lines) - self.used_ignored_lines[file]:
-                pass
-        return old_guie(file)
+            if file in ignored_line_by_file:
+                ignored = ignored_line_by_file[file]
+                for line in set(ignored_lines) & (set(ignored) - self.used_ignored_lines[file]):
+                    del ignored_lines[line]
+        return old_guie(self, file)
 
     try:
         old_guie = me.Errors.generate_unused_ignore_errors
@@ -137,8 +139,9 @@ class TypeIgnoreRegionPlugin(mp.Plugin):
         super().__init__(options)
 
         self._ignored_lines_by_mod: ta.MutableMapping[mn.MypyFile, ta.Set[int]] = col.IdentityKeyDict()
+        self._ignored_lines_by_file: ta.MutableMapping[str, ta.Set[int]] = {}
 
-        _install_TypeIgnoreRegionPlugin_error_hook(self._ignored_lines_by_mod)
+        _install_TypeIgnoreRegionPlugin_error_hook(self._ignored_lines_by_file)
 
     def set_modules(self, modules: ta.Dict[str, mn.MypyFile]) -> None:
         for mod in modules.values():
@@ -147,14 +150,17 @@ class TypeIgnoreRegionPlugin(mp.Plugin):
                 lines = f.readlines()
             b = False
             for i, l in enumerate(lines):
-                if l.strip().endswith('# begintypeignore'):
-                    b = True
-                elif l.strip().endswith('# endtypeignore'):
-                    b = False
+                if '#' in l:
+                    p = l.rpartition('#')[-1].strip()
+                    if p == 'begintypeignore':
+                        b = True
+                    elif p == 'endtypeignore':
+                        b = False
                 if b:
                     if i not in mod.ignored_lines:
                         mod.ignored_lines[i] = []
                         self._ignored_lines_by_mod.setdefault(mod, set()).add(i)
+                        self._ignored_lines_by_file.setdefault(mod.path, set()).add(i)
 
 
 class Plugin(ChainedPlugin):

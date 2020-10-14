@@ -86,7 +86,7 @@ def merge(sequences: ta.MutableSequence[ta.List[T]]) -> ta.List[T]:
 
 def mro(
         cls: T,
-        abcs: ta.Sequence[T] = None,
+        abcs: ta.Optional[ta.Sequence[T]] = None,
         *,
         getbases: ta.Callable[[T], ta.Sequence[T]] = operator.attrgetter('__bases__'),
         issubclass: ta.Callable[[T, T], bool] = issubclass,  # type: ignore

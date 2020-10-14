@@ -1,3 +1,7 @@
+"""
+TODO:
+ - default command
+"""
 import argparse
 import dataclasses as dc
 import functools

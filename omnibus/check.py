@@ -52,7 +52,7 @@ def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messa
         spec = tuple(filter(None, spec)) + (_NONE_TYPE,)  # type: ignore
     if not _isinstance(obj, spec):
         _raise(TypeError, 'Must be instance', message, spec)
-    return obj
+    return obj  # type: ignore
 
 
 def of_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
@@ -78,7 +78,7 @@ def not_isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: M
         spec = tuple(filter(None, ta.cast(ta.Sequence, spec))) + (_NONE_TYPE,)
     if _isinstance(obj, spec):
         _raise(TypeError, 'Must be not instance', message, spec)
-    return obj
+    return obj  # type: ignore
 
 
 def of_not_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
@@ -102,7 +102,7 @@ def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable
 def cast(obj: ta.Any, cls: ta.Type[T], message: Messageable = None) -> T:
     if not _isinstance(obj, cls):
         _raise(TypeError, 'Must be instance', message, cls)
-    return obj
+    return obj  # type: ignore
 
 
 def not_none(obj: ta.Optional[T], message: Messageable = None) -> T:
@@ -231,8 +231,8 @@ def one_of(*items: T, **kwargs) -> T:
     if value is not not_set:
         return ta.cast(T, value)
     if default is not not_set:
-        return default
+        return default  # type: ignore
     if default_factory is not not_set:
-        return default_factory()
+        return default_factory()  # type: ignore
 
     _raise(ValueError, f'Expected exactly one of {items}, got none', message, items)

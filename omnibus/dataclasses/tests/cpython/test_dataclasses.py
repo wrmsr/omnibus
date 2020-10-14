@@ -1,4 +1,5 @@
 # flake8: noqa
+# type: ignore
 # Deliberately use "from dataclasses import *".  Every name in __all__
 # is tested, so they all must be present.  This is a way to catch
 # missing ones.
