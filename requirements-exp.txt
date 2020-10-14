@@ -23,7 +23,7 @@ fastprogress==1.0.0
 graphviz==0.14.2
 humanize==3.0.1
 importlib-resources==3.0.0
-iniconfig==1.0.1
+iniconfig==1.1.1
 ipykernel==5.3.4
 jedi==0.17.2
 jmespath==0.10.0

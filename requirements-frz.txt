@@ -64,7 +64,7 @@ humanize==3.0.1
 hyperscan==0.1.5
 idna==2.10
 importlib-resources==3.0.0
-iniconfig==1.0.1
+iniconfig==1.1.1
 intervaltree==3.1.0
 ipdb==0.13.4
 ipykernel==5.3.4
