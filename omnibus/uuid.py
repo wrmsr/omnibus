@@ -50,7 +50,7 @@ try:
 except ImportError:
     globals()['new'] = uuid.UUID
 else:
-    globals()['new'] = _uuid.new
+    globals()['new'] = _uuid.make
 
 
 UUID = uuid.UUID

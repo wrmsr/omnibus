@@ -21,7 +21,7 @@ object_setattr = object.__setattr__
 UUID = uuid.UUID
 
 
-def new(
+def make(
         hex=None,
         bytes=None,
         bytes_le=None,

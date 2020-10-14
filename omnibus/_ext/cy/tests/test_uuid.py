@@ -19,7 +19,7 @@ def test_uuid():
     s = '37b96676-18ff-4642-b818-a5b0f85cceef'
 
     for i in range(1, 5):
-        assert uuid.UUID(s, version=i) == uuid_.new(s, version=i)
+        assert uuid.UUID(s, version=i) == uuid_.make(s, version=i)
 
     print(timeit(lambda: uuid.UUID(s)))
-    print(timeit(lambda: uuid_.new(s)))
+    print(timeit(lambda: uuid_.make(s)))
