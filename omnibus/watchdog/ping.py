@@ -34,9 +34,9 @@ class HttpPinger(cfg.Configurable, lc.ContextManageableLifecycle):
             self,
             target: ta.Union[Target, ta.Callable[[], requests.Response]],
             *,
-            validator: ta.Callable[[requests.Response], None] = None,
-            error_handler: ta.Callable[[requests.Response], None] = None,
-            shutdown_event: threading.Event = None,
+            validator: ta.Optional[ta.Callable[[requests.Response], None]] = None,
+            error_handler: ta.Optional[ta.Callable[[requests.Response], None]] = None,
+            shutdown_event: ta.Optional[threading.Event] = None,
             config: Config = Config(),
     ) -> None:
         super().__init__(config)

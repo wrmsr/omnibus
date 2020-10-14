@@ -1,4 +1,5 @@
 # flake8: noqa
+# type: ignore
 from __future__ import annotations
 USING_STRINGS = True
 

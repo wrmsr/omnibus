@@ -42,11 +42,9 @@ ClientAddress = ta.Tuple[str, int]
 
 class SelectorProtocol(lang.Protocol):
 
-    @property
     def register(self, *args, **kwargs) -> None:
         raise NotImplementedError
 
-    @property
     def select(self, *args, **kwargs) -> bool:
         raise NotImplementedError
 

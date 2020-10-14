@@ -53,7 +53,7 @@ class Watch(lang.Abstract):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def suspend(self, duration: FloatOrInt = None) -> ta.ContextManager[None]:
+    def suspend(self, duration: ta.Optional[FloatOrInt] = None) -> ta.ContextManager[None]:
         raise NotImplementedError
 
 
@@ -91,7 +91,7 @@ class NopWatch(Watch):
         pass
 
     @contextlib.contextmanager
-    def suspend(self, duration: FloatOrInt = None) -> ta.Iterator[None]:
+    def suspend(self, duration: ta.Optional[FloatOrInt] = None) -> ta.Iterator[None]:
         yield
 
 
@@ -102,8 +102,8 @@ class Watchdog(lc.ContextManageableLifecycle, lang.Abstract):
             self,
             obj: ta.Any,
             *,
-            thread: threading.Thread = None,
-            meta: Meta = None,
+            thread: ta.Optional[threading.Thread] = None,
+            meta: ta.Optional[Meta] = None,
     ) -> ta.ContextManager[Watch]:
         raise NotImplementedError
 
@@ -134,7 +134,7 @@ class Watchdog(lc.ContextManageableLifecycle, lang.Abstract):
     def checkpoint_thread_current(self) -> None:
         return self._do_for_thread_current(lambda w: w.checkpoint())
 
-    def suspend_thread_current(self, duration: FloatOrInt = None) -> ta.ContextManager[None]:
+    def suspend_thread_current(self, duration: ta.Optional[FloatOrInt] = None) -> ta.ContextManager[None]:
         return self._enter_for_thread_current(lambda w: w.suspend(duration))
 
     @lang.abstract
@@ -148,8 +148,8 @@ class NopWatchdog(Watchdog):
             self,
             obj: ta.Any,
             *,
-            thread: threading.Thread = None,
-            meta: Meta = None,
+            thread: ta.Optional[threading.Thread] = None,
+            meta: ta.Optional[Meta] = None,
     ) -> ta.ContextManager[Watch]:
         return NopWatch()
 
@@ -199,8 +199,8 @@ class Reporter(lang.Abstract):
             self,
             watchdog: Watchdog,
             *,
-            watches: ta.Set[Watch] = None,
-            violations: ta.Set[Watch] = None,
+            watches: ta.Optional[ta.Set[Watch]] = None,
+            violations: ta.Optional[ta.Set[Watch]] = None,
     ) -> ta.Optional[Report]:
         raise NotImplementedError
 
@@ -219,8 +219,8 @@ class NopReporter(Reporter):
             self,
             watchdog: Watchdog,
             *,
-            watches: ta.Set[Watch] = None,
-            violations: ta.Set[Watch] = None,
+            watches: ta.Optional[ta.Set[Watch]] = None,
+            violations: ta.Optional[ta.Set[Watch]] = None,
     ) -> None:
         return None
 

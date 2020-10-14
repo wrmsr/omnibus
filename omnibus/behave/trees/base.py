@@ -313,15 +313,16 @@ class Decorator(Task[E], lang.Abstract):
             raise IndexError(idx)
 
     def run(self) -> None:
-        if self._child.status == Task.Status.RUNNING:
-            self._child.run()
+        child = check.not_none(self._child)
+        if child.status == Task.Status.RUNNING:
+            child.run()
         else:
-            self._child.control = self
-            self._child.start()
-            if self._child.check_guard(self):
-                self._child.run()
+            child.control = self
+            child.start()
+            if child.check_guard(self):
+                child.run()
             else:
-                self._child.fail()
+                child.fail()
 
     def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         self.running()
@@ -384,15 +385,16 @@ class LoopDecorator(Decorator[E], lang.Abstract):
     def run(self) -> None:
         self._loop = True
         while self.condition:
-            if self._child.status == Task.Status.RUNNING:
-                self._child.run()
+            child = check.not_none(self._child)
+            if child.status == Task.Status.RUNNING:
+                child.run()
             else:
-                self._child.control = self
-                self._child.start()
-                if self._child.check_guard(self):
-                    self._child.run()
+                child.control = self
+                child.start()
+                if child.check_guard(self):
+                    child.run()
                 else:
-                    self._child.fail()
+                    child.fail()
 
     def child_running(self, task: Task[E], reporter: Task[E]) -> None:
         super().child_running(task, reporter)

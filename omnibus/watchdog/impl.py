@@ -26,8 +26,8 @@ FloatOrInt = ta.Union[float, int]
 
 class Suspension(ta.NamedTuple):
     start_time: float
-    duration: FloatOrInt = None
-    frame: ta.Any = None
+    duration: ta.Optional[FloatOrInt] = None
+    frame: ta.Optional[ta.Any] = None
 
 
 class WatchImpl(Watch):
@@ -44,7 +44,7 @@ class WatchImpl(Watch):
             thread: threading.Thread,
             obj: ta.Any,
             *,
-            meta: Meta = None,
+            meta: ta.Optional[Meta] = None,
     ) -> None:
         super().__init__()
 
@@ -60,7 +60,7 @@ class WatchImpl(Watch):
         self._exited = False
 
         self._start_time = time.time()
-        self._last_checkpoint_time: float = None
+        self._last_checkpoint_time: ta.Optional[float] = None
         self._suspensions: ta.List[Suspension] = []
 
         self._parent._watches.add(self)
@@ -158,7 +158,7 @@ class WatchImpl(Watch):
         self._last_checkpoint_time = time.time()
 
     @contextlib.contextmanager
-    def suspend(self, duration: FloatOrInt = None) -> ta.ContextManager[None]:
+    def suspend(self, duration: ta.Optional[FloatOrInt] = None) -> ta.ContextManager[None]:
         check.state(self.active)
         check.state(threading.current_thread() is self._thread())
 
@@ -193,7 +193,7 @@ class WatchdogImpl(cfg.Configurable, Watchdog):
     def __init__(
             self,
             *,
-            shutdown_event: threading.Event = None,
+            shutdown_event: ta.Optional[threading.Event] = None,
             reporter: Reporter = ReporterImpl(),
             config: Config = Config(),
     ) -> None:
@@ -246,8 +246,8 @@ class WatchdogImpl(cfg.Configurable, Watchdog):
             self,
             obj: ta.Any,
             *,
-            thread: threading.Thread = None,
-            meta: Meta = None,
+            thread: ta.Optional[threading.Thread] = None,
+            meta: ta.Optional[Meta] = None,
     ) -> ta.ContextManager[Watch]:
         if thread is None:
             thread = threading.current_thread()

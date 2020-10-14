@@ -36,7 +36,7 @@ _DYN_TAGS: dyn.Var[TagsOrCallback] = dyn.Var()
 
 @dyn.contextmanager
 def tags_context(tags: TagsOrCallback):
-    with _DYN_TAGS(tags):
+    with _DYN_TAGS(tags):  # type: ignore
         yield
 
 
@@ -107,7 +107,7 @@ def tag_caller(*_):
 
 @dyn.contextmanager
 def statement_override_context(statement: str) -> ta.Iterator[None]:
-    with _STATEMENT_OVERRIDE(statement):
+    with _STATEMENT_OVERRIDE(statement):  # type: ignore
         yield
 
 

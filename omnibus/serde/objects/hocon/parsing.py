@@ -35,7 +35,7 @@ class _ParseListener(HoconListener):
 
     def __init__(
             self,
-            stream: antlr4.BufferedTokenStream.BufferedTokenStream,
+            stream: antlr4.BufferedTokenStream.BufferedTokenStream,  # type: ignore
             parser: HoconParser
     ) -> None:
         super().__init__()
@@ -67,7 +67,7 @@ class _ParseListener(HoconListener):
         else:
             return path[:-1], path[-1]
 
-    def Obj_set(self, obj: dict, path: str, value: ta.Any) -> None:
+    def obj_set(self, obj: dict, path: str, value: ta.Any) -> None:
         prefix, key = self._path_prefix(path.split('.'))
         for pkey in prefix:
             obj = obj.setdefault(pkey, {})
@@ -78,7 +78,7 @@ class _ParseListener(HoconListener):
 
     def exitObjectData(self, ctx: HoconParser.ObjectDataContext):
         value = self._stack.pop()
-        self.Obj_set(self._stack[-1], ctx.key().getText(), value)
+        self.obj_set(self._stack[-1], ctx.key().getText(), value)
 
     def exitV_string(self, ctx: HoconParser.V_stringContext):
         self._compound.append(StringValue(self._strip_string_quotes(ctx.STRING().getText())))
@@ -95,25 +95,25 @@ class _ParseListener(HoconListener):
     def exitStringData(self, ctx: HoconParser.StringDataContext):
         if self._compound is not None:
             if any(isinstance(v, ReferenceValue) for v in self._compound):
-                self.Obj_set(self._stack[-1], ctx.key().getText(), CompoundValue(tuple(self._compound)))
+                self.obj_set(self._stack[-1], ctx.key().getText(), CompoundValue(tuple(self._compound)))
             else:
-                self.Obj_set(self._stack[-1], ctx.key().getText(), StringValue(''.join(v.value for v in self._compound)))  # noqa
+                self.obj_set(self._stack[-1], ctx.key().getText(), StringValue(''.join(v.value for v in self._compound)))  # noqa
             self._compound = None
         else:
-            self.Obj_set(self._stack[-1], ctx.key().getText(), StringValue(self._strip_string_quotes(ctx.string_value().getText())))  # noqa
+            self.obj_set(self._stack[-1], ctx.key().getText(), StringValue(self._strip_string_quotes(ctx.string_value().getText())))  # noqa
 
     def exitNumberData(self, ctx: HoconParser.NumberDataContext):
-        self.Obj_set(self._stack[-1], ctx.key().getText(), NumberValue(ctx.NUMBER().getText()))
+        self.obj_set(self._stack[-1], ctx.key().getText(), NumberValue(ctx.NUMBER().getText()))
 
     def exitReferenceData(self, ctx: HoconParser.ReferenceDataContext):
-        self.Obj_set(self._stack[-1], ctx.key().getText(), ReferenceValue(ctx.REFERENCE().getText()))
+        self.obj_set(self._stack[-1], ctx.key().getText(), ReferenceValue(ctx.REFERENCE().getText()))
 
     def enterArrayData(self, ctx: HoconParser.ArrayDataContext):
         self._stack.append([])
 
     def exitArrayData(self, ctx: HoconParser.ArrayDataContext):
         value = self._stack.pop()
-        self.Obj_set(self._stack[-1], ctx.key().getText(), value)
+        self.obj_set(self._stack[-1], ctx.key().getText(), value)
 
     def enterArrayArray(self, ctx: HoconParser.ArrayArrayContext):
         self._stack.append([])

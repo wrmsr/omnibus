@@ -38,9 +38,9 @@ class _ParseVisitor(MinmlVisitor):
         self._default_object_value = default_object_value
         self._non_strict_keys = non_strict_keys
 
-    def visit(self, ctx: antlr4.ParserRuleContext):
-        check.isinstance(ctx, antlr4.ParserRuleContext)
-        return ctx.accept(self)
+    def visit(self, ctx: antlr4.ParserRuleContext):  # type: ignore
+        check.isinstance(ctx, antlr4.ParserRuleContext)  # type: ignore
+        return ctx.accept(self)  # type: ignore
 
     def aggregateResult(self, aggregate, nextResult):
         if aggregate is not None:
@@ -72,7 +72,7 @@ class _ParseVisitor(MinmlVisitor):
             return int(txt)
 
     def visitObj(self, ctx: MinmlParser.ObjContext):
-        dct = {}
+        dct: ta.Dict[ta.Any, ta.Any] = {}
         for pair in ctx.pair():
             key, value = self.visit(pair)
             if not self._non_strict_keys:
@@ -99,9 +99,9 @@ class _ParseVisitor(MinmlVisitor):
 def parse(buf: str) -> ta.Any:
     lexer = MinmlLexer(antlr4.InputStream(buf))
     lexer.removeErrorListeners()
-    lexer.addErrorListener(antlr.SilentRaisingErrorListener())
+    lexer.addErrorListener(antlr.SilentRaisingErrorListener())  # type: ignore
 
-    stream = antlr4.CommonTokenStream(lexer)
+    stream = antlr4.CommonTokenStream(lexer)  # type: ignore
     stream.fill()
 
     parser = MinmlParser(stream)

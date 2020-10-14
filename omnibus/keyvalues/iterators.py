@@ -40,7 +40,8 @@ class TransformedManagedIterator(WrapperManagedIterator[TT], ta.Generic[FT, TT])
         super().__init__(wrapped)
 
         self._transform = transform
-        self._transformed_iter: ta.Iterator[TT] = None
+
+        self._transformed_iter: ta.Optional[ta.Iterator[TT]] = None
 
     def __next__(self) -> T:
         if self._transformed_iter is None:

@@ -48,7 +48,7 @@ class ParameterizedValue(ta.Generic[V]):
         return self._params
 
     def extract(self, value: V) -> ta.Dict[BindParameter, ta.Any]:
-        ret = {}
+        ret: ta.Dict[BindParameter, ta.Any] = {}
         for ex in self._extractors:
             for p, v in ex(value).items():
                 check.not_in(p, ret)

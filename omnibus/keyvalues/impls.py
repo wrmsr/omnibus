@@ -29,7 +29,7 @@ VOrNotSet = ta.Union[V, ta.Type[NOT_SET]]
 
 class MappingKeyValue(IterableKeyValue[K, V]):
 
-    def __init__(self, mapping: ta.MutableMapping[K, V] = None) -> None:
+    def __init__(self, mapping: ta.Optional[ta.MutableMapping[K, V]] = None) -> None:
         super().__init__()
 
         if mapping is None:
@@ -53,7 +53,7 @@ class SortedMappingKeyValue(MappingKeyValue[K, V], SortedIterableKeyValue[K, V])
 
     _mapping: ocol.SortedMutableMapping[K, V]
 
-    def __init__(self, mapping: ocol.SortedMutableMapping[K, V] = None) -> None:
+    def __init__(self, mapping: ta.Optional[ocol.SortedMutableMapping[K, V]] = None) -> None:
         if mapping is None:
             mapping = ocol.SkipListDict()
         super().__init__(mapping)

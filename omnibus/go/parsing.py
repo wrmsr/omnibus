@@ -19,11 +19,11 @@ class _ParseVisitor(GoVisitor):
 
 
 def parse(buf: str) -> ta.Any:
-    lexer = GoLexer(antlr4.InputStream(buf))
+    lexer = GoLexer(antlr4.InputStream(buf))  # type: ignore
     lexer.removeErrorListeners()
     lexer.addErrorListener(antlr.SilentRaisingErrorListener())
 
-    stream = antlr4.CommonTokenStream(lexer)
+    stream = antlr4.CommonTokenStream(lexer)  # type: ignore
     stream.fill()
 
     parser = GoParser(stream)
@@ -32,5 +32,5 @@ def parse(buf: str) -> ta.Any:
 
     visitor = _ParseVisitor()
     root = parser.sourceFile()
-    print(antlr.pformat(root).getvalue())
+    print(antlr.pformat(root).getvalue())  # type: ignore
     return visitor.visit(root)
