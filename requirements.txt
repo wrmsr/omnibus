@@ -16,7 +16,7 @@ google-api-core==1.22.4  #@auto
 google-api-python-client==1.12.3  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.22.1  #@auto
-PyHive[hive]==0.6.3
+PyHive[hive]==0.6.3; python_version < '3.9'
 greenlet==0.4.17
 httptools==0.1.1
 kazoo==2.8.0
