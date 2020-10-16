@@ -1,3 +1,4 @@
+import io
 import typing as ta
 
 from .. import check
@@ -21,7 +22,7 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
         self._delimiters = set(check.not_isinstance(delimiters, str))
         self._no_skip = no_skip
 
-    def nextToken(self):
+    def nextToken(self) -> antlr4.Token:
         if self._input is None:
             raise antlr4.IllegalStateException("nextToken requires a non-null input stream.")
 
@@ -32,7 +33,7 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
                     self.emitEOF()
                     return self._token
 
-                self._token = None
+                self._token: ta.Optional[antlr4.Token] = None
                 self._channel = antlr4.Token.DEFAULT_CHANNEL
                 self._tokenStartCharIndex = self._input.index
                 self._tokenStartColumn = self._interp.column
@@ -85,3 +86,20 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
                 return False
         self._input.seek(self._input.index + len(delimiter))
         return True
+
+    def split(self) -> ta.Tuple[ta.List[ta.Tuple[str, str]], str]:
+        lst = []
+        sb = io.StringIO()
+        while True:
+            token = self.nextToken()
+            if token.type == antlr4.Token.EOF:
+                break
+            if token.type == self._delimiter_token:
+                statement = sb.getvalue().strip()
+                if statement:
+                    lst.append((statement, token.text))
+                sb = io.StringIO()
+            else:
+                sb.write(token.text)
+        partial = sb.getvalue()
+        return lst, partial
