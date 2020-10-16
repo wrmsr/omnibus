@@ -12,18 +12,20 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
             *args,
             delimiter_token: ta.Any,
             delimiters: ta.Iterable[str],
+            no_skip: bool = False,
             **kwargs,
     ) -> None:
         super().__init__(*args, **kwargs)
 
         self._delimiter_token = delimiter_token
         self._delimiters = set(check.not_isinstance(delimiters, str))
+        self._no_skip = no_skip
 
     def nextToken(self):
         if self._input is None:
             raise antlr4.IllegalStateException("nextToken requires a non-null input stream.")
 
-        tokenStartMarker = self._input.mark()
+        token_start_marker = self._input.mark()
         try:
             while True:
                 if self._hitEOF:
@@ -37,7 +39,7 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
                 self._tokenStartLine = self._interp.line
                 self._text = None
 
-                continueOuter = False
+                continue_outer = False
                 while True:
                     self._type = antlr4.Token.INVALID_TYPE
                     ttype = self.SKIP
@@ -59,14 +61,14 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
                     if self._type == antlr4.Token.INVALID_TYPE:
                         self._type = ttype
 
-                    if self._type == self.SKIP:
-                        continueOuter = True
+                    if not self._no_skip and self._type == self.SKIP:
+                        continue_outer = True
                         break
 
                     if self._type != self.MORE:
                         break
 
-                if continueOuter:
+                if continue_outer:
                     continue
 
                 if self._token is None:
@@ -75,11 +77,11 @@ class DelimitingLexer(antlr4.Lexer):  # type: ignore
                 return self._token
 
         finally:
-            self._input.release(tokenStartMarker)
+            self._input.release(token_start_marker)
 
     def _match_delimiter(self, delimiter: str) -> bool:
         for i, c in enumerate(delimiter):
-            if self._input.LA(i + 1) != c:
+            if chr(self._input.LA(i + 1)) != c:
                 return False
         self._input.seek(self._input.index + len(delimiter))
         return True
