@@ -118,7 +118,7 @@ parso==0.8.0
 patsy==0.5.1
 pendulum==2.1.2
 pexpect==4.8.0
-pg8000==1.16.6
+pg8000==1.16.5
 pgcli==3.0.0
 pgspecial==1.11.10
 pickleshare==0.7.5
