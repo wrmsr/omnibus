@@ -75,6 +75,7 @@ from .functions import public_as  # noqa
 from .functions import raise_  # noqa
 from .functions import recurse  # noqa
 from .functions import staticfunction  # noqa
+from .functions import try_  # noqa
 from .functions import unwrap_func  # noqa
 from .imports import import_all  # noqa
 from .imports import import_module  # noqa

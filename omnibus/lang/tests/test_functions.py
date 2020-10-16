@@ -132,3 +132,8 @@ def test_cached_nullary():
     assert c == 3
     assert ci2.i() == 'C.i(c2)'
     assert c == 3
+
+
+def test_try():
+    assert fns.try_()(int)(5) == 5
+    assert fns.try_()(int)('x') is None

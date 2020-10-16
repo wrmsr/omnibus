@@ -205,6 +205,21 @@ def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
     raise exc
 
 
+def try_(
+        exc: ta.Union[Exception, ta.Iterable[Exception]] = Exception,
+        default: ta.Optional[T] = None,
+) -> ta.Callable[..., T]:
+    def outer(fn):
+        def inner(*args, **kwargs):
+            try:
+                return fn(*args, **kwargs)
+            except exct:
+                return default
+        return inner
+    exct = (exc,) if isinstance(exc, type) else tuple(exc)
+    return outer
+
+
 def identity(obj: T) -> T:
     return obj
 
