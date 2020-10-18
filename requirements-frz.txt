@@ -7,13 +7,13 @@ astpretty==2.0.0
 async-generator==1.10
 async-timeout==3.0.1
 attrs==20.2.0
-awscli==1.18.158
+awscli==1.18.159
 backcall==0.2.0
 billiard==3.6.3.0
 bleach==3.2.1
-boto3==1.15.17
-boto3-stubs==1.15.17.0
-botocore==1.18.17
+boto3==1.15.18
+boto3-stubs==1.15.18.0
+botocore==1.18.18
 bsddb3==6.2.7
 bson==0.5.10
 cachetools==4.1.1
@@ -188,7 +188,7 @@ rsa==4.6
 s3cmd==2.1.0
 s3transfer==0.3.3
 sasl==0.2.1
-scipy==1.5.2
+scipy==1.5.3
 scramp==1.2.0
 Send2Trash==1.5.0
 setproctitle==1.1.10

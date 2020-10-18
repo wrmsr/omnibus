@@ -43,7 +43,7 @@ Pygments==2.7.1
 readme-renderer==27.0
 requests==2.24.0
 rsa==4.6
-scipy==1.5.2
+scipy==1.5.3
 scramp==1.2.0
 Theano==1.0.5
 tqdm==4.50.2
