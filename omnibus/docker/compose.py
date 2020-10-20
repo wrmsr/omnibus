@@ -6,7 +6,7 @@ TODO:
 import typing as ta  # noqa
 
 from .. import lang
-from ..serde.objects import yaml
+from ..serde.formats import yaml
 
 
 lang.warn_unstable()

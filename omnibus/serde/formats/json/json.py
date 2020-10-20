@@ -60,7 +60,7 @@ COMPACT_SEPARATORS = (',', ':')
 dumps_compact = functools.partial(dumps, separators=COMPACT_SEPARATORS)
 
 
-class CompactCodec(JsonCodec[F, str]):
+class CompactCodec(JsonCodec[F]):
 
     def __init__(
             self,
@@ -82,7 +82,7 @@ PRETTY_INDENT = 2
 dumps_pretty = functools.partial(dumps, indent=PRETTY_INDENT)
 
 
-class PrettyCodec(JsonCodec[F, str]):
+class PrettyCodec(JsonCodec[F]):
 
     def __init__(
             self,
