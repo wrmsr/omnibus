@@ -54,27 +54,6 @@ def cls_dct_fn(offset=1, *, wrap=True):
     return outer
 
 
-@cls_dct_fn()
-def public(cls_dct, target, *names: str):
-    __all__ = cls_dct.setdefault('__all__', [])
-    subtargets = ta.cast(list, target if isinstance(target, tuple) else (target,))
-    for subtarget in subtargets:
-        subnames = names or (subtarget.__name__,)
-        for subname in subnames:
-            if subname in cls_dct or subname in __all__:
-                raise NameError(subname)
-            cls_dct[subname] = target
-            __all__.append(subname)
-    return target
-
-
-@cls_dct_fn()
-def public_as(cls_dct, *names):
-    def inner(target):
-        return public(target, *names, cls_dct=cls_dct)
-    return inner
-
-
 def is_lambda(f: ta.Any) -> bool:
     l = lambda: 0
     return isinstance(f, type(l)) and f.__name__ == l.__name__

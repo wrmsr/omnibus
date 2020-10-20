@@ -7,13 +7,13 @@ astpretty==2.0.0
 async-generator==1.10
 async-timeout==3.0.1
 attrs==20.2.0
-awscli==1.18.160
+awscli==1.18.161
 backcall==0.2.0
 billiard==3.6.3.0
 bleach==3.2.1
-boto3==1.16.0
+boto3==1.16.1
 boto3-stubs==1.16.0.0
-botocore==1.19.0
+botocore==1.19.1
 bsddb3==6.2.7
 bson==0.5.10
 cachetools==4.1.1
@@ -46,7 +46,7 @@ fastparquet==0.4.1
 fastprogress==1.0.0
 flake8==3.8.4
 future==0.18.2
-google-api-core==1.22.4
+google-api-core==1.23.0
 google-api-python-client==1.12.3
 google-auth==1.22.1
 google-auth-httplib2==0.0.4
@@ -124,7 +124,7 @@ pgspecial==1.11.10
 pickleshare==0.7.5
 Pillow==8.0.0
 pipdeptree==1.0.0
-pkginfo==1.5.0.1
+pkginfo==1.6.0
 plotly==4.11.0
 pluggy==0.13.1
 ply==3.11

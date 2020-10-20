@@ -79,19 +79,19 @@ class CallbackLifecycle(Lifecycle, lang.Final, ta.Generic[LifecycleT]):
 
     def lifecycle_construct(self) -> None:
         if self._construct is not None:
-            self._construct()
+            self._construct(self)
 
     def lifecycle_start(self) -> None:
         if self._start is not None:
-            self._start()
+            self._start(self)
 
     def lifecycle_stop(self) -> None:
         if self._stop is not None:
-            self._stop()
+            self._stop(self)
 
     def lifecycle_destroy(self) -> None:
         if self._destroy is not None:
-            self._destroy()
+            self._destroy(self)
 
 
 class LifecycleListener(ta.Generic[LifecycleT]):

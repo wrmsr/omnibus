@@ -10,22 +10,6 @@ def test_cls_dct():
     assert not fns.is_possibly_cls_dct(locals())
 
 
-def test_public():
-    __all__ = []
-
-    @fns.public
-    def f():
-        pass
-
-    assert 'f' in __all__
-
-    @fns.public_as('f2')
-    def g():
-        pass
-
-    assert 'f2' in __all__
-
-
 def test_const():
     c = fns.constant(4)
     assert c() == 4

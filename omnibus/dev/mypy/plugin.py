@@ -102,12 +102,14 @@ class Plugin(ChainedPlugin):
 
     def __init__(self, options: mo.Options) -> None:
         from ...dataclasses.dev.mypy import DataclassPlugin
+        from ...dispatch.dev.mypy import DispatchPlugin
         from ...properties.dev.mypy import PropertiesPlugin
         from ...sql.dev.mypy import SqlAlchemyPlugin
         from .plugins.ignoreregion import TypeIgnoreRegionPlugin
 
         super().__init__(options, [
             DataclassPlugin(options),
+            DispatchPlugin(options),
             PropertiesPlugin(options),
             SqlAlchemyPlugin(options),
             TypeIgnoreRegionPlugin(options),

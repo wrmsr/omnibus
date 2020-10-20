@@ -70,8 +70,6 @@ from .functions import identity  # noqa
 from .functions import is_lambda  # noqa
 from .functions import is_possibly_cls_dct  # noqa
 from .functions import maybe_call  # noqa
-from .functions import public  # noqa
-from .functions import public_as  # noqa
 from .functions import raise_  # noqa
 from .functions import recurse  # noqa
 from .functions import staticfunction  # noqa

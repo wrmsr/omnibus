@@ -19,16 +19,16 @@ class AbstractLifecycle(Lifecycle, lang.Abstract):
     def __init__(self: AbstractLifecycleT, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)  # type: ignore
 
-        def _lifecycle_stop() -> None:
+        def _lifecycle_stop(_) -> None:
             if self._lifecycle_exit_stack_instance is not None:
                 self._lifecycle_exit_stack_instance.__exit__(None, None, None)
             self._do_lifecycle_stop()
 
         self._lifecycle_delegate = CallbackLifecycle(
-            construct=self._do_lifecycle_construct,
-            start=self._do_lifecycle_start,
+            construct=lambda _: self._do_lifecycle_construct(),
+            start=lambda _: self._do_lifecycle_start(),
             stop=_lifecycle_stop,
-            destroy=self._do_lifecycle_destroy,
+            destroy=lambda _: self._do_lifecycle_destroy(),
         )
         self._lifecycle_controller: LifecycleController[AbstractLifecycleT] = LifecycleController(self._lifecycle_delegate)  # noqa
         self._lifecycle_exit_stack_instance: ta.Optional[contextlib.ExitStack] = None
