@@ -1,13 +1,12 @@
 """
 TODO:
  - *both* orjson (default) and ujson
- - *move to serde*
 """
+import functools
 import typing as ta
 
 from .... import codecs
 from .... import defs
-from .... import lang
 
 # try:
 #     import orjson as json_
@@ -28,7 +27,7 @@ loads = json_.loads
 
 @codecs.EXTENSION_REGISTRY.registering('json')
 @codecs.MIME_TYPE_REGISTRY.registering('application/json')
-class JsonCodec(codecs.Codec[F, str], lang.Final):
+class JsonCodec(codecs.Codec[F, str]):
 
     def __init__(
             self,
@@ -41,6 +40,9 @@ class JsonCodec(codecs.Codec[F, str], lang.Final):
         self._dumps_kwargs = dumps_kwargs or {}
         self._loads_kwargs = loads_kwargs or {}
 
+        self.encode = functools.partial(dumps, **self._dumps_kwargs)
+        self.decode = functools.partial(loads, **self._loads_kwargs)
+
     defs.repr()
 
     def encode(self, o: F) -> str:
@@ -51,3 +53,47 @@ class JsonCodec(codecs.Codec[F, str], lang.Final):
 
 
 codec = JsonCodec
+
+
+COMPACT_SEPARATORS = (',', ':')
+
+dumps_compact = functools.partial(dumps, separators=COMPACT_SEPARATORS)
+
+
+class CompactCodec(JsonCodec[F, str]):
+
+    def __init__(
+            self,
+            *,
+            dumps_kwargs: ta.Mapping[str, ta.Any] = None,
+            loads_kwargs: ta.Mapping[str, ta.Any] = None,
+    ) -> None:
+        super().__init__(
+            dumps_kwargs={'separators': COMPACT_SEPARATORS, **(dumps_kwargs or {})},
+            loads_kwargs=loads_kwargs,
+        )
+
+
+compact_codec = CompactCodec
+
+
+PRETTY_INDENT = 2
+
+dumps_pretty = functools.partial(dumps, indent=PRETTY_INDENT)
+
+
+class PrettyCodec(JsonCodec[F, str]):
+
+    def __init__(
+            self,
+            *,
+            dumps_kwargs: ta.Mapping[str, ta.Any] = None,
+            loads_kwargs: ta.Mapping[str, ta.Any] = None,
+    ) -> None:
+        super().__init__(
+            dumps_kwargs={'indent': PRETTY_INDENT, **(dumps_kwargs or {})},
+            loads_kwargs=loads_kwargs,
+        )
+
+
+pretty_codec = PrettyCodec

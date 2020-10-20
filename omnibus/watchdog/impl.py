@@ -294,7 +294,7 @@ class WatchdogImpl(cfg.Configurable, Watchdog):
                 self._reporter.report_violations(self, watches, violations)
                 self._last_report_time = time.time()
 
-    def build_report(self) -> Report:
+    def build_report(self) -> ta.Optional[Report]:
         watches = set(self._watches)
         violations = {w for w in watches if self._is_violation(w)}
         return self._reporter.build_report(

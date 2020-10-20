@@ -35,15 +35,15 @@ class StateMachine(ta.Generic[E, StateT], Telegraph):
             self,
             owner: ta.Optional[E] = None,
             *,
-            initial: StateT = None,
-            global_: StateT = None,
+            initial: ta.Optional[StateT] = None,
+            global_: ta.Optional[StateT] = None,
     ) -> None:
         super().__init__()
 
         self._owner = owner
 
         self._current = initial
-        self._previous: StateT = None
+        self._previous: ta.Optional[StateT] = None
         self._global = global_
 
     @property
@@ -102,7 +102,7 @@ class StackStateMachine(StateMachine[E, StateT]):
             self,
             owner: ta.Optional[E] = None,
             *,
-            initial: StateT = None,
+            initial: ta.Optional[StateT] = None,
     ) -> None:
         super().__init__(owner, initial=initial)
 

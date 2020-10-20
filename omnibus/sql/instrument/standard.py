@@ -190,10 +190,10 @@ class StandardInstrumentation(DialectInstrumentation, cfg.Configurable):
                     else:
                         dct[k] = v
 
-        dct = {}
+        dct: ta.Dict[str, str] = {}
         update(dct, TAGS, True)
         update(dct, self._tags, True)
-        dyndct = {}
+        dyndct: ta.Dict[str, str] = {}
         update(dyndct, reversed(list(_DYN_TAGS)), False)
         update(dct, [dyndct], True)
         return dct

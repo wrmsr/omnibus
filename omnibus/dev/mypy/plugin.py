@@ -93,7 +93,7 @@ class ChainedPlugin(mp.Plugin):
     def _find_hook(self, lookup: ta.Callable[[mp.Plugin], T]) -> ta.Optional[T]:
         for plugin in self._plugins:
             hook = lookup(plugin)
-            if hook:
+            if hook is not None:
                 return hook
         return None
 
@@ -102,10 +102,14 @@ class Plugin(ChainedPlugin):
 
     def __init__(self, options: mo.Options) -> None:
         from ...dataclasses.dev.mypy import DataclassPlugin
+        from ...properties.dev.mypy import PropertiesPlugin
+        from ...sql.dev.mypy import SqlAlchemyPlugin
         from .plugins.ignoreregion import TypeIgnoreRegionPlugin
 
         super().__init__(options, [
             DataclassPlugin(options),
+            PropertiesPlugin(options),
+            SqlAlchemyPlugin(options),
             TypeIgnoreRegionPlugin(options),
         ])
 

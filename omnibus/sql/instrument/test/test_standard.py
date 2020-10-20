@@ -5,6 +5,7 @@ import urllib.parse
 import sqlalchemy as sa
 
 from .. import standard as std
+from .... import check
 from .... import lang
 from ....inject.dev import pytest as ptinj
 from ...tests.manager import DbManager
@@ -25,11 +26,11 @@ def test_query_tagging(harness: ptinj.Harness, monkeypatch):
 
     cursorcls = mysql.connector.cursor_cext.CMySQLCursor
     cursorcls_execute_original = cursorcls.execute
-    last_stmt = None
+    last_stmt = ''
 
     def cursorcls_execute_patch(self, operation, params=None, multi=False):
         nonlocal last_stmt
-        last_stmt = operation
+        last_stmt = check.isinstance(operation, str)
         return cursorcls_execute_original(self, operation, params=params, multi=multi)
 
     monkeypatch.setattr(cursorcls, 'execute', cursorcls_execute_patch)

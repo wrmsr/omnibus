@@ -13,7 +13,7 @@ class BaseRenderer(dispatch.Class):
     def __init__(
             self,
             *,
-            writer: code.IndentWriter = None,
+            writer: ta.Optional[code.IndentWriter] = None,
     ) -> None:
         super().__init__()
 

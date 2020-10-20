@@ -6,4 +6,4 @@ from mypy.__main__ import console_entry
 
 
 sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
-sys.exit(console_entry())
+console_entry()

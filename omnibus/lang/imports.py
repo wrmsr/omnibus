@@ -26,11 +26,11 @@ def ignore_unstable_warn() -> None:
     warnings.filterwarnings('ignore', category=UnstableWarning)
 
 
-def lazy_import(name: str, package: str = None) -> ta.Callable[[], ta.Any]:
+def lazy_import(name: str, package: ta.Optional[str] = None) -> ta.Callable[[], ta.Any]:
     return staticfunction(cached_nullary(functools.partial(importlib.import_module, name, package=package)))  # noqa
 
 
-def proxy_import(name: str, package: str = None) -> types.ModuleType:
+def proxy_import(name: str, package: ta.Optional[str] = None) -> types.ModuleType:
     def __getattr__(att):
         nonlocal omod
         if omod is None:
@@ -98,8 +98,8 @@ def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterat
 def yield_import_all(
         package_root: str,
         *,
-        globals: ta.Dict[str, ta.Any] = None,
-        locals: ta.Dict[str, ta.Any] = None,
+        globals: ta.Optional[ta.Dict[str, ta.Any]] = None,
+        locals: ta.Optional[ta.Dict[str, ta.Any]] = None,
         recursive: bool = False,
 ) -> ta.Iterator[str]:
     for import_path in yield_importable(package_root, recursive=recursive):

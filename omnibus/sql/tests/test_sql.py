@@ -58,7 +58,7 @@ def test_caching(sqlite_engine):  # noqa
             y = sa.bindparam('y')
 
             return caching_.ParameterizedValue(
-                Point(x, y),
+                Point(x, y),  # type: ignore
                 [x, y],
                 [
                     lambda pt: {x: pt.x},

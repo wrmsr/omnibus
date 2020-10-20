@@ -93,8 +93,8 @@ class ReporterImpl(Reporter):
     def __init__(
             self,
             *,
-            source_prefix_replacements: ta.Mapping[str, str] = None,
-            meta: ta.Union[Meta, ta.Callable[[], Meta]] = None,
+            source_prefix_replacements: ta.Optional[ta.Mapping[str, str]] = None,
+            meta: ta.Union[Meta, ta.Optional[ta.Callable[[], Meta]]] = None,
     ) -> None:
         super().__init__()
 

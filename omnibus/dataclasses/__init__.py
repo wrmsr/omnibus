@@ -1,5 +1,4 @@
 from . import process  # noqa
-from .. import lang as _lang
 from .api import asdict  # noqa
 from .api import astuple  # noqa
 from .api import check_ as check  # noqa
@@ -42,6 +41,3 @@ from .types import Validator  # noqa
 from .validation import build_default_field_validation  # noqa
 from .validation import DEFAULT_FIELD_VALIDATION_DISPATCHER  # noqa
 from .virtual import VirtualClass  # noqa
-
-
-_lang.warn_unstable()
