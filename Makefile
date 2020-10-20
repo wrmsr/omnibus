@@ -636,3 +636,36 @@ ci-test:
 	if [ ! -z "$$OMNIBUS_CI_OUTPUT_DIR" ] ; then \
 		cp test-results.xml "$$OMNIBUS_CI_OUTPUT_DIR/test-results.xml" ; \
 	fi
+
+
+### Utils
+
+.PHONY: my-repl
+my-repl: venv
+	F=$$(mktemp) ; \
+	echo -e "\n\
+import yaml \n\
+with open('docker/docker-compose.yml', 'r') as f: \n\
+    dct = yaml.safe_load(f.read()) \n\
+cfg = dct['services']['$(PROJECT)-mysql-master'] \n\
+print('MY_USER=' + cfg['environment']['MYSQL_USER']) \n\
+print('MY_PASSWORD=' + cfg['environment']['MYSQL_PASSWORD']) \n\
+print('MY_PORT=' + cfg['ports'][0].split(':')[0]) \n\
+" >> $$F ; \
+	export $$(.venv/bin/python "$$F" | xargs) && \
+	MYSQL_PWD="$$MY_PASSWORD" .venv/bin/mycli --user "$$MY_USER" --host localhost --port "$$MY_PORT"
+
+.PHONY: pg-repl
+pg-repl: venv
+	F=$$(mktemp) ; \
+	echo -e "\n\
+import yaml \n\
+with open('docker/docker-compose.yml', 'r') as f: \n\
+    dct = yaml.safe_load(f.read()) \n\
+cfg = dct['services']['$(PROJECT)-postgres-master'] \n\
+print('PG_USER=' + cfg['environment']['POSTGRES_USER']) \n\
+print('PG_PASSWORD=' + cfg['environment']['POSTGRES_PASSWORD']) \n\
+print('PG_PORT=' + cfg['ports'][0].split(':')[0]) \n\
+" >> $$F ; \
+	export $$(.venv/bin/python "$$F" | xargs) && \
+	PGPASSWORD="$$PG_PASSWORD" .venv/bin/pgcli --user "$$PG_USER" --host localhost --port "$$PG_PORT"
