@@ -78,7 +78,7 @@ TRI_SQ_STRING
     ;
 
 IDENTIFIER
-    : [A-Za-z_] [A-Za-z_0-9\-$.]*
+    : [A-Za-z_$] [A-Za-z_$0-9\-.]*
     ;
 
 fragment ESC
@@ -98,7 +98,8 @@ fragment CP
     ;
 
 NUMBER
-    : [+\-]? INT ('.' [0-9]+)? EXP?
+    : [+\-]? INT ('.' [0-9]*)? EXP?
+    | [+\-]? '.' [0-9]* EXP?
     | [+\-]? '0x' HEX+
     ;
 
@@ -107,12 +108,15 @@ fragment EXP
     ;
 
 fragment INT
-    : '0'
-    | [1-9] [0-9]*
+    : [0-9]+
     ;
 
-COMMENT
-    : '#' ~[\r\n]* '\r'? '\n'? -> channel(HIDDEN)
+LINE_COMMENT
+    : ('#' | '//') ~[\r\n]* '\r'? '\n'? -> channel(HIDDEN)
+    ;
+
+BLOCK_COMMENT
+    : '/*' .*? '*/' -> skip
     ;
 
 WS

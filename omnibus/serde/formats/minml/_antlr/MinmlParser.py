@@ -13,7 +13,7 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\23")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\24")
         buf.write("Z\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b")
         buf.write("\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\3\2\3\2\3\3\3\3")
         buf.write("\3\3\3\3\3\3\3\3\3\3\3\3\5\3#\n\3\3\4\3\4\3\4\3\4\7\4")
@@ -61,8 +61,8 @@ class MinmlParser ( Parser ):
     symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "FALSE", "NULL", 
                       "TRUE", "DQ_STRING", "SQ_STRING", "TRI_DQ_STRING", 
-                      "TRI_SQ_STRING", "IDENTIFIER", "NUMBER", "COMMENT", 
-                      "WS" ]
+                      "TRI_SQ_STRING", "IDENTIFIER", "NUMBER", "LINE_COMMENT", 
+                      "BLOCK_COMMENT", "WS" ]
 
     RULE_root = 0
     RULE_value = 1
@@ -95,8 +95,9 @@ class MinmlParser ( Parser ):
     TRI_SQ_STRING=13
     IDENTIFIER=14
     NUMBER=15
-    COMMENT=16
-    WS=17
+    LINE_COMMENT=16
+    BLOCK_COMMENT=17
+    WS=18
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)

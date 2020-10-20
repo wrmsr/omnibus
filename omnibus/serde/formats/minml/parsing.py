@@ -66,7 +66,7 @@ class _ParseVisitor(MinmlVisitor):
         txt = ctx.getText()
         if txt.startswith('0x'):
             return int(txt, 16)
-        elif '.' in txt:
+        elif any(c in txt for c in '.eE'):
             return float(txt)
         else:
             return int(txt)
