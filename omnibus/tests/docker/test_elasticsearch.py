@@ -1,7 +1,7 @@
 import pytest
 
-from ..docker.dev.pytest import DockerManager
-from ..inject.dev import pytest as ptinj
+from ...docker.dev.pytest import DockerManager
+from ...inject.dev import pytest as ptinj
 
 
 @pytest.mark.xfail()
