@@ -54,7 +54,7 @@ googleapis-common-protos==1.52.0
 gprof2dot==2019.11.30
 graphviz==0.14.2
 greenlet==0.4.17
-grpcio==1.32.0
+grpcio==1.33.1
 guppy3==3.1.0
 h5py==2.10.0
 httpie==2.2.0
@@ -176,7 +176,7 @@ pytzdata==2020.1
 PyUtilib==6.0.0
 PyYAML==5.3.1
 pyzmq==19.0.2
-readme-renderer==27.0
+readme-renderer==28.0
 redis==3.5.3
 regex==2020.10.15
 requests==2.24.0

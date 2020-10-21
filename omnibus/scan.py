@@ -119,18 +119,25 @@ class Match(dc.Pure, ta.Iterable[ta.Any]):
         return iter(self.values)
 
 
+def inline_regex_formatter(s: str) -> ta.Optional[Pat]:
+    if s.startswith('/'):
+        return Pat(s[1:], type=str)
+    else:
+        return None
+
+
 class Scanner:
 
     _DEFAULT_PAT = r'.+?'
 
     DEFAULT_FORMATTERS: ta.Sequence[Formatter] = [
         SimpleFormatter('', _DEFAULT_PAT, type=str),
-        lambda s: Pat(s[1:], type=str) if s.startswith('/') else None,
+        *[SimpleFormatter(c, '\\' + c) for c in 'DsSwW'],
+        inline_regex_formatter,
         SimpleFormatter('d', '[0-9]+', lambda s, _: int(s), int),
         SimpleFormatter('n', r'\d{1,3}([,.]\d{3})*', lambda s, _: int(s), int),
         SimpleFormatter('x', r'(0[xX])?[0-9a-fA-F]+', lambda s, _: int(s, 16), int),
         SimpleFormatter('f', r'[0-9]*(\.[0-9]*)?', lambda s, _: float(s), float),
-        SimpleFormatter('w', r'\w'),
     ]
 
     def __init__(

@@ -1,10 +1,15 @@
+"""
+https://github.com/craSH/socat/blob/c20699fced66696e243d785fdfcd2a94cf11e4cc/EXAMPLES
+"""
 import contextlib
 import io
 import os
 import pty
 import random
+import subprocess
 import sys
 import time
+import tty  # noqa
 
 import pytest
 
@@ -68,6 +73,26 @@ def test_python():
             time.sleep(.5 + random.random())
 
 
+def test_telnet():
+    sp = subprocess.Popen(   # noqa
+        "socat tcp-l:7777,reuseaddr,fork system:'cat',nofork",
+        shell=True,
+    )
+    try:
+        with contextlib.closing(popen.PopenSpawn(['/usr/local/bin/telnet', 'localhost', '7777'])) as p:
+            time.sleep(.5 + random.random())
+            buf = b''
+            for i in range(5):
+                p.write(b'%d\r\n' % (i,))
+                buf += p.read_nb(32)
+                print(buf)
+                time.sleep(.5 + random.random())
+    finally:
+        sp.kill()
+        sp.wait(10.)
+
+
+@pytest.mark.skip()
 def test_pty():
     buf = io.BytesIO()
 
