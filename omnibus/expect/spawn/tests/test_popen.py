@@ -1,6 +1,12 @@
 import contextlib
+import io
+import os
+import pty
 import random
+import sys
 import time
+
+import pytest
 
 from .. import popen
 
@@ -10,7 +16,7 @@ def test_wait():
         with contextlib.closing(popen.PopenSpawn(['cat'])) as p:
             for i in range(10):
                 p.write(b'hi %d\r\n' % (i,))
-            time.sleep(random.random())
+            time.sleep(.5 + random.random())
             l = []
             for i in range(25):
                 l.append(p.read_nb(4))
@@ -48,3 +54,29 @@ def test_close():
     with contextlib.closing(popen.PopenSpawn(['cat'])) as p:  # noqa
         for i in range(10):
             p.write(b'hi %d\r\n' % (i,))
+
+
+@pytest.mark.skip()
+def test_python():
+    with contextlib.closing(popen.PopenSpawn([sys.executable])) as p:
+        time.sleep(.5 + random.random())
+        buf = b''
+        while True:
+            p.write(b'1\r\n')
+            buf += p.read_nb(32)
+            print(buf)
+            time.sleep(.5 + random.random())
+
+
+def test_pty():
+    buf = io.BytesIO()
+
+    def master_read(fd):
+        data = os.read(fd, 1024)
+        buf.write(data)
+        return data
+
+    def stdin_read(fd):
+        return os.read(fd, 1024)
+
+    pty.spawn(sys.executable, master_read, stdin_read)

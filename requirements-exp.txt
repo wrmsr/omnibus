@@ -41,7 +41,7 @@ pkginfo==1.6.0
 py-cpuinfo==7.0.0
 py==1.9.0
 Pygments==2.7.1
-readme-renderer==27.0
+readme-renderer==28.0
 requests==2.24.0
 rsa==4.6
 scipy==1.5.3
@@ -66,7 +66,7 @@ duckdb==0.2.1
 elasticsearch==7.9.1
 fastavro==1.0.0.post1
 fastparquet==0.4.1
-grpcio==1.32.0
+grpcio==1.33.1
 hyperscan==0.1.5
 idna==2.10
 jupyter-client==6.1.7
