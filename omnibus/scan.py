@@ -1,6 +1,8 @@
 """
 TODO:
  - match/search/findall
+ - numbers (decimal)
+ - datetimes
  - {a.b} -> {'a': {'b': ...}}
 """
 import io
