@@ -1,5 +1,6 @@
 """
 TODO:
+ - (s)re.py? ..
  - match/search/findall
  - numbers (decimal)
  - datetimes
@@ -7,7 +8,9 @@ TODO:
 """
 import io
 import re
-import sre_parse
+import sre_constants as srn
+import sre_compile as srm
+import sre_parse as srp
 import typing as ta
 
 from . import dataclasses as dc
@@ -30,6 +33,7 @@ class Spec(dc.Pure):
     s: str = dc.field(check_type=str)
     name: ta.Optional[str] = dc.field(None, check_type=(str, None), check=lambda s: s is None or s)
     align: ta.Optional[str] = dc.field(None, kwonly=True)
+    inv_case: bool = dc.field(False, kwonly=True)
     optional: bool = dc.field(False, kwonly=True)
 
 
@@ -44,16 +48,41 @@ class SpecPat(dc.Pure):
     pat: Pat = dc.field(check_type=Pat)
 
 
-def _count_groups(o: ta.Any) -> int:
-    if isinstance(o, tuple):
-        if o[0] == sre_parse.SUBPATTERN:  # noqa
-            return _count_groups(o[-0])
+def _count_groups(pat: srp.SubPattern) -> int:
+    c = 0
+    for op, av in pat:
+        if op in srm._LITERAL_CODES:  # noqa
+            pass
+        elif op is srn.IN:
+            pass
+        elif op is srn.ANY:
+            pass
+        elif op in srm._REPEATING_CODES:  # noqa
+            c += _count_groups(av[2])
+        elif op is srn.SUBPATTERN:
+            group, add_flags, del_flags, p = av
+            if group is not None:
+                c += 1
+            c += _count_groups(p)
+        elif op in srm._SUCCESS_CODES:  # noqa
+            raise NotImplementedError
+        elif op in srm._ASSERT_CODES:  # noqa
+            raise NotImplementedError
+        elif op is srn.CALL:
+            raise NotImplementedError
+        elif op is srn.AT:
+            raise NotImplementedError
+        elif op is srn.BRANCH:
+            raise NotImplementedError
+        elif op is srn.CATEGORY:
+            pass
+        elif op is srn.GROUPREF:
+            pass
+        elif op is srn.GROUPREF_EXISTS:
+            raise NotImplementedError
         else:
-            return 0
-    elif isinstance(o, sre_parse.SubPattern):
-        return sum(map(_count_groups, o))
-    else:
-        raise TypeError(o)
+            raise TypeError("internal: unsupported operand type %r" % (op,))
+    return c
 
 
 Formatter = ta.Callable[[str], ta.Optional[Pat]]
@@ -72,7 +101,7 @@ class SimpleFormatter(dc.Pure):
             return None
 
 
-class Match(dc.Pure):
+class Match(dc.Pure, ta.Iterable[ta.Any]):
     values: ta.Sequence[ta.Any]
     spans: ta.Sequence[ta.Tuple[int, int]]
     names: ta.Mapping[str, ta.Any]
@@ -86,6 +115,9 @@ class Match(dc.Pure):
         else:
             raise TypeError(key)
 
+    def __iter__(self) -> ta.Iterator[ta.Any]:
+        return iter(self.values)
+
 
 class Scanner:
 
@@ -93,7 +125,7 @@ class Scanner:
 
     DEFAULT_FORMATTERS: ta.Sequence[Formatter] = [
         SimpleFormatter('', _DEFAULT_PAT, type=str),
-        lambda s: Pat(s[1:], type=str) if s.startswith('r') else None,
+        lambda s: Pat(s[1:], type=str) if s.startswith('/') else None,
         SimpleFormatter('d', '[0-9]+', lambda s, _: int(s), int),
         SimpleFormatter('n', r'\d{1,3}([,.]\d{3})*', lambda s, _: int(s), int),
         SimpleFormatter('x', r'(0[xX])?[0-9a-fA-F]+', lambda s, _: int(s, 16), int),
@@ -108,18 +140,20 @@ class Scanner:
             glyphs: ta.Tuple[str, str] = ('{', '}'),
             formatters: ta.Optional[ta.Iterable[Formatter]] = None,
             ws_pat_s: str = ' ',
+            ignore_case: bool = False,
     ) -> None:
         super().__init__()
 
         glyphs = tuple(map(check.of_isinstance(str), glyphs))
         check.arg(all(len(s) == 1 for s in glyphs))
         check.arg(len(glyphs) == 2)
-        check.arg(_count_groups(sre_parse.parse(ws_pat_s)) == 0)
+        check.arg(_count_groups(srp.parse(ws_pat_s)) == 0)
 
         self._spec = check.isinstance(spec, str)
         self._glyphs = glyphs
         self._formatters = [check.callable(f) for f in (formatters or self.DEFAULT_FORMATTERS)]
         self._ws_pat_s = ws_pat_s
+        self._ignore_case = ignore_case
 
         self._double_glyphs: ta.Tuple[str, str] = tuple(s * 2 for s in glyphs)  # noqa
         self._escaped_glyphs: ta.Tuple[str, str] = tuple(map(re.escape, glyphs))  # noqa
@@ -131,8 +165,12 @@ class Scanner:
 
         pat_s, slots = self._build(spec)
         self._pat_s = pat_s
-        self._pat = re.compile(pat_s)
         self._slots: ta.Sequence[Scanner._Slot] = slots
+
+        flags = 0
+        if self._ignore_case:
+            flags |= re.I
+        self._pat = re.compile(pat_s, flags)
 
     class _Slot(dc.Pure):
         spec: Spec
@@ -155,14 +193,21 @@ class Scanner:
 
             spec = check.isinstance(p, Spec)
             pat = self._build_pat(spec)
-            num_groups = _count_groups(sre_parse.parse(p.s))
+            num_groups = _count_groups(srp.parse(pat.s))
             slot = Scanner._Slot(spec, pat, num_groups)
             slots.append(slot)
 
             s = ''
             if spec.align and spec.align in '<^':
                 s += self._ws_pat_s + '*'
+            s += '(?'
+            if spec.inv_case and not self._ignore_case:
+                s += 'i'
+            if spec.inv_case and self._ignore_case:
+                s += '-i'
+            s += ':'
             s += f'({pat.s})'
+            s += ')'
             if spec.optional:
                 s += '?'
             if spec.align and spec.align in '>^':
@@ -221,6 +266,8 @@ class Scanner:
                     kw['align'] = c
                 elif c == '?':
                     kw['optional'] = True
+                elif c == '!':
+                    kw['inv_case'] = True
                 else:
                     raise ValueError(c)
 

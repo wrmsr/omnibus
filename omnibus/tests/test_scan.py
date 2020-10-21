@@ -2,6 +2,8 @@ from .. import scan
 
 
 def test_scan():
+    assert list(scan.scan(r'{:x} {:x}', '0x10 20')) == [0x10, 0x20]
+
     m = scan.Scanner('{} x {asdf:}').scan('ab x cd')
     print(m)
 
@@ -17,4 +19,10 @@ def test_scan():
     assert list(scan.scan('{:w} {^:w}', 'x    y').values) == ['x', 'y']
     assert scan.scan('{:w} {:w}', 'x   y') is None
 
-    scan.Scanner(r'{:r\w}')
+    scan.Scanner(r'{:/\w}')
+
+    assert list(scan.scan(r'{:/abc}', 'abc')) == ['abc']
+    assert scan.scan(r'{:/aBc}', 'abc') is None
+    assert list(scan.scan(r'{!:/aBc}', 'abc')) == ['abc']
+    assert list(scan.scan(r'{:/aBc}', 'abc', ignore_case=True)) == ['abc']
+    assert scan.scan(r'{!:/aBc}', 'abc', ignore_case=True) is None
