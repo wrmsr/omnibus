@@ -36,19 +36,6 @@ class SpecPat(dc.Pure):
     pat: Pat = dc.field(check_type=Pat)
 
 
-class Match(dc.Pure):
-    values: ta.Sequence[ta.Any]
-    names: ta.Mapping[str, ta.Any]
-
-    def __getitem__(self, key: ta.Union[int, str]) -> ta.Any:
-        if isinstance(key, int):
-            return self.values[key]
-        elif isinstance(key, str):
-            return self.names[key]
-        else:
-            raise TypeError(key)
-
-
 def _count_groups(o: ta.Any) -> int:
     if isinstance(o, tuple):
         if o[0] == sre_parse.SUBPATTERN:  # noqa
@@ -81,6 +68,21 @@ class SimpleFormatter(dc.Pure, Formatter):
             return None
 
 
+class Match(dc.Pure):
+    values: ta.Sequence[ta.Any]
+    spans: ta.Sequence[ta.Tuple[int, int]]
+    names: ta.Mapping[str, ta.Any]
+    idxs: ta.Mapping[str, int]
+
+    def __getitem__(self, key: ta.Union[int, str]) -> ta.Any:
+        if isinstance(key, int):
+            return self.values[key]
+        elif isinstance(key, str):
+            return self.names[key]
+        else:
+            raise TypeError(key)
+
+
 class Scanner:
 
     _DEFAULT_PAT = r'.+?'
@@ -90,6 +92,7 @@ class Scanner:
         SimpleFormatter('d', '[0-9]+', lambda s, _: int(s), int),
         SimpleFormatter('n', r'\d{1,3}([,.]\d{3})*', lambda s, _: int(s), int),
         SimpleFormatter('x', r'(0[xX])?[0-9a-fA-F]+', lambda s, _: int(s, 16), int),
+        SimpleFormatter('f', r'[0-9]*(\.[0-9]*)?', lambda s, _: float(s), float),
     ]
 
     def __init__(
@@ -196,10 +199,12 @@ class Scanner:
         gs = m.groups()
 
         values: ta.List[ta.Any] = []
+        spans: ta.List[ta.Tuple[int, int]] = []
         names: ta.Dict[str, ta.Any] = {}
+        idxs: ta.Dict[str, int] = {}
 
         i = 0
-        for slot in self._slots:
+        for j, slot in enumerate(self._slots):
             s = gs[i]
             i += 1
 
@@ -212,7 +217,9 @@ class Scanner:
                 v = s
 
             values.append(v)
+            spans.append(m.span(j + 1))
             if slot.spec.name is not None:
                 names[slot.spec.name] = v
+                idxs[slot.spec.name] = j
 
-        return Match(values, names)
+        return Match(values, spans, names, idxs)
