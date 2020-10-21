@@ -8,8 +8,11 @@ def test_scan():
     assert scan.Scanner('a {v:x}').scan('a abc')['v'] == 0xabc
 
     # s = scan.Scanner('ab{{{cd}}}ef{gh}ij')
-    print(scan.Scanner('ab {} cd').scan('ab x cd'))
-    print(scan.Scanner('{} x {:}').scan('ab x cd'))
-    print(scan.Scanner('ab {x} cd').scan('ab x cd'))
-    print(scan.Scanner('ab {x:} cd').scan('ab x cd'))
-    print(scan.Scanner('ab {x:d} cd').scan('ab 82 cd'))
+    print(scan.scan('ab {} cd', 'ab x cd'))
+    print(scan.scan('{} x {:}', 'ab x cd'))
+    print(scan.scan('ab {x} cd', 'ab x cd'))
+    print(scan.scan('ab {x:} cd', 'ab x cd'))
+    print(scan.scan('ab {x:d} cd', 'ab 82 cd'))
+
+    assert list(scan.scan('{:w} {^:w}', 'x    y').values) == ['x', 'y']
+    assert scan.scan('{:w} {:w}', 'x   y') is None

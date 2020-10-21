@@ -1,3 +1,9 @@
+"""
+TODO:
+ - match/search/findall
+ - {a.b} -> {'a': {'b': ...}}
+ - {:r...} -> regex
+"""
 import abc
 import io
 import re
@@ -22,7 +28,9 @@ class SpecStr(ta.NamedTuple):
 
 class Spec(dc.Pure):
     s: str = dc.field(check_type=str)
-    name: ta.Optional[str] = None
+    name: ta.Optional[str] = dc.field(None, check_type=(str, None), check=lambda s: s is None or s)
+    align: ta.Optional[str] = dc.field(None, kwonly=True)
+    optional: bool = dc.field(False, kwonly=True)
 
 
 class Pat(dc.Pure):
@@ -93,6 +101,7 @@ class Scanner:
         SimpleFormatter('n', r'\d{1,3}([,.]\d{3})*', lambda s, _: int(s), int),
         SimpleFormatter('x', r'(0[xX])?[0-9a-fA-F]+', lambda s, _: int(s, 16), int),
         SimpleFormatter('f', r'[0-9]*(\.[0-9]*)?', lambda s, _: float(s), float),
+        SimpleFormatter('w', r'\w'),
     ]
 
     def __init__(
@@ -101,16 +110,19 @@ class Scanner:
             *,
             glyphs: ta.Tuple[str, str] = ('{', '}'),
             formatters: ta.Optional[ta.Iterable[Formatter]] = None,
+            ws_pat_s: str = ' ',
     ) -> None:
         super().__init__()
 
         glyphs = tuple(map(check.of_isinstance(str), glyphs))
         check.arg(all(len(s) == 1 for s in glyphs))
         check.arg(len(glyphs) == 2)
+        check.arg(_count_groups(sre_parse.parse(ws_pat_s)) == 0)
 
         self._spec = check.isinstance(spec, str)
         self._glyphs = glyphs
         self._formatters = [check.isinstance(f, Formatter) for f in (formatters or self.DEFAULT_FORMATTERS)]
+        self._ws_pat_s = ws_pat_s
 
         self._double_glyphs: ta.Tuple[str, str] = tuple(s * 2 for s in glyphs)  # noqa
         self._escaped_glyphs: ta.Tuple[str, str] = tuple(map(re.escape, glyphs))  # noqa
@@ -131,7 +143,10 @@ class Scanner:
         num_groups: int
 
     def _build(self, spec: str) -> ta.Tuple[str, ta.Sequence[_Slot]]:
-        lst = [p if isinstance(p, str) else self._build_spec(check.isinstance(p, SpecStr).s) for p in self._split_spec(spec)]  # noqa
+        lst = [
+            p if isinstance(p, str) else self._build_spec(check.isinstance(p, SpecStr).s)
+            for p in self._split_spec(spec)
+        ]
         check.unique(p.name for p in lst if isinstance(p, Spec) and p.name is not None)
 
         buf = io.StringIO()
@@ -146,7 +161,17 @@ class Scanner:
             num_groups = _count_groups(sre_parse.parse(p.s))
             slot = Scanner._Slot(spec, pat, num_groups)
             slots.append(slot)
-            buf.write(rf'({pat.s})')
+
+            s = ''
+            if spec.align and spec.align in '<^':
+                s += self._ws_pat_s + '*'
+            s += f'({pat.s})'
+            if spec.optional:
+                s += '?'
+            if spec.align and spec.align in '>^':
+                s += self._ws_pat_s + '*'
+
+            buf.write(s)
 
         return buf.getvalue(), slots
 
@@ -186,9 +211,28 @@ class Scanner:
         else:
             name, _, s = s.partition(':')
 
-        check.arg(lang.is_ident(name))
+        kw = {}
+        if name and not lang.is_ident_start(name[0]):
+            if not any(map(lang.is_ident_start, name)):
+                ctrl, name = name, None
+            else:
+                i = next(iter(i for i, c in enumerate(name) if lang.is_ident_start(c)))
+                ctrl, name = name[:i], name[i:]
 
-        return Spec(s, name)
+            for c in ctrl:
+                if c in '<^>':
+                    kw['align'] = c
+                elif c == '?':
+                    kw['optional'] = True
+                else:
+                    raise ValueError(c)
+
+        if name:
+            check.arg(lang.is_ident(name))
+        else:
+            name = None
+
+        return Spec(s, name, **kw)
 
     def _build_pat(self, spec: Spec) -> Pat:
         pats = [p for f in self._formatters for p in [f.build(spec.s)] if p is not None]
@@ -225,3 +269,7 @@ class Scanner:
                 idxs[slot.spec.name] = j
 
         return Match(values, spans, names, idxs)
+
+
+def scan(spec: str, s: str, **kwargs) -> ta.Optional[Match]:
+    return Scanner(spec, **kwargs).scan(s)
