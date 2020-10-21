@@ -10,7 +10,7 @@ from .... import lang
 from .... import lifecycles as lc
 from .... import os as oos
 from .... import properties
-from ....dev import timebomb
+from ....dev.bin import timebomb
 from ....inject.dev import pytest as ptinj
 from ....spark import local as sl
 

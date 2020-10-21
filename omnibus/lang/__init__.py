@@ -132,6 +132,9 @@ from .strings import decamelize  # noqa
 from .strings import DelimitedEscaping  # noqa
 from .strings import indent_lines  # noqa
 from .strings import is_dunder  # noqa
+from .strings import is_ident  # noqa
+from .strings import is_ident_cont  # noqa
+from .strings import is_ident_start  # noqa
 from .strings import is_sunder  # noqa
 from .strings import prefix_lines  # noqa
 from .strings import redact  # noqa

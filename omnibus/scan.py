@@ -1,7 +1,7 @@
 import abc
 import io
-import sre_parse
 import re
+import sre_parse
 import typing as ta
 
 from . import dataclasses as dc
@@ -182,10 +182,12 @@ class Scanner:
             return Spec('')
 
         if ':' not in s or (s.count(':') == 1 and s[-1] == ':'):
-            name = s if ':' not in s else s[:-1]
-            return Spec('', name)
+            name, s = s if ':' not in s else s[:-1], ''
+        else:
+            name, _, s = s.partition(':')
 
-        name, _, s = s.partition(':')
+        check.arg(lang.is_ident(name))
+
         return Spec(s, name)
 
     def _build_pat(self, spec: Spec) -> Pat:
