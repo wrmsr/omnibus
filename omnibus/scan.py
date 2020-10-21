@@ -2,9 +2,7 @@
 TODO:
  - match/search/findall
  - {a.b} -> {'a': {'b': ...}}
- - {:r...} -> regex
 """
-import abc
 import io
 import re
 import sre_parse
@@ -56,20 +54,16 @@ def _count_groups(o: ta.Any) -> int:
         raise TypeError(o)
 
 
-class Formatter(lang.Abstract):
-
-    @abc.abstractmethod
-    def build(self, s: str) -> ta.Optional[Pat]:
-        raise NotImplementedError
+Formatter = ta.Callable[[str], ta.Optional[Pat]]
 
 
-class SimpleFormatter(dc.Pure, Formatter):
+class SimpleFormatter(dc.Pure):
     spec_s: str = dc.field(check_type=str)
     pat_s: str = dc.field(check_type=str)
     converter: ta.Optional[Converter] = None
     type: ta.Optional[ta.Type] = None
 
-    def build(self, s: str) -> ta.Optional[Pat]:
+    def __call__(self, s: str) -> ta.Optional[Pat]:
         if s == self.spec_s:
             return Pat(self.pat_s, converter=self.converter, type=self.type)
         else:
@@ -96,7 +90,8 @@ class Scanner:
     _DEFAULT_PAT = r'.+?'
 
     DEFAULT_FORMATTERS: ta.Sequence[Formatter] = [
-        SimpleFormatter('', _DEFAULT_PAT),
+        SimpleFormatter('', _DEFAULT_PAT, type=str),
+        lambda s: Pat(s[1:], type=str) if s.startswith('r') else None,
         SimpleFormatter('d', '[0-9]+', lambda s, _: int(s), int),
         SimpleFormatter('n', r'\d{1,3}([,.]\d{3})*', lambda s, _: int(s), int),
         SimpleFormatter('x', r'(0[xX])?[0-9a-fA-F]+', lambda s, _: int(s, 16), int),
@@ -121,7 +116,7 @@ class Scanner:
 
         self._spec = check.isinstance(spec, str)
         self._glyphs = glyphs
-        self._formatters = [check.isinstance(f, Formatter) for f in (formatters or self.DEFAULT_FORMATTERS)]
+        self._formatters = [check.callable(f) for f in (formatters or self.DEFAULT_FORMATTERS)]
         self._ws_pat_s = ws_pat_s
 
         self._double_glyphs: ta.Tuple[str, str] = tuple(s * 2 for s in glyphs)  # noqa
@@ -235,7 +230,7 @@ class Scanner:
         return Spec(s, name, **kw)
 
     def _build_pat(self, spec: Spec) -> Pat:
-        pats = [p for f in self._formatters for p in [f.build(spec.s)] if p is not None]
+        pats = [p for f in self._formatters for p in [f(spec.s)] if p is not None]
         return check.single(pats)
 
     def scan(self, buf: str) -> ta.Optional[Match]:

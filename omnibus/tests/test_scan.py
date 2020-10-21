@@ -16,3 +16,5 @@ def test_scan():
 
     assert list(scan.scan('{:w} {^:w}', 'x    y').values) == ['x', 'y']
     assert scan.scan('{:w} {:w}', 'x   y') is None
+
+    scan.Scanner(r'{:r\w}')
