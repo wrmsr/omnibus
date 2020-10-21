@@ -26,7 +26,7 @@ pytest==6.1.1
 ## useful tools
 
 astpretty==2.0.0
-awscli==1.18.161  #@auto
+awscli==1.18.162  #@auto
 docutils==0.16
 flake8==3.8.4
 gprof2dot==2019.11.30
