@@ -73,6 +73,7 @@ def test_python():
             time.sleep(.5 + random.random())
 
 
+@pytest.mark.skip()
 def test_telnet():
     sp = subprocess.Popen(   # noqa
         "socat tcp-l:7777,reuseaddr,fork system:'cat',nofork",

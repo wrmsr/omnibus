@@ -98,6 +98,28 @@ class ChainedPlugin(mp.Plugin):
         return None
 
 
+class DynamicHookPlugin(mp.Plugin):
+
+    HOOKS: ta.Mapping[str, ta.Tuple[type, ta.Optional[type]]] = {
+        'type_analyze': (mp.AnalyzeTypeContext, mt.Type),
+        'function': (mp.FunctionContext, mt.Type),
+        'method_signature': (mp.MethodSigContext, mt.CallableType),
+        'method': (mp.MethodSigContext, mt.Type),
+        'attribute': (mp.AttributeContext, mt.Type),
+        'class_decorator': (mp.ClassDefContext, None),
+        'metaclass': (mp.ClassDefContext, None),
+        'base_class': (mp.ClassDefContext, None),
+        'customize_class_mro': (mp.ClassDefContext, None),
+        'dynamic_class': (mp.DynamicClassDefContext, None),
+    }
+
+    for hook in HOOKS:
+        locals()[f'get_{hook}_hook'] = (lambda hook: lambda self, fullname: self.get_hook(hook, fullname))(hook)
+
+    def get_hook(self, hook: str, fullname: str) -> ta.Optional[ta.Tuple[ta.Any, ta.Any]]:
+        pass
+
+
 class Plugin(ChainedPlugin):
 
     def __init__(self, options: mo.Options) -> None:
@@ -108,6 +130,8 @@ class Plugin(ChainedPlugin):
         from .plugins.ignoreregion import TypeIgnoreRegionPlugin
 
         super().__init__(options, [
+            DynamicHookPlugin(options),
+
             DataclassPlugin(options),
             DispatchPlugin(options),
             PropertiesPlugin(options),
