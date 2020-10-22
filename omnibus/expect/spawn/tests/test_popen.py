@@ -75,7 +75,6 @@ def test_python():
 
 
 def test_telnet():
-
     sp = subprocess.Popen(   # noqa
         f"{shutil.which('socat')} tcp-l:7777,reuseaddr,fork system:'cat',nofork",
         shell=True,
@@ -101,9 +100,15 @@ def test_pty():
     def master_read(fd):
         data = os.read(fd, 1024)
         buf.write(data)
+        print(data)
         return data
 
+    stdin = io.BytesIO(b'1 + 1\n')
+
     def stdin_read(fd):
-        return os.read(fd, 1024)
+        if fd == 0:
+            return stdin.read(1024)
+        else:
+            return os.read(fd, 1024)
 
     pty.spawn(sys.executable, master_read, stdin_read)

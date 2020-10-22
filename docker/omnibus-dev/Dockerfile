@@ -52,6 +52,7 @@ RUN ( \
         strace \
         sudo \
         tcpdump \
+        telnet \
         tmux \
         unzip \
         vim \

@@ -34,6 +34,7 @@ RUN ( \
         software-properties-common \
         strace \
         sudo \
+        telnet \
         tmux \
         unzip \
         vim \
