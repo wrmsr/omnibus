@@ -6,6 +6,7 @@ import io
 import os
 import pty
 import random
+import shutil
 import subprocess
 import sys
 import time
@@ -73,14 +74,14 @@ def test_python():
             time.sleep(.5 + random.random())
 
 
-@pytest.mark.skip()
 def test_telnet():
+
     sp = subprocess.Popen(   # noqa
-        "socat tcp-l:7777,reuseaddr,fork system:'cat',nofork",
+        f"{shutil.which('socat')} tcp-l:7777,reuseaddr,fork system:'cat',nofork",
         shell=True,
     )
     try:
-        with contextlib.closing(popen.PopenSpawn(['/usr/local/bin/telnet', 'localhost', '7777'])) as p:
+        with contextlib.closing(popen.PopenSpawn([shutil.which('telnet'), 'localhost', '7777'])) as p:
             time.sleep(.5 + random.random())
             buf = b''
             for i in range(5):

@@ -13,7 +13,7 @@ cbor==1.0.0
 cytoolz==0.11.0
 docker==4.3.1
 google-api-core==1.23.0  #@auto
-google-api-python-client==1.12.4  #@auto
+google-api-python-client==1.12.5  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.22.1  #@auto
 PyHive[hive]==0.6.3; python_version < '3.9'
