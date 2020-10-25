@@ -221,12 +221,14 @@ services:
       - 'omnibus-postgres-master'
       - 'omnibus-postgres-slave'
       - 'omnibus-redis'
+      - 'omnibus-ssh'
     links:
       - 'omnibus-mysql-master'
       - 'omnibus-mysql-slave'
       - 'omnibus-postgres-master'
       - 'omnibus-postgres-slave'
       - 'omnibus-redis'
+      - 'omnibus-ssh'
     expose:
       - '8000'
     ports:

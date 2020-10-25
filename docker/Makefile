@@ -21,19 +21,16 @@ DOCKER_IMAGES:= \
 	omnibus-zookeeper \
 
 DOCKER_COMPOSE_DEFAULT_SERVICES:= \
-	omnibus-mysql-master \
-	omnibus-mysql-slave \
-	omnibus-postgres-master \
-	omnibus-postgres-slave \
-	omnibus-redis \
-
-DOCKER_COMPOSE_SERVICES:= \
-	$(DOCKER_COMPOSE_DEFAULT_SERVICES) \
 	omnibus-elasticsearch \
 	omnibus-kafka \
 	omnibus-memcached \
 	omnibus-minio \
 	omnibus-mongo \
+	omnibus-mysql-master \
+	omnibus-mysql-slave \
+	omnibus-postgres-master \
+	omnibus-postgres-slave \
+	omnibus-redis \
 	omnibus-spark-master \
 	omnibus-spark-worker \
 	omnibus-ssh \
