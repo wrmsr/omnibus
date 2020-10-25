@@ -183,6 +183,16 @@ services:
     ports:
       - '22225:8081'
 
+  omnibus-ssh:
+    image: 'wrmsr/omnibus-ssh:latest'
+    hostname: 'omnibus-ssh'
+    environment:
+      SSH_PASSWORD: 'omnibus'
+    expose:
+      - '22'
+    ports:
+      - '22226:22'
+
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
     hostname: 'omnibus-zookeeper'
@@ -193,7 +203,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '22226:2181'
+      - '22227:2181'
 
   omnibus-dev:
     build: '.'

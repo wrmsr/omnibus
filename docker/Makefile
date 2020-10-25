@@ -17,6 +17,7 @@ DOCKER_IMAGES:= \
 	omnibus-redis \
 	omnibus-spark-master \
 	omnibus-spark-worker \
+	omnibus-ssh \
 	omnibus-zookeeper \
 
 DOCKER_COMPOSE_DEFAULT_SERVICES:= \
@@ -35,6 +36,7 @@ DOCKER_COMPOSE_SERVICES:= \
 	omnibus-mongo \
 	omnibus-spark-master \
 	omnibus-spark-worker \
+	omnibus-ssh \
 	omnibus-zookeeper \
 
 .PHONY: all
