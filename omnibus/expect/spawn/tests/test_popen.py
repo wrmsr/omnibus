@@ -25,7 +25,7 @@ def test_wait():
             time.sleep(.5 + random.random())
             l = []
             for i in range(25):
-                l.append(p.read_nb(4))
+                l.append(p.read(4))
             assert l == [
                 b'hi 0',
                 b'\r\nhi',
@@ -53,7 +53,7 @@ def test_wait():
                 b'',
                 b'',
             ]
-            p.write_eof()
+            p.write(None)
 
 
 def test_close():
@@ -69,7 +69,7 @@ def test_python():
         buf = b''
         while True:
             p.write(b'1\r\n')
-            buf += p.read_nb(32)
+            buf += p.read(32)
             print(buf)
             time.sleep(.5 + random.random())
 
@@ -86,7 +86,7 @@ def test_telnet():
             buf = b''
             for i in range(5):
                 p.write(b'%d\r\n' % (i,))
-                buf += p.read_nb(32)
+                buf += p.read(32)
                 print(buf)
                 time.sleep(.5 + random.random())
     finally:

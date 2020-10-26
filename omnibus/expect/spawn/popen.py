@@ -46,13 +46,13 @@ class PopenSpawn(BaseSpawn):
         self._read_thread = threading.Thread(target=self._read_proc, daemon=True)
         self._read_thread.start()
 
-    def write(self, buf: bytes) -> int:
-        return self._proc.stdin.write(buf)
+    def write(self, buf: ta.Optional[bytes]) -> int:
+        if buf is None:
+            self._proc.stdin.close()
+        else:
+            return self._proc.stdin.write(buf)
 
-    def write_eof(self) -> None:
-        self._proc.stdin.close()
-
-    def read_nb(self, size: int, timeout: ta.Union[int, float, None] = None) -> bytes:
+    def read(self, size: int, timeout: ta.Union[int, float, None] = None) -> bytes:
         if size < 1:
             raise ValueError(size)
 
