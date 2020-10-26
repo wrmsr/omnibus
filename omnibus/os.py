@@ -278,3 +278,7 @@ def set_path_readonly(path: str) -> None:
     mode = os.stat(path).st_mode
     mode &= ~(stat.S_IWUSR | stat.S_IWUSR | stat.S_IWOTH)
     os.chmod(path, mode)
+
+
+def os_exit(status: int) -> None:
+    os._exit(status)  # noqa

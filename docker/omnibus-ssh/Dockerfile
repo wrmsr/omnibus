@@ -1,7 +1,18 @@
 FROM ubuntu:20.04
 COPY .dockertimestamp /
 
-RUN apt-get update && apt-get install -y openssh-server
+RUN ( \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y apt-utils && \
+\
+    apt-get install -y \
+\
+        openssh-server \
+        python \
+\
+)
 
 RUN mkdir /var/run/sshd
 

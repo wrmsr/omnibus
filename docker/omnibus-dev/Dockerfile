@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20200925
+FROM ubuntu:focal-20201008
 COPY .dockertimestamp /
 
 
@@ -15,6 +15,7 @@ RUN ( \
 \
         aria2 \
         build-essential \
+        clang \
         curl \
         dnsutils \
         dumb-init \
@@ -31,6 +32,7 @@ RUN ( \
         libpq-dev \
         libsasl2-dev \
         libsnappy-dev \
+        llvm \
         make \
         man \
         moreutils \
@@ -41,6 +43,7 @@ RUN ( \
         nginx \
         nodejs \
         npm \
+        openssh-server \
         perl \
         pkg-config \
         postgresql-client \
@@ -94,7 +97,12 @@ RUN ( \
 RUN ( \
     add-apt-repository ppa:openjdk-r/ppa && \
     apt-get update && \
-    apt-get install -y openjdk-8-jdk openjdk-14-jdk \
+    apt-get install -y \
+    \
+        openjdk-8-jdk \
+        openjdk-14-jdk \
+        openjdk-15-jdk \
+    \
 )
 
 RUN ( \
