@@ -56,7 +56,10 @@ cdef int PhotoPut(ClientData clientdata, Tcl_Interp* interp, int argc, const cha
         TCL_APPEND_RESULT(interp, b'destination photo must exist', <char*> NULL)
         return TCL_ERROR
 
-    cdef PhotoData* pd = NULL
+    cdef PhotoData* pd = <PhotoData*><ssize_t>int(argv[2])
+    if pd.pixels == NULL:
+        TCL_APPEND_RESULT(interp, b'bad display memory', <char*> NULL)
+        return TCL_ERROR
 
     cdef Tk_PhotoImageBlock block
 
