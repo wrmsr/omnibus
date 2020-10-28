@@ -20,6 +20,7 @@ https://github.com/selectel/pyte
 ⇌ ⇍ ⇎ ⇏ ⇐ ⇑ ⇒ ⇓ ⇔ ⇕ ⇖ ⇗ ⇘ ⇙ ⇚ ⇛ ⇜ ⇝ ⇞ ⇟ ⇠ ⇡ ⇢ ⇣ ⇤ ⇥ ⇦ ⇧ ⇨ ⇩ ⇪ ⇫ ⇬ ⇭ ⇮ ⇯ ⇰ ⇱ ⇲ ⇳ ⇴ ⇵ ⇶ ⇷ ⇸ ⇹ ⇺ ⇻ ⇼ ⇽ ⇾ ⇿
 """
 import enum
+import re
 import typing as ta
 
 from . import lang
@@ -40,6 +41,10 @@ RIS = ESC + 'c'
 
 def set_title(title: str) -> str:
     return OSC + '0;' + title + BEL
+
+
+def strip_ansi_codes(s: str) -> str:
+    return re.sub('\033\\[([0-9]+)(;[0-9]+)*m', '', s)
 
 
 class ControlSequence:

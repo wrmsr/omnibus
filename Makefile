@@ -240,9 +240,12 @@ define do-build
 	$(1)/bin/python setup.py build_ext --inplace
 endef
 
-.PHONY: build
-build: venv gen
+.PHONY: build-ext
+build-ext: venv
 	$(call do-build,.venv)
+
+.PHONY: build
+build: venv gen build-ext
 
 .PHONY: build-37
 build-37: venv-37 gen
