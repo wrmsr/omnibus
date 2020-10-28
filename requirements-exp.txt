@@ -9,7 +9,7 @@ wcwidth==0.2.5
 
 ## transitive dependencies
 
-aiohttp==3.7.1
+aiohttp==3.7.2
 arviz==0.10.0
 attrs==20.2.0
 cachetools==4.1.1
@@ -18,11 +18,11 @@ cffi==1.14.3
 cftime==1.2.1
 cli-helpers==2.1.0
 colorama==0.4.4
-cryptography==3.1.1
+cryptography==3.2.1
 fastprogress==1.0.0
 graphviz==0.14.2
 humanize==3.1.0
-importlib-resources==3.1.1
+importlib-resources==3.2.1
 iniconfig==1.1.1
 ipykernel==5.3.4
 jedi==0.17.2
@@ -40,7 +40,7 @@ pandocfilters==1.4.3
 parso==0.8.0
 pendulum==2.1.2
 Pillow==8.0.1
-pkginfo==1.6.0
+pkginfo==1.6.1
 py-cpuinfo==7.0.0
 py==1.9.0
 Pygments==2.7.2
@@ -69,14 +69,14 @@ duckdb==0.2.1
 elasticsearch==7.9.1
 fastavro==1.0.0.post1
 fastparquet==0.4.1
-grpcio==1.33.1
+grpcio==1.33.2
 hyperscan==0.1.5
 idna==2.10
 jupyter-client==6.1.7
 jupyter-console==6.2.0
 jupyter-core==4.6.3
 kafka-python==2.0.2
-kiwisolver==1.2.0
+kiwisolver==1.3.0
 llvmlite==0.34.0
 matplotlib==3.3.2
 notebook==6.1.4
