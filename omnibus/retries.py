@@ -68,8 +68,14 @@ def _repr_fn(rpr: str, fn: ta.Callable) -> ta.Callable:
     return _ReprFn(rpr, fn)
 
 
+RetryFn = ta.Callable[['RetryCall'], bool]
 WaitFn = ta.Callable[['RetryCall'], float]
 StopFn = ta.Callable[['RetryCall'], bool]
+CallbackFn = ta.Callable[['RetryFn'], None]
+
+
+class Retry(lang.Namespace):
+    ALWAYS = _repr_fn('Retry.ALWAYS', lambda _: True)
 
 
 class Wait(lang.Namespace):
@@ -85,21 +91,25 @@ class Retrier:
     def __init__(
             self,
             *,
-            sleep: ta.Callable[[float], None] = dc.field(time.sleep, kwonly=True),
+            retry: RetryFn = Retry.ALWAYS,
             wait: WaitFn = Wait.NONE,
             stop: StopFn = Stop.NEVER,
+            sleep: ta.Callable[[float], None] = time.sleep,
+            before: ta.Optional[CallbackFn] = None,
+            after: ta.Optional[CallbackFn] = None,
+            reraise: bool = False,
     ) -> None:
         super().__init__()
 
+        self._retry = check.callable(retry)
+        self._wait = check.callable(wait)
+        self._stop = check.callable(stop)
         self._sleep = check.callable(sleep)
+        self._before = check.callable(before) if before is not None else None
+        self._after = check.callable(after) if after is not None else None
+        self._reraise = check.isinstance(reraise, bool)
 
-        # stop = stop_never,
-        # wait = wait_none(),
-        # retry = retry_if_exception_type(),
-        # before = before_nothing,
-        # after = after_nothing,
         # before_sleep = None,
-        # reraise = False,
         # retry_error_cls = RetryError,
         # retry_error_callback = None,
 

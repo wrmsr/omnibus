@@ -1,7 +1,7 @@
 import dataclasses as dc
 
 
-class _VirtualClassMeta(type):
+class _VirtualMeta(type):
 
     def __subclasscheck__(cls, subclass):
         return dc.is_dataclass(subclass)
@@ -10,7 +10,7 @@ class _VirtualClassMeta(type):
         return dc.is_dataclass(instance)
 
 
-class VirtualClass(metaclass=_VirtualClassMeta):
+class Virtual(metaclass=_VirtualMeta):
 
     def __new__(cls, *args, **kwargs):
         raise TypeError

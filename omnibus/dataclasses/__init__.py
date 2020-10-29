@@ -40,4 +40,4 @@ from .types import SUPER  # noqa
 from .types import Validator  # noqa
 from .validation import build_default_field_validation  # noqa
 from .validation import DEFAULT_FIELD_VALIDATION_DISPATCHER  # noqa
-from .virtual import VirtualClass  # noqa
+from .virtual import Virtual  # noqa

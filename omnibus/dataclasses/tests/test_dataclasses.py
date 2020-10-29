@@ -77,11 +77,11 @@ def test_implicit_abc():
         x: int
 
     for C in [C0, C1]:
-        assert issubclass(C, virtual_.VirtualClass)
-        assert isinstance(C(1), virtual_.VirtualClass)
+        assert issubclass(C, virtual_.Virtual)
+        assert isinstance(C(1), virtual_.Virtual)
 
-        assert not issubclass(int, virtual_.VirtualClass)
-        assert not isinstance(1, virtual_.VirtualClass)
+        assert not issubclass(int, virtual_.Virtual)
+        assert not isinstance(1, virtual_.Virtual)
 
 
 def test_check():
