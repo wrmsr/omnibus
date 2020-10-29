@@ -15,7 +15,7 @@ from .. import lang
 from .. import reflect
 from .types import FieldValidation
 from .types import FieldValidator
-from .virtual import VirtualClass
+from .virtual import Virtual
 
 
 Field = dc.Field
@@ -101,7 +101,7 @@ def mapping_default_field_validation(fld: Field, *, manifest: dispatch.Manifest)
         raise TypeError(manifest.spec)
 
 
-@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(VirtualClass)
+@DEFAULT_FIELD_VALIDATION_DISPATCHER.registering(Virtual)
 def dataclass_default_field_validation(fld: Field, *, manifest: dispatch.Manifest) -> FieldValidator:
     # FIXME: recurse?
     return default_field_validation(fld, manifest=manifest)

@@ -175,10 +175,20 @@ def test_abstract():
 
 
 def test_abstract2():
+    class O(restrict_.Abstract):
+        pass
+
+    assert restrict_.is_abstract(O)
+
+    with pytest.raises(TypeError):
+        O()
+
     class A(restrict_.Abstract):
         @abc.abstractmethod
         def f(self):
             pass
+
+    assert restrict_.is_abstract(A)
 
     with pytest.raises(TypeError):
         A()

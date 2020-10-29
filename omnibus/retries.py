@@ -10,14 +10,13 @@ import time
 import typing as ta
 
 from . import check
-from . import dataclasses as dc
 from . import lang
 
 
 lang.warn_unstable()
 
 
-class RetryCall:
+class Call:
 
     def __init__(
             self,
@@ -42,7 +41,7 @@ class RetryCall:
         # self._next_action = None
 
     @classmethod
-    def of(cls, retrier: 'Retrier', fn: ta.Callable, *args, **kwargs) -> 'RetryCall':
+    def of(cls, retrier: 'Retrier', fn: ta.Callable, *args, **kwargs) -> 'Call':
         return cls(retrier, fn, args, kwargs)
 
 
@@ -68,9 +67,9 @@ def _repr_fn(rpr: str, fn: ta.Callable) -> ta.Callable:
     return _ReprFn(rpr, fn)
 
 
-RetryFn = ta.Callable[['RetryCall'], bool]
-WaitFn = ta.Callable[['RetryCall'], float]
-StopFn = ta.Callable[['RetryCall'], bool]
+RetryFn = ta.Callable[['Call'], bool]
+WaitFn = ta.Callable[['Call'], float]
+StopFn = ta.Callable[['Call'], bool]
 CallbackFn = ta.Callable[['RetryFn'], None]
 
 
@@ -113,8 +112,8 @@ class Retrier:
         # retry_error_cls = RetryError,
         # retry_error_callback = None,
 
-    def call(self, fn: ta.Callable, *args, **kwargs) -> RetryCall:
-        return RetryCall.of(self, fn, *args, **kwargs)
+    def call(self, fn: ta.Callable, *args, **kwargs) -> Call:
+        return Call.of(self, fn, *args, **kwargs)
 
-    def __call__(self, fn: ta.Callable, *args, **kwargs) -> RetryCall:
+    def __call__(self, fn: ta.Callable, *args, **kwargs) -> Call:
         return self.call(fn, *args, **kwargs)
