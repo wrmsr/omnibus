@@ -69,9 +69,12 @@ def is_abstract_method(obj: ta.Any) -> bool:
 
 def is_abstract_class(obj: ta.Any) -> bool:
     return bool(getattr(obj, '__abstractmethods__', [])) or (
-        isinstance(obj, type) and
-        Abstract in obj.__mro__ and
-        getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
+        isinstance(obj, type) and (
+            Abstract in obj.__bases__ or (
+                Abstract in obj.__mro__ and
+                getattr(obj.__dict__.get('__forceabstract__', None), '__isabstractmethod__', False)
+            )
+        )
     )
 
 
