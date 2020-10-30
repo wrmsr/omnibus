@@ -2,7 +2,6 @@ from cpython.buffer cimport PyBUF_ANY_CONTIGUOUS
 from cpython.buffer cimport PyBUF_SIMPLE
 from cpython.buffer cimport PyBuffer_Release
 from cpython.buffer cimport PyObject_GetBuffer
-from libc.stdint cimport int32_t
 
 
 cdef class BufferView:
@@ -17,18 +16,47 @@ cdef class BufferView:
         PyBuffer_Release(&self.buf)
 
 
-cpdef add_int32_raw(size_t a, size_t b, size_t c, size_t l):
-    cdef int32_t *pa = <int32_t *> a
-    cdef int32_t *pb = <int32_t *> b
-    cdef int32_t *pc = <int32_t *> c
+<%
+    int_szs = [8, 16, 32, 64]
+    int_typs = [f'{p}int{sz}' for p in ['', 'u'] for sz in int_szs]
+
+    op_tups = [
+        ('add', '+'),
+        ('sub', '-'),
+        ('mul', '*'),
+        ('div', '/'),
+        ('mod', '%'),
+
+        ('and', '&'),
+        ('or', '|'),
+        ('xor', '^'),
+    ]
+%>
+
+
+% for typ in int_typs:
+from libc.stdint cimport ${typ}_t
+% endfor
+
+
+% for typ in int_typs:
+% for op_nam, op_s in op_tups:
+
+cpdef ${op_nam}_${typ}_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef ${typ}_t *pa = <${typ}_t *> a
+    cdef ${typ}_t *pb = <${typ}_t *> b
+    cdef ${typ}_t *pc = <${typ}_t *> c
     cdef size_t i = 0
     while i < l:
-        pc[i] = pa[i] + pb[i]
+        pc[i] = <${typ}_t> (pa[i] ${op_s} pb[i])
         i += 1
 
 
-def add_int32(a, b, c, l):
+def ${op_nam}_${typ}(a, b, c, l):
     cdef BufferView ba = BufferView(a)
     cdef BufferView bb = BufferView(b)
     cdef BufferView bc = BufferView(c)
-    add_int32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+    ${op_nam}_${typ}_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+% endfor
+% endfor
