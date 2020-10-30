@@ -20,9 +20,9 @@ class Property(properties.Property[Registry[K, V]]):
     def __init__(
             self,
             *,
-            bind: bool = None,
+            bind: ta.Optional[bool] = None,
             lock: lang.DefaultLockable = None,
-            policy: CompositeRegistry.Policy = None,
+            policy: ta.Optional[CompositeRegistry.Policy] = None,
     ) -> None:
         super().__init__()
 
@@ -33,7 +33,7 @@ class Property(properties.Property[Registry[K, V]]):
         self._lock = lang.default_lock(lock, True)
         self._policy = check.callable(policy)
 
-        self._name: str = None
+        self._name: ta.Optional[str] = None
         self._registrations_attr_name = '__%s_%x_registrations' % (type(self).__name__, id(self))
 
         self._immediate_registries_by_cls: ta.MutableMapping[ta.Type, Registry[K, V]] = weakref.WeakKeyDictionary()  # noqa
@@ -212,9 +212,9 @@ class Property(properties.Property[Registry[K, V]]):
 
 def property_(
         *,
-        bind: bool = None,
+        bind: ta.Optional[bool] = None,
         lock: lang.DefaultLockable = None,
-        policy: CompositeRegistry.Policy = None,
+        policy: ta.Optional[CompositeRegistry.Policy] = None,
 ) -> Property:
     return Property(
         bind=bind,
@@ -229,9 +229,9 @@ class MultiProperty(Property):
     def __init__(
             self,
             *,
-            bind: bool = None,
+            bind: ta.Optional[bool] = None,
             lock: lang.DefaultLockable = None,
-            policy: CompositeRegistry.Policy = None,
+            policy: ta.Optional[CompositeRegistry.Policy] = None,
     ) -> None:
         if policy is None:
             policy = CompositeMultiRegistry.MERGE
@@ -249,9 +249,9 @@ class MultiProperty(Property):
 
 def multi_property(
         *,
-        bind: bool = None,
+        bind: ta.Optional[bool] = None,
         lock: lang.DefaultLockable = None,
-        policy: CompositeRegistry.Policy = None,
+        policy: ta.Optional[CompositeRegistry.Policy] = None,
 ) -> Property:
     return MultiProperty(
         bind=bind,

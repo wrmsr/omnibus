@@ -23,8 +23,8 @@ class DictRegistry(BaseRegistry[K, V]):
             self,
             *args,
             frozen: bool = False,
-            coercer: Coercer[K, V] = None,
-            validator: Validator[K, V] = None,
+            coercer: ta.Optional[Coercer[K, V]] = None,
+            validator: ta.Optional[Validator[K, V]] = None,
             **kwargs
     ) -> None:
         super().__init__(**kwargs)

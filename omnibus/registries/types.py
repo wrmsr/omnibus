@@ -76,7 +76,7 @@ class Registry(lang.Abstract, ta.Mapping[K, V]):
     def values(self) -> ta.ValuesView[V]:
         raise NotImplementedError
 
-    def get(self, key: K, default: ta.Union[V, ta.Any] = None) -> ta.Union[V, ta.Any]:
+    def get(self, key: K, default: ta.Union[V, ta.Any, None] = None) -> ta.Union[V, ta.Any]:
         try:
             return self[key]
         except NotRegisteredException:
@@ -122,7 +122,7 @@ class BaseRegistry(Registry[K, V], lang.Abstract):
     def __init__(
             self,
             lock: lang.DefaultLockable = None,
-            listeners_by_obj: ta.Mapping[ta.Any, Listener] = None,
+            listeners_by_obj: ta.Optional[ta.Mapping[ta.Any, Listener]] = None,
             **kwargs
     ) -> None:
         super().__init__(**kwargs)  # type: ignore
