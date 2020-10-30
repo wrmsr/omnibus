@@ -71,7 +71,7 @@ clean-build:
 			-name 'NeVeRmAtCh' -delete ; \
 	fi
 
-	(cd $(PROJECT)/_ext/cy/stl && $(MAKE) clean)
+	(cd $(PROJECT)/_ext/cy && $(MAKE) clean)
 
 .PHONY: clean
 clean: clean-build
@@ -175,7 +175,7 @@ venv-39:
 ### Gen
 
 .PHONY: gen
-gen: antlr stl
+gen: antlr cy
 	true
 
 .PHONY: antlr
@@ -229,9 +229,9 @@ antlr:
 		done ; \
 	done
 
-.PHONY: stl
-stl: venv
-	(. .venv/bin/activate && cd $(PROJECT)/_ext/cy/stl && $(MAKE) render)
+.PHONY: cy
+cy: venv
+	(. .venv/bin/activate && cd $(PROJECT)/_ext/cy && $(MAKE) build)
 
 
 ### Build

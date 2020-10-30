@@ -5,9 +5,9 @@ SHELL:=/bin/bash
 clean:
 	-rm -f *.so
 	-rm -f gen_*
-	-rm -f stl.cpp
-	-rm -f stl.pyx
+	-rm -f vmath.cpp
+	-rm -f vmath.pyx
 
 .PHONY: build
 build:
-	python -m mako.cmd stl.pyx.mako > stl.pyx
+	python -m mako.cmd vmath.pyx.mako > vmath.pyx
