@@ -1,12 +1,9 @@
 import array
 
-import pytest
-
 from .. import vmath as vmath_  # type: ignore
 from ..... import arrays
 
 
-@pytest.mark.xfail()
 def test_add():
     t = arrays.INT_GLYPHS_BY_SIZE[4]
     l = 10
