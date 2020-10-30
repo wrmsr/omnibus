@@ -1117,3 +1117,173 @@ def xor_uint64(a, b, c, l):
     cdef BufferView bc = BufferView(c)
     xor_uint64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
 
+
+cpdef add_float32_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef float *pa = <float *> a
+    cdef float *pb = <float *> b
+    cdef float *pc = <float *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <float> (pa[i] + pb[i])
+        i += 1
+
+
+def add_float32(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    add_float32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef sub_float32_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef float *pa = <float *> a
+    cdef float *pb = <float *> b
+    cdef float *pc = <float *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <float> (pa[i] - pb[i])
+        i += 1
+
+
+def sub_float32(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    sub_float32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef mul_float32_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef float *pa = <float *> a
+    cdef float *pb = <float *> b
+    cdef float *pc = <float *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <float> (pa[i] * pb[i])
+        i += 1
+
+
+def mul_float32(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    mul_float32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef div_float32_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef float *pa = <float *> a
+    cdef float *pb = <float *> b
+    cdef float *pc = <float *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <float> (pa[i] / pb[i])
+        i += 1
+
+
+def div_float32(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    div_float32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef mod_float32_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef float *pa = <float *> a
+    cdef float *pb = <float *> b
+    cdef float *pc = <float *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <float> (pa[i] % pb[i])
+        i += 1
+
+
+def mod_float32(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    mod_float32_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef add_float64_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef double *pa = <double *> a
+    cdef double *pb = <double *> b
+    cdef double *pc = <double *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <double> (pa[i] + pb[i])
+        i += 1
+
+
+def add_float64(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    add_float64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef sub_float64_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef double *pa = <double *> a
+    cdef double *pb = <double *> b
+    cdef double *pc = <double *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <double> (pa[i] - pb[i])
+        i += 1
+
+
+def sub_float64(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    sub_float64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef mul_float64_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef double *pa = <double *> a
+    cdef double *pb = <double *> b
+    cdef double *pc = <double *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <double> (pa[i] * pb[i])
+        i += 1
+
+
+def mul_float64(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    mul_float64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef div_float64_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef double *pa = <double *> a
+    cdef double *pb = <double *> b
+    cdef double *pc = <double *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <double> (pa[i] / pb[i])
+        i += 1
+
+
+def div_float64(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    div_float64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
+
+cpdef mod_float64_raw(size_t a, size_t b, size_t c, size_t l):
+    cdef double *pa = <double *> a
+    cdef double *pb = <double *> b
+    cdef double *pc = <double *> c
+    cdef size_t i = 0
+    while i < l:
+        pc[i] = <double> (pa[i] % pb[i])
+        i += 1
+
+
+def mod_float64(a, b, c, l):
+    cdef BufferView ba = BufferView(a)
+    cdef BufferView bb = BufferView(b)
+    cdef BufferView bc = BufferView(c)
+    mod_float64_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+
