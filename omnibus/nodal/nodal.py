@@ -167,8 +167,18 @@ class Nodal(
                 [fs] = fs.args
                 seq = True
 
-            if isinstance(fs, rfl.TypeSpec) and issubclass(fs.erased_cls, Nodal):
+            if isinstance(fs, rfl.TypeSpec) and issubclass(fs.erased_cls, cls._nodal_cls):
                 flds[f.name] = FieldInfo(fs, opt, seq)
+
+            else:
+                def flatten(s):
+                    yield s
+                    if isinstance(s, (rfl.UnionSpec, rfl.GenericTypeSpec)):
+                        for a in s.args:
+                            yield from flatten(a)
+                l = list(flatten(fs))
+                if any(isinstance(e, rfl.TypeSpec) and issubclass(e.erased_cls, cls._nodal_cls) for e in l):
+                    raise TypeError(f'Peer fields must be sequences: {f.name} {fs}')
 
         return FieldsInfo(flds)
 
