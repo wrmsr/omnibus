@@ -3,6 +3,8 @@ TODO:
  - DC.REPLACE
   - __dataclass_replace__
   - builtin doesn't validate *or* coerce
+ - option to freeze after post_init
+  - frozen_after_post_init? frozen='post' ?
  - Field options:
   - transient (+cache_hash)
   - *default_factory with lambda args* - toposort again
@@ -50,7 +52,6 @@ TODO:
   - repr callable, None = ignore? another instance of stepping on dc internals..
    - other was class(repr_id=...)
    - rewrite - give dc guts a bool, store richer val in Extra
- - frozen_after_post_init?
 """
 import collections
 import collections.abc
