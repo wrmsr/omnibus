@@ -17,11 +17,7 @@ cdef class BufferView:
         PyBuffer_Release(&self.buf)
 
 
-def add(int a, int b):
-    return a + b
-
-
-def add_int32_raw(size_t a, size_t b, size_t c, size_t l):
+cpdef add_int32_raw(size_t a, size_t b, size_t c, size_t l):
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
     cdef int32_t *pc = <int32_t *> c
