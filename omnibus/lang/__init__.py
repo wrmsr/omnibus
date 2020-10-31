@@ -112,7 +112,9 @@ from .lang import unwrap_instance_weakproxy  # noqa
 from .lang import Void  # noqa
 from .lang import void  # noqa
 from .lang import VoidException  # noqa
+from .math import bytes_to_float  # noqa
 from .math import FixedWidthInt  # noqa
+from .math import float_to_bytes  # noqa
 from .math import get_bit  # noqa
 from .math import get_bits  # noqa
 from .math import INFINITY  # noqa

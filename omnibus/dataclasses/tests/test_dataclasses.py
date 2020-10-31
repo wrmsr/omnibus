@@ -191,12 +191,16 @@ def test_coerce():
     assert c.t == 3
 
 
+@pytest.mark.xfail()
 def test_derive():
     @api_.dataclass(frozen=True)
     class C:
         x: int
         y: int
         s: str = api_.field(derive=lambda x, y: str(x + y))
+
+    c = C(1, 2)
+    assert c.s == '3'
 
 
 def test_default_validation():

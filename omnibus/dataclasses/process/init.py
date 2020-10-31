@@ -48,12 +48,12 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
                 kwonlydefaults[fld.name] = HasFactory
             else:
                 raise TypeError
-        elif fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
+        elif fld.default is dc.MISSING and fld.default_factory is dc.MISSING and (efp is None or efp.derive is dc.MISSING):  # noqa
             args.append(fld.name)
         elif fld.default is not dc.MISSING:
             args.append(fld.name)
             defaults.append(fld.default)
-        elif fld.default_factory is not dc.MISSING:
+        elif fld.default_factory is not dc.MISSING or (efp is not None and efp.derive is not dc.MISSING):
             args.append(fld.name)
             defaults.append(HasFactory)
         else:

@@ -4,6 +4,7 @@ TODO:
   - + cython lol
 """
 import functools
+import struct
 import typing as ta
 
 from .classes import Final
@@ -31,6 +32,14 @@ def set_bit(bit: int, bit_value: ta.Union[bool, int], value: int) -> int:
 
 def set_bits(bits_from: int, num_bits: int, bits_value: int, value: int) -> int:
     return value & ~(((1 << num_bits) - 1) << bits_from) | (bits_value << bits_from)
+
+
+def float_to_bytes(f: float) -> bytes:
+    return struct.pack('>f', f)
+
+
+def bytes_to_float(b: bytes) -> float:
+    return struct.unpack('>f', b)[0]
 
 
 class Infinity(Final):
