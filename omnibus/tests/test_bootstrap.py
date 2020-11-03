@@ -16,4 +16,10 @@ def test_bootstrap(tmpdir):
     fp = os.path.join(tmpdir, 'test_bootstrap.py')
     with open(fp, 'w') as f:
         f.write(TEST_SRC)
-    subprocess.check_call([sys.executable, fp])
+    pp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+    if 'PYTHONPATH' in os.environ:
+        pp += os.pathsep + os.environ['PYTHONPATH']
+    subprocess.check_call(
+        [sys.executable, fp],
+        env={**os.environ, 'PYTHONPATH': pp},
+    )
