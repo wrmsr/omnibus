@@ -11,12 +11,14 @@ from .classes import Final  # noqa
 from .classes import final  # noqa
 from .classes import FinalException  # noqa
 from .classes import Inner  # noqa
+from .classes import instance  # noqa
 from .classes import Interface  # noqa
 from .classes import Intersection  # noqa
 from .classes import is_abstract  # noqa
 from .classes import is_abstract_class  # noqa
 from .classes import is_abstract_impl  # noqa
 from .classes import is_abstract_method  # noqa
+from .classes import LazySingleton  # noqa
 from .classes import make_abstract  # noqa
 from .classes import Marker  # noqa
 from .classes import Mixin  # noqa
@@ -32,7 +34,7 @@ from .classes import protocol_check  # noqa
 from .classes import Sealed  # noqa
 from .classes import SealedException  # noqa
 from .classes import SimpleMetaDict  # noqa
-from .classes import singleton  # noqa
+from .classes import Singleton  # noqa
 from .contextmanagers import breakpoint_on_exception  # noqa
 from .contextmanagers import context_var_setting  # noqa
 from .contextmanagers import context_wrapped  # noqa

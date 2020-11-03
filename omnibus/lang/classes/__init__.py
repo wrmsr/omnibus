@@ -26,8 +26,10 @@ from .restrict import PackageSealed  # noqa
 from .restrict import Sealed  # noqa
 from .restrict import SealedException  # noqa
 from .simple import Inner  # noqa
+from .simple import instance  # noqa
+from .simple import LazySingleton  # noqa
 from .simple import SimpleMetaDict  # noqa
-from .simple import singleton  # noqa
+from .simple import Singleton  # noqa
 from .virtual import Callable  # noqa
 from .virtual import Descriptor  # noqa
 from .virtual import Intersection  # noqa

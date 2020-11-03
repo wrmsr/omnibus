@@ -47,3 +47,28 @@ def test_inner():
     assert b.y == 2
     assert b._outer is a
     assert b.xy == 3
+
+
+def test_singletons():
+    for bcls in [simple_.Singleton, simple_.LazySingleton]:
+        foo_init_calls = 0
+        foo2_init_calls = 0
+
+        class Foo(bcls):
+            def __init__(self):
+                super().__init__()
+                nonlocal foo_init_calls
+                foo_init_calls += 1
+
+        assert Foo() is Foo()
+        assert foo_init_calls == 1
+
+        class Foo2(Foo):
+            def __init__(self):
+                super().__init__()
+                nonlocal foo2_init_calls
+                foo2_init_calls += 1
+
+        assert Foo2() is Foo2()
+        assert foo2_init_calls == 1
+        assert foo_init_calls == 2

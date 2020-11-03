@@ -17,7 +17,7 @@ def test_autoenum():
         class A:
             thing = 1
 
-        @classes_.singleton()
+        @classes_.instance()
         class B:
             def __init__(self):
                 self.thing = 2
