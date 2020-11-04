@@ -4,6 +4,7 @@ import typing as ta
 
 
 T = ta.TypeVar('T')
+U = ta.TypeVar('U')
 
 
 _MISSING = object()
@@ -234,3 +235,13 @@ def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
     def rec(*args, **kwargs):
         return fn(rec, *args, **kwargs)
     return rec(*args, **kwargs)
+
+
+def optional_of(fn: ta.Callable[[T], U]) -> ta.Callable[[ta.Optional[T]], ta.Optional[U]]:
+    @functools.wraps(fn)
+    def inner(o):
+        if o is None:
+            return None
+        else:
+            return fn(o)
+    return inner

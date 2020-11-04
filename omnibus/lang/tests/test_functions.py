@@ -121,3 +121,9 @@ def test_cached_nullary():
 def test_try():
     assert fns.try_()(int)(5) == 5
     assert fns.try_()(int)('x') is None
+
+
+def test_optional_of():
+    f = fns.optional_of(lambda x: x + 1)
+    assert f(1) == 2
+    assert f(None) is None
