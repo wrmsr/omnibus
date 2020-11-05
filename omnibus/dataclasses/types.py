@@ -11,7 +11,9 @@ T = ta.TypeVar('T')
 FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
-NONE_TYPE = type(None)
+FieldMetadataKwargHandler = ta.Callable[[dc.Field, ta.Any], ta.Any]
+
+
 MISSING_TYPE = type(dc.MISSING)
 
 
@@ -66,16 +68,18 @@ class ExtraFieldParams(lang.Final):
     check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None
     check_type: ta.Union[ta.Type, ta.Tuple, None] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
+    kwargs: ta.Optional[ta.Mapping[str, ta.Any]] = None
 
     def __post_init__(self) -> None:
-        check.isinstance(self.doc, (str, NONE_TYPE))
-        check.isinstance(self.mangled, (str, NONE_TYPE))
-        check.isinstance(self.frozen, (bool, NONE_TYPE))
+        check.isinstance(self.doc, (str, None))
+        check.isinstance(self.mangled, (str, None))
+        check.isinstance(self.frozen, (bool, None))
         check.isinstance(self.kwonly, bool)
-        check.isinstance(self.coerce, (bool, lang.Callable, NONE_TYPE))
-        check.isinstance(self.derive, (lang.Callable, NONE_TYPE))
-        check.isinstance(self.check, (bool, lang.Callable, NONE_TYPE))
-        check.isinstance(self.validate, (bool, lang.Callable, NONE_TYPE))
+        check.isinstance(self.coerce, (bool, lang.Callable, None))
+        check.isinstance(self.derive, (lang.Callable, None))
+        check.isinstance(self.check, (bool, lang.Callable, None))
+        check.isinstance(self.validate, (bool, lang.Callable, None))
+        check.isinstance(self.kwargs, (ta.Mapping, None))
 
 
 Mangler = ta.Callable[[str], str]
@@ -114,16 +118,16 @@ class ExtraParams(lang.Final):
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
 
     def __post_init__(self) -> None:
-        check.isinstance(self.metadata, (ta.Mapping, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.validate, (bool, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.metadata, (ta.Mapping, None, MISSING_TYPE))
+        check.isinstance(self.validate, (bool, None, MISSING_TYPE))
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
         check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
         check.isinstance(self.allow_setattr, (bool, MISSING_TYPE))
-        check.isinstance(self.mangler, (lang.Callable, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.aspects, (ta.Collection, NONE_TYPE, MISSING_TYPE))
-        check.isinstance(self.confer, (ta.Collection, ta.Mapping, NONE_TYPE, MISSING_TYPE))
+        check.isinstance(self.mangler, (lang.Callable, None, MISSING_TYPE))
+        check.isinstance(self.aspects, (ta.Collection, None, MISSING_TYPE))
+        check.isinstance(self.confer, (ta.Collection, ta.Mapping, None, MISSING_TYPE))
 
         if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))

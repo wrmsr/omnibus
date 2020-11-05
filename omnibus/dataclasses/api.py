@@ -73,6 +73,7 @@ from .types import Deriver
 from .types import ExtraFieldParams
 from .types import ExtraParams
 from .types import Extras
+from .types import FieldMetadataKwargHandler
 from .types import Mangler
 from .types import Metadata
 from .types import METADATA_ATTR
@@ -198,6 +199,26 @@ def _astuple_inner(obj, tuple_factory):
         return copy.deepcopy(obj)
 
 
+_FIELD_METADATA_KWARG_HANDLERS: ta.Dict[str, FieldMetadataKwargHandler] = {}
+
+
+def register_field_metadata_kwarg_handler(
+        name: str,
+        fn: ta.Optional[FieldMetadataKwargHandler] = None,
+) -> ta.Union[FieldMetadataKwargHandler, ta.Callable[[FieldMetadataKwargHandler], FieldMetadataKwargHandler]]:
+    def inner(ifn):
+        if not name or name in _FIELD_METADATA_KWARG_HANDLERS:
+            raise KeyError(name)
+        if not callable(ifn):
+            raise TypeError(ifn)
+        _FIELD_METADATA_KWARG_HANDLERS[name] = ifn
+        return ifn
+    if fn is not None:
+        return inner(fn)
+    else:
+        return inner
+
+
 def field(
         default: ta.Union[ta.Any, MISSING_TYPE] = MISSING,
         *,
@@ -218,6 +239,8 @@ def field(
         check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None,
         check_type: ta.Union[ta.Type, ta.Tuple, None] = None,
         validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None,
+
+        **kwargs,
 ) -> Field:
     extra_field_params = ExtraFieldParams(
         doc=doc,
@@ -230,6 +253,7 @@ def field(
         check=check,
         check_type=check_type,
         validate=validate,
+        kwargs=kwargs,
     )
 
     if metadata is not None:
@@ -242,7 +266,7 @@ def field(
         raise KeyError(metadata, ExtraFieldParams)
     metadata[ExtraFieldParams] = extra_field_params
 
-    return dc.field(
+    fld = dc.field(
         default=default,
         default_factory=default_factory,
         init=init,
@@ -251,6 +275,20 @@ def field(
         compare=compare,
         metadata=metadata,
     )
+
+    for k, v in kwargs.items():
+        if k in metadata:
+            raise
+        h = _FIELD_METADATA_KWARG_HANDLERS[k]
+        m = h(fld, v)
+        if m is None:
+            continue
+        if type(m) in metadata:
+            raise KeyError(type(m))
+        metadata[type(m)] = m
+
+    fld.metadata = types.MappingProxyType(metadata)
+    return fld
 
 
 def dataclass(

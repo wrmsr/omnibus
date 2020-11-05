@@ -17,6 +17,7 @@ from .api import metadatas_dict  # noqa
 from .api import MISSING  # noqa
 from .api import only  # noqa
 from .api import post_init  # noqa
+from .api import register_field_metadata_kwarg_handler  # noqa
 from .api import replace  # noqa
 from .api import validate  # noqa
 from .metaclass import Data  # noqa
@@ -32,6 +33,7 @@ from .types import Checker  # noqa
 from .types import CheckException  # noqa
 from .types import Conferrer  # noqa
 from .types import Deriver  # noqa
+from .types import FieldMetadataKwargHandler  # noqa
 from .types import FieldValidation  # noqa
 from .types import FieldValidator  # noqa
 from .types import Metadata  # noqa

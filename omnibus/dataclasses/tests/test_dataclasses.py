@@ -693,3 +693,24 @@ def test_only():
 
     assert api_.only(Pt(xs=[]), ['xs'])
     assert not api_.only(Pt(xs=[]), ['xs'], all=True)
+
+
+def test_field_md_kw():
+    @api_.dataclass()
+    class TestKw:
+        o: ta.Any
+
+    with pytest.raises(Exception):
+        @api_.dataclass()
+        class C:  # noqa
+            f: int = api_.field(0, _test_kw=420)
+
+    @api_.register_field_metadata_kwarg_handler('_test_kw')
+    def _handle_test_kw(fld, o):
+        return TestKw(o)
+
+    @api_.dataclass()
+    class C:  # noqa
+        f: int = api_.field(0, _test_kw=420)
+
+    assert api_.fields_dict(C)['f'].metadata[TestKw].o == 420
