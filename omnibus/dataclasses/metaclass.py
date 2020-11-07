@@ -14,6 +14,7 @@ from .. import properties
 from .api import MISSING_TYPE
 from .confer import confer_params
 from .internals import DataclassParams
+from .kwargs import get_registered_class_metadata_kwargs
 from .process import tuples
 from .types import _Placeholder
 from .types import Conferrer
@@ -85,11 +86,18 @@ class _MetaBuilder:
             for a in DataclassParams.__slots__
         })
 
+        metadata_kwargs = {
+            k: kwargs.pop(k)
+            for k in get_registered_class_metadata_kwargs()
+            if k in kwargs
+        }
+
         self._orig_extra_params = ExtraParams(**{
             a: kwargs.pop(a, dc.MISSING)
             for fld in dc.fields(ExtraParams)
             for a in [fld.name]
-        })
+            if a != 'kwargs'
+        }, kwargs=metadata_kwargs)
 
         self._orig_metaclass_params = MetaclassParams(
             slots=self._slots,

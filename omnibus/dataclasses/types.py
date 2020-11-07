@@ -12,6 +12,7 @@ FieldValidator = ta.Callable[[T], None]
 FieldValidation = ta.Callable[[dc.Field], FieldValidator[T]]
 
 FieldMetadataKwargHandler = ta.Callable[[dc.Field, ta.Any], ta.Any]
+ClassMetadataKwargHandler = ta.Callable[[type, ta.Any], ta.Any]
 
 
 MISSING_TYPE = type(dc.MISSING)
@@ -116,6 +117,7 @@ class ExtraParams(lang.Final):
     mangler: ta.Optional[Mangler] = None
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
+    kwargs: ta.Optional[ta.Mapping[str, ta.Any]] = None
 
     def __post_init__(self) -> None:
         check.isinstance(self.metadata, (ta.Mapping, None, MISSING_TYPE))
@@ -128,6 +130,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.mangler, (lang.Callable, None, MISSING_TYPE))
         check.isinstance(self.aspects, (ta.Collection, None, MISSING_TYPE))
         check.isinstance(self.confer, (ta.Collection, ta.Mapping, None, MISSING_TYPE))
+        check.isinstance(self.kwargs, (ta.Mapping, None, MISSING_TYPE))
 
         if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))

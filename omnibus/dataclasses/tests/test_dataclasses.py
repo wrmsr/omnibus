@@ -6,6 +6,7 @@ import typing as ta
 import pytest
 
 from .. import api as api_
+from .. import kwargs as kwargs_
 from .. import pickling as pickling_  # noqa
 from .. import process as process_
 from .. import reflect as reflect_
@@ -705,7 +706,7 @@ def test_field_md_kw():
         class C:  # noqa
             f: int = api_.field(0, _test_kw=420)
 
-    @api_.register_field_metadata_kwarg_handler('_test_kw')
+    @kwargs_.register_field_metadata_kwarg_handler('_test_kw')
     def _handle_test_kw(fld, o):
         return TestKw(o)
 
@@ -714,3 +715,24 @@ def test_field_md_kw():
         f: int = api_.field(0, _test_kw=420)
 
     assert api_.fields_dict(C)['f'].metadata[TestKw].o == 420
+
+
+def test_class_md_kw():
+    @api_.dataclass()
+    class TestKw:
+        o: ta.Any
+
+    with pytest.raises(Exception):
+        @api_.dataclass(_test_kw=420)
+        class C:  # noqa
+            f: int
+
+    @kwargs_.register_class_metadata_kwarg_handler('_test_kw')
+    def _handle_test_kw(cls, o):
+        return TestKw(o)
+
+    @api_.dataclass(_test_kw=420)
+    class C:  # noqa
+        f: int
+
+    assert api_.metadatas_dict(C)[TestKw].o == 420

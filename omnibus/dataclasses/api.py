@@ -68,12 +68,12 @@ from . import process
 from .. import lang
 from .internals import DataclassParams
 from .internals import is_dataclass_instance
+from .kwargs import update_field_kwargs_metadata
 from .types import Checker
 from .types import Deriver
 from .types import ExtraFieldParams
 from .types import ExtraParams
 from .types import Extras
-from .types import FieldMetadataKwargHandler
 from .types import Mangler
 from .types import Metadata
 from .types import METADATA_ATTR
@@ -199,26 +199,6 @@ def _astuple_inner(obj, tuple_factory):
         return copy.deepcopy(obj)
 
 
-_FIELD_METADATA_KWARG_HANDLERS: ta.Dict[str, FieldMetadataKwargHandler] = {}
-
-
-def register_field_metadata_kwarg_handler(
-        name: str,
-        fn: ta.Optional[FieldMetadataKwargHandler] = None,
-) -> ta.Union[FieldMetadataKwargHandler, ta.Callable[[FieldMetadataKwargHandler], FieldMetadataKwargHandler]]:
-    def inner(ifn):
-        if not name or name in _FIELD_METADATA_KWARG_HANDLERS:
-            raise KeyError(name)
-        if not callable(ifn):
-            raise TypeError(ifn)
-        _FIELD_METADATA_KWARG_HANDLERS[name] = ifn
-        return ifn
-    if fn is not None:
-        return inner(fn)
-    else:
-        return inner
-
-
 def field(
         default: ta.Union[ta.Any, MISSING_TYPE] = MISSING,
         *,
@@ -276,18 +256,7 @@ def field(
         metadata=metadata,
     )
 
-    for k, v in kwargs.items():
-        if k in metadata:
-            raise
-        h = _FIELD_METADATA_KWARG_HANDLERS[k]
-        m = h(fld, v)
-        if m is None:
-            continue
-        if type(m) in metadata:
-            raise KeyError(type(m))
-        metadata[type(m)] = m
-
-    fld.metadata = types.MappingProxyType(metadata)
+    fld.metadata = types.MappingProxyType(update_field_kwargs_metadata(fld, kwargs, metadata))
     return fld
 
 
@@ -311,6 +280,8 @@ def dataclass(
         mangler: ta.Union[Mangler, MISSING_TYPE] = MISSING,
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,
         confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,
+
+        **kwargs
 ) -> ta.Type[T]:
     if aspects is not MISSING and aspects is not None:
         aspects = list(aspects)
@@ -343,6 +314,7 @@ def dataclass(
         mangler=mangler,
         aspects=aspects,
         confer=confer,
+        kwargs=kwargs,
     )
 
     def build(cls):

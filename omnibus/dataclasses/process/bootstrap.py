@@ -6,6 +6,7 @@ from ... import check
 from ..fields import build_cls_fields
 from ..internals import DataclassParams
 from ..internals import PARAMS
+from ..kwargs import update_class_kwargs_metadata
 from ..types import ExtraParams
 from ..types import MetaclassParams
 from ..types import METADATA_ATTR
@@ -66,6 +67,10 @@ class Params(Aspect):
             md = {}
             self.ctx.set_new_attribute(METADATA_ATTR, md, raise_=True)
         check.state(self.ctx.spec._metadata is md)
+
+        if self.ctx.extra_params.kwargs:
+            kw_md = update_class_kwargs_metadata(self.ctx.cls, self.ctx.extra_params.kwargs)
+            check.state(self.ctx.spec.shallow_extras[-1] is kw_md)
 
         md[ExtraParams] = self.ctx.extra_params
         md[MetaclassParams] = self.ctx.metaclass_params

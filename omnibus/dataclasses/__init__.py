@@ -17,9 +17,10 @@ from .api import metadatas_dict  # noqa
 from .api import MISSING  # noqa
 from .api import only  # noqa
 from .api import post_init  # noqa
-from .api import register_field_metadata_kwarg_handler  # noqa
 from .api import replace  # noqa
 from .api import validate  # noqa
+from .kwargs import register_class_metadata_kwarg_handler  # noqa
+from .kwargs import register_field_metadata_kwarg_handler  # noqa
 from .metaclass import Data  # noqa
 from .metaclass import Enum  # noqa
 from .metaclass import Frozen  # noqa
@@ -31,6 +32,7 @@ from .reflect import DataSpec  # noqa
 from .reflect import get_cls_spec  # noqa
 from .types import Checker  # noqa
 from .types import CheckException  # noqa
+from .types import ClassMetadataKwargHandler  # noqa
 from .types import Conferrer  # noqa
 from .types import Deriver  # noqa
 from .types import FieldMetadataKwargHandler  # noqa

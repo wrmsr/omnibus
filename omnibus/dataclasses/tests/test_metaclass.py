@@ -6,6 +6,7 @@ import typing as ta
 import pytest
 
 from .. import api as api_
+from .. import kwargs as kwargs_
 from .. import metaclass as metaclass_
 from .. import pickling as pickling_  # noqa
 from .. import types as types_
@@ -421,3 +422,22 @@ def test_enum_ident_eq():
         pass
 
     assert B(1) != B(1)
+
+
+def test_meta_class_md_kw():
+    @api_.dataclass()
+    class TestKw:
+        o: ta.Any
+
+    with pytest.raises(Exception):
+        class C(metaclass_.Pure, _test_mc_kw=420):  # noqa
+            f: int
+
+    @kwargs_.register_class_metadata_kwarg_handler('_test_mc_kw')
+    def _handle_test_mc_kw(cls, o):
+        return TestKw(o)
+
+    class C(metaclass_.Pure, _test_mc_kw=420):  # noqa
+        f: int
+
+    assert api_.metadatas_dict(C)[TestKw].o == 420
