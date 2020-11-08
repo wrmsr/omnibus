@@ -192,7 +192,6 @@ def test_coerce():
     assert c.t == 3
 
 
-@pytest.mark.xfail()
 def test_derive():
     @api_.dataclass(frozen=True)
     class C:
@@ -202,6 +201,18 @@ def test_derive():
 
     c = C(1, 2)
     assert c.s == '3'
+    assert C(1, 2, '4').s == '4'
+
+    @api_.dataclass(frozen=True)
+    class D:
+        x: int
+        y: int
+        s: str
+        api_.derive('s', lambda x, y: str(x + y))
+
+    d = D(1, 2)
+    assert d.s == '3'
+    assert D(1, 2, '4').s == '4'
 
 
 def test_default_validation():
@@ -428,10 +439,14 @@ def test_post_init():
 
         api_.post_init(lambda self: l.append((self.x, self.y)))
 
+        @api_.post_init
+        def _foo(self):
+            l.append(self.x + self.y)
+
     c = C(3, 4)
     assert c.x == 3
     assert c.y == 4
-    assert l == [(3, 4)]
+    assert l == [(3, 4), 7]
 
 
 def test_descriptor():

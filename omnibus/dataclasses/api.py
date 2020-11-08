@@ -15,8 +15,6 @@ TODO:
    - VALUES = namedtuple compat, destructuring
   - validation 'profiles' including str_is_not_seq
  - typecheck defaults on def
- - jackson style json serdes interop
-   - https://github.com/FasterXML/jackson-databind/wiki/Mapper-Features
  - pyo3 + cy struct type interop
   - derive dataclasses from external
  - observable? dc.observe? per-cls/per-field? config-lvl?

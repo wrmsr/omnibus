@@ -5,8 +5,9 @@ from ... import code
 from ... import lang
 from ... import properties
 from ..types import ExtraFieldParams
-from .storage import Storage
+from .defaulting import Defaulting
 from .defaulting import HasFactory
+from .storage import Storage
 from .types import Aspect
 from .types import attach
 
@@ -19,13 +20,17 @@ class Init(Aspect, lang.Abstract):
 
     @property
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
-        return [Storage]
+        return [Defaulting, Storage]
 
     def process(self) -> None:
         raise TypeError
 
 
-def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) -> code.ArgSpec:
+def append_argspec_args(
+        argspec: code.ArgSpec,
+        fields: ta.Iterable[dc.Field],
+        derivable_field_names: ta.AbstractSet[str] = frozenset(),
+) -> code.ArgSpec:
     args = []
     defaults = []
     kwonlyargs = []
@@ -37,6 +42,7 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
             continue
 
         efp = fld.metadata.get(ExtraFieldParams)
+        derivable = (efp is not None and efp.derive is not dc.MISSING) or fld.name in derivable_field_names
         if efp is not None and efp.kwonly:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
                 kwonlyargs.append(fld.name)
@@ -48,12 +54,12 @@ def append_argspec_args(argspec: code.ArgSpec, fields: ta.Iterable[dc.Field]) ->
                 kwonlydefaults[fld.name] = HasFactory
             else:
                 raise TypeError
-        elif fld.default is dc.MISSING and fld.default_factory is dc.MISSING and (efp is None or efp.derive is dc.MISSING):  # noqa
+        elif fld.default is dc.MISSING and fld.default_factory is dc.MISSING and not derivable:
             args.append(fld.name)
         elif fld.default is not dc.MISSING:
             args.append(fld.name)
             defaults.append(fld.default)
-        elif fld.default_factory is not dc.MISSING or (efp is not None and efp.derive is not dc.MISSING):
+        elif fld.default_factory is not dc.MISSING or derivable:
             args.append(fld.name)
             defaults.append(HasFactory)
         else:
@@ -92,4 +98,9 @@ class StandardInit(Init):
                 [self.fctx.self_name],
                 annotations={'return': None},
             )
-            return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
+
+            return append_argspec_args(
+                argspec,
+                self.fctx.ctx.spec.fields.init,
+                self.aspect.ctx.get_aspect(Defaulting).derivable_field_names,
+            )

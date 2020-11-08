@@ -37,6 +37,10 @@ class DeriverNode(ta.NamedTuple):
     oas: ta.FrozenSet[str]
 
 
+class DerivationFailedException(TypeError):
+    pass
+
+
 class Defaulting(Aspect):
 
     @property
@@ -92,9 +96,13 @@ class Defaulting(Aspect):
         return tuple(nodes)
 
     @properties.cached
+    def derivable_field_names(self) -> ta.AbstractSet[str]:
+        return frozenset(a for dn in self.deriver_nodes for a in dn.oas)
+
+    @properties.cached
     def deriver_supersteps(self):
         if not self.deriver_nodes:
-            return
+            return []
 
         nodes_by_oa = {}
         for n in self.deriver_nodes:
@@ -103,8 +111,16 @@ class Defaulting(Aspect):
                     raise AttributeError('Duplicate deriver output', n, nodes_by_oa[oa])
                 nodes_by_oa[oa] = n
 
-        # TODO: ** hijack default factory machinery **
         return list(ocol.toposort({oa: set(n.ias) for oa, n in nodes_by_oa.items()}))
+
+    @properties.cached
+    def deriver_node_ordering(self) -> ta.Sequence[DeriverNode]:
+        fno = [a for ss in self.deriver_supersteps for a in sorted(ss) if a in self.derivable_field_names]
+        fni = dict(map(reversed, enumerate(fno)))
+
+        def kt(s):
+            return tuple(sorted(a for a in s for i in [fni.get(a)] if i is not None))
+        return sorted(self.deriver_nodes, key=lambda dn: (kt(dn.oas), kt(dn.ias)))
 
     @attach('init')
     class Init(Aspect.Function['Defaulting']):
@@ -126,12 +142,24 @@ class Defaulting(Aspect):
             }
 
         @properties.cached
+        def deriver_fn_names_by_deiver_node(self) -> ta.Mapping[DeriverNode, str]:
+            return ocol.IdentityKeyDict(
+                (dn, self.fctx.nsb.put(dn.fn, f'_deriver_{i}'))
+                for i, dn in enumerate(self.aspect.deriver_nodes)
+            )
+
+        @properties.cached
         def has_factory_name(self) -> str:
             return self.fctx.nsb.put(HasFactory, '_has_factory')
+
+        @properties.cached
+        def derivation_failed_exception_name(self) -> str:
+            return self.fctx.nsb.put(DerivationFailedException, '_DerivationFailedException')
 
         @attach(Aspect.Function.Phase.DEFAULT)
         def build_default_lines(self) -> ta.List[str]:
             ret = []
+
             for f in self.fctx.ctx.spec.fields.init:
                 if not f.init:
                     if f.default is not dc.MISSING:
@@ -141,4 +169,21 @@ class Defaulting(Aspect):
                 elif f.default_factory is not dc.MISSING:
                     default_factory_name = self.default_factory_names_by_field_name[f.name]
                     ret.append(f'if {f.name} is {self.has_factory_name}: {f.name} = {default_factory_name}()')
+
+            if self.aspect.deriver_nodes:
+                for dn in self.aspect.deriver_node_ordering:
+                    s0 = ' and '.join(f'{a} is not {self.has_factory_name}' for a in dn.ias)
+                    s1 = ' and '.join(f'{a} is {self.has_factory_name}' for a in dn.oas)
+                    s2 = f'{s0} and {s1}' if s0 and s1 else (s0 or s1)
+                    check.not_empty(s2)
+                    s3 = (', '.join(dn.oas) + ' =') if dn.oas else ''
+                    fnn = self.deriver_fn_names_by_deiver_node[dn]
+                    s4 = ", ".join(f'{a}={a}' for a in dn.ias)
+                    ret.append(f'if {s2}: {s3} {fnn}({s4})')
+                for a in self.aspect.derivable_field_names:
+                    ret.append(
+                        f'if {a} is {self.has_factory_name}: '
+                        f'raise {self.derivation_failed_exception_name}("{a}")'
+                    )
+
             return ret
