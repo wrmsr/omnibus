@@ -31,7 +31,7 @@ DataclassParams = dc._DataclassParams  # type: ignore
 
 
 tuple_str = dc._tuple_str  # type: ignore
-repr_fn = dc._repr_fn  # type: ignore
+recursive_repr = dc._recursive_repr  # type: ignore
 cmp_fn = dc._cmp_fn  # type: ignore
 get_field = dc._get_field  # type: ignore
 hash_action = dc._hash_action  # type: ignore

@@ -449,6 +449,26 @@ def test_post_init():
     assert l == [(3, 4), 7]
 
 
+def test_reprs():
+    @api_.dataclass()
+    class A:
+        x: int
+
+    r = repr(A(5)).rpartition('.')[2]
+    assert r == 'A(x=5)'
+
+    @api_.dataclass()
+    class B:
+        a: int
+        b: ta.Optional[int] = api_.field(repr_if=lang.is_not_none)
+
+    r = repr(B(1, 2)).rpartition('.')[2]
+    assert r == 'B(a=1, b=2)'
+
+    r = repr(B(1, None)).rpartition('.')[2]
+    assert r == 'B(a=1)'
+
+
 def test_descriptor():
     # TODO: *must* have descrpitorless get/set if possible
 

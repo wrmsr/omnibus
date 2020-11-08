@@ -79,7 +79,10 @@ class NamespaceBuilder(ta.Mapping[str, ta.Any]):
     ) -> None:
         super().__init__()
 
-        self._unavailable_names = {check.isinstance(n, str) for n in (unavailable_names or [])}
+        self._unavailable_names = {
+            check.isinstance(n, str)
+            for n in (check.not_isinstance(unavailable_names, str) or [])
+        }
         self._name_generator = check.callable(name_generator) if name_generator is not None else \
             NameGeneratorImpl(unavailable_names=self._unavailable_names, use_global_prefix_if_present=True)
 

@@ -217,6 +217,7 @@ def field(
         check: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], bool]]] = None,
         check_type: ta.Union[ta.Type, ta.Tuple, None] = None,
         validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None,
+        repr_if: ta.Optional[ta.Callable[[ta.Any], bool]] = None,
 
         **kwargs,
 ) -> Field:
@@ -231,6 +232,7 @@ def field(
         check=check,
         check_type=check_type,
         validate=validate,
+        repr_if=repr_if,
         kwargs=kwargs,
     )
 

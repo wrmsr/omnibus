@@ -9,10 +9,11 @@ from ..internals import FieldType
 from ..internals import hash_action
 from ..internals import PARAMS
 from ..internals import POST_INIT_NAME
-from ..internals import repr_fn
+from ..internals import recursive_repr
 from ..internals import tuple_str
 from ..pickling import SimplePickle
 from ..types import _Placeholder
+from ..types import ExtraFieldParams
 from ..types import PostInit
 from .bootstrap import Fields
 from .init import Init
@@ -30,8 +31,30 @@ class Repr(Aspect):
         if not self.ctx.params.repr:
             return
 
-        flds = [f for f in self.ctx.spec.fields.instance if f.repr]
-        self.ctx.set_new_attribute('__repr__', repr_fn(flds, self.ctx.spec.globals))
+        lines = []
+        nsb = code.NamespaceBuilder(unavailable_names=['self'])
+        lines.append('l = []')
+        for f in self.ctx.spec.fields.instance:
+            if not f.repr:
+                continue
+            s = f'l.append(f"{f.name}={{self.{f.name}!r}}")'
+            efp = f.metadata.get(ExtraFieldParams)
+            if efp is not None and efp.repr_if is not None:
+                fn = nsb.put(efp.repr_if, f'_repr_if_{f.name}')
+                lines.append(f'if {fn}(self.{f.name}): {s}')
+            else:
+                lines.append(s)
+        lines.append('return self.__class__.__qualname__ + "(" + ", ".join(l) + ")"')
+
+        fn = code.create_function(
+            '__repr__',
+            code.ArgSpec(['self']),
+            '\n'.join(lines),
+            locals=dict(nsb),
+            globals=self.ctx.spec.globals,
+        )
+
+        self.ctx.set_new_attribute(fn.__name__, recursive_repr(fn))
 
 
 class Eq(Aspect):

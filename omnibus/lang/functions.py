@@ -227,6 +227,14 @@ except ImportError:
     pass
 
 
+def is_none(o: ta.Any) -> bool:
+    return o is None
+
+
+def is_not_none(o: ta.Any) -> bool:
+    return o is not None
+
+
 def cmp(l: ta.Any, r: ta.Any) -> int:
     return (l > r) - (l < r)
 
