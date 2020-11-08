@@ -37,13 +37,22 @@ class Repr(Aspect):
         for f in self.ctx.spec.fields.instance:
             if not f.repr:
                 continue
-            s = f'l.append(f"{f.name}={{self.{f.name}!r}}")'
             efp = f.metadata.get(ExtraFieldParams)
+            b = []
+            if efp is not None and efp.repr_fn is not None:
+                fn = nsb.put(efp.repr_fn, f'_repr_fn_{f.name}')
+                b.extend([
+                    f's = {fn}(self.{f.name})',
+                    f'if s is not None: l.append(f"{f.name}={{s}}")',
+                ])
+            else:
+                b.append(f'l.append(f"{f.name}={{self.{f.name}!r}}")')
             if efp is not None and efp.repr_if is not None:
                 fn = nsb.put(efp.repr_if, f'_repr_if_{f.name}')
-                lines.append(f'if {fn}(self.{f.name}): {s}')
+                lines.append(f'if {fn}(self.{f.name}):')
+                lines.extend('  ' + l for l in b)
             else:
-                lines.append(s)
+                lines.extend(b)
         lines.append('return self.__class__.__qualname__ + "(" + ", ".join(l) + ")"')
 
         fn = code.create_function(

@@ -450,23 +450,37 @@ def test_post_init():
 
 
 def test_reprs():
+    def r(o):
+        return repr(o).rpartition('.')[2]
+
     @api_.dataclass()
     class A:
         x: int
 
-    r = repr(A(5)).rpartition('.')[2]
-    assert r == 'A(x=5)'
+    assert r(A(5)) == 'A(x=5)'
 
     @api_.dataclass()
     class B:
         a: int
         b: ta.Optional[int] = api_.field(repr_if=lang.is_not_none)
 
-    r = repr(B(1, 2)).rpartition('.')[2]
-    assert r == 'B(a=1, b=2)'
+    assert r(B(1, 2)) == 'B(a=1, b=2)'
 
-    r = repr(B(1, None)).rpartition('.')[2]
-    assert r == 'B(a=1)'
+    assert r(B(1, None)) == 'B(a=1)'
+
+    @api_.dataclass()
+    class C:
+        a: int
+        b: ta.Optional[int] = api_.field(repr_fn=lambda b: str(b) + '!')
+
+    assert r(C(1, 2)) == 'C(a=1, b=2!)'
+
+    @api_.dataclass()
+    class D:
+        x: ta.Optional[int] = api_.field(repr_fn=lambda b: (str(b) + '!') if b > 5 else None)
+
+    assert r(D(1)) == 'D()'
+    assert r(D(10)) == 'D(x=10!)'
 
 
 def test_descriptor():

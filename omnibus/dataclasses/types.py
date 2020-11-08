@@ -70,6 +70,7 @@ class ExtraFieldParams(lang.Final):
     check_type: ta.Union[ta.Type, ta.Tuple, None] = None
     validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None
     repr_if: ta.Optional[ta.Callable[[ta.Any], bool]] = None
+    repr_fn: ta.Optional[ta.Callable[[ta.Any], ta.Optional[str]]] = None
     kwargs: ta.Optional[ta.Mapping[str, ta.Any]] = None
 
     def __post_init__(self) -> None:
@@ -82,6 +83,7 @@ class ExtraFieldParams(lang.Final):
         check.isinstance(self.check, (bool, lang.Callable, None))
         check.isinstance(self.validate, (bool, lang.Callable, None))
         check.isinstance(self.repr_if, (lang.Callable, None))
+        check.isinstance(self.repr_fn, (lang.Callable, None))
         check.isinstance(self.kwargs, (ta.Mapping, None))
 
 

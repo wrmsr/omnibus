@@ -45,11 +45,6 @@ TODO:
  - dc.touch
   - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
  - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
- - deprecate abstract kwarg for lang.Abstract? mh
- - field(repr_if=...), analogous to ignore_if
-  - repr callable, None = ignore? another instance of stepping on dc internals..
-   - other was class(repr_id=...)
-   - rewrite - give dc guts a bool, store richer val in Extra
 """
 import collections
 import collections.abc
@@ -218,6 +213,7 @@ def field(
         check_type: ta.Union[ta.Type, ta.Tuple, None] = None,
         validate: ta.Optional[ta.Union[bool, ta.Callable[[ta.Any], None]]] = None,
         repr_if: ta.Optional[ta.Callable[[ta.Any], bool]] = None,
+        repr_fn: ta.Optional[ta.Callable[[ta.Any], str]] = None,
 
         **kwargs,
 ) -> Field:
@@ -233,6 +229,7 @@ def field(
         check_type=check_type,
         validate=validate,
         repr_if=repr_if,
+        repr_fn=repr_fn,
         kwargs=kwargs,
     )
 
