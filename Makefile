@@ -402,14 +402,18 @@ dist-dev: venv
 
 ### Publish
 
-.PHONY:
-publish: clean build test dist test-dist
+.PHONY: _publish
+_publish: venv
 	if [ ! -z "$$(git status -s)" ] ; then \
 		echo dirty ; \
 		exit 1 ; \
 	fi
 
 	.venv/bin/twine upload dist/*
+
+.PHONY: publish
+publish: clean build test dist test-dist
+	$(MAKE) _publish
 
 .PHONY: test-pypi
 test-pypi:
