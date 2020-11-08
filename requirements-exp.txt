@@ -13,7 +13,7 @@ aiohttp==3.7.2
 arviz==0.10.0
 attrs==20.3.0
 cachetools==4.1.1
-certifi==2020.6.20
+certifi==2020.11.8
 cffi==1.14.3
 cftime==1.2.1
 cli-helpers==2.1.0
