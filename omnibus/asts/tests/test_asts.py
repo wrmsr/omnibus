@@ -9,9 +9,9 @@ from .. import nodes
 from .. import parsing
 
 
-# from ...antlr._accel import LexerATNSimulator
-# from .._antlr import Python3Lexer
-# Python3Lexer.LexerATNSimulator = LexerATNSimulator
+from ...antlr import _accel
+from .._antlr import Python3Lexer
+Python3Lexer.LexerATNSimulator = _accel.LexerATNSimulator
 
 
 @pytest.mark.xfail()
