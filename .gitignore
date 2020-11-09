@@ -4,6 +4,7 @@
 *.dylib
 *.exe
 *.pstats
+*.pstats.pdf
 *.pstats.png
 *.pyc
 *.pyo
