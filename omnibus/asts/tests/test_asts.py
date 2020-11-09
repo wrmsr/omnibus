@@ -9,6 +9,11 @@ from .. import nodes
 from .. import parsing
 
 
+# from ...antlr._accel import LexerATNSimulator
+# from .._antlr import Python3Lexer
+# Python3Lexer.LexerATNSimulator = LexerATNSimulator
+
+
 @pytest.mark.xfail()
 def test_internal():
     from ...antlr import accel  # noqa
