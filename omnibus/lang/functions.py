@@ -200,45 +200,6 @@ def try_(
     return outer
 
 
-def identity(obj: T) -> T:
-    return obj
-
-
-try:
-    from .._ext.cy.lang import identity  # type: ignore  # noqa
-except ImportError:
-    pass
-
-
-class constant(ta.Generic[T]):  # noqa
-
-    def __init__(self, obj: T) -> None:
-        super().__init__()
-
-        self._obj = obj
-
-    def __call__(self) -> T:
-        return self._obj
-
-
-try:
-    from .._ext.cy.lang import constant  # type: ignore  # noqa
-except ImportError:
-    pass
-
-
-def is_none(o: ta.Any) -> bool:
-    return o is None
-
-
-def is_not_none(o: ta.Any) -> bool:
-    return o is not None
-
-
-def cmp(l: ta.Any, r: ta.Any) -> int:
-    return (l > r) - (l < r)
-
-
 def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
     def rec(*args, **kwargs):
         return fn(rec, *args, **kwargs)
@@ -253,3 +214,45 @@ def optional_of(fn: ta.Callable[[T], U]) -> ta.Callable[[ta.Optional[T]], ta.Opt
         else:
             return fn(o)
     return inner
+
+
+def identity(obj: T) -> T:
+    return obj
+
+
+class constant(ta.Generic[T]):  # noqa
+
+    def __init__(self, obj: T) -> None:
+        super().__init__()
+
+        self._obj = obj
+
+    def __call__(self) -> T:
+        return self._obj
+
+
+def is_none(o: ta.Any) -> bool:
+    return o is None
+
+
+def is_not_none(o: ta.Any) -> bool:
+    return o is not None
+
+
+def cmp(l: ta.Any, r: ta.Any) -> int:
+    return (l > r) - (l < r)
+
+
+try:
+    from .._ext.cy import lang as _cy_lang
+except ImportError:
+    pass
+else:
+    for _att in {
+        'constant',
+        'identity',
+        'is_none',
+        'is_not_none',
+        'cmp',
+    }:
+        globals()[_att] = getattr(_cy_lang, _att)

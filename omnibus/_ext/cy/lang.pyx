@@ -1,4 +1,10 @@
-def identity(obj):
+import typing as ta
+
+
+T = ta.TypeVar('T')
+
+
+def identity(obj: T) -> T:
     return obj
 
 
@@ -11,3 +17,15 @@ cdef class constant:
 
     def __call__(self):
         return self.obj
+
+
+def is_none(obj: ta.Any) -> bool:
+    return obj is None
+
+
+def is_not_none(obj: ta.Any) -> bool:
+    return obj is not None
+
+
+def cmp(l: ta.Any, r: ta.Any) -> int:
+    return (l > r) - (l < r)
