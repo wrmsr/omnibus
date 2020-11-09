@@ -23,7 +23,6 @@ from .._vendor.antlr4.atn.Transition import Transition
 from .._vendor.antlr4.dfa.DFA import DFA as _DFA
 from .._vendor.antlr4.dfa.DFASerializer import DFASerializer
 from .._vendor.antlr4.dfa.DFASerializer import LexerDFASerializer
-from .._vendor.antlr4.dfa.DFAState import DFAState as _DFAState
 from .._vendor.antlr4.error.Errors import IllegalStateException
 from .._vendor.antlr4.error.Errors import LexerNoViableAltException
 from .._vendor.antlr4.error.Errors import UnsupportedOperationException
@@ -430,16 +429,16 @@ class LexerATNSimulator(ATNSimulator):
             proposed.prediction = self.atn.ruleToTokenType[firstConfigWithRuleStopState.state.ruleIndex]
 
         dfa = self.decisionToDFA[self.mode]
-        existing = dfa.states.get(proposed, None)
+        existing = dfa._states.get(proposed, None)
         if existing is not None:
             return existing
 
         newState = proposed
 
-        newState.stateNumber = len(dfa.states)
+        newState.stateNumber = len(dfa._states)
         configs.setReadonly(True)
         newState.configs = configs
-        dfa.states[newState] = newState
+        dfa._states[newState] = newState
         return newState
 
     def getDFA(self, mode: int) -> 'DFA':
@@ -498,7 +497,7 @@ class ATNConfig:
         if self is other:
             return True
         elif not isinstance(other, ATNConfig):
-            return False
+            raise TypeError(other)
         else:
             return (
                     self.state.stateNumber == other.state.stateNumber and
@@ -577,7 +576,7 @@ class LexerATNConfig(ATNConfig):
         if self is other:
             return True
         elif not isinstance(other, LexerATNConfig):
-            return False
+            raise TypeError(other)
         if self.passedThroughNonGreedyDecision != other.passedThroughNonGreedyDecision:
             return False
         if not (self.lexerActionExecutor == other.lexerActionExecutor):
@@ -675,7 +674,7 @@ class ATNConfigSet:
         if self is other:
             return True
         elif not isinstance(other, ATNConfigSet):
-            return False
+            raise TypeError(other)
 
         same = (
                 self.configs is not None and
@@ -786,7 +785,7 @@ class DFAState:
         if self is other:
             return True
         elif not isinstance(other, DFAState):
-            return False
+            raise TypeError(other)
         else:
             return self.configs == other.configs
 
@@ -809,6 +808,40 @@ LexerATNSimulator.ERROR = DFAState(0x7FFFFFFF, ATNConfigSet())
 
 class DFA:
 
+    class _StatesProxy(ta.MutableMapping[DFAState, DFAState]):
+
+        def __init__(self, dct: ta.Dict[DFAState, DFAState]) -> None:
+            super().__init__()
+
+            self._dct = dct
+
+        def __delitem__(self, v: DFAState) -> None:
+            raise TypeError
+
+        def __len__(self) -> int:
+            return len(self._dct)
+
+        def __iter__(self) -> ta.Iterator[DFAState]:
+            return iter(self._dct)
+
+        def __getitem__(self, k: DFAState) -> DFAState:
+            if not isinstance(k, DFAState):
+                raise TypeError(k)
+            return self._dct[k]
+
+        def get(self, k: DFAState) -> ta.Optional[DFAState]:
+            if not isinstance(k, DFAState):
+                raise TypeError(k)
+            try:
+                return self._dct[k]
+            except KeyError:
+                return None
+
+        def __setitem__(self, k: DFAState, v: DFAState) -> None:
+            if not isinstance(k, DFAState) or not isinstance(v, DFAState):
+                raise TypeError(k, v)
+            self._dct[k] = v
+
     def __init__(self, atnStartState: DecisionState, decision: int = 0) -> None:
         super().__init__()
 
@@ -817,6 +850,8 @@ class DFA:
 
         self._states: ta.Dict[DFAState, DFAState] = dict()
         self.s0: ta.Optional[DFAState] = None
+
+        self._states_proxy = DFA._StatesProxy(self._states)
 
         self.precedenceDfa = False
 
@@ -863,8 +898,8 @@ class DFA:
             self.precedenceDfa = precedenceDfa
 
     @property
-    def states(self) -> ta.Dict[DFAState, DFAState]:
-        return self._states
+    def states(self) -> ta.MutableMapping[DFAState, DFAState]:
+        return self._states_proxy
 
     def sortedStates(self) -> ta.List[DFAState]:
         return sorted(self._states.keys(), key=lambda state: state.stateNumber)

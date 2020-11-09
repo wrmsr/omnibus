@@ -125,10 +125,19 @@ class _ParseVisitor(Python3Visitor):
         return self.visitBinOpExprCont(ctx.andExpr(), ctx.xorExprCont(), lambda c: c.andExpr())
 
 
+_ACCEL = True
+
+
 def _parse(buf: str) -> Python3Parser:
     lexer = Python3Lexer(antlr4.InputStream(buf))
     lexer.removeErrorListeners()
     lexer.addErrorListener(antlr.SilentRaisingErrorListener())
+
+    if _ACCEL:
+        from ..antlr import _accel
+        from .._vendor.antlr4.PredictionContext import PredictionContextCache
+        lexer._interp = _accel.LexerATNSimulator(lexer, lexer.atn, lexer.decisionsToDFA, PredictionContextCache())
+        lexer.decisionsToDFA = lexer._interp.decisionToDFA
 
     stream = antlr4.CommonTokenStream(lexer)
     stream.fill()
