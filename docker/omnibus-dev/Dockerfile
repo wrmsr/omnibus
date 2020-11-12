@@ -27,12 +27,14 @@ RUN ( \
         iputils-tracepath \
         jq \
         less \
+        libglib2.0-dev \
         libpcre2-dev \
         libpcre3-dev \
         libpq-dev \
         libsasl2-dev \
         libsnappy-dev \
         llvm \
+        lsof \
         make \
         man \
         moreutils \
