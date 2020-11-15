@@ -165,6 +165,9 @@ RUN echo "\
 set number \n\
 syntax on \n\
 filetype indent plugin on \n\
+set tabstop=4 \n\
+set shiftwidth=4 \n\
+set expandtab \n\
 " >> ~/.vimrc
 
 RUN echo "\
