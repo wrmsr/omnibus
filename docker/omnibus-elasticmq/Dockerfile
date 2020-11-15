@@ -1,2 +1,2 @@
-FROM softwaremill/elasticmq:0.15.7
+FROM softwaremill/elasticmq:0.15.8
 COPY .dockertimestamp /
