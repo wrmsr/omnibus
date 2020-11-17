@@ -51,21 +51,37 @@ from libc.stdint cimport ${typ}_t
 % for typ_nam, typ_s, typ_is_int in typ_tups:
 % for op_nam, op_s in (com_op_tups + (int_op_tups if typ_is_int else [])):
 
-cpdef ${op_nam}_${typ_nam}_raw(size_t a, size_t b, size_t c, size_t l):
+cpdef ${op_nam}_${typ_nam}_raw(size_t a, size_t b, size_t d, size_t l):
     cdef ${typ_s} *pa = <${typ_s} *> a
     cdef ${typ_s} *pb = <${typ_s} *> b
-    cdef ${typ_s} *pc = <${typ_s} *> c
+    cdef ${typ_s} *pd = <${typ_s} *> d
     cdef size_t i = 0
     while i < l:
-        pc[i] = <${typ_s}> (pa[i] ${op_s} pb[i])
+        pd[i] = <${typ_s}> (pa[i] ${op_s} pb[i])
         i += 1
 
 
-def ${op_nam}_${typ_nam}(a, b, c, l):
+def ${op_nam}_${typ_nam}(a, b, d, l):
     cdef BufferView ba = BufferView(a)
     cdef BufferView bb = BufferView(b)
-    cdef BufferView bc = BufferView(c)
-    ${op_nam}_${typ_nam}_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bc.buf.buf, l)
+    cdef BufferView bd = BufferView(d)
+    ${op_nam}_${typ_nam}_raw(<size_t> ba.buf.buf, <size_t> bb.buf.buf, <size_t> bd.buf.buf, l)
+
+
+cpdef ${op_nam}_${typ_nam}_const_raw(size_t a, ${typ_s} c, size_t d, size_t l):
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    while i < l:
+        pd[i] = <${typ_s}> (pa[i] ${op_s} c)
+        i += 1
+
+
+def ${op_nam}_${typ_nam}_const(a, c, d, l):
+    cdef BufferView ba = BufferView(a)
+    cdef ${typ_s} cc = <${typ_s}> c
+    cdef BufferView bd = BufferView(d)
+    ${op_nam}_${typ_nam}_const_raw(<size_t> ba.buf.buf, cc, <size_t> bd.buf.buf, l)
 
 % endfor
 % endfor
