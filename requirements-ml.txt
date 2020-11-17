@@ -1,0 +1,9 @@
+nltk
+opencv-python
+pyro-ppl
+scikit-learn
+spacy
+tensorboard
+tensorflow
+torch
+torchvision
