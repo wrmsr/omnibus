@@ -15,12 +15,12 @@ attrs==20.3.0
 cachetools==4.1.1
 certifi==2020.11.8
 cffi==1.14.3
-cftime==1.2.1
+cftime==1.3.1
 cli-helpers==2.1.0
 colorama==0.4.4
 cryptography==3.2.1
 fastprogress==1.0.0
-graphviz==0.14.2
+graphviz==0.15
 h5py==3.1.0
 humanize==3.1.0
 importlib-resources==3.3.0
@@ -42,6 +42,7 @@ parso==0.8.0
 pendulum==2.1.2
 Pillow==8.0.1
 pkginfo==1.6.1
+prometheus-client==0.9.0
 py-cpuinfo==7.0.0
 py==1.9.0
 Pygments==2.7.2
@@ -53,7 +54,7 @@ scipy==1.5.4
 scramp==1.2.0
 Theano==1.0.5
 tornado==6.1
-tqdm==4.51.0
+tqdm==4.52.0
 traitlets==5.0.5
 typing-extensions==3.7.4.3
 urllib3==1.26.2
@@ -89,7 +90,7 @@ plotly==4.12.0
 plyvel==1.3.0
 protobuf==3.14.0
 py4j==0.10.9.1
-pyglet==1.5.9
+pyglet==1.5.10
 pyjwt==1.7.1
 pykafka==2.8.0
 pymc3==3.9.3
