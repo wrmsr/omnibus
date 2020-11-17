@@ -1,5 +1,6 @@
 nltk
 opencv-python
+pyomo
 pyro-ppl
 scikit-learn
 spacy
