@@ -54,7 +54,7 @@ scipy==1.5.4
 scramp==1.2.0
 Theano==1.0.5
 tornado==6.1
-tqdm==4.53.0
+tqdm==4.54.0
 traitlets==5.0.5
 typing-extensions==3.7.4.3
 urllib3==1.26.2
@@ -64,7 +64,7 @@ yarl==1.6.3
 
 ## potential optional integrations
 
-bsddb3==6.2.8
+bsddb3==6.2.9
 chardet==3.0.4
 datadog==0.39.0
 ddtrace==0.44.0
