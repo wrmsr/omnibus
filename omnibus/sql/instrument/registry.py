@@ -29,7 +29,7 @@ def create_instrumented_dialect(base: ta.Type[sa.engine.Dialect]) -> ta.Type[sa.
             raise NameError(name)
         return existing
 
-    check.not_empty(base.driver)  # type: ignore  # noq
+    check.not_empty(base.driver)  # type: ignore  # noqa
     dialect = type(name, (InstrumentationDialectMixin, base), {'__module__': __name__})
     globals()[name] = dialect
     rname = f'{AFFIX}_{base.name}.{base.driver}'  # type: ignore  # noqa
