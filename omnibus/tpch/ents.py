@@ -134,3 +134,15 @@ class LineItem(Entity):
     ship_instructions: str = dc.field(metadata={Column: Column('l_shipinstruct', Column.Type.VARCHAR, precision=25)})
     ship_mode: str = dc.field(metadata={Column: Column('l_shipmode', Column.Type.VARCHAR, precision=10)})
     comment: str = dc.field(metadata={Column: Column('l_comment', Column.Type.VARCHAR, precision=44)})
+
+
+ENTITIES: ta.Sequence[ta.Type[Entity]] = (
+    Customer,
+    LineItem,
+    Nation,
+    Order,
+    Part,
+    PartSupplier,
+    Region,
+    Supplier,
+)
