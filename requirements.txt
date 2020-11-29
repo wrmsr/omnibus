@@ -16,7 +16,6 @@ google-api-core==1.23.0  #@auto
 google-api-python-client==1.12.8  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.23.0  #@auto
-PyHive[hive]==0.6.3; python_version < '3.9'
 greenlet==0.4.17
 httptools==0.1.1
 kazoo==2.8.0
@@ -28,9 +27,11 @@ orjson==3.4.4; python_version < '3.9'
 pg8000==1.16.5
 psutil==5.7.3
 psycopg2==2.8.6
+PyHive[hive]==0.6.3; python_version < '3.9'
 pymemcache==3.4.0
 pymongo==3.11.1
 PyMySQL==0.10.1
+pyobjc-core==6.2.2; sys_platform == 'darwin'
 pyrsistent==0.17.3
 python-dateutil==2.8.1
 PyYAML==5.3.1
