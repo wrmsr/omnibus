@@ -470,12 +470,16 @@ lst = json.loads(sys.stdin.read()) \n\
 vers = {e['name']: e['latest_version'] for e in lst} \n\
 rpls = [(n, re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
 seen = set() \n\
+exps = set() \n\
 pins = set() \n\
 for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: \n\
     with open(fn, 'r') as f: \n\
         lines = f.readlines() \n\
     rlines = [] \n\
     for line in lines: \n\
+        m = re.match(r'^([A-Za-z][A-Za-z0-9\\-_]*)', line.strip()) \n\
+        if m is not None: \n\
+            exps.add(m.groups()[0].lower()) \n\
         if not line.strip().startswith('#') and '==' in line: \n\
             pins.add(line.strip().partition('==')[0].strip().lower()) \n\
         for n, pat, rpl in rpls: \n\
@@ -494,6 +498,14 @@ print(' '.join(l.ljust(p) for l, p in zip(ls, ps))) \n\
 print(' '.join('-' * p for p in ps)) \n\
 for e in lst: \n\
     if e['name'].lower() in pins and e['name'] not in seen: \n\
+        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
+print(' '.join('-' * p for p in ps)) \n\
+for e in lst: \n\
+    if e['name'].lower() not in pins and e['name'].lower() in exps and e['name'] not in seen: \n\
+        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
+print(' '.join('-' * p for p in ps)) \n\
+for e in lst: \n\
+    if e['name'].lower() not in pins and e['name'].lower() not in exps and e['name'] not in seen: \n\
         print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
 " > $$F ; \
 	.venv/bin/pip list -o --format=json | .venv/bin/python "$$F"
