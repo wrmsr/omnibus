@@ -14,11 +14,17 @@ RUN ( \
     apt-get install -y \
 \
         aria2 \
+        bison \
+        bmon \
         build-essential \
         clang \
         curl \
+        cvs \
         dnsutils \
         dumb-init \
+        emacs \
+        firefox \
+        flex \
         gcc \
         gdb \
         git \
@@ -27,16 +33,32 @@ RUN ( \
         iputils-tracepath \
         jq \
         less \
+        libbz2-dev \
+        libdb5.3-dev \
+        libexpat1-dev \
+        libffi-dev \
+        libgdbm-dev \
         libglib2.0-dev \
+        liblzma-dev \
+        libncurses5-dev \
+        libncursesw5-dev \
+        libnss3-dev \
         libpcre2-dev \
         libpcre3-dev \
         libpq-dev \
+        libreadline-dev \
         libsasl2-dev \
         libsnappy-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        libxml2-dev \
+        libxml2-utils \
+        libxslt-dev \
         llvm \
         lsof \
         make \
         man \
+        mercurial \
         moreutils \
         nano \
         ncdu \
@@ -55,14 +77,22 @@ RUN ( \
         socat \
         software-properties-common \
         strace \
+        subversion \
         sudo \
         tcpdump \
         telnet \
+        tk-dev \
         tmux \
         unzip \
+        uuid-dev \
         vim \
+        vim-gtk3 \
         wget \
+        x11-apps \
+        xsltproc  \
         zip \
+        zlib1g-dev \
+        zsh \
 \
 )
 
@@ -71,27 +101,7 @@ RUN echo "\n\n" >> ~/.bashrc
 
 # Python build
 
-RUN apt-get build-dep -y python3
-
-RUN ( \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y \
-\
-        libbz2-dev \
-        libdb5.3-dev \
-        libexpat1-dev \
-        libffi-dev \
-        libgdbm-dev \
-        liblzma-dev \
-        libncurses5-dev \
-        libncursesw5-dev \
-        libreadline-dev \
-        libsqlite3-dev \
-        libssl-dev \
-        uuid-dev \
-        zlib1g-dev \
-\
-)
+RUN apt-get build-dep -y python3 python3-tk
 
 
 # JDK
@@ -151,7 +161,20 @@ RUN ( \
 )
 
 
-# Configuration files
+# Configuration
+
+RUN ( \
+    sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config && \
+    sed -i 's/#X11UseLocalhost yes/X11UseLocalhost no/g' /etc/ssh/sshd_config && \
+    sed -i '/^# Ciphers and keying/aCiphers chacha20-poly1305@openssh.com' /etc/ssh/sshd_config && \
+    sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd && \
+    mkdir /var/run/sshd \
+)
+
+RUN echo "\
+handle SIGUSR1 nostop noprint \n\
+handle SIGUSR2 nostop noprint \n\
+" >> ~/.gdbinit
 
 RUN echo "\
 setw -g mode-keys vi \n\

@@ -10,7 +10,7 @@ services:
     expose:
       - '8000'
     ports:
-      - '22211:8000'
+      - '22212:8000'
 
   omnibus-elasticmq:
     build: '.'
@@ -19,7 +19,7 @@ services:
     expose:
       - '9324'
     ports:
-      - '22212:9324'
+      - '22213:9324'
 
   omnibus-elasticsearch:
     build: '.'
@@ -32,7 +32,7 @@ services:
     expose:
       - '9200'
     ports:
-      - '22213:9200'
+      - '22214:9200'
 
   omnibus-kafka:
     build: '.'
@@ -40,7 +40,7 @@ services:
     restart: 'unless-stopped'
     hostname: 'omnibus-kafka'
     environment:
-      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:22214'
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://omnibus-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:22215'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
       KAFKA_ZOOKEEPER_CONNECT: 'omnibus-zookeeper:2181'
@@ -50,9 +50,9 @@ services:
     depends_on:
       - 'omnibus-zookeeper'
     expose:
-      - '22214'
+      - '22215'
     ports:
-      - '22214:22214'
+      - '22215:22215'
 
   omnibus-memcached:
     build: '.'
@@ -61,7 +61,7 @@ services:
     expose:
       - '11211'
     ports:
-      - '22215:11211'
+      - '22216:11211'
 
   omnibus-minio:
     build: '.'
@@ -73,7 +73,7 @@ services:
     expose:
       - '9000'
     ports:
-      - '22216:9000'
+      - '22217:9000'
 
   omnibus-mongo:
     build: '.'
@@ -85,7 +85,7 @@ services:
     expose:
       - '27017'
     ports:
-      - '22217:27017'
+      - '22218:27017'
 
   omnibus-mysql-master:
     build: '.'
@@ -98,7 +98,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22218:3306'
+      - '22219:3306'
 
   omnibus-mysql-slave:
     build: '.'
@@ -116,7 +116,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '22219:3306'
+      - '22220:3306'
 
   omnibus-postgres-master:
     build: '.'
@@ -129,7 +129,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22220:5432'
+      - '22221:5432'
 
   omnibus-postgres-slave:
     build: '.'
@@ -147,7 +147,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '22221:5432'
+      - '22222:5432'
 
   omnibus-redis:
     build: '.'
@@ -156,7 +156,7 @@ services:
     expose:
       - '6379'
     ports:
-      - '22222:6379'
+      - '22223:6379'
 
   omnibus-spark-master:
     build: '.'
@@ -166,8 +166,8 @@ services:
       - 'INIT_DAEMON_STEP=setup_spark'
       - 'constraint:node==omnibus-spark-master'
     ports:
-      - '22223:8080'
-      - '22224:7077'
+      - '22224:8080'
+      - '22225:7077'
 
   omnibus-spark-worker:
     build: '.'
@@ -181,7 +181,7 @@ services:
     depends_on:
       - 'omnibus-spark-master'
     ports:
-      - '22225:8081'
+      - '22226:8081'
 
   omnibus-ssh:
     image: 'wrmsr/omnibus-ssh:latest'
@@ -191,7 +191,7 @@ services:
     expose:
       - '22'
     ports:
-      - '22226:22'
+      - '22227:22'
 
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
@@ -203,7 +203,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '22227:2181'
+      - '22228:2181'
 
   omnibus-dev:
     build: '.'
@@ -230,9 +230,11 @@ services:
       - 'omnibus-redis'
       - 'omnibus-ssh'
     expose:
+      - '22'
       - '8000'
     ports:
       - '22210:8000'
+      - '22211:22'
 
   omnibus-ci:
     build: '.'
