@@ -161,6 +161,14 @@ RUN ( \
 )
 
 
+# Eclipse
+
+RUN ( \
+    cd /root && \
+    wget https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2020-09/R/eclipse-cpp-2020-09-R-linux-gtk-x86_64.tar.gz \
+)
+
+
 # Configuration
 
 RUN ( \
@@ -199,6 +207,54 @@ TERM=screen-256color \n\
 " >> ~/.bashrc
 
 RUN echo 'source ~/.bashrc' >> ~/.bash_profile
+
+RUN echo '\
+#!/usr/bin/env bash \n\
+set -e \n\
+\n\
+if [ "\$EUID" -ne 0 ] ; then \n\
+    echo "run as root" \n\
+    exit 1 \n\
+fi \n\
+\n\
+if [ "\$#" == "0" ]; then \n\
+    echo "run with username" \n\
+    exit 1 \n\
+fi \n\
+\n\
+U="\$1" \n\
+shift \n\
+ \n\
+if ! id "\$U" &> /dev/null ; then \n\
+    useradd -m "\$U" \n\
+fi \n\
+\n\
+declare -a FS=( \n\
+    ".gdbinit" \n\
+    ".tmux.conf" \n\
+    ".vimrc" \n\
+    ".Xauthority" \n\
+) \n\
+\n\
+for F in \${FS[@]}; do \n\
+    if [ -f "\$HOME/\$F" ] && [ ! -f "/home/\$U/\$F" ] ; then \n\
+        cp "\$HOME/\$F" "/home/\$U/\$F" \n\
+        chown "\$U" "/home/\$U/\$F" \n\
+        chgrp "\$U" "/home/\$U/\$F" \n\
+    fi \n\
+done \n\
+\n\
+if [ -f "\$HOME/.Xauthority" ] ; then \n\
+    cp "\$HOME/.Xauthority" "/home/\$U/.Xauthority" \n\
+    chown "\$U" "/home/\$U/.Xauthority" \n\
+    chgrp "\$U" "/home/\$U/.Xauthority" \n\
+fi \n\
+\n\
+if [ "\$#" != "0" ]; then \n\
+    exec sudo -u "\$U" bash --login -c "\$*" \n\
+fi \n\
+' > ~/xu
+RUN chmod a+x ~/xu
 
 
 # Entrypoint
