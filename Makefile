@@ -470,8 +470,8 @@ lst = json.loads(sys.stdin.read()) \n\
 vers = {e['name']: e['latest_version'] for e in lst} \n\
 rpls = [(n, re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
 seen = set() \n\
-exps = set() \n\
-pins = set() \n\
+exps = {} \n\
+pins = {} \n\
 for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: \n\
     with open(fn, 'r') as f: \n\
         lines = f.readlines() \n\
@@ -479,9 +479,9 @@ for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: 
     for line in lines: \n\
         m = re.match(r'^([A-Za-z][A-Za-z0-9\\-_]*)', line.strip()) \n\
         if m is not None: \n\
-            exps.add(m.groups()[0].lower()) \n\
+            exps[m.groups()[0].lower()] = fn \n\
         if not line.strip().startswith('#') and '==' in line: \n\
-            pins.add(line.strip().partition('==')[0].strip().lower()) \n\
+            pins[line.strip().partition('==')[0].strip().lower()] = fn \n\
         for n, pat, rpl in rpls: \n\
             if pat.fullmatch(line.strip()): \n\
                 rlines.append(rpl + '\\\\n') \n\
@@ -495,18 +495,15 @@ ls = ['Package', 'Version', 'Latest', 'Type'] \n\
 ks = ['name', 'version', 'latest_version', 'latest_filetype'] \n\
 ps = [max([len(l)] + [len(e[k]) for e in lst if e['name'] not in seen]) for l, k in zip(ls, ks)] \n\
 print(' '.join(l.ljust(p) for l, p in zip(ls, ps))) \n\
-print(' '.join('-' * p for p in ps)) \n\
-for e in lst: \n\
-    if e['name'].lower() in pins and e['name'] not in seen: \n\
-        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
-print(' '.join('-' * p for p in ps)) \n\
-for e in lst: \n\
-    if e['name'].lower() not in pins and e['name'].lower() in exps and e['name'] not in seen: \n\
-        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
-print(' '.join('-' * p for p in ps)) \n\
-for e in lst: \n\
-    if e['name'].lower() not in pins and e['name'].lower() not in exps and e['name'] not in seen: \n\
-        print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
+for pred in [ \n\
+    lambda n: n in pins, \n\
+    lambda n: n not in pins and n in exps, \n\
+    lambda n: n not in pins and n not in exps, \n\
+]: \n\
+    print(' '.join('-' * p for p in ps)) \n\
+    for e in lst: \n\
+        if e['name'] not in seen and pred(e['name'].lower()): \n\
+            print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
 " > $$F ; \
 	.venv/bin/pip list -o --format=json | .venv/bin/python "$$F"
 
