@@ -10,7 +10,7 @@ wcwidth==0.2.5
 ## relevant dependencies
 
 aiohttp==3.7.3
-cryptography==3.2.1
+cryptography==3.3
 graphviz==0.15
 importlib-resources==3.3.0
 ipykernel==5.3.4
@@ -48,7 +48,7 @@ datadog==0.39.0
 ddtrace==0.44.0
 dnspython==2.0.0
 duckdb==0.2.3
-elasticsearch==7.10.0
+elasticsearch==7.10.1
 fastavro==1.2.1
 fastparquet==0.4.1
 grpcio==1.34.0
@@ -63,8 +63,8 @@ llvmlite==0.35.0
 matplotlib==3.3.3
 notebook==6.1.5
 oauthlib==3.1.0
-pandas==1.1.4
-plotly==4.14.0
+pandas==1.1.5
+plotly==4.14.1
 plyvel==1.3.0
 protobuf==3.14.0
 py4j>=0.10.9  #@conflict
