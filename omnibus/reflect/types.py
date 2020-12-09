@@ -1,3 +1,8 @@
+"""
+FIXME:
+ - 3.9: https://github.com/python/cpython/pull/19719
+ - typing.get_args/get_origin equivs for 3.7, deprecate
+"""
 import enum
 import typing as ta
 
