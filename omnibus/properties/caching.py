@@ -54,13 +54,7 @@ class _GetterProperty(Property[T], lang.Abstract):
             },
         )
 
-        return bcls(
-            func,
-            *args,
-            lock=lock,
-            stateful=stateful,
-            **kwargs
-        )
+        return bcls.__new__(bcls)
 
     def __init__(
             self,

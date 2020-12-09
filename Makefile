@@ -168,7 +168,7 @@ venv-37:
 venv-39:
 	if [ ! -d .venv-39 ] ; then \
 		$(call do-venv,.venv-39,$(PYTHON_39_VERSION)) ; \
-		$(call do-deps,.venv,requirements-dev.txt) ; \
+		$(call do-deps,.venv-39,requirements-dev.txt) ; \
 	fi
 
 
