@@ -6,8 +6,8 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.16.34  #@auto
-botocore==1.19.34  #@auto
+boto3==1.16.35  #@auto
+botocore==1.19.35  #@auto
 bson==0.5.10
 cbor==1.0.0
 cytoolz==0.11.0
@@ -15,7 +15,7 @@ docker==4.4.0
 google-api-core==1.23.0  #@auto
 google-api-python-client==1.12.8  #@auto
 google-auth-httplib2==0.0.4  #@auto
-google-auth==1.23.0  #@auto
+google-auth==1.24.0  #@auto
 greenlet==0.4.17
 httptools==0.1.1
 kazoo==2.8.0

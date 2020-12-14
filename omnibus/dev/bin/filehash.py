@@ -5,13 +5,13 @@ import subprocess
 import time
 import typing as ta
 
-from .. import argparse as ap
-from .. import asyncs
-from .. import check
-from .. import dataclasses as dc
-from .. import json
-from .. import logs
-from .. import properties
+from ... import argparse as ap
+from ... import asyncs
+from ... import check
+from ... import dataclasses as dc
+from ... import json
+from ... import logs
+from ... import properties
 
 
 log = logging.getLogger(__name__)
