@@ -7,7 +7,7 @@ import sqlalchemy.pool
 from ... import lang
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def sqlite_engine() -> ta.Generator[sa.engine.Engine, None, None]:
     engine: sa.engine.Engine
     with lang.disposing(

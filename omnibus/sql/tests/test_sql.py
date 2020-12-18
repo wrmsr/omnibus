@@ -17,7 +17,7 @@ def test_pymysql():
     assert mysql_.pymysql_render_statement(sa.select([1])) == 'SELECT 1'
 
 
-def test_docker_mysql(harness: ptinj.Harness):
+def test_docker_mysql_mysqlconnector(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('mysql-master', 3306)]).values()
 
     engine: sa.engine.Engine
@@ -27,12 +27,32 @@ def test_docker_mysql(harness: ptinj.Harness):
             print(conn.scalar(sa.select([sa.func.version()])))
 
 
+def test_docker_mysql_pymysql(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('mysql-master', 3306)]).values()
+
+    engine: sa.engine.Engine
+    with lang.disposing(sa.create_engine(f'mysql+pymysql://omnibus:omnibus@{host}:{port}')) as engine:
+        with engine.connect() as conn:
+            print(list(conn.execute("show session status like 'Com_begin'")))
+            print(conn.scalar(sa.select([sa.func.version()])))
+
+
 @pytest.mark.no_ci
-def test_docker_postgres(harness: ptinj.Harness):
+def test_docker_postgres_psycopg2(harness: ptinj.Harness):
     [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
 
     engine: sa.engine.Engine
     with lang.disposing(sa.create_engine(f'postgresql+psycopg2://omnibus:omnibus@{host}:{port}')) as engine:
+        with engine.connect() as conn:
+            print(conn.scalar(sa.select([sa.func.version()])))
+
+
+@pytest.mark.no_ci
+def test_docker_postgres_pg8000(harness: ptinj.Harness):
+    [(host, port)] = harness[DockerManager].get_container_tcp_endpoints([('postgres-master', 5432)]).values()
+
+    engine: sa.engine.Engine
+    with lang.disposing(sa.create_engine(f'postgresql+pg8000://omnibus:omnibus@{host}:{port}')) as engine:
         with engine.connect() as conn:
             print(conn.scalar(sa.select([sa.func.version()])))
 

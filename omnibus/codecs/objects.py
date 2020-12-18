@@ -92,11 +92,25 @@ class BsonCodec(Codec[F, bytes], lang.Final):
 
     defs.repr()
 
+    @lang.cached_nullary  # noqa
+    @classmethod
+    def _fns(cls):
+        mod = cls._MODULE()
+        for ea, da in (
+                ('dumps', 'loads'),    # bson
+                ('encode', 'decode'),  # pymongo's bson
+        ):
+            if all(hasattr(mod, a) for a in (ea, da)):
+                efn = getattr(mod, ea)
+                dfn = getattr(mod, da)
+                return efn, dfn
+        raise RuntimeError('Cannot figure out bson dep')
+
     def encode(self, o: F) -> bytes:
-        return self._MODULE().encode(o)
+        return self._fns()[0](o)
 
     def decode(self, o: bytes) -> F:
-        return self._MODULE().decode(o)
+        return self._fns()[1](o)
 
 
 bson = BsonCodec

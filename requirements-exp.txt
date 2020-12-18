@@ -28,7 +28,7 @@ py-cpuinfo==7.0.0
 py==1.10.0
 Pygments==2.7.3
 pytz==2020.4
-requests==2.25.0
+requests==2.25.1
 rsa>=4.5.0  #@conflict
 scipy==1.5.4
 scramp==1.2.0
@@ -45,7 +45,7 @@ yarl==1.6.3
 bsddb3==6.2.9
 chardet>=3.0.4  #@conflict
 datadog==0.39.0
-ddtrace==0.44.0
+ddtrace==0.45.0
 dnspython==2.0.0
 duckdb==0.2.3
 elasticsearch==7.10.1
@@ -71,7 +71,7 @@ py4j>=0.10.9  #@conflict
 pyglet==1.5.11
 pyjwt==1.7.1
 pymc3==3.10.0
-Pyomo==5.7.1
+Pyomo==5.7.2
 pyroaring==0.2.9
 pyspark==3.0.1
 python-pcre==0.7

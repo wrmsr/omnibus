@@ -32,7 +32,7 @@ def test_greenlet():
     assert done == 2
 
 
-@pytest.yield_fixture()
+@pytest.fixture()
 def event_loop():
     old_loop = asyncio.get_event_loop()
     new_loop = asyncio.get_event_loop()
