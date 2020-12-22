@@ -18,7 +18,33 @@ class UnstableWarning(Warning):
     pass
 
 
+_PACKAGE_NAME = __package__.split('.')[0]
+
+
+def _is_internal_import(frame: ta.Optional[types.FrameType] = None) -> bool:
+    if frame is None:
+        frame = sys._getframe(1)  # noqa
+
+    while frame is not None:
+        mod = frame.f_globals.get('__package__')
+        if not mod or mod == 'importlib':
+            frame = frame.f_back
+        else:
+            break
+
+    if frame is not None:
+        mod = frame.f_globals.get('__package__')
+        if isinstance(mod, str):
+            mod_parts = mod.split('.')
+            if mod_parts[0] == _PACKAGE_NAME:
+                return True
+
+    return False
+
+
 def warn_unstable() -> None:
+    if _is_internal_import(sys._getframe(1)):  # noqa
+        return
     warnings.warn(f'{__package__.split(".")[0]} module is marked as unstable', category=UnstableWarning, stacklevel=2)
 
 
