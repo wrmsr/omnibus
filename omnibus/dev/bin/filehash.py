@@ -40,9 +40,18 @@ class Builder:
 
         self._entries_by_name: ta.MutableMapping[str, Entry] = {}
 
+    @property
+    def config(self) -> Config:
+        return self._config
+
+    @property
+    def entries_by_name(self) -> ta.Mapping[str, Entry]:
+        return self._entries_by_name
+
     @properties.cached
     def dir_path(self) -> str:
-        dir_path = os.path.abspath(self._config.dir_path if self._config.dir_path is not None else os.getcwd())
+        dir_path = os.path.abspath(
+            os.path.expanduser(self._config.dir_path) if self._config.dir_path is not None else os.getcwd())
         check.arg(os.path.isdir(dir_path))
         return dir_path
 
@@ -114,8 +123,17 @@ class Cli(ap.Cli):
             parallelism=self.parallelism,
             recursive=self.recursive,
         ))
+
         builder.build()
-        builder.print()
+
+        # builder.print()
+
+        entry_lists_by_hash: ta.Dict[str, ta.List[Entry]] = {}
+        for e in builder.entries_by_name.values():
+            entry_lists_by_hash.setdefault(e.md5, []).append(e)
+        for l in entry_lists_by_hash.values():
+            if len(l) > 1:
+                print(json.dumps([dc.asdict(e) for e in l], indent=True))
 
 
 def main():
