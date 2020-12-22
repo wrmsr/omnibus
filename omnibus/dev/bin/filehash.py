@@ -66,12 +66,14 @@ class Builder:
             if file_name in self._entries_by_name:
                 del self._entries_by_name[file_name]
             return
+        check.state(file_path.startswith(self.dir_path))
+        rel_file_path = file_path[len(self.dir_path):].lstrip(os.sep)
 
         htime = time.time()
         bmd5 = subprocess.check_output(['md5', '-q', file_path])
         md5 = bmd5.decode('utf-8').strip()
         entry = Entry(
-            name=file_name,
+            name=rel_file_path,
             htime=htime,
             size=os.path.getsize(file_path),
             mtime=os.path.getmtime(file_path),
