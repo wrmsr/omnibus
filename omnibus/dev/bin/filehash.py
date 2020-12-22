@@ -31,6 +31,7 @@ class Builder:
         dir_path: ta.Optional[str] = None
         file_name: str = '.filehash'
         parallelism: ta.Optional[int] = None
+        recursive: bool = False
 
     def __init__(self, config: Config = Config()) -> None:
         super().__init__()
@@ -51,7 +52,11 @@ class Builder:
         else:
             exe = asyncs.ImmediateExecutor()
         with exe:
-            futs = [exe.submit(self._build, fn) for fn in sorted(os.listdir(self.dir_path))]
+            if self._config.recursive:
+                fns = (os.path.join(dp, fn) for dp, dn, dfns in os.walk(self.dir_path) for fn in dfns)
+            else:
+                fns = os.listdir(self.dir_path)
+            futs = [exe.submit(self._build, fn) for fn in sorted(fns)]
             asyncs.await_futures(futs, raise_exceptions=True)
 
     def _build(self, file_name: str) -> None:
@@ -61,6 +66,7 @@ class Builder:
             if file_name in self._entries_by_name:
                 del self._entries_by_name[file_name]
             return
+
         htime = time.time()
         bmd5 = subprocess.check_output(['md5', '-q', file_path])
         md5 = bmd5.decode('utf-8').strip()
@@ -71,6 +77,7 @@ class Builder:
             mtime=os.path.getmtime(file_path),
             md5=md5,
         )
+
         self._entries_by_name[entry.name] = entry
 
     def build_content(self) -> ta.Any:
@@ -96,14 +103,14 @@ class Cli(ap.Cli):
 
     dir_path: str = ap.arg('-d', '--dir-path')
     parallelism: int = ap.arg('-p', '--parallelism')
+    recursive: bool = ap.arg('-r', '--recursive')
 
-    @ap.command(
-        ap.arg('-r', '--recursive', dest='recursive'),
-    )
+    @ap.command()
     def gen(self) -> None:
         builder = Builder(Builder.Config(
             dir_path=self.dir_path,
             parallelism=self.parallelism,
+            recursive=self.recursive,
         ))
         builder.build()
         builder.print()
