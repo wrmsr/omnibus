@@ -3,7 +3,7 @@
 # Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
 # Use of this file is governed by the BSD 3-clause license that
 # can be found in the LICENSE.txt file in the project root.
-# /
+#
 from functools import reduce
 from io import StringIO
 import threading
@@ -18,7 +18,6 @@ from .._vendor.antlr4.atn.ATNState import DecisionState
 from .._vendor.antlr4.atn.ATNState import RuleStopState
 from .._vendor.antlr4.atn.ATNState import StarLoopEntryState
 from .._vendor.antlr4.atn.LexerActionExecutor import LexerActionExecutor
-from .._vendor.antlr4.atn.SemanticContext import SemanticContext
 from .._vendor.antlr4.atn.Transition import Transition
 from .._vendor.antlr4.dfa.DFA import DFA as _DFA
 from .._vendor.antlr4.dfa.DFASerializer import DFASerializer
@@ -28,13 +27,22 @@ from .._vendor.antlr4.error.Errors import LexerNoViableAltException
 from .._vendor.antlr4.error.Errors import UnsupportedOperationException
 from .._vendor.antlr4.InputStream import InputStream
 from .._vendor.antlr4.Lexer import Lexer
+from .._vendor.antlr4.Token import Token
+from .._vendor.antlr4.Utils import str_list
+
+from .._vendor.antlr4.atn.SemanticContext import SemanticContext
 from .._vendor.antlr4.PredictionContext import getCachedPredictionContext
 from .._vendor.antlr4.PredictionContext import merge
 from .._vendor.antlr4.PredictionContext import PredictionContext
 from .._vendor.antlr4.PredictionContext import PredictionContextCache
 from .._vendor.antlr4.PredictionContext import SingletonPredictionContext
-from .._vendor.antlr4.Token import Token
-from .._vendor.antlr4.Utils import str_list
+
+# from ._accel2 import getCachedPredictionContext
+# from ._accel2 import merge
+# from ._accel2 import PredictionContext
+# from ._accel2 import PredictionContextCache
+# from ._accel2 import SemanticContext
+# from ._accel2 import SingletonPredictionContext
 
 
 class SimState:
