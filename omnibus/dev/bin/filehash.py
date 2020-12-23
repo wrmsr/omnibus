@@ -1,3 +1,7 @@
+"""
+TODO:
+ - prefill filenames with null hashes, resume build
+"""
 import concurrent.futures as cf
 import logging
 import os.path
