@@ -109,6 +109,9 @@ class Builder:
             futs = [exe.submit(self._build, fn) for fn in sorted(fns)]
             asyncs.await_futures(futs, raise_exceptions=True, timeout_s=60 * 60)
 
+        if self._config.write_interval is not None:
+            self.write()
+
     @logs.error_logging(log)
     def _build(self, file_name: str) -> None:
         log.info(f'Building {file_name}')
@@ -145,7 +148,7 @@ class Builder:
 
     def write(self) -> None:
         fp = os.path.join(self.dir_path, self._config.file_name)
-        log.info(f'Writing {fp}')
+        log.info(f'Writing {fp} with {len(self._state.entries_by_name)} items')
         content = self._state.to_json()
         with open(fp, 'w') as f:
             f.write(json.dumps(content, indent=True))
