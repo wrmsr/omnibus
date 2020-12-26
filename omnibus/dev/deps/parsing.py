@@ -27,6 +27,26 @@ class NameDep(dc.Pure):
     vers: ta.Sequence[Version]
 
 
+class Marker(dc.Enum):
+    pass
+
+
+class MarkerAnd(Marker):
+    left: Marker
+    right: Marker
+
+
+class MarkerOr(Marker):
+    left: Marker
+    right: Marker
+
+
+class MarkerExpr(Marker):
+    left: str
+    op: str
+    right: str
+
+
 class _ParseVisitor(Pep508Visitor):
 
     def aggregateResult(self, aggregate, nextResult):
@@ -37,6 +57,30 @@ class _ParseVisitor(Pep508Visitor):
 
     def visitIdentifier(self, ctx: Pep508Parser.IdentifierContext):
         return ctx.getText()
+
+    def visitMarkerAnd(self, ctx: Pep508Parser.MarkerAndContext):
+        if len(ctx.markerExpr()) >= 1:
+            return MarkerAnd(*[self.visit(m) for m in ctx.markerExpr()])
+        else:
+            return self.visit(check.single(ctx.markerExpr()))
+
+    def visitMarkerExpr(self, ctx: Pep508Parser.MarkerExprContext):
+        if ctx.markerOp() is not None:
+            left, right = [m.getText() for m in ctx.markerVar()]
+            op = ctx.markerOp().getText()
+            return MarkerExpr(
+                left=left,
+                op=op,
+                right=right,
+            )
+        else:
+            return self.visit(ctx.marker())
+
+    def visitMarkerOr(self, ctx: Pep508Parser.MarkerOrContext):
+        if len(ctx.markerAnd()) >= 1:
+            return MarkerOr(*[self.visit(m) for m in ctx.markerAnd()])
+        else:
+            return self.visit(check.single(ctx.markerAnd()))
 
     def visitNameReq(self, ctx: Pep508Parser.NameReqContext):
         name = self.visit(ctx.name())
