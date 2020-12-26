@@ -3,9 +3,11 @@ TODO:
  - prefill filenames with null hashes, resume build
 """
 import concurrent.futures as cf
+import contextlib
 import logging
 import os.path
 import subprocess
+import threading
 import time
 import typing as ta
 
@@ -21,12 +23,38 @@ from ... import properties
 log = logging.getLogger(__name__)
 
 
+EntryMap = ta.MutableMapping[str, 'Entry']
+
+
 class Entry(dc.Pure):
     name: str
     htime: float
     size: int
     mtime: float
     md5: str
+
+
+class State(dc.Pure):
+    entries_by_name: EntryMap
+
+    def to_json(self) -> ta.Any:
+        return {
+            e.name: {
+                k: v
+                for k, v in dc.asdict(e).items()
+                if k != 'name'
+            }
+            for e in sorted(self.entries_by_name.values(), key=lambda e: e.name)
+        }
+
+    @classmethod
+    def from_json(cls, obj: ta.Mapping[str, ta.Mapping[str, ta.Any]]) -> 'State':
+        return cls(
+            entries_by_name={
+                n: Entry(name=n, **d)
+                for n, d in obj.items()
+            }
+        )
 
 
 class Builder:
@@ -36,21 +64,22 @@ class Builder:
         file_name: str = '.filehash'
         parallelism: ta.Optional[int] = None
         recursive: bool = False
+        write_interval: ta.Optional[ta.Union[int, float]] = None
 
     def __init__(self, config: Config = Config()) -> None:
         super().__init__()
 
         self._config = check.isinstance(config, Builder.Config)
 
-        self._entries_by_name: ta.MutableMapping[str, Entry] = {}
+        self._state: State = State({})
 
     @property
     def config(self) -> Config:
         return self._config
 
     @property
-    def entries_by_name(self) -> ta.Mapping[str, Entry]:
-        return self._entries_by_name
+    def state(self) -> State:
+        return self._state
 
     @properties.cached
     def dir_path(self) -> str:
@@ -59,25 +88,34 @@ class Builder:
         check.arg(os.path.isdir(dir_path))
         return dir_path
 
-    def build(self) -> None:
-        if self._config.parallelism is not None and self._config.parallelism > 0:
-            exe = cf.ThreadPoolExecutor(self._config.parallelism)
+    def _scan_files(self) -> ta.AbstractSet[str]:
+        if self._config.recursive:
+            fns = (os.path.join(dp, fn) for dp, dn, dfns in os.walk(self.dir_path) for fn in dfns)
         else:
-            exe = asyncs.ImmediateExecutor()
-        with exe:
-            if self._config.recursive:
-                fns = (os.path.join(dp, fn) for dp, dn, dfns in os.walk(self.dir_path) for fn in dfns)
-            else:
-                fns = os.listdir(self.dir_path)
-            futs = [exe.submit(self._build, fn) for fn in sorted(fns)]
-            asyncs.await_futures(futs, raise_exceptions=True)
+            fns = os.listdir(self.dir_path)
+        return set(fns)
 
+    def build(self) -> None:
+        with contextlib.ExitStack() as es:
+            if self._config.write_interval is not None:
+                es.enter_context(self._Writer(self))
+
+            if self._config.parallelism is not None and self._config.parallelism > 0:
+                exe = es.enter_context(cf.ThreadPoolExecutor(self._config.parallelism))
+            else:
+                exe = asyncs.ImmediateExecutor()
+
+            fns = self._scan_files()
+            futs = [exe.submit(self._build, fn) for fn in sorted(fns)]
+            asyncs.await_futures(futs, raise_exceptions=True, timeout_s=60 * 60)
+
+    @logs.error_logging(log)
     def _build(self, file_name: str) -> None:
         log.info(f'Building {file_name}')
         file_path = os.path.abspath(os.path.join(self.dir_path, file_name))
         if not os.path.isfile(file_path):
-            if file_name in self._entries_by_name:
-                del self._entries_by_name[file_name]
+            if file_name in self._state.entries_by_name:
+                del self._state.entries_by_name[file_name]
             return
         check.state(file_path.startswith(self.dir_path))
         rel_file_path = file_path[len(self.dir_path):].lstrip(os.sep)
@@ -93,25 +131,50 @@ class Builder:
             md5=md5,
         )
 
-        self._entries_by_name[entry.name] = entry
-
-    def build_content(self) -> ta.Any:
-        return {
-            e.name: {
-                k: v
-                for k, v in dc.asdict(e).items()
-                if k != 'name'
-            }
-            for e in sorted(self._entries_by_name.values(), key=lambda e: e.name)
-        }
+        self._state.entries_by_name[entry.name] = entry
 
     def write(self) -> None:
-        content = self.build_content()
-        with open(os.path.join(self.dir_path, self._config.file_name), 'w') as f:
+        fp = os.path.join(self.dir_path, self._config.file_name)
+        log.info(f'Writing {fp}')
+        content = self._state.to_json()
+        with open(fp, 'w') as f:
             f.write(json.dumps(content, indent=True))
 
-    def print(self) -> None:
-        print(json.dumps(self.build_content(), indent=True))
+    def read(self) -> ta.Optional[EntryMap]:
+        fp = os.path.join(self.dir_path, self._config.file_name)
+        if not os.path.isfile(fp):
+            return None
+        with open(fp, 'r') as f:
+            json.loads(f.read())
+
+    class _Writer:
+
+        def __init__(self, builder: 'Builder') -> None:
+            super().__init__()
+            self._builder = builder
+            self._thread: ta.Optional[threading.Thread] = None
+            self._event = threading.Event()
+
+        def __enter__(self) -> 'Builder._Writer':
+            check.none(self._thread)
+            self._thread = threading.Thread(target=self._proc, daemon=True)
+            self._thread.start()
+            return self
+
+        @logs.error_logging(log)
+        def _proc(self) -> None:
+            log.info(f'Writer thread entering')
+            while True:
+                if self._event.wait(self._builder._config.write_interval):
+                    break
+                self._builder.write()
+            log.info(f'Writer thread exiting')
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if self._thread is not None:
+                self._event.set()
+                self._thread.join()
+            return None
 
 
 class Cli(ap.Cli):
@@ -126,14 +189,13 @@ class Cli(ap.Cli):
             dir_path=self.dir_path,
             parallelism=self.parallelism,
             recursive=self.recursive,
+            write_interval=5,
         ))
 
         builder.build()
 
-        # builder.print()
-
         entry_lists_by_hash: ta.Dict[str, ta.List[Entry]] = {}
-        for e in builder.entries_by_name.values():
+        for e in builder.state.entries_by_name.values():
             entry_lists_by_hash.setdefault(e.md5, []).append(e)
         for l in entry_lists_by_hash.values():
             if len(l) > 1:
