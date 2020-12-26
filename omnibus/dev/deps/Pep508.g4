@@ -44,7 +44,6 @@ specification = wsp* ( url_req | name_req ):s wsp* -> s
 # The result is a tuple - name, list-of-extras,
 # list-of-version-constraints-or-a-url, marker-ast or None
 
-
 URI_reference = <URI | relative_ref>
 URI           = scheme ':' hier_part ('?' query )? ( '#' fragment)?
 hier_part     = ('//' authority path_abempty) | path_absolute | path_rootless | path_empty
@@ -211,7 +210,7 @@ envVar
     | 'platform_python_implementation'
     | 'implementation_name'
     | 'implementation_version'
-    | 'extra' // ONLY when defined by a containing layer
+    | 'extra'  // ONLY when defined by a containing layer
     ;
 
 pythonStr
