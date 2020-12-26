@@ -105,7 +105,7 @@ class Builder:
             else:
                 exe = asyncs.ImmediateExecutor()
 
-            fns = self._scan_files()
+            fns = self._scan_files() | set(self._state.entries_by_name)
             futs = [exe.submit(self._build, fn) for fn in sorted(fns)]
             asyncs.await_futures(futs, raise_exceptions=True, timeout_s=60 * 60)
 
@@ -117,19 +117,29 @@ class Builder:
             if file_name in self._state.entries_by_name:
                 del self._state.entries_by_name[file_name]
             return
+
         check.state(file_path.startswith(self.dir_path))
         rel_file_path = file_path[len(self.dir_path):].lstrip(os.sep)
 
         htime = time.time()
-        bmd5 = subprocess.check_output(['md5', '-q', file_path])
-        md5 = bmd5.decode('utf-8').strip()
-        entry = Entry(
-            name=rel_file_path,
-            htime=htime,
-            size=os.path.getsize(file_path),
-            mtime=os.path.getmtime(file_path),
-            md5=md5,
-        )
+
+        size = os.path.getsize(file_path)
+        mtime = os.path.getmtime(file_path)
+
+        entry = self._state.entries_by_name.get(rel_file_path)
+        if entry is not None and entry.size == size and int(entry.mtime) == int(mtime):
+            entry = dc.replace(entry, htime=htime)
+
+        else:
+            bmd5 = subprocess.check_output(['md5', '-q', file_path])
+            md5 = bmd5.decode('utf-8').strip()
+            entry = Entry(
+                name=rel_file_path,
+                htime=htime,
+                size=size,
+                mtime=mtime,
+                md5=md5,
+            )
 
         self._state.entries_by_name[entry.name] = entry
 
@@ -140,12 +150,19 @@ class Builder:
         with open(fp, 'w') as f:
             f.write(json.dumps(content, indent=True))
 
-    def read(self) -> ta.Optional[EntryMap]:
+    def read(self) -> ta.Optional[State]:
         fp = os.path.join(self.dir_path, self._config.file_name)
         if not os.path.isfile(fp):
             return None
         with open(fp, 'r') as f:
-            json.loads(f.read())
+            content = json.loads(f.read())
+        return State.from_json(content)
+
+    def load(self) -> None:
+        state = self.read()
+        if state is None:
+            state = State({})
+        self._state = state
 
     class _Writer:
 
@@ -192,6 +209,7 @@ class Cli(ap.Cli):
             write_interval=5,
         ))
 
+        builder.load()
         builder.build()
 
         entry_lists_by_hash: ta.Dict[str, ta.List[Entry]] = {}
