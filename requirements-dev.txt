@@ -3,7 +3,7 @@
 
 ## packaging deps
 
-twine==3.2.0
+twine==3.3.0
 wheel>=0.36.0
 
 
@@ -39,7 +39,7 @@ mycli==1.22.2
 mypy==0.790
 objgraph==3.5.0
 pgcli==3.1.0
-pipdeptree==1.0.0
+pipdeptree==2.0.0
 prompt-toolkit==3.0.8
 pyflakes==2.2.0
 pyrasite==2.0
