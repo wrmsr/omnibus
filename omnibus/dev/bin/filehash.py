@@ -4,6 +4,7 @@ TODO:
 """
 import concurrent.futures as cf
 import contextlib
+import gzip
 import logging
 import os.path
 import subprocess
@@ -155,17 +156,25 @@ class Builder:
 
     def write(self) -> None:
         fp = os.path.join(self.dir_path, self._config.file_name)
-        log.info(f'Writing {fp} with {len(self._state.entries_by_name)} items')
+        sz = sum(e.size for e in self._state.entries_by_name.values())
         content = self._state.to_json()
-        with open(fp, 'w') as f:
-            f.write(json.dumps(content, indent=True))
+        buf = json.dumps(content, indent=True)
+        buf = gzip.compress(buf.encode('utf-8'))
+        with open(fp, 'wb') as f:
+            f.write(buf)
+        log.info(f'Wrote {fp} with {len(self._state.entries_by_name)} items, {sz:,} bytes, {len(buf):,} filesize')
 
     def read(self) -> ta.Optional[State]:
         fp = os.path.join(self.dir_path, self._config.file_name)
         if not os.path.isfile(fp):
             return None
-        with open(fp, 'r') as f:
-            content = json.loads(f.read())
+        with open(fp, 'rb') as f:
+            buf = f.read()
+        try:
+            buf = gzip.decompress(buf)
+        except gzip.BadGzipFile:
+            pass
+        content = json.loads(buf.decode('utf-8'))
         return State.from_json(content)
 
     def load(self) -> None:
