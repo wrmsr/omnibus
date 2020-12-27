@@ -1,6 +1,6 @@
 """
 TODO:
- - prefill filenames with null hashes, resume build
+ - ignore state file
 """
 import concurrent.futures as cf
 import contextlib
@@ -87,6 +87,10 @@ class Builder:
             os.path.expanduser(self._config.dir_path) if self._config.dir_path is not None else os.getcwd())
         check.arg(os.path.isdir(dir_path))
         return dir_path
+
+    @properties.cached
+    def state_file_path(self) -> str:
+        return os.path.join(self.dir_path, self._config.file_name)
 
     def _scan_files(self) -> ta.AbstractSet[str]:
         if self._config.recursive:
