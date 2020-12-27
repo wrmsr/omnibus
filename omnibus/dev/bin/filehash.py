@@ -72,6 +72,7 @@ class Builder:
         self._config = check.isinstance(config, Builder.Config)
 
         self._state: State = State({})
+        self._version = 0
 
     @property
     def config(self) -> Config:
@@ -123,6 +124,7 @@ class Builder:
         if not os.path.isfile(file_path):
             if file_name in self._state.entries_by_name:
                 del self._state.entries_by_name[file_name]
+                self._version += 1
             return
 
         check.state(file_path.startswith(self.dir_path))
@@ -149,6 +151,7 @@ class Builder:
             )
 
         self._state.entries_by_name[entry.name] = entry
+        self._version += 1
 
     def write(self) -> None:
         fp = os.path.join(self.dir_path, self._config.file_name)
@@ -170,6 +173,7 @@ class Builder:
         if state is None:
             state = State({})
         self._state = state
+        self._version += 1
 
     class _Writer:
 
@@ -188,10 +192,14 @@ class Builder:
         @logs.error_logging(log)
         def _proc(self) -> None:
             log.info(f'Writer thread entering')
+            version = -1
             while True:
                 if self._event.wait(self._builder._config.write_interval):
                     break
-                self._builder.write()
+                cur_version = self._builder._version
+                if cur_version != version:
+                    self._builder.write()
+                    version = cur_version
             log.info(f'Writer thread exiting')
 
         def __exit__(self, exc_type, exc_val, exc_tb):
