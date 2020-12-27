@@ -221,7 +221,7 @@ class Cli(ap.Cli):
             dir_path=self.dir_path,
             parallelism=self.parallelism,
             recursive=self.recursive,
-            write_interval=5,
+            write_interval=60,
         ))
 
         builder.load()
