@@ -1,6 +1,7 @@
 """
 TODO:
  - ignore state file
+ - % done
 """
 import concurrent.futures as cf
 import contextlib

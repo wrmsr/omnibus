@@ -1,3 +1,9 @@
+"""
+TODO:
+ - comments, hot comments
+ - rendering, identical output
+ - link peps in g4
+"""
 import typing as ta
 
 from ... import antlr
