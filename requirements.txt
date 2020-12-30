@@ -6,8 +6,8 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.16.43  #@auto
-botocore==1.19.43  #@auto
+boto3==1.16.46  #@auto
+botocore==1.19.46  #@auto
 cbor==1.0.0
 cytoolz==0.11.0
 docker==4.4.1
@@ -30,7 +30,7 @@ PyHive[hive]==0.6.3; python_version < '3.9'
 pymemcache==3.4.0
 pymongo==3.11.2
 PyMySQL==0.10.1
-pyobjc-core==7.0.1; sys_platform == 'darwin'
+pyobjc-core==7.1; sys_platform == 'darwin'
 pyrsistent==0.17.3
 python-dateutil==2.8.1
 PyYAML==5.3.1
