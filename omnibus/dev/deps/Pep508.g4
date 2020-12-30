@@ -1,4 +1,12 @@
 /*
+https://www.python.org/dev/peps/pep-0508/#grammar
+
+https://www.python.org/dev/peps/pep-0345/ Python distribution metadata version 1.2.
+https://www.python.org/dev/peps/pep-0426/ Python distribution metadata.
+https://www.python.org/dev/peps/pep-0440/ Python distribution metadata.
+https://tools.ietf.org/html/rfc3986 The URL specification.
+
+
 wsp           = ' ' | '\t'
 version_cmp   = wsp* <'<=' | '<' | '!=' | '==' | '>=' | '>' | '~=' | '==='>
 version       = wsp* <( letterOrDigit | '-' | '_' | '.' | '*' | '+' | '!' )+>
