@@ -9,6 +9,7 @@ import typing as ta
 from ... import antlr
 from ... import check
 from ... import dataclasses as dc
+from ... import dispatch
 from ..._vendor import antlr4
 from ._antlr.Pep508Lexer import Pep508Lexer  # type: ignore
 from ._antlr.Pep508Parser import Pep508Parser  # type: ignore
@@ -22,18 +23,23 @@ def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
     return check.single([v for v in cls.__members__.values() if v.value == value])
 
 
-class Version(dc.Pure):
+class Node(dc.Enum):
+    pass
+
+
+class Version(Node):
     op: str
     val: str
 
 
-class NameDep(dc.Pure):
+class NameDep(Node):
     name: str
     extras: ta.Sequence[str]
     vers: ta.Sequence[Version]
+    marker: ta.Optional['Marker'] = None
 
 
-class Marker(dc.Enum):
+class Marker(Node, abstract=True):
     pass
 
 
@@ -51,6 +57,37 @@ class MarkerExpr(Marker):
     left: str
     op: str
     right: str
+
+
+class Renderer(dispatch.Class):
+    __call__ = dispatch.property()
+
+    def __call__(self, node: Node) -> str:  # noqa
+        raise TypeError(node)
+
+    def __call__(self, node: MarkerAnd) -> str:  # noqa
+        raise NotImplementedError
+
+    def __call__(self, node: MarkerExpr) -> str:  # noqa
+        raise NotImplementedError
+
+    def __call__(self, node: MarkerOr) -> str:  # noqa
+        raise NotImplementedError
+
+    def __call__(self, node: NameDep) -> str:  # noqa
+        return ''.join([
+            node.name,
+            ('[' + ','.join(e for e in node.extras) + ']') if node.extras else '',
+            ','.join(self(v) for v in node.vers),
+            ('; ' + self(node.marker)) if node.marker is not None else '',
+        ])
+
+    def __call__(self, node: Version) -> str:  # noqa
+        return node.op + node.val
+
+
+def render(node: Node) -> str:
+    return Renderer()(node)
 
 
 class _ParseVisitor(Pep508Visitor):
