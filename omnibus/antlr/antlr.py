@@ -172,3 +172,12 @@ def pformat(node, *, buf: ta.IO = None, indent: str = '', child_indent: str = ' 
     for child in getattr(node, 'children', []) or []:
         pformat(child, buf=buf, indent=indent + child_indent, child_indent=child_indent)
     return buf
+
+
+def yield_contexts(root: antlr4.ParserRuleContext) -> ta.Iterator[antlr4.ParserRuleContext]:
+    q = [root]
+    while q:
+        c = q.pop()
+        yield c
+        if not isinstance(c, antlr4.TerminalNode):
+            q.extend(c.children)
