@@ -46,6 +46,7 @@ TODO:
   - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
  - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
  - om.properties *hooks*? dc-awareness injected by importing dc? make lazyprop know to _-prefix?
+  - ** explicit support for cached at least **
  - memoize predicate/factory/specialmethod?
   - workaround its done in .of() lols
 """

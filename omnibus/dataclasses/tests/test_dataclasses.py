@@ -824,3 +824,19 @@ def test_class_md_kw():
         f: int
 
     assert api_.metadatas_dict(C)[TestKw].o == 420
+
+
+def test_cached_property():
+    @api_.dataclass(frozen=True)
+    class C:
+        x: int
+
+        @properties.cached
+        def y(self) -> int:
+            return self.x + 1
+
+    with pytest.raises(dc.FrozenInstanceError):
+        C(2).x = 1
+    assert C(2).y == 3
+    with pytest.raises(dc.FrozenInstanceError):
+        C(2).z = 1
