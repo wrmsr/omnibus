@@ -18,7 +18,7 @@ class Annotation(nodal.Annotation):
     pass
 
 
-class Node(nodal.Nodal['Node', Annotation], repr=False, sealed='package'):
+class Node(nodal.Nodal['Node', Annotation], sealed='package'):
     pass
 
 

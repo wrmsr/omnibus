@@ -167,6 +167,19 @@ class Stmt(Item, abstract=True):
     pass
 
 
+class RawStmt(Stmt):
+    raw: str
+
+    @classmethod
+    def of(cls, obj: ta.Union['RawStmt', str]) -> 'RawStmt':  # type: ignore
+        if isinstance(obj, RawStmt):
+            return obj
+        elif isinstance(obj, str):
+            return RawStmt(obj)
+        else:
+            raise TypeError(obj)
+
+
 class Edge(Stmt):
     left: Id = dc.field(coerce=Id.of)
     right: Id = dc.field(coerce=Id.of)
@@ -233,6 +246,10 @@ class Renderer(disp.Class):
                 self(v)
                 self._out.write('>')
             self._out.write(']')
+
+    def __call__(self, item: RawStmt) -> None:  # type: ignore  # noqa
+        self._out.write(item.raw)
+        self._out.write('\n')
 
     def __call__(self, item: Edge) -> None:  # type: ignore  # noqa
         self(item.left)

@@ -74,9 +74,11 @@ def test_exprs():
         '1&2&3\n',
         '1<<2>>3\n',
         'f(1)\n',
+        '[1]\n',
     ]:
-        print(src)
+        print(src.strip())
         print(parsing.parse(src))
+        print()
 
 
 def test_nodes():
