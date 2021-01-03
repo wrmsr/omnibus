@@ -698,8 +698,16 @@ def test_kwonly2():
 
 
 def test_allow_setattr():
-    @api_.dataclass(frozen=True, allow_setattr=True)
+    @api_.dataclass(frozen=True)
     class C:
+        a: int
+
+    c = C(1)
+    with pytest.raises(dc.FrozenInstanceError):
+        c.b = 2
+
+    @api_.dataclass(frozen=True, allow_setattr=True)
+    class C:  # noqa
         a: int
 
     c = C(2)
@@ -720,6 +728,16 @@ def test_allow_setattr():
     del c.b
     with pytest.raises(AttributeError):
         c.b  # noqa
+
+    @api_.dataclass(frozen=True, allow_setattr='_')
+    class C:  # noqa
+        a: int
+
+    c = C(1)
+    with pytest.raises(dc.FrozenInstanceError):
+        c.b = 2
+    c._b = 2
+    assert c._b == 2
 
 
 def test_metadata():

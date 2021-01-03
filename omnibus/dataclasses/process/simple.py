@@ -273,25 +273,40 @@ class Frozen(Aspect):
         if not self.ctx.params.frozen:
             return
 
-        if not self.ctx.extra_params.allow_setattr:
-            slots = [s for a in self.ctx.aspects for s in a.slots]
-            locals = {
-                'cls': self.ctx.cls,
-                'FrozenInstanceError': dc.FrozenInstanceError,
-                'allowed': frozenset(self.ctx.spec.fields.by_name) | frozenset(slots),
-            }
+        attr_predicate = None
+        allow_setattr = self.ctx.extra_params.allow_setattr
+        if isinstance(allow_setattr, str):
+            if allow_setattr == '_':
+                attr_predicate = "name.startswith('_')"
+            else:
+                raise ValueError(allow_setattr)
+        elif isinstance(allow_setattr, bool):
+            if allow_setattr:
+                return
+        else:
+            raise TypeError(allow_setattr)
 
-            for fnname in ['__setattr__', '__delattr__']:
-                args = ['name'] + (['value'] if fnname == '__setattr__' else [])
-                fn = code.create_function(
-                    fnname,
-                    code.ArgSpec(['self'] + args),
-                    '\n'.join([
-                        f'if type(self) is cls and name in allowed:',
-                        f'    raise FrozenInstanceError(f"cannot assign to field {{name!r}}")',
-                        f'super(cls, self).{fnname}({", ".join(args)})',
-                    ]),
-                    locals=locals,
-                    globals=self.ctx.spec.globals,
-                )
-                self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)
+        slots = [s for a in self.ctx.aspects for s in a.slots]
+        locals = {
+            'cls': self.ctx.cls,
+            'FrozenInstanceError': dc.FrozenInstanceError,
+            'attr_names': frozenset(self.ctx.spec.fields.by_name) | frozenset(slots),
+        }
+
+        for fnname in ['__setattr__', '__delattr__']:
+            args = ['name'] + (['value'] if fnname == '__setattr__' else [])
+            pred = 'type(self) is cls or name in attr_names'
+            if attr_predicate:
+                pred = f'not {attr_predicate} and ({pred})'
+            fn = code.create_function(
+                fnname,
+                code.ArgSpec(['self'] + args),
+                '\n'.join([
+                    f'if {pred}:',
+                    f'    raise FrozenInstanceError(f"cannot assign to field {{name!r}}")',
+                    f'object.{fnname}(self, {", ".join(args)})',
+                ]),
+                locals=locals,
+                globals=self.ctx.spec.globals,
+            )
+            self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)

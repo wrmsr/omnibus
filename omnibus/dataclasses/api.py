@@ -45,7 +45,6 @@ TODO:
  - dc.touch
   - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
  - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
- - ** allow_setattr='_' - TREAT AS ALLOWED PREFIX
  - om.properties *hooks*? dc-awareness injected by importing dc? make lazyprop know to _-prefix?
  - memoize predicate/factory/specialmethod?
   - workaround its done in .of() lols
@@ -277,7 +276,7 @@ def dataclass(
         cache_hash: ta.Union[bool, str, MISSING_TYPE] = MISSING,
         pickle: ta.Union[bool, MISSING_TYPE] = MISSING,
         reorder: ta.Union[bool, MISSING_TYPE] = MISSING,
-        allow_setattr: ta.Union[bool, MISSING_TYPE] = MISSING,
+        allow_setattr: ta.Union[bool, str, MISSING_TYPE] = MISSING,
         mangler: ta.Union[Mangler, MISSING_TYPE] = MISSING,
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,
         confer: ta.Union[None, ta.Sequence[str], ta.Mapping[str, ta.Any], MISSING_TYPE] = MISSING,
