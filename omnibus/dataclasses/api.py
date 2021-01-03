@@ -45,6 +45,10 @@ TODO:
  - dc.touch
   - dc.property? cached if frozen? dc.init then? dc.eager vs dc.lazy? properties.cached but dc aware?
  - want frozen + internal fields - dc.PrivateVar? per-field frozen? both
+ - ** allow_setattr='_' - TREAT AS ALLOWED PREFIX
+ - om.properties *hooks*? dc-awareness injected by importing dc? make lazyprop know to _-prefix?
+ - memoize predicate/factory/specialmethod?
+  - workaround its done in .of() lols
 """
 import collections
 import collections.abc

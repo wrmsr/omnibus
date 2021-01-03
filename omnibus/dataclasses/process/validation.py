@@ -2,6 +2,7 @@ import functools
 import typing as ta
 
 from ... import check
+from ... import properties
 from ..types import Checker
 from ..types import CheckException
 from ..types import ExtraFieldParams
@@ -11,6 +12,7 @@ from .bootstrap import Fields
 from .types import Aspect
 from .types import attach
 from .utils import get_flat_fn_args
+from .utils import fn_has_descriptor
 
 
 class Validation(Aspect):
@@ -32,6 +34,22 @@ class Validation(Aspect):
             super().__init__(*args, **kwargs)
 
             self._loaded_fields: ta.Dict[str, str] = {}
+            self._cls_name: ta.Optional[str] = None
+
+        @properties.cached
+        def fns(self) -> ta.AbstractSet[ta.Callable]:
+            return {
+                *[vld.fn for vld in self.fctx.ctx.spec.rmro_extras_by_cls[Validator]],
+                *[chk.fn for chk in self.fctx.ctx.spec.rmro_extras_by_cls[Checker]],
+            }
+
+        def build_cls_lines(self) -> ta.List[str]:
+            check.none(self._cls_name)
+            ret = []
+            if any(fn_has_descriptor(fn) for fn in self.fns):
+                self._cls_name = self.fctx.nsb.put(None, 'cls')
+                ret.append(f'{self._cls_name} = {self.fctx.self_name}.__class__')
+            return ret
 
         def load_field(self, field: str, lines: ta.List[str]) -> str:
             try:
@@ -78,8 +96,11 @@ class Validation(Aspect):
                 vld_args = get_flat_fn_args(vld.fn)
                 if not any(arg in fields for arg in vld_args):
                     continue
+                fn = self.fctx.nsb.put(vld.fn)
+                if fn_has_descriptor(vld.fn):
+                    fn = f'{fn}.__get__(None, {check.not_none(self._cls_name)})'
                 ldct = self.load_fields(vld_args, fields, ret)
-                ret.append(f'{self.fctx.nsb.put(vld.fn)}({", ".join(ldct[a] for a in vld_args)})')
+                ret.append(f'{fn}({", ".join(ldct[a] for a in vld_args)})')
             return ret
 
         def build_check_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
@@ -116,16 +137,20 @@ class Validation(Aspect):
                 chk_args = get_flat_fn_args(chk.fn)
                 if not any(arg in fields for arg in chk_args):
                     continue
+                fn = self.fctx.nsb.put(chk.fn)
+                if fn_has_descriptor(chk.fn):
+                    fn = f'{fn}.__get__(None, {check.not_none(self._cls_name)})'
                 ldct = self.load_fields(chk_args, fields, ret)
                 bound_build_chk_exc = functools.partial(self.aspect.raise_check_exception, chk, chk_args)
                 ret.append(
-                    f'if not {self.fctx.nsb.put(chk.fn)}({", ".join(ldct[a] for a in chk_args)}): '
+                    f'if not {fn}({", ".join(ldct[a] for a in chk_args)}): '
                     f'{self.fctx.nsb.put(bound_build_chk_exc)}({", ".join(ldct[a] for a in chk_args)})'
                 )
             return ret
 
         def build_validation_lines(self, fields: ta.AbstractSet[str]) -> ta.List[str]:
             return [
+                *self.build_cls_lines(),
                 *self.build_validate_lines(fields),
                 *self.build_validator_lines(fields),
                 *self.build_check_lines(fields),

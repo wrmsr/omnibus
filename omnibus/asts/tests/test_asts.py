@@ -80,7 +80,7 @@ def test_exprs():
 
 
 def test_nodes():
-    print(nodes.Assign('a', 'b', type_comment='c'))
+    print(nodes.Assign([nodes.Name('a')], nodes.Name('b'), type_comment='c'))
 
 
 @pytest.mark.xfail()

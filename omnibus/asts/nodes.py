@@ -5,9 +5,9 @@ import ast  # noqa
 import enum
 import typing as ta
 
-from .. import collections as ocol
 from .. import dataclasses as dc
 from .. import lang
+from .. import nodal
 
 
 Strs = ta.Sequence[str]
@@ -73,7 +73,11 @@ class FormatConversion(lang.ValueEnum):
     ASCII = 3
 
 
-class Node(dc.Enum, abstract=True, sealed=True, reorder=True):
+class Annotation(nodal.Annotation):
+    pass
+
+
+class Node(nodal.Nodal['Node', Annotation], repr=False, sealed='package'):
     pass
 
 
@@ -174,11 +178,16 @@ class Break(Stmt):
     pass
 
 
+class Kwarg(Node):
+    name: str
+    value: Expr
+
+
 class ClassDef(Stmt):
     name: str
     bases: Exprs
     body: Stmts
-    kwargs: ta.Mapping[str, Expr] = ocol.frozendict()
+    kwargs: ta.Sequence[Kwarg] = ()
     decorators: Exprs = ()
 
 
@@ -287,7 +296,7 @@ class Bytes(Expr):
 class Call(Expr):
     func: Expr
     args: Exprs = ()
-    kwargs: ta.Mapping[str, Expr] = ocol.frozendict()
+    kwargs: ta.Sequence[Kwarg] = ()
 
 
 class Compare(Expr):

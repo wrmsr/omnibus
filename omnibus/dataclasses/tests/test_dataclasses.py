@@ -120,6 +120,27 @@ def test_check():
     with pytest.raises(Exception):
         D('5')
 
+    @api_.dataclass()
+    class E:
+        x: int
+        y: int
+
+        @api_.check_
+        @staticmethod
+        def s(x, y):
+            s.add(('s', x, y))
+            return True
+
+        @api_.check_
+        @classmethod
+        def c(cls, x, y):
+            s.add(('c', cls, x, y))
+            return True
+
+    s = set()
+    E(2, 3)
+    assert s == {('s', 2, 3), ('c', E, 2, 3)}
+
 
 def test_validate():
     def raise_if_falsey(o):

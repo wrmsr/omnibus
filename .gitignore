@@ -1,9 +1,12 @@
 **/*.dSYM/
+**/.benchmarks/
+**/.cache/
 **/.DS_Store
 **/.idea/
 **/.revision
 *.dylib
 *.exe
+*.out
 *.pstats
 *.pstats.pdf
 *.pstats.png
@@ -12,8 +15,6 @@
 *.so
 *.sock
 *.swp
-/.benchmarks/
-/.cache/
 /.env
 /.mypy_cache/
 /.pytest_cache/
