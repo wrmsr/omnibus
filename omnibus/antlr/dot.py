@@ -20,7 +20,7 @@ def dot_ctx(root: antlr4.ParserRuleContext) -> dot.Graph:
 
         stmts.append(dot.Node(f'_{id(c)}', {'label': lbl, 'shape': 'box'}))
 
-        for n in c.children:
+        for n in (c.children or []):
             if not isinstance(n, antlr4.TerminalNode):
                 stmts.append(dot.Edge(f'_{id(c)}', f'_{id(n)}'))
 

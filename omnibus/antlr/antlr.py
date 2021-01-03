@@ -179,5 +179,5 @@ def yield_contexts(root: antlr4.ParserRuleContext) -> ta.Iterator[antlr4.ParserR
     while q:
         c = q.pop()
         yield c
-        if not isinstance(c, antlr4.TerminalNode):
+        if not isinstance(c, antlr4.TerminalNode) and c.children:
             q.extend(c.children)

@@ -77,8 +77,14 @@ def test_exprs():
         '[1]\n',
     ]:
         print(src.strip())
-        print(parsing.parse(src))
+        root = parsing.parse(src)
+        print(root)
         print()
+
+        # from ...antlr import dot
+        # from ..._vendor import antlr4
+        # dot.open_dot_ctx(root.meta[antlr4.ParserRuleContext])
+        # input()
 
 
 def test_nodes():
