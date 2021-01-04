@@ -13,48 +13,34 @@ class OrderedSet(ta.MutableSet[T]):
 
     def __init__(self, iterable=None):
         super().__init__()
-        self._end = end = []
-        end += [None, end, end]  # sentinel node for doubly linked list
-        self._map = {}  # item --> [item, prev, next]
+        self._dct: ta.Dict[T, ta.Any] = {}
         if iterable is not None:
             self |= iterable
 
     def __len__(self) -> int:
-        return len(self._map)
+        return len(self._dct)
 
     def __contains__(self, item: ta.Any) -> bool:
-        return item in self._map
+        return item in self._dct
 
     def add(self, item: T) -> None:
-        if item not in self._map:
-            end = self._end
-            curr = end[1]
-            curr[2] = end[1] = self._map[item] = [item, curr, end]
+        if item not in self._dct:
+            self._dct[item] = None
 
     def discard(self, item: T) -> None:
-        if item in self._map:
-            item, prev, next = self._map.pop(item)
-            prev[2] = next
-            next[1] = prev
+        if item in self._dct:
+            del self._dct[item]
 
     def __iter__(self) -> ta.Iterator[T]:
-        end = self._end
-        curr = end[2]
-        while curr is not end:
-            yield curr[0]
-            curr = curr[2]
+        return iter(self._dct.keys())
 
     def __reversed__(self):
-        end = self._end
-        curr = end[1]
-        while curr is not end:
-            yield curr[0]
-            curr = curr[1]
+        return reversed(self._dct.keys())
 
     def pop(self, last=True):
         if not self:
             raise KeyError('set is empty')
-        item = self._end[1][0] if last else self._end[2][0]
+        item = next(reversed(self._dct.keys()))
         self.discard(item)
         return item
 

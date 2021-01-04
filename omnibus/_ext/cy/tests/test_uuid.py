@@ -1,8 +1,6 @@
 import time
 import uuid
 
-import pytest
-
 
 def timeit(fn, n=100_000):
     s = time.time()
@@ -12,7 +10,6 @@ def timeit(fn, n=100_000):
     return e - s
 
 
-@pytest.mark.xfail()
 def test_uuid():
     from .. import uuid as uuid_
 
