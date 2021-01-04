@@ -68,6 +68,11 @@ class _ParseVisitor(Python3Visitor):
                 raise TypeError(trailer)
         return expr
 
+    def visitBraacketAtom(self, ctx: Python3Parser.BraacketAtomContext):
+        body = self.visit(ctx.testListComp())
+        # FIXME: lol
+        return no.List([body])
+
     def visitConst(self, ctx: Python3Parser.ConstContext):
         if ctx.NAME() is not None:
             return no.Name(ctx.NAME().getText())

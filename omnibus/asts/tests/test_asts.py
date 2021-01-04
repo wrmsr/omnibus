@@ -65,6 +65,8 @@ def test_internal_raw():
 
 def test_exprs():
     for src in [
+        '[1]\n',
+
         '1 + 2\n',
         '1+2-3+4-5\n',
         '1+++++2\n',
@@ -79,12 +81,16 @@ def test_exprs():
         print(src.strip())
         root = parsing.parse(src)
         print(root)
-        print()
 
         # from ...antlr import dot
         # from ..._vendor import antlr4
         # dot.open_dot_ctx(root.meta[antlr4.ParserRuleContext])
         # input()
+
+        from .. import rendering
+        print(rendering.render(root))
+
+        print()
 
 
 def test_nodes():
