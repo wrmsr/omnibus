@@ -9,6 +9,7 @@ from ... import antlr
 from ... import check
 from ... import dataclasses as dc
 from ... import dispatch
+from ... import nodal
 from ..._vendor import antlr4
 from ._antlr.Pep508Lexer import Pep508Lexer  # type: ignore
 from ._antlr.Pep508Parser import Pep508Parser  # type: ignore
@@ -18,11 +19,11 @@ from ._antlr.Pep508Visitor import Pep508Visitor  # type: ignore
 T = ta.TypeVar('T')
 
 
-def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
-    return check.single([v for v in cls.__members__.values() if v.value == value])
+class Annotation(nodal.Annotation):
+    pass
 
 
-class Node(dc.Enum):
+class Node(nodal.Nodal['Node', Annotation], sealed=True):
     pass
 
 
@@ -90,6 +91,14 @@ def render(node: Node) -> str:
 
 
 class _ParseVisitor(Pep508Visitor):
+
+    def visit(self, ctx: antlr4.ParserRuleContext):
+        check.isinstance(ctx, antlr4.ParserRuleContext)
+        obj = ctx.accept(self)
+        if isinstance(obj, Node):
+            if antlr4.ParserRuleContext not in obj.meta:
+                obj = dc.replace(obj, meta={**obj.meta, antlr4.ParserRuleContext: ctx})
+        return obj
 
     def aggregateResult(self, aggregate, nextResult):
         return check.one_of(aggregate, nextResult, not_none=True, default=None)

@@ -10,3 +10,4 @@ def test_deps():
     f('abcd==4.20')
     f('abcd[a,b]==4.20')
     # f("PyHive[hive]==0.6.3; python_version < '3.9'")
+    f('abcd[a,b]==4.20  # comment')
