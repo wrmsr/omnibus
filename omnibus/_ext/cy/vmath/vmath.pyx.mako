@@ -1,3 +1,7 @@
+"""
+TODO:
+ - non-cpdef inners, single gateway that takes fn ptr, globall dct of fn ptrs by name/spec/whatever
+"""
 from cpython.buffer cimport PyBUF_ANY_CONTIGUOUS
 from cpython.buffer cimport PyBUF_SIMPLE
 from cpython.buffer cimport PyBuffer_Release
