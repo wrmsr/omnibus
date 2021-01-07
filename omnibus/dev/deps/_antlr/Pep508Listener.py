@@ -10,6 +10,15 @@ else:
 # This class defines a complete listener for a parse tree produced by Pep508Parser.
 class Pep508Listener(ParseTreeListener):
 
+    # Enter a parse tree produced by Pep508Parser#oneSpec.
+    def enterOneSpec(self, ctx:Pep508Parser.OneSpecContext):
+        pass
+
+    # Exit a parse tree produced by Pep508Parser#oneSpec.
+    def exitOneSpec(self, ctx:Pep508Parser.OneSpecContext):
+        pass
+
+
     # Enter a parse tree produced by Pep508Parser#spec.
     def enterSpec(self, ctx:Pep508Parser.SpecContext):
         pass
@@ -43,15 +52,6 @@ class Pep508Listener(ParseTreeListener):
 
     # Exit a parse tree produced by Pep508Parser#identifier.
     def exitIdentifier(self, ctx:Pep508Parser.IdentifierContext):
-        pass
-
-
-    # Enter a parse tree produced by Pep508Parser#identifierEnd.
-    def enterIdentifierEnd(self, ctx:Pep508Parser.IdentifierEndContext):
-        pass
-
-    # Exit a parse tree produced by Pep508Parser#identifierEnd.
-    def exitIdentifierEnd(self, ctx:Pep508Parser.IdentifierEndContext):
         pass
 
 

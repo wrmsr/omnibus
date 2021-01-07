@@ -173,5 +173,5 @@ def _parse(buf: str) -> Pep508Parser:
 def parse(buf: str) -> ta.Any:
     parser = _parse(buf)
     visitor = _ParseVisitor()
-    root = parser.spec()
+    root = parser.oneSpec()
     return visitor.visit(root)

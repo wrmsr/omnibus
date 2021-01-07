@@ -11,6 +11,11 @@ else:
 
 class Pep508Visitor(ParseTreeVisitor):
 
+    # Visit a parse tree produced by Pep508Parser#oneSpec.
+    def visitOneSpec(self, ctx:Pep508Parser.OneSpecContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Pep508Parser#spec.
     def visitSpec(self, ctx:Pep508Parser.SpecContext):
         return self.visitChildren(ctx)
@@ -28,11 +33,6 @@ class Pep508Visitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by Pep508Parser#identifier.
     def visitIdentifier(self, ctx:Pep508Parser.IdentifierContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by Pep508Parser#identifierEnd.
-    def visitIdentifierEnd(self, ctx:Pep508Parser.IdentifierEndContext):
         return self.visitChildren(ctx)
 
 

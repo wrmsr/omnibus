@@ -114,6 +114,10 @@ hexdig        = digit | 'a' | 'A' | 'b' | 'B' | 'c' | 'C' | 'd' | 'D' | 'e' | 'E
 grammar Pep508;
 
 
+oneSpec
+    : spec EOF
+    ;
+
 spec
     : nameReq
     | urlReq
@@ -128,12 +132,7 @@ name
     ;
 
 identifier
-    : LETTER_OR_DIGIT+ identifierEnd*
-    ;
-
-identifierEnd
-    : LETTER_OR_DIGIT+
-    | ('-' | '_' | '.')* LETTER_OR_DIGIT+
+    : LETTERS_OR_DIGITS (('-' | '_' | '.') | LETTERS_OR_DIGITS)*
     ;
 
 extras
@@ -169,7 +168,7 @@ versionCmp
     ;
 
 version
-    : (LETTER_OR_DIGIT+ | '-' | '_' | '.' | '*' | '+' | '!')+
+    : (LETTERS_OR_DIGITS | '-' | '_' | '.' | '*' | '+' | '!')+
     ;
 
 quotedMarker
@@ -181,12 +180,12 @@ marker
     ;
 
 markerOr
-    : markerAnd 'or' markerAnd
+    : markerAnd OR markerAnd
     | markerAnd
     ;
 
 markerAnd
-    : markerExpr 'and' markerExpr
+    : markerExpr AND markerExpr
     | markerExpr
     ;
 
@@ -202,8 +201,8 @@ markerVar
 
 markerOp
     : versionCmp
-    | 'in'
-    | ('not' 'in')
+    | IN
+    | (NOT IN)
     ;
 
 envVar
@@ -218,7 +217,7 @@ envVar
     | 'platform_python_implementation'
     | 'implementation_name'
     | 'implementation_version'
-    | 'extra'  // ONLY when defined by a containing layer
+    | EXTRA  // ONLY when defined by a containing layer
     ;
 
 pythonStr
@@ -271,8 +270,23 @@ uriReference
     : URI_CHAR+
     ;
 
+AND: 'and';
+EXTRA: 'extra';
+IN: 'in';
+NOT: 'not';
+OR: 'or';
+
 URI_CHAR
     : [^ \t;]
+    ;
+
+LETTERS_OR_DIGITS
+    : LETTER_OR_DIGIT+
+    | AND
+    | EXTRA
+    | IN
+    | NOT
+    | OR
     ;
 
 LETTER_OR_DIGIT
