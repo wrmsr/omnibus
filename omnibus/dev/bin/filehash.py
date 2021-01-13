@@ -2,6 +2,8 @@
 TODO:
  - ignore state file
  - % done
+ - pull --dst=dst --src=src (explicit) - handle rename files w/o copy via hash
+ - name tiebreakers - mtime?
 """
 import concurrent.futures as cf
 import contextlib
