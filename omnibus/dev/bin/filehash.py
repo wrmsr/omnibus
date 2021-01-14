@@ -4,6 +4,8 @@ TODO:
  - % done
  - pull --dst=dst --src=src (explicit) - handle rename files w/o copy via hash
  - name tiebreakers - mtime?
+ - only fork for files > $MIN_FORK_SIZE_BYTES
+ - progress w/ total, %
 """
 import concurrent.futures as cf
 import contextlib
