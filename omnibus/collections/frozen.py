@@ -57,7 +57,7 @@ class FrozenDict(ta.Mapping[K, V], Frozen, lang.Final):
 
     def __hash__(self) -> int:
         if self._hash is None:
-            self._hash = hash((k, self[k]) for k in sorted(self))  # type: ignore
+            self._hash = hash(tuple((k, self[k]) for k in sorted(self)))  # type: ignore
         return self._hash
 
     def __iter__(self) -> ta.Iterator[K]:
