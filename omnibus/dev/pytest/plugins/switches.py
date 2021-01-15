@@ -3,31 +3,47 @@ import typing as ta
 import pytest
 
 from .... import check
+from .... import collections as col
 from ._registry import register_plugin
+from _pytest.config import Config  # noqa
+from _pytest.fixtures import FixtureRequest  # noqa
 
 
-SWITCHES = [
+Configable = ta.Union[FixtureRequest, Config]
+
+
+SWITCHES = col.OrderedSet([
     'docker',
+    'ext',
     'online',
     'slow',
     'spark',
-]
+])
 
 
-def is_disabled(request, name: str) -> bool:
+def _get_obj_config(obj: Configable) -> Config:
+    if isinstance(obj, Config):
+        return obj
+    elif isinstance(obj, FixtureRequest):
+        return obj.config
+    else:
+        raise TypeError(obj)
+
+
+def is_disabled(obj: ta.Optional[Configable], name: str) -> bool:
     check.isinstance(name, str)
     check.in_(name, SWITCHES)
-    return request is not None and request.config.getoption(f'--no-{name}')
+    return obj is not None and _get_obj_config(obj).getoption(f'--no-{name}')
 
 
-def skip_if_disabled(request, name: str) -> None:
-    if is_disabled(request, name):
+def skip_if_disabled(obj: ta.Optional[Configable], name: str) -> None:
+    if is_disabled(obj, name):
         pytest.skip(f'{name} disabled')
 
 
-def get_switches(request) -> ta.Mapping[str, bool]:
+def get_switches(obj: Configable) -> ta.Mapping[str, bool]:
     return {
-        sw: request.config.getoption(f'--no-{sw}')
+        sw: _get_obj_config(obj).getoption(f'--no-{sw}')
         for sw in SWITCHES
     }
 

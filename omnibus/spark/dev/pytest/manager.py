@@ -3,6 +3,7 @@ import os.path
 import time
 import typing as ta
 
+import pytest
 import sqlalchemy as sa
 
 from .... import check
@@ -39,11 +40,14 @@ class SparkManager(lc.ContextManageableLifecycle):
         if self._switches:
             self._switches.skip_if_not('spark')
 
+        try:
+            from pyhive import hive  # noqa
+            from thrift.transport.TTransport import TTransportException
+        except ImportError:
+            pytest.skip('No pyhive or thrift')
+
         port = self.THRIFT_PORT or oos.find_free_port()
         url = f'hive://localhost:{port}/default'
-
-        from pyhive import hive  # noqa
-        from thrift.transport.TTransport import TTransportException
 
         def ping() -> bool:
             try:

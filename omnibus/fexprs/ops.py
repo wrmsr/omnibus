@@ -1,4 +1,5 @@
 import opcode
+import sys
 import typing as ta
 
 from .types import AbsJmpDst
@@ -152,8 +153,6 @@ OPS = [
     Op('CALL_FUNCTION', [Step(NextDst(), SimpleEffect(replace=1))]),
     # CALL_FUNCTION_KW(argc)
     # CALL_FUNCTION_EX(flags)
-    Op('LOAD_METHOD', [Step(NextDst(), PushEffect(lambda stream: [MethodInstance(stream.stack[0], stream.instr.argval), MethodCallable(stream.stack[0], stream.instr.argval)], 1))]),  # noqa
-    Op('CALL_METHOD', [Step(NextDst(), SimpleEffect(replace=1))]),
     # MAKE_FUNCTION(flags)
     # BUILD_SLICE(argc)
     # EXTENDED_ARG(ext)
@@ -161,6 +160,14 @@ OPS = [
     # HAVE_ARGUMENT
 
 ]
+
+OPS.extend([
+
+    Op('LOAD_METHOD', [Step(NextDst(), PushEffect(lambda stream: [MethodInstance(stream.stack[0], stream.instr.argval), MethodCallable(stream.stack[0], stream.instr.argval)], 1))]),  # noqa
+    Op('CALL_METHOD', [Step(NextDst(), SimpleEffect(replace=1))]),
+
+] if sys.implementation.name != 'pypy' else [])
+
 
 OPS_BY_NAME: ta.Dict[str, Op] = {op.name: op for op in OPS if op.name in opcode.opmap}
 OPS_BY_NAME.update({name: Op(name) for name in opcode.opmap if name not in OPS_BY_NAME})

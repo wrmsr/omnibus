@@ -6,22 +6,22 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.16.48  #@auto
-botocore==1.19.48  #@auto
+boto3==1.16.55  #@auto
+botocore==1.19.55  #@auto
 cbor==1.0.0
 cytoolz==0.11.0
 docker==4.4.1
-google-api-core==1.24.1  #@auto
+google-api-core==1.25.0  #@auto
 google-api-python-client==1.12.8  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.24.0  #@auto
-greenlet==0.4.17
+greenlet==1.0.0
 httptools==0.1.1
 kazoo==2.8.0
 lz4==3.1.1
 msgpack==1.0.2
 mysql-connector-python==8.0.22
-numpy==1.19.4
+numpy==1.19.5
 orjson==3.4.6; python_version < '3.9' and implementation_name != 'pypy'
 pg8000==1.16.5  #@bug
 psutil==5.8.0
@@ -29,7 +29,7 @@ psycopg2==2.8.6; implementation_name != 'pypy'
 PyHive[hive]==0.6.3; python_version < '3.9' and implementation_name != 'pypy'
 pymemcache==3.4.0
 pymongo==3.11.2
-PyMySQL==0.10.1
+PyMySQL==1.0.2
 pyobjc-core==7.1; sys_platform == 'darwin' and implementation_name != 'pypy'
 pyrsistent==0.17.3
 python-dateutil==2.8.1

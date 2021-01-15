@@ -6,7 +6,11 @@ if _setup_header.strip() != '#@omnibus':
     raise EnvironmentError('Should not be present')
 
 
-from omnibus.lang.imports import ignore_unstable_warn
+_BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+_EXT_DIR = os.path.join(_BASE_DIR, '_ext')
+
+
+from omnibus.lang.imports import ignore_unstable_warn  # noqa
 
 ignore_unstable_warn()
 
@@ -34,3 +38,9 @@ def pytest_addhooks(pluginmanager):
 
 def pytest_configure(config):
     config.addinivalue_line('filterwarnings', 'ignore:omnibus module is marked as unstable::omnibus.*:')
+
+
+def pytest_ignore_collect(path, config):
+    path_dir = os.path.abspath(os.path.dirname(path))
+    if plugins.switches.is_disabled(config, 'ext') and path_dir.startswith(_EXT_DIR):
+        return True

@@ -13,7 +13,7 @@ import typing as ta
 import warnings
 import weakref
 
-from _pytest.fixtures import FixtureRequest # noqa
+from _pytest.fixtures import FixtureRequest  # noqa
 import pytest
 
 from ... import scopes  # noqa
