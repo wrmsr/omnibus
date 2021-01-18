@@ -31,6 +31,10 @@ class Concat(DataPart):
     parts: ta.Sequence[Part]
 
 
+class Block(DataPart):
+    parts: ta.Sequence[Part]
+
+
 class Node(DataPart, ta.Generic[NodeT], final=False):
     node: NodeT
 
@@ -52,6 +56,9 @@ class PartTransform(dispatch.Class):
 
     def __call__(self, part: Concat) -> Part:  # noqa
         return Concat([self(c) for c in part.parts])
+
+    def __call__(self, part: Block) -> Part:  # noqa
+        return Block([self(c) for c in part.parts])
 
     def __call__(self, part: Node) -> Part:  # noqa
         return part
@@ -89,6 +96,10 @@ class CompactPart(PartTransform):
         parts = _drop_empties(self(c) for c in part.parts)
         return Concat(parts) if parts else []
 
+    def __call__(self, part: Block) -> Part:  # noqa
+        parts = _drop_empties(self(c) for c in part.parts)
+        return Block(parts) if parts else []
+
 
 compact_part = CompactPart()
 
@@ -96,15 +107,18 @@ compact_part = CompactPart()
 def render_part(part: Part, buf: io.StringIO) -> None:
     if isinstance(part, str):
         buf.write(part)
+
     elif isinstance(part, collections.abc.Sequence):
         for i, c in enumerate(part):
             if i:
                 buf.write(' ')
             render_part(c, buf)
+
     elif isinstance(part, Paren):
         buf.write('(')
         render_part(part.part, buf)
         buf.write(')')
+
     elif isinstance(part, List):
         for i, c in enumerate(part.parts):
             if i:
@@ -112,10 +126,18 @@ def render_part(part: Part, buf: io.StringIO) -> None:
             render_part(c, buf)
         if part.trailer:
             buf.write(part.delimiter)
+
     elif isinstance(part, Concat):
         for c in part.parts:
             render_part(c, buf)
+
+    elif isinstance(part, Block):
+        for c in part.parts:
+            render_part(c, buf)
+            buf.write('\n')
+
     elif isinstance(part, Node):
         pass
+
     else:
         raise TypeError(part)
