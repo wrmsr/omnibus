@@ -129,6 +129,12 @@ def not_empty(obj: SizedT, message: Messageable = None) -> SizedT:
     return obj
 
 
+def non_empty_str(obj: ta.Optional[str], message: Messageable = None) -> str:
+    if not isinstance(obj, str) or not obj:
+        _raise(RuntimeError, 'Must be non-empty str', message)
+    return obj
+
+
 def single(obj: ta.Iterable[T], message: Messageable = None) -> T:
     try:
         [value] = obj
