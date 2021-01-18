@@ -118,6 +118,7 @@ class ExtraParams(lang.Final):
     pickle: bool = False
     reorder: bool = False
     allow_setattr: ta.Union[bool, str] = False
+    iterable: bool = False
     mangler: ta.Optional[Mangler] = None
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
     confer: ta.Optional[ta.Union[ta.Collection[str], ta.Mapping[str, ta.Any]]] = None
@@ -131,6 +132,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
         check.isinstance(self.allow_setattr, (bool, str, MISSING_TYPE))
+        check.isinstance(self.iterable, (bool, MISSING_TYPE))
         check.isinstance(self.mangler, (lang.Callable, None, MISSING_TYPE))
         check.isinstance(self.aspects, (ta.Collection, None, MISSING_TYPE))
         check.isinstance(self.confer, (ta.Collection, ta.Mapping, None, MISSING_TYPE))

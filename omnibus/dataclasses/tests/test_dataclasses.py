@@ -840,3 +840,12 @@ def test_cached_property():
     assert C(2).y == 3
     with pytest.raises(dc.FrozenInstanceError):
         C(2).z = 1
+
+
+def test_iter():
+    @api_.dataclass(frozen=True, iterable=True)
+    class C:
+        x: int
+        y: int
+
+    assert list(C(2, 3)) == [2, 3]

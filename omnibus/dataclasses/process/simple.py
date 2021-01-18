@@ -310,3 +310,21 @@ class Frozen(Aspect):
                 globals=self.ctx.spec.globals,
             )
             self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)
+
+
+class Iterable(Aspect):
+
+    @property
+    def deps(self) -> ta.Collection[ta.Type[Aspect]]:
+        return [Fields]
+
+    def process(self) -> None:
+        if not self.ctx.extra_params.iterable:
+            return
+
+        atts = [f.name for f in self.ctx.spec.fields.instance]
+
+        def __iter__(obj) -> ta.Iterator[ta.Any]:
+            return iter(getattr(obj, a) for a in atts)
+
+        self.ctx.set_new_attribute('__iter__', __iter__, raise_=True)

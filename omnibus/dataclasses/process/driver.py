@@ -12,6 +12,7 @@ from .simple import Doc
 from .simple import Eq
 from .simple import Frozen
 from .simple import Hash
+from .simple import Iterable
 from .simple import Order
 from .simple import Pickle
 from .simple import Placeholders
@@ -35,6 +36,7 @@ DEFAULT_ASPECTS = {
     FixVarAnnotations,
     Frozen,
     Hash,
+    Iterable,
     Order,
     Params,
     Pickle,
