@@ -1,8 +1,9 @@
 import typing as ta
 
-import sqlalchemy.dialects  # noqa
-import sqlalchemy.pool  # noqa
 import sqlalchemy as sa
+import sqlalchemy.dialects  # noqa
+import sqlalchemy.engine.util  # noqa
+import sqlalchemy.pool  # noqa
 
 from .. import check
 from .. import lang
@@ -100,7 +101,7 @@ def pymysql_render_statement(elem, *multiparams, **params) -> str:
     engine = _create_pymysql_dummy_engine()
     dialect = engine.dialect
 
-    distilled_params = sa.cutils._distill_params(multiparams, params)  # type: ignore
+    distilled_params = sa.engine.util._distill_params(multiparams, params)  # type: ignore
     if distilled_params:
         # note this is usually dict but we support RowProxy
         # as well; but dict.keys() as an iterable is OK

@@ -2,6 +2,7 @@ import contextlib
 import typing as ta
 import urllib.parse
 
+import pytest
 import sqlalchemy as sa
 
 from .. import standard as std
@@ -20,6 +21,7 @@ def parse_tags(stmt: str) -> ta.Dict[str, str]:
     }
 
 
+@pytest.mark.ext
 def test_query_tagging(harness: ptinj.Harness, monkeypatch):
     import mysql.connector.connection
     import mysql.connector.cursor_cext
