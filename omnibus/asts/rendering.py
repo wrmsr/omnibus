@@ -45,14 +45,38 @@ class Renderer(dispatch.Class):
     def render(self, node: no.ExprStmt) -> r.Part:  # noqa
         return self.render(node.expr)
 
+    def render(self, node: no.Lambda) -> r.Part:  # noqa
+        return ['lambda', r.Concat([self.render(node.args), ':']), self.render(node.body)]
+
     def render(self, node: no.List) -> r.Part:  # noqa
         return r.Concat(['[', r.List([self.render(e) for e in node.items]), ']'])
 
     def render(self, node: no.Name) -> r.Part:  # noqa
         return node.name
 
+    def render(self, node: no.Set) -> r.Part:  # noqa
+        return r.Concat(['{', r.List([self.render(e) for e in node.items]), '}'])
+
+    def render(self, node: no.SetComp) -> r.Part:  # noqa
+        raise NotImplementedError
+
+    def render(self, node: no.Starred) -> r.Part:  # noqa
+        raise NotImplementedError
+
+    def render(self, node: no.Subscript) -> r.Part:  # noqa
+        return r.Concat(self.render(node.value), '[', self.render(node.slice), ']')
+
+    def render(self, node: no.Tuple) -> r.Part:  # noqa
+        return r.Concat(['(', r.List([self.render(e) for e in node.items], trailer=len(node.items) == 1), ')'])
+
     def render(self, node: no.UnaryExpr) -> r.Part:  # noqa
         return r.Concat([node.op.value, self.paren(node.value)])
+
+    def render(self, node: no.Yield) -> r.Part:  # noqa
+        return ['yield', self.render(node.value)]
+
+    def render(self, node: no.YieldFrom) -> r.Part:  # noqa
+        return ['yield', 'from', self.render(node.value)]
 
 
 def render(node: no.Node) -> str:

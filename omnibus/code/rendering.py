@@ -24,6 +24,7 @@ class Paren(DataPart):
 class List(DataPart):
     parts: ta.Sequence[ta.Optional[Part]]
     delimiter: str = ','
+    trailer: bool = False
 
 
 class Concat(DataPart):
@@ -47,7 +48,7 @@ class PartTransform(dispatch.Class):
         return Paren(self(part.part))
 
     def __call__(self, part: List) -> Part:  # noqa
-        return List([self(c) for c in part.parts], part.delimiter)
+        return List([self(c) for c in part.parts], part.delimiter, part.trailer)
 
     def __call__(self, part: Concat) -> Part:  # noqa
         return Concat([self(c) for c in part.parts])
@@ -82,7 +83,7 @@ class CompactPart(PartTransform):
 
     def __call__(self, part: List) -> Part:  # noqa
         parts = _drop_empties(self(c) for c in part.parts)
-        return List(parts, part.delimiter) if parts else []
+        return List(parts, part.delimiter, part.trailer) if parts else []
 
     def __call__(self, part: Concat) -> Part:  # noqa
         parts = _drop_empties(self(c) for c in part.parts)
@@ -109,6 +110,8 @@ def render_part(part: Part, buf: io.StringIO) -> None:
             if i:
                 buf.write(part.delimiter + ' ')
             render_part(c, buf)
+        if part.trailer:
+            buf.write(part.delimiter)
     elif isinstance(part, Concat):
         for c in part.parts:
             render_part(c, buf)
