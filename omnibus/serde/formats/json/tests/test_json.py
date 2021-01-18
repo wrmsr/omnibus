@@ -1,7 +1,8 @@
 import os.path
 
-from .. import parsing as parsing_
 from .. import json as json_
+from .. import parsing as parsing_
+from .....dev.pytest import skip_if_cant_import
 
 
 def test_parse():
@@ -13,3 +14,18 @@ def test_parse():
 
 def test_codec():
     assert json_.codec().decode(json_.codec().encode({'a': 2})) == {'a': 2}
+
+
+def _test_provider(p: json_.Provider) -> None:
+    p.json.dumps(1, **p.pretty_kwargs)
+    p.json.dumps(1, **p.compact_kwargs)
+
+
+@skip_if_cant_import('ujson')
+def test_lib_ujson():
+    _test_provider(json_.UjsonProvider())
+
+
+@skip_if_cant_import('orjson')
+def test_lib_orjson():
+    _test_provider(json_.OrjsonProvider())
