@@ -1,5 +1,6 @@
 import functools
 import sys
+import types
 import typing as ta
 
 
@@ -21,17 +22,25 @@ _CLS_DCT_ATTR_SETS = [
 ]
 
 
+def _skip_cls_dct_frames(f: types.FrameType) -> types.FrameType:
+    if sys.implementation.name == 'pypy':
+        if f.f_code is functools.partial.__call__.__code__:
+            return _skip_cls_dct_frames(f.f_back)
+
+    return f
+
+
 def is_possibly_cls_dct(dct: ta.Mapping[str, ta.Any]) -> bool:
     return any(all(a in dct for a in s) for s in _CLS_DCT_ATTR_SETS)
 
 
 class ClassDctFn:
 
-    def __init__(self, fn: ta.Callable, offset=1, *, wrap=True) -> None:
+    def __init__(self, fn: ta.Callable, offset: ta.Optional[int] = None, *, wrap=True) -> None:
         super().__init__()
 
         self._fn = fn
-        self._offset = offset
+        self._offset = offset if offset is not None else 1
 
         if wrap:
             functools.update_wrapper(self, fn)
@@ -43,8 +52,10 @@ class ClassDctFn:
         try:
             cls_dct = kwargs.pop('cls_dct')
         except KeyError:
-            cls_dct = sys._getframe(self._offset).f_locals
+            f = sys._getframe(self._offset)  # noqa
+            cls_dct = _skip_cls_dct_frames(f).f_locals
         if not is_possibly_cls_dct(cls_dct):
+            breakpoint()
             raise TypeError(cls_dct)
         return self._fn(cls_dct, *args, **kwargs)
 
