@@ -17,7 +17,7 @@ class ValueAlreadySetException(ValueError):
 
 class SetOnceProperty(Property[T]):
 
-    def __init__(self, attr_name: str = None) -> None:
+    def __init__(self, attr_name: ta.Optional[str] = None) -> None:
         super().__init__()
 
         self._attr_name = attr_name or '__%s_%x_value' % (type(self).__name__, id(self))

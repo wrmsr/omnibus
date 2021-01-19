@@ -41,7 +41,7 @@ class Compound(Term):
     def __init__(
             self,
             functor: Functor,
-            arguments: ta.Iterable['Term'] = None,
+            arguments: ta.Optional[ta.Iterable['Term']] = None,
     ) -> None:
         super().__init__()
 

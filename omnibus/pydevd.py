@@ -115,8 +115,8 @@ def save_args() -> None:
 
 def maybe_reexec(
         *,
-        file: str = None,
-        module: str = None,
+        file: ta.Optional[str] = None,
+        module: ta.Optional[str] = None,
         silence: bool = False,
 ) -> None:
     if ARGS_ENV_VAR not in os.environ:

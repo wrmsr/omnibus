@@ -159,7 +159,7 @@ def dir_dict(
         *,
         default=_MISSING,
         public: bool = False,
-        filter: ta.Callable[[str], bool] = None,
+        filter: ta.Optional[ta.Callable[[str], bool]] = None,
 ) -> ta.Dict[str, ta.Any]:
     if filter is None:
         filter = lambda _: True  # noqa

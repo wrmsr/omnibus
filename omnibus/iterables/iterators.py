@@ -101,7 +101,7 @@ class ProxyIterator(ta.Iterator[T]):
 
 class PrefetchIterator(ta.Iterator[T]):
 
-    def __init__(self, fn: ta.Callable[[], T] = None) -> None:
+    def __init__(self, fn: ta.Optional[ta.Callable[[], T]] = None) -> None:
         super().__init__()
 
         self._fn = fn
@@ -142,7 +142,7 @@ class RetainIterator(ta.Iterator[T]):
         return item
 
 
-def unzip(it: ta.Iterable[T], width: int = None) -> ta.List:
+def unzip(it: ta.Iterable[T], width: ta.Optional[int] = None) -> ta.List:
     if width is None:
         if not isinstance(it, PeekIterator):
             it = PeekIterator(iter(it))
