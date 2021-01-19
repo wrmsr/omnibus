@@ -5826,4 +5826,3 @@ class GraphqlParser ( Parser ):
     def implementsInterfaces_sempred(self, localctx:ImplementsInterfacesContext, predIndex:int):
             if predIndex == 0:
                 return self.precpred(self._ctx, 1)
-         

@@ -21554,4 +21554,3 @@ class Java8Parser ( Parser ):
 
             if predIndex == 22:
                 return self.precpred(self._ctx, 1)
-         

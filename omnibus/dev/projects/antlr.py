@@ -5,7 +5,6 @@ import os.path
 import subprocess
 import shutil
 import re
-import pprint
 import typing as ta
 
 from ... import argparse as ap
@@ -64,19 +63,15 @@ class Cli(ap.Cli):
         return os.path.abspath(fp)
 
     @ap.command(
-        ap.arg('base_path'),
-        ap.arg('self_vendor', action='store_true'),
+        ap.arg('base_path', metavar='base-path'),
+        ap.arg('--self-vendor', dest='self_vendor', action='store_true'),
     )
     def gen(self) -> None:
-        print(self.get_antlr_jar_path())
-
         dns = _find_dirs(self.args.base_path, lambda dn: os.path.basename(dn) == '_antlr')
-        pprint.pprint(dns)
         for dn in dns:
             shutil.rmtree(dn)
 
         fns = _find_files(self.args.base_path, lambda fn: fn.endswith('.g4'))
-        pprint.pprint(fns)
         aps = set()
         for fn in fns:
             dp = os.path.dirname(fn)
@@ -88,7 +83,7 @@ class Cli(ap.Cli):
             ip = os.path.join(ap, '__init__.py')
             if not os.path.exists(ip):
                 with open(ip, 'w') as f:
-                    f.write('\n')
+                    f.write('')
 
             shutil.copy(fn, ap)
             aps.add(ap)
@@ -135,13 +130,13 @@ class Cli(ap.Cli):
             fns = [fn for fn in os.listdir(ap) if fn.endswith('.py') and fn != '__init__.py']
             for fn in fns:
                 if self.args.self_vendor:
-                    pkg_depth = len(os.path.normpath(ap).split(os.path.sep)) - 1
+                    pkg_depth = len(os.path.normpath(ap).split(os.path.sep))
                     antlr_imp = f'from {"." * pkg_depth}_vendor.antlr4'
                 else:
                     antlr_imp = f'from {__package__.split(".")[0]}._vendor.antlr4'
 
                 def fix(l: str) -> str:
-                    return re.sub(r'^from antlr4 ', antlr_imp + ' ', l)
+                    return re.sub(r'^from antlr4', antlr_imp, l)
 
                 fp = os.path.join(ap, fn)
                 with open(fp, 'r') as f:

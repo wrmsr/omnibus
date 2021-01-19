@@ -2481,4 +2481,3 @@ class JmespathParser ( Parser ):
 
             if predIndex == 5:
                 return self.precpred(self._ctx, 17)
-         

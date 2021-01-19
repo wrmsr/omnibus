@@ -908,4 +908,3 @@ class Python3Lexer(Lexer):
     def NEWLINE_sempred(self, localctx:RuleContext, predIndex:int):
             if predIndex == 0:
                 return self.atStartOfInput()
-         

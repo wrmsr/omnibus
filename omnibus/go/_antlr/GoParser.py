@@ -8418,4 +8418,3 @@ class GoParser ( Parser ):
 
             if predIndex == 10:
                 return self.checkPreviousTokenText('}')
-         
