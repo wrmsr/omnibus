@@ -5,8 +5,9 @@ if not sys.version_info >= (3, 7):
     raise EnvironmentError
 
 
-import pkgutil
-__path__ = pkgutil.extend_path(__path__, __name__)  # type: ignore
+if '__path__' in globals():
+    import pkgutil
+    globals()['__path__'] = pkgutil.extend_path(globals()['__path__'], __name__)
 
 
 def _test_install():

@@ -61,7 +61,7 @@ class BaseScheduler(ta.Generic[BaseSchedulerEntryT], Schedulable):
 
 class PriorityScheduler(BaseScheduler['PriorityScheduler.Entry']):
 
-    class Entry(BaseScheduler.Entry):
+    class Entry(BaseScheduler.Entry, frozen=True):
         priority: float
 
     def __init__(self, dry_run_frames: int = 0) -> None:

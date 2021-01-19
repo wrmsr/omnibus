@@ -44,7 +44,7 @@ class LintOpts(lang.ValueEnum):
     ALL = '-Xlint:all'
 
 
-class VersionOpt(Opt):
+class VersionOpt(Opt, lang.Abstract):
 
     DEFAULT_VERSION = 8
 
@@ -74,7 +74,7 @@ class TargetVersionOpt(VersionOpt):
     prefix = '-target'
 
 
-class PathOpt(Opt):
+class PathOpt(Opt, lang.Abstract):
 
     def __init__(self, path: str) -> None:
         super().__init__()

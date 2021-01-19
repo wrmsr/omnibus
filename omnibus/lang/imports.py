@@ -92,7 +92,19 @@ def import_module_attr(dotted_path: str) -> ta.Any:
         raise AttributeError('Module %r has no attr %r' % (module_name, class_name))
 
 
-def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterator[str]:
+SPECIAL_IMPORTABLE: ta.AbstractSet[str] = frozenset([
+    '__init__.py',
+    '__main__.py',
+])
+
+
+def yield_importable(
+        package_root: str,
+        *,
+        recursive: bool = False,
+        filter: ta.Optional[ta.Callable[[str], bool]] = None,
+        include_special: bool = False,
+) -> ta.Iterator[str]:
     def rec(dir):
         if dir.split('.')[-1] == '__pycache__':
             return
@@ -105,16 +117,29 @@ def yield_importable(package_root: str, *, recursive: bool = False) -> ta.Iterat
             except ImportError:
                 return
             module = sys.modules[dir]
+
         # FIXME: pyox
         if getattr(module, '__file__', None) is None:
             return
 
         for file in _pkg_resources().resource_listdir(dir, '.'):
-            if file.endswith('.py') and not file.startswith('_'):
-                yield dir + '.' + file[:-3]
+            if file.endswith('.py'):
+                if not (include_special or file not in SPECIAL_IMPORTABLE):
+                    continue
+
+                name = dir + '.' + file[:-3]
+                if filter is not None and not filter(name):
+                    continue
+
+                yield name
+
             elif recursive and '.' not in file:
+                name = dir + '.' + file
+                if filter is not None and not filter(name):
+                    continue
+
                 try:
-                    yield from rec(dir + '.' + file)
+                    yield from rec(name)
                 except (ImportError, NotImplementedError):
                     pass
 
@@ -127,12 +152,30 @@ def yield_import_all(
         globals: ta.Optional[ta.Dict[str, ta.Any]] = None,
         locals: ta.Optional[ta.Dict[str, ta.Any]] = None,
         recursive: bool = False,
+        filter: ta.Optional[ta.Callable[[str], bool]] = None,
+        include_special: bool = False,
 ) -> ta.Iterator[str]:
-    for import_path in yield_importable(package_root, recursive=recursive):
+    for import_path in yield_importable(
+            package_root,
+            recursive=recursive,
+            filter=filter,
+            include_special=include_special,
+    ):
         __import__(import_path, globals=globals, locals=locals)
         yield import_path
 
 
-def import_all(package_root: str, *, recursive: bool = False) -> None:
-    for _ in yield_import_all(package_root, recursive=recursive):
+def import_all(
+        package_root: str,
+        *,
+        recursive: bool = False,
+        filter: ta.Optional[ta.Callable[[str], bool]] = None,
+        include_special: bool = False,
+) -> None:
+    for _ in yield_import_all(
+            package_root,
+            recursive=recursive,
+            filter=filter,
+            include_special=include_special,
+    ):
         pass
