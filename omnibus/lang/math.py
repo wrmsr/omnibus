@@ -110,8 +110,11 @@ NEGATIVE_INFINITY = NegativeInfinity()
 class FixedWidthInt(int):
 
     BITS: ta.ClassVar[int]
+    SIGNED: ta.ClassVar[bool]
+
     MIN: ta.ClassVar[int]
     MAX: ta.ClassVar[int]
+
     MASK: ta.ClassVar[int]
 
     def __init_subclass__(cls, **kwargs):
@@ -120,8 +123,13 @@ class FixedWidthInt(int):
         if not isinstance(cls.BITS, int):
             raise TypeError(cls.BITS)
 
-        cls.MIN = -(1 << (cls.BITS - 1))
-        cls.MAX = (1 << (cls.BITS - 1)) - 1
+        if cls.SIGNED:
+            cls.MIN = -(1 << (cls.BITS - 1))
+            cls.MAX = (1 << (cls.BITS - 1)) - 1
+        else:
+            cls.MIN = 0
+            cls.MAX = (1 << cls.BITS) - 1
+
         cls.MASK = (1 << cls.BITS) - 1
 
     @classmethod
@@ -191,13 +199,51 @@ class FixedWidthInt(int):
         return f'{self.__class__.__name__}({int(self)})'
 
 
+class Int8(FixedWidthInt):
+    BITS = 8
+    SIGNED = True
+
+
+class Int16(FixedWidthInt):
+    BITS = 16
+    SIGNED = True
+
+
 class Int32(FixedWidthInt):
     BITS = 32
+    SIGNED = True
 
 
 class Int64(FixedWidthInt):
     BITS = 64
+    SIGNED = True
 
 
 class Int128(FixedWidthInt):
     BITS = 128
+    SIGNED = True
+
+
+class Uint8(FixedWidthInt):
+    BITS = 8
+    SIGNED = False
+
+
+class Uint16(FixedWidthInt):
+    BITS = 16
+    SIGNED = False
+
+
+class Uint32(FixedWidthInt):
+    BITS = 32
+    SIGNED = False
+
+
+class Uint64(FixedWidthInt):
+    BITS = 64
+    SIGNED = False
+
+
+class Uint128(FixedWidthInt):
+    BITS = 128
+    SIGNED = False

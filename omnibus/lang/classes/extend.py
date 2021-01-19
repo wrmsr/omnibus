@@ -1,7 +1,7 @@
 import sys
 import typing as ta
 
-from ..lang import new_type
+from ..objects import new_type
 
 
 def _extension_ignored_attrs() -> ta.Set[str]:
