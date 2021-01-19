@@ -4,12 +4,14 @@ import sys
 import setuptools
 
 
+PROJECT = 'omnibus'
+
 BASE_DIR = os.path.dirname(__file__)
 ABOUT = {}
 
 
 def _read_about():
-    with open(os.path.join(BASE_DIR, 'omnibus', '__about__.py'), 'rb') as f:
+    with open(os.path.join(BASE_DIR, PROJECT, '__about__.py'), 'rb') as f:
         src = f.read()
         if sys.version_info[0] > 2:
             src = src.decode('UTF-8')
@@ -45,15 +47,19 @@ if __name__ == '__main__':
         setup_requires=['setuptools'],
 
         packages=setuptools.find_packages(
-            include=['omnibus.dev'],
+            include=[f'{PROJECT}.dev'],
             exclude=['tests', '*.tests', '*.tests.*'],
         ),
-        py_modules=['omnibus'],
+        py_modules=[PROJECT],
 
-        package_data={'omnibus': PACKAGE_DATA},
+        package_data={PROJECT: PACKAGE_DATA},
         include_package_data=True,
 
-        entry_points={},
+        entry_points={
+            'console_scripts': [
+                f'{PROJECT} = {PROJECT}.cli:main',
+            ],
+        },
 
         install_requires=INSTALL_REQUIRES,
         extras_require=EXTRAS_REQUIRE,
