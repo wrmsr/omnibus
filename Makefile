@@ -180,55 +180,8 @@ gen: antlr cy
 	true
 
 .PHONY: antlr
-antlr:
-	if [ ! -f "antlr-$(ANTLR_VERSION)-complete.jar" ] ; then \
-		curl \
-			--proto '=https' \
-			--tlsv1.2 \
-			"https://www.antlr.org/download/antlr-$(ANTLR_VERSION)-complete.jar" \
-			-o "antlr-$(ANTLR_VERSION)-complete.jar" ; \
-	fi
-
-	set -e ; \
-	\
-	java -version ; \
-	\
-	find $(PROJECT) -name _antlr -type d | xargs -n 1 rm -rf ; \
-	\
-	for D in $$(find $(PROJECT) -name '*.g4' | xargs -n1 dirname | sort | uniq) ; do \
-		echo "$$D" ; \
-		\
-		mkdir "$$D/_antlr" ; \
-		touch "$$D/_antlr/__init__.py" ; \
-		\
-		for F in $$(find "$$D" -maxdepth 1 -name '*.g4' | sort) ; do \
-			cp "$$F" "$$D/_antlr/"; \
-		done ; \
-		\
-		P=$$(pwd) ; \
-		for F in $$(find "$$D/_antlr" -name '*.g4' | sort) ; do \
-			echo "$$F" ; \
-			( \
-				cd "$$D/_antlr" && \
-				java \
-					-jar "$$P/antlr-$(ANTLR_VERSION)-complete.jar" \
-					-Dlanguage=Python3 \
-					-visitor \
-					$$(basename "$$F") \
-			) ; \
-		done ; \
-		\
-		find "$$D/_antlr" -name '*.g4' -delete ; \
-		\
-		for P in $$(find "$$D/_antlr" -name '*.py' -not -name '__init__.py') ; do \
-			( \
-				BUF=$$(echo -e '# flake8: noqa\n# type: ignore' && cat "$$P") ; \
-				IMP=$$(echo "$$D" | tr -dc / | tr / .) ; \
-				BUF=$$(echo "$$BUF" | sed "s/^from antlr4/from $$IMP.._vendor.antlr4/") ; \
-				echo "$$BUF" > "$$P" \
-			) ; \
-		done ; \
-	done
+antlr: venv
+	.venv/bin/python -m $(PROJECT).dev.projects.antlr gen $(PROJECT) --self-vendor
 
 .PHONY: cy
 cy: venv
