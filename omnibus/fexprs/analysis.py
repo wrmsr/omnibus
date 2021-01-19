@@ -9,11 +9,11 @@ import typing as ta
 from .. import check
 from .. import properties
 from .frames import PyFrameObject
-from .ops import OPS_BY_NAME
+from .opdefs import OPS_BY_NAME
+from .streams import Stack
+from .streams import Stream
 from .types import Instr
 from .types import Ip
-from .types import Stack
-from .types import Stream
 
 
 class Analysis:

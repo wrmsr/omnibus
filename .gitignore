@@ -15,6 +15,7 @@
 *.so
 *.sock
 *.swp
+/*.egg-info/
 /.env
 /.mypy_cache/
 /.pytest_cache/
@@ -27,7 +28,6 @@
 /dist/
 /gen/
 /MANIFEST
-/omnibus.egg-info/
 /profiles/
 /target/
 antlr-*.jar

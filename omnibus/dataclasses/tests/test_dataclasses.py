@@ -739,6 +739,18 @@ def test_allow_setattr():
     c._b = 2
     assert c._b == 2
 
+    @api_.dataclass(frozen=True, allow_setattr=['_', 'c'])
+    class C:  # noqa
+        a: int
+
+    c = C(1)
+    with pytest.raises(dc.FrozenInstanceError):
+        c.b = 2
+    c._b = 2
+    assert c._b == 2
+    c.c = 3
+    assert c.c == 3
+
 
 def test_metadata():
     @api_.dataclass(frozen=True)

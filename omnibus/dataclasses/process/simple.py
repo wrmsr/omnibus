@@ -273,13 +273,30 @@ class Frozen(Aspect):
         if not self.ctx.params.frozen:
             return
 
+        locals = {}
+
         attr_predicate = None
         allow_setattr = self.ctx.extra_params.allow_setattr
         if isinstance(allow_setattr, str):
-            if allow_setattr == '_':
-                attr_predicate = "name.startswith('_')"
-            else:
-                raise ValueError(allow_setattr)
+            allow_setattr = [allow_setattr]
+        if isinstance(allow_setattr, ta.Iterable):
+            allow_setattr = set(allow_setattr)
+            aas = set()
+            has_underscore = False
+            for a in allow_setattr:
+                if a == '_':
+                    has_underscore = True
+                elif isinstance(a, str) and a:
+                    aas.add(a)
+                else:
+                    raise ValueError(a)
+            aps = []
+            if has_underscore:
+                aps.append("name.startswith('_')")
+            if aas:
+                aps.append(f'name in allowed_attr_names')
+                locals['allowed_attr_names'] = frozenset(aas)
+            attr_predicate = ' or '.join(aps)
         elif isinstance(allow_setattr, bool):
             if allow_setattr:
                 return
@@ -287,17 +304,17 @@ class Frozen(Aspect):
             raise TypeError(allow_setattr)
 
         slots = [s for a in self.ctx.aspects for s in a.slots]
-        locals = {
+        locals.update({
             'cls': self.ctx.cls,
             'FrozenInstanceError': dc.FrozenInstanceError,
             'attr_names': frozenset(self.ctx.spec.fields.by_name) | frozenset(slots),
-        }
+        })
 
         for fnname in ['__setattr__', '__delattr__']:
             args = ['name'] + (['value'] if fnname == '__setattr__' else [])
             pred = 'type(self) is cls or name in attr_names'
             if attr_predicate:
-                pred = f'not {attr_predicate} and ({pred})'
+                pred = f'not ({attr_predicate}) and ({pred})'
             fn = code.create_function(
                 fnname,
                 code.ArgSpec(['self'] + args),

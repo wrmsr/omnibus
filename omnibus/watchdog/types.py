@@ -174,7 +174,7 @@ class WatchReport(dc.Pure):
     suspended: float
 
 
-class ThreadReportFrame(ta.NamedTuple):
+class ThreadReportFrame(dc.Pure):
     filename: str
     lineno: int
     name: ta.Optional[str]

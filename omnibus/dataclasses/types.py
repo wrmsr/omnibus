@@ -117,7 +117,7 @@ class ExtraParams(lang.Final):
     cache_hash: ta.Union[bool, str] = False
     pickle: bool = False
     reorder: bool = False
-    allow_setattr: ta.Union[bool, str] = False
+    allow_setattr: ta.Union[bool, str, ta.Iterable[str]] = False
     iterable: bool = False
     mangler: ta.Optional[Mangler] = None
     aspects: ta.Optional[ta.Collection[ta.Any]] = None
@@ -131,7 +131,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
-        check.isinstance(self.allow_setattr, (bool, str, MISSING_TYPE))
+        check.isinstance(self.allow_setattr, (bool, str, ta.Iterable, MISSING_TYPE))
         check.isinstance(self.iterable, (bool, MISSING_TYPE))
         check.isinstance(self.mangler, (lang.Callable, None, MISSING_TYPE))
         check.isinstance(self.aspects, (ta.Collection, None, MISSING_TYPE))

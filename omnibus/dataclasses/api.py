@@ -277,7 +277,7 @@ def dataclass(
         cache_hash: ta.Union[bool, str, MISSING_TYPE] = MISSING,
         pickle: ta.Union[bool, MISSING_TYPE] = MISSING,
         reorder: ta.Union[bool, MISSING_TYPE] = MISSING,
-        allow_setattr: ta.Union[bool, str, MISSING_TYPE] = MISSING,
+        allow_setattr: ta.Union[bool, str, ta.Iterable[str], MISSING_TYPE] = MISSING,
         iterable: ta.Union[bool, MISSING_TYPE] = MISSING,
         mangler: ta.Union[Mangler, MISSING_TYPE] = MISSING,
         aspects: ta.Union[None, ta.Sequence[ta.Any], MISSING_TYPE] = MISSING,
