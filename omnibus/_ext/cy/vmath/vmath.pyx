@@ -2,6 +2,8 @@
 TODO:
  - non-cpdef inners, single gateway that takes fn ptr, globall dct of fn ptrs by name/spec/whatever
 """
+cimport cython
+
 from cpython.buffer cimport PyBUF_ANY_CONTIGUOUS
 from cpython.buffer cimport PyBUF_SIMPLE
 from cpython.buffer cimport PyBuffer_Release
@@ -31,6 +33,9 @@ from libc.stdint cimport uint8_t
 from libc.stdint cimport uint16_t
 from libc.stdint cimport uint32_t
 from libc.stdint cimport uint64_t
+
+
+
 
 
 
@@ -72,6 +77,12 @@ cpdef op_int8_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -83,6 +94,12 @@ cdef void _add_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_int8 = <size_t> _add_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -98,6 +115,12 @@ _pfn_add_int8_const = <size_t> _add_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -109,6 +132,12 @@ cdef void _sub_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_int8 = <size_t> _sub_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -124,6 +153,12 @@ _pfn_sub_int8_const = <size_t> _sub_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -135,6 +170,12 @@ cdef void _mul_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_int8 = <size_t> _mul_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -150,6 +191,12 @@ _pfn_mul_int8_const = <size_t> _mul_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -161,6 +208,12 @@ cdef void _div_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_int8 = <size_t> _div_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -176,6 +229,12 @@ _pfn_div_int8_const = <size_t> _div_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -187,6 +246,12 @@ cdef void _mod_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_int8 = <size_t> _mod_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -202,6 +267,12 @@ _pfn_mod_int8_const = <size_t> _mod_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -213,6 +284,12 @@ cdef void _and_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_int8 = <size_t> _and_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -228,6 +305,12 @@ _pfn_and_int8_const = <size_t> _and_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -239,6 +322,12 @@ cdef void _or_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_int8 = <size_t> _or_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -254,6 +343,12 @@ _pfn_or_int8_const = <size_t> _or_int8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_int8(void *a, void *b, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
     cdef int8_t *pb = <int8_t *> b
@@ -265,6 +360,12 @@ cdef void _xor_int8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_int8 = <size_t> _xor_int8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_int8_const(void *a, int8_t c, void *d, size_t l) nogil:
     cdef int8_t *pa = <int8_t *> a
@@ -317,6 +418,12 @@ cpdef op_int16_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -328,6 +435,12 @@ cdef void _add_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_int16 = <size_t> _add_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -343,6 +456,12 @@ _pfn_add_int16_const = <size_t> _add_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -354,6 +473,12 @@ cdef void _sub_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_int16 = <size_t> _sub_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -369,6 +494,12 @@ _pfn_sub_int16_const = <size_t> _sub_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -380,6 +511,12 @@ cdef void _mul_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_int16 = <size_t> _mul_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -395,6 +532,12 @@ _pfn_mul_int16_const = <size_t> _mul_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -406,6 +549,12 @@ cdef void _div_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_int16 = <size_t> _div_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -421,6 +570,12 @@ _pfn_div_int16_const = <size_t> _div_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -432,6 +587,12 @@ cdef void _mod_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_int16 = <size_t> _mod_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -447,6 +608,12 @@ _pfn_mod_int16_const = <size_t> _mod_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -458,6 +625,12 @@ cdef void _and_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_int16 = <size_t> _and_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -473,6 +646,12 @@ _pfn_and_int16_const = <size_t> _and_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -484,6 +663,12 @@ cdef void _or_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_int16 = <size_t> _or_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -499,6 +684,12 @@ _pfn_or_int16_const = <size_t> _or_int16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_int16(void *a, void *b, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
     cdef int16_t *pb = <int16_t *> b
@@ -510,6 +701,12 @@ cdef void _xor_int16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_int16 = <size_t> _xor_int16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_int16_const(void *a, int16_t c, void *d, size_t l) nogil:
     cdef int16_t *pa = <int16_t *> a
@@ -562,6 +759,12 @@ cpdef op_int32_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -573,6 +776,12 @@ cdef void _add_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_int32 = <size_t> _add_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -588,6 +797,12 @@ _pfn_add_int32_const = <size_t> _add_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -599,6 +814,12 @@ cdef void _sub_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_int32 = <size_t> _sub_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -614,6 +835,12 @@ _pfn_sub_int32_const = <size_t> _sub_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -625,6 +852,12 @@ cdef void _mul_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_int32 = <size_t> _mul_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -640,6 +873,12 @@ _pfn_mul_int32_const = <size_t> _mul_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -651,6 +890,12 @@ cdef void _div_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_int32 = <size_t> _div_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -666,6 +911,12 @@ _pfn_div_int32_const = <size_t> _div_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -677,6 +928,12 @@ cdef void _mod_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_int32 = <size_t> _mod_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -692,6 +949,12 @@ _pfn_mod_int32_const = <size_t> _mod_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -703,6 +966,12 @@ cdef void _and_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_int32 = <size_t> _and_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -718,6 +987,12 @@ _pfn_and_int32_const = <size_t> _and_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -729,6 +1004,12 @@ cdef void _or_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_int32 = <size_t> _or_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -744,6 +1025,12 @@ _pfn_or_int32_const = <size_t> _or_int32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_int32(void *a, void *b, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
     cdef int32_t *pb = <int32_t *> b
@@ -755,6 +1042,12 @@ cdef void _xor_int32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_int32 = <size_t> _xor_int32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_int32_const(void *a, int32_t c, void *d, size_t l) nogil:
     cdef int32_t *pa = <int32_t *> a
@@ -807,6 +1100,12 @@ cpdef op_int64_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -818,6 +1117,12 @@ cdef void _add_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_int64 = <size_t> _add_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -833,6 +1138,12 @@ _pfn_add_int64_const = <size_t> _add_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -844,6 +1155,12 @@ cdef void _sub_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_int64 = <size_t> _sub_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -859,6 +1176,12 @@ _pfn_sub_int64_const = <size_t> _sub_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -870,6 +1193,12 @@ cdef void _mul_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_int64 = <size_t> _mul_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -885,6 +1214,12 @@ _pfn_mul_int64_const = <size_t> _mul_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -896,6 +1231,12 @@ cdef void _div_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_int64 = <size_t> _div_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -911,6 +1252,12 @@ _pfn_div_int64_const = <size_t> _div_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -922,6 +1269,12 @@ cdef void _mod_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_int64 = <size_t> _mod_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -937,6 +1290,12 @@ _pfn_mod_int64_const = <size_t> _mod_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -948,6 +1307,12 @@ cdef void _and_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_int64 = <size_t> _and_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -963,6 +1328,12 @@ _pfn_and_int64_const = <size_t> _and_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -974,6 +1345,12 @@ cdef void _or_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_int64 = <size_t> _or_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -989,6 +1366,12 @@ _pfn_or_int64_const = <size_t> _or_int64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_int64(void *a, void *b, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
     cdef int64_t *pb = <int64_t *> b
@@ -1000,6 +1383,12 @@ cdef void _xor_int64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_int64 = <size_t> _xor_int64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_int64_const(void *a, int64_t c, void *d, size_t l) nogil:
     cdef int64_t *pa = <int64_t *> a
@@ -1052,6 +1441,12 @@ cpdef op_uint8_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1063,6 +1458,12 @@ cdef void _add_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_uint8 = <size_t> _add_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1078,6 +1479,12 @@ _pfn_add_uint8_const = <size_t> _add_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1089,6 +1496,12 @@ cdef void _sub_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_uint8 = <size_t> _sub_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1104,6 +1517,12 @@ _pfn_sub_uint8_const = <size_t> _sub_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1115,6 +1534,12 @@ cdef void _mul_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_uint8 = <size_t> _mul_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1130,6 +1555,12 @@ _pfn_mul_uint8_const = <size_t> _mul_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1141,6 +1572,12 @@ cdef void _div_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_uint8 = <size_t> _div_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1156,6 +1593,12 @@ _pfn_div_uint8_const = <size_t> _div_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1167,6 +1610,12 @@ cdef void _mod_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_uint8 = <size_t> _mod_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1182,6 +1631,12 @@ _pfn_mod_uint8_const = <size_t> _mod_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1193,6 +1648,12 @@ cdef void _and_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_uint8 = <size_t> _and_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1208,6 +1669,12 @@ _pfn_and_uint8_const = <size_t> _and_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1219,6 +1686,12 @@ cdef void _or_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_uint8 = <size_t> _or_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1234,6 +1707,12 @@ _pfn_or_uint8_const = <size_t> _or_uint8_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_uint8(void *a, void *b, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
     cdef uint8_t *pb = <uint8_t *> b
@@ -1245,6 +1724,12 @@ cdef void _xor_uint8(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_uint8 = <size_t> _xor_uint8
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_uint8_const(void *a, uint8_t c, void *d, size_t l) nogil:
     cdef uint8_t *pa = <uint8_t *> a
@@ -1297,6 +1782,12 @@ cpdef op_uint16_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1308,6 +1799,12 @@ cdef void _add_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_uint16 = <size_t> _add_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1323,6 +1820,12 @@ _pfn_add_uint16_const = <size_t> _add_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1334,6 +1837,12 @@ cdef void _sub_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_uint16 = <size_t> _sub_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1349,6 +1858,12 @@ _pfn_sub_uint16_const = <size_t> _sub_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1360,6 +1875,12 @@ cdef void _mul_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_uint16 = <size_t> _mul_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1375,6 +1896,12 @@ _pfn_mul_uint16_const = <size_t> _mul_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1386,6 +1913,12 @@ cdef void _div_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_uint16 = <size_t> _div_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1401,6 +1934,12 @@ _pfn_div_uint16_const = <size_t> _div_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1412,6 +1951,12 @@ cdef void _mod_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_uint16 = <size_t> _mod_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1427,6 +1972,12 @@ _pfn_mod_uint16_const = <size_t> _mod_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1438,6 +1989,12 @@ cdef void _and_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_uint16 = <size_t> _and_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1453,6 +2010,12 @@ _pfn_and_uint16_const = <size_t> _and_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1464,6 +2027,12 @@ cdef void _or_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_uint16 = <size_t> _or_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1479,6 +2048,12 @@ _pfn_or_uint16_const = <size_t> _or_uint16_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_uint16(void *a, void *b, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
     cdef uint16_t *pb = <uint16_t *> b
@@ -1490,6 +2065,12 @@ cdef void _xor_uint16(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_uint16 = <size_t> _xor_uint16
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_uint16_const(void *a, uint16_t c, void *d, size_t l) nogil:
     cdef uint16_t *pa = <uint16_t *> a
@@ -1542,6 +2123,12 @@ cpdef op_uint32_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1553,6 +2140,12 @@ cdef void _add_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_uint32 = <size_t> _add_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1568,6 +2161,12 @@ _pfn_add_uint32_const = <size_t> _add_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1579,6 +2178,12 @@ cdef void _sub_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_uint32 = <size_t> _sub_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1594,6 +2199,12 @@ _pfn_sub_uint32_const = <size_t> _sub_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1605,6 +2216,12 @@ cdef void _mul_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_uint32 = <size_t> _mul_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1620,6 +2237,12 @@ _pfn_mul_uint32_const = <size_t> _mul_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1631,6 +2254,12 @@ cdef void _div_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_uint32 = <size_t> _div_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1646,6 +2275,12 @@ _pfn_div_uint32_const = <size_t> _div_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1657,6 +2292,12 @@ cdef void _mod_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_uint32 = <size_t> _mod_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1672,6 +2313,12 @@ _pfn_mod_uint32_const = <size_t> _mod_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1683,6 +2330,12 @@ cdef void _and_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_uint32 = <size_t> _and_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1698,6 +2351,12 @@ _pfn_and_uint32_const = <size_t> _and_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1709,6 +2368,12 @@ cdef void _or_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_uint32 = <size_t> _or_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1724,6 +2389,12 @@ _pfn_or_uint32_const = <size_t> _or_uint32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_uint32(void *a, void *b, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
     cdef uint32_t *pb = <uint32_t *> b
@@ -1735,6 +2406,12 @@ cdef void _xor_uint32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_uint32 = <size_t> _xor_uint32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_uint32_const(void *a, uint32_t c, void *d, size_t l) nogil:
     cdef uint32_t *pa = <uint32_t *> a
@@ -1787,6 +2464,12 @@ cpdef op_uint64_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1798,6 +2481,12 @@ cdef void _add_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_uint64 = <size_t> _add_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1813,6 +2502,12 @@ _pfn_add_uint64_const = <size_t> _add_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1824,6 +2519,12 @@ cdef void _sub_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_uint64 = <size_t> _sub_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1839,6 +2540,12 @@ _pfn_sub_uint64_const = <size_t> _sub_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1850,6 +2557,12 @@ cdef void _mul_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_uint64 = <size_t> _mul_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1865,6 +2578,12 @@ _pfn_mul_uint64_const = <size_t> _mul_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1876,6 +2595,12 @@ cdef void _div_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_uint64 = <size_t> _div_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1891,6 +2616,12 @@ _pfn_div_uint64_const = <size_t> _div_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1902,6 +2633,12 @@ cdef void _mod_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_uint64 = <size_t> _mod_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1917,6 +2654,12 @@ _pfn_mod_uint64_const = <size_t> _mod_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _and_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1928,6 +2671,12 @@ cdef void _and_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_and_uint64 = <size_t> _and_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _and_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1943,6 +2692,12 @@ _pfn_and_uint64_const = <size_t> _and_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _or_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1954,6 +2709,12 @@ cdef void _or_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_or_uint64 = <size_t> _or_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _or_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -1969,6 +2730,12 @@ _pfn_or_uint64_const = <size_t> _or_uint64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _xor_uint64(void *a, void *b, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
     cdef uint64_t *pb = <uint64_t *> b
@@ -1980,6 +2747,12 @@ cdef void _xor_uint64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_xor_uint64 = <size_t> _xor_uint64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _xor_uint64_const(void *a, uint64_t c, void *d, size_t l) nogil:
     cdef uint64_t *pa = <uint64_t *> a
@@ -2032,6 +2805,12 @@ cpdef op_float32_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_float32(void *a, void *b, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
     cdef float *pb = <float *> b
@@ -2043,6 +2822,12 @@ cdef void _add_float32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_float32 = <size_t> _add_float32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_float32_const(void *a, float c, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
@@ -2058,6 +2843,12 @@ _pfn_add_float32_const = <size_t> _add_float32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_float32(void *a, void *b, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
     cdef float *pb = <float *> b
@@ -2069,6 +2860,12 @@ cdef void _sub_float32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_float32 = <size_t> _sub_float32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_float32_const(void *a, float c, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
@@ -2084,6 +2881,12 @@ _pfn_sub_float32_const = <size_t> _sub_float32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_float32(void *a, void *b, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
     cdef float *pb = <float *> b
@@ -2095,6 +2898,12 @@ cdef void _mul_float32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_float32 = <size_t> _mul_float32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_float32_const(void *a, float c, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
@@ -2110,6 +2919,12 @@ _pfn_mul_float32_const = <size_t> _mul_float32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_float32(void *a, void *b, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
     cdef float *pb = <float *> b
@@ -2121,6 +2936,12 @@ cdef void _div_float32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_float32 = <size_t> _div_float32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_float32_const(void *a, float c, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
@@ -2136,6 +2957,12 @@ _pfn_div_float32_const = <size_t> _div_float32_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_float32(void *a, void *b, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
     cdef float *pb = <float *> b
@@ -2147,6 +2974,12 @@ cdef void _mod_float32(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_float32 = <size_t> _mod_float32
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_float32_const(void *a, float c, void *d, size_t l) nogil:
     cdef float *pa = <float *> a
@@ -2199,6 +3032,12 @@ cpdef op_float64_const(fn, a, c, d, l):
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _add_float64(void *a, void *b, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
     cdef double *pb = <double *> b
@@ -2210,6 +3049,12 @@ cdef void _add_float64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_add_float64 = <size_t> _add_float64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _add_float64_const(void *a, double c, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
@@ -2225,6 +3070,12 @@ _pfn_add_float64_const = <size_t> _add_float64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _sub_float64(void *a, void *b, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
     cdef double *pb = <double *> b
@@ -2236,6 +3087,12 @@ cdef void _sub_float64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_sub_float64 = <size_t> _sub_float64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _sub_float64_const(void *a, double c, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
@@ -2251,6 +3108,12 @@ _pfn_sub_float64_const = <size_t> _sub_float64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mul_float64(void *a, void *b, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
     cdef double *pb = <double *> b
@@ -2262,6 +3125,12 @@ cdef void _mul_float64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mul_float64 = <size_t> _mul_float64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mul_float64_const(void *a, double c, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
@@ -2277,6 +3146,12 @@ _pfn_mul_float64_const = <size_t> _mul_float64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _div_float64(void *a, void *b, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
     cdef double *pb = <double *> b
@@ -2288,6 +3163,12 @@ cdef void _div_float64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_div_float64 = <size_t> _div_float64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _div_float64_const(void *a, double c, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
@@ -2303,6 +3184,12 @@ _pfn_div_float64_const = <size_t> _div_float64_const
 
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+
 cdef void _mod_float64(void *a, void *b, void *d, size_t l) nogil:
     cdef double *pa = <double *> a
     cdef double *pb = <double *> b
@@ -2314,6 +3201,12 @@ cdef void _mod_float64(void *a, void *b, void *d, size_t l) nogil:
 
 _pfn_mod_float64 = <size_t> _mod_float64
 
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
 
 cdef void _mod_float64_const(void *a, double c, void *d, size_t l) nogil:
     cdef double *pa = <double *> a

@@ -2,6 +2,8 @@
 TODO:
  - non-cpdef inners, single gateway that takes fn ptr, globall dct of fn ptrs by name/spec/whatever
 """
+cimport cython
+
 from cpython.buffer cimport PyBUF_ANY_CONTIGUOUS
 from cpython.buffer cimport PyBUF_SIMPLE
 from cpython.buffer cimport PyBuffer_Release
@@ -52,6 +54,14 @@ from libc.stdint cimport ${typ}_t
 % endfor
 
 
+<%def name="cy_opt_decos()">
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+</%def>
+
+
 % for typ_nam, typ_s, typ_is_int in typ_tups:
 
 
@@ -93,6 +103,7 @@ cpdef op_${typ_nam}_const(fn, a, c, d, l):
 % for op_nam, op_s in (com_op_tups + (int_op_tups if typ_is_int else [])):
 
 
+${cy_opt_decos()}
 cdef void _${op_nam}_${typ_nam}(void *a, void *b, void *d, size_t l) nogil:
     cdef ${typ_s} *pa = <${typ_s} *> a
     cdef ${typ_s} *pb = <${typ_s} *> b
@@ -105,6 +116,7 @@ cdef void _${op_nam}_${typ_nam}(void *a, void *b, void *d, size_t l) nogil:
 _pfn_${op_nam}_${typ_nam} = <size_t> _${op_nam}_${typ_nam}
 
 
+${cy_opt_decos()}
 cdef void _${op_nam}_${typ_nam}_const(void *a, ${typ_s} c, void *d, size_t l) nogil:
     cdef ${typ_s} *pa = <${typ_s} *> a
     cdef ${typ_s} *pd = <${typ_s} *> d
