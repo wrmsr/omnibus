@@ -5,9 +5,9 @@ from .. import antlr
 from .. import check
 from .. import dataclasses as dc
 from .._vendor import antlr4
-from ._antlr.Python3Lexer import Python3Lexer  # type: ignore
-from ._antlr.Python3Parser import Python3Parser  # type: ignore
-from ._antlr.Python3Visitor import Python3Visitor  # type: ignore
+from ._antlr import Python3Lexer  # type: ignore
+from ._antlr import Python3Parser  # type: ignore
+from ._antlr import Python3Visitor  # type: ignore
 
 
 T = ta.TypeVar('T')

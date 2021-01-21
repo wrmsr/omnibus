@@ -1,9 +1,9 @@
 import os.path
 
 from ..._vendor import antlr4
-from .._antlr.GraphqlLexer import GraphqlLexer  # type: ignore
-from .._antlr.GraphqlListener import GraphqlListener  # type: ignore
-from .._antlr.GraphqlParser import GraphqlParser  # type: ignore
+from .._antlr import GraphqlLexer  # type: ignore
+from .._antlr import GraphqlListener  # type: ignore
+from .._antlr import GraphqlParser  # type: ignore
 
 
 class GraphqlPrintListener(GraphqlListener):

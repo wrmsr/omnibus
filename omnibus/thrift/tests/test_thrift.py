@@ -1,9 +1,9 @@
 import os.path
 
 from ..._vendor import antlr4
-from .._antlr.ThriftLexer import ThriftLexer  # type: ignore
-from .._antlr.ThriftListener import ThriftListener  # type: ignore
-from .._antlr.ThriftParser import ThriftParser  # type: ignore
+from .._antlr import ThriftLexer  # type: ignore
+from .._antlr import ThriftListener  # type: ignore
+from .._antlr import ThriftParser  # type: ignore
 
 
 class ThriftPrintListener(ThriftListener):

@@ -19,9 +19,9 @@ import typing as ta
 from ...._vendor import antlr4
 
 from .... import check
-from ._antlr.HoconLexer import HoconLexer  # type: ignore
-from ._antlr.HoconListener import HoconListener  # type: ignore
-from ._antlr.HoconParser import HoconParser  # type: ignore
+from ._antlr import HoconLexer  # type: ignore
+from ._antlr import HoconListener  # type: ignore
+from ._antlr import HoconParser  # type: ignore
 from .types import CompoundValue
 from .types import NumberValue
 from .types import ObjectValue

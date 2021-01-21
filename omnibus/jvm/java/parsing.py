@@ -3,9 +3,9 @@ import typing as ta
 from ... import antlr
 from ... import lang  # noqa
 from ..._vendor import antlr4
-from ._antlr.Java8Lexer import Java8Lexer  # type: ignore
-from ._antlr.Java8Parser import Java8Parser  # type: ignore
-from ._antlr.Java8Visitor import Java8Visitor  # type: ignore
+from ._antlr import Java8Lexer  # type: ignore
+from ._antlr import Java8Parser  # type: ignore
+from ._antlr import Java8Visitor  # type: ignore
 
 
 T = ta.TypeVar('T')

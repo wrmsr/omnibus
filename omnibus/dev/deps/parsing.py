@@ -11,9 +11,9 @@ from ... import dataclasses as dc
 from ... import dispatch
 from ... import nodal
 from ..._vendor import antlr4
-from ._antlr.Pep508Lexer import Pep508Lexer  # type: ignore
-from ._antlr.Pep508Parser import Pep508Parser  # type: ignore
-from ._antlr.Pep508Visitor import Pep508Visitor  # type: ignore
+from ._antlr import Pep508Lexer  # type: ignore
+from ._antlr import Pep508Parser  # type: ignore
+from ._antlr import Pep508Visitor  # type: ignore
 
 
 T = ta.TypeVar('T')

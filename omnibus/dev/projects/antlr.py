@@ -80,11 +80,6 @@ class Cli(ap.Cli):
             if not os.path.exists(ap):
                 os.mkdir(ap)
 
-            ip = os.path.join(ap, '__init__.py')
-            if not os.path.exists(ip):
-                with open(ip, 'w') as f:
-                    f.write('')
-
             shutil.copy(fn, ap)
             aps.add(ap)
 
@@ -127,6 +122,7 @@ class Cli(ap.Cli):
                 fp = os.path.join(ap, fn)
                 os.unlink(fp)
 
+            init_lines = []
             fns = [fn for fn in os.listdir(ap) if fn.endswith('.py') and fn != '__init__.py']
             for fn in fns:
                 if self.args.self_vendor:
@@ -147,9 +143,20 @@ class Cli(ap.Cli):
                     '# type: ignore\n',
                 ] + [fix(l) for l in lines]
 
+                for l in lines:
+                    m = re.match(r'^class (?P<cn>[A-Za-z0-9_]+)', l)
+                    if m is not None:
+                        fcn = fn.split('.')[0]
+                        init_lines.append(f'from .{fcn} import {m.groupdict()["cn"]}  # noqa')
+
                 with open(fp, 'w') as f:
                     f.write(''.join(lines).strip())
                     f.write('\n')
+
+            ip = os.path.join(ap, '__init__.py')
+            with open(ip, 'w') as f:
+                f.write('\n'.join(sorted(init_lines)))
+                f.write('\n')
 
 
 def main():

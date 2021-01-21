@@ -1,9 +1,9 @@
 import textwrap
 
 from .. import antlr
-from ._antlr.ChatLexer import ChatLexer  # type: ignore
-from ._antlr.ChatParser import ChatParser  # type: ignore
-from ._antlr.ChatVisitor import ChatVisitor  # type: ignore
+from ._antlr import ChatLexer  # type: ignore
+from ._antlr import ChatParser  # type: ignore
+from ._antlr import ChatVisitor  # type: ignore
 
 
 class MyVisitor(ChatVisitor):

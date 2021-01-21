@@ -1,9 +1,9 @@
 import os.path
 
 from ....._vendor import antlr4
-from .._antlr.TomlLexer import TomlLexer  # type: ignore
-from .._antlr.TomlParser import TomlParser  # type: ignore
-from .._antlr.TomlVisitor import TomlVisitor  # type: ignore
+from .._antlr import TomlLexer  # type: ignore
+from .._antlr import TomlParser  # type: ignore
+from .._antlr import TomlVisitor  # type: ignore
 
 
 def test_toml():

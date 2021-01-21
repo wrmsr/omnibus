@@ -3,8 +3,8 @@ import textwrap
 from .. import antlr
 from .. import dot as adot
 from ...graphs.dot import dot
-from ._antlr.ChatLexer import ChatLexer  # type: ignore
-from ._antlr.ChatParser import ChatParser  # type: ignore
+from ._antlr import ChatLexer  # type: ignore
+from ._antlr import ChatParser  # type: ignore
 
 
 def test_dot():
