@@ -206,6 +206,8 @@ def field(
         compare: bool = True,
         metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None,
 
+        new: ta.Union[ta.Callable[[], ta.Any], MISSING_TYPE] = MISSING,
+
         doc: ta.Optional[str] = None,
         mangled: ta.Optional[str] = None,
         size: ta.Optional[ta.Any] = None,
@@ -221,6 +223,11 @@ def field(
 
         **kwargs,
 ) -> Field:
+    if new is not MISSING:
+        if default_factory is not MISSING:
+            raise TypeError('May not specify both default_factory and new (an alias for default_factory)')
+        default_factory, new = new, MISSING
+
     extra_field_params = ExtraFieldParams(
         doc=doc,
         mangled=mangled,

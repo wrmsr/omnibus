@@ -10,5 +10,5 @@ def test_add():
     a = array.array(t, list(range(l)))
     b = array.array(t, list(range(l, l * 2)))
     c = array.array(t, [0] * l)
-    vmath_.add_int32(a, b, c, l)
+    vmath_.op_int32(vmath_._pfn_add_int32, a, b, c, l)
     assert list(c) == [l + r for l, r in zip(a, b)]
