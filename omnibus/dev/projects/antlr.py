@@ -117,7 +117,7 @@ class Cli(ap.Cli):
             asyncs.await_futures(futs, raise_exceptions=True, timeout_s=60 * 60)
 
         for ap in sorted(aps):
-            fns = [fn for fn in os.listdir(ap) if fn.endswith('.g4')]
+            fns = [fn for fn in os.listdir(ap) if not fn.endswith('.py')]
             for fn in fns:
                 fp = os.path.join(ap, fn)
                 os.unlink(fp)
