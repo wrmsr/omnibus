@@ -4,6 +4,7 @@ FIXME:
  - typing.get_args/get_origin equivs for 3.7, deprecate
 """
 import enum
+import sys
 import typing as ta
 
 from .. import lang
@@ -12,9 +13,14 @@ from .. import lang
 NoneType = type(None)
 SpecialForm = ta._SpecialForm
 GenericAlias = ta._GenericAlias  # type: ignore
-VariadicGenericAlias = ta._VariadicGenericAlias  # type: ignore
-TypeLikes = (ta.Type, GenericAlias)
-TypeLike = ta.Union[ta.Type, GenericAlias]  # type: ignore
+
+if sys.version_info < (3, 9):
+    BaseGenericAlias = ta._GenericAlias  # noqa
+else:
+    BaseGenericAlias = ta._BaseGenericAlias  # noqa
+
+TypeLikes = (ta.Type, BaseGenericAlias)
+TypeLike = ta.Union[ta.Type, BaseGenericAlias]  # type: ignore
 
 
 class Var(lang.NotInstantiable):

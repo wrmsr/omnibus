@@ -10,16 +10,17 @@ from ... import reflect as rfl
 T = ta.TypeVar('T')
 
 
-Primitive = ta.Union[
-    None,
+PRIMITIVE_TYPES_TUPLE = (
+    type(None),
     bool,
     float,
     int,
     str,
-]
+)
 
-PRIMITIVE_TYPES: ta.AbstractSet[type] = frozenset(Primitive.__args__)
-PRIMITIVE_TYPES_TUPLE = tuple(PRIMITIVE_TYPES)
+Primitive = ta.Union[PRIMITIVE_TYPES_TUPLE]
+
+PRIMITIVE_TYPES: ta.AbstractSet[type] = frozenset(PRIMITIVE_TYPES_TUPLE)
 
 
 MappingKey = ta.Union[int, str]

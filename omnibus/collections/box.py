@@ -1,5 +1,6 @@
 import abc
 import functools
+import sys
 import typing as ta
 
 from .. import lang
@@ -8,6 +9,18 @@ from .. import lang
 T = ta.TypeVar('T')
 
 BoxT = ta.TypeVar('BoxT', bound='Box')
+
+
+if sys.version_info < (3, 8):
+    def _get_tp_args(tp):
+        return getattr(tp, '__args__', None)
+
+    def _get_tp_origin(tp):
+        return getattr(tp, '__origin__', None)
+
+else:
+    _get_tp_args = ta.get_args
+    _get_tp_origin = ta.get_origin
 
 
 class _BoxMeta(abc.ABCMeta):
@@ -30,8 +43,8 @@ class _BoxMeta(abc.ABCMeta):
                 a
                 for b in namespace.get('__orig_bases__', [])
                 if isinstance(b, ta._GenericAlias)  # noqa
-                and getattr(b, '__origin__', None) is Box
-                for a in getattr(b, '__args__')
+                and _get_tp_origin(b) is Box
+                for a in _get_tp_args(b)
             ] or [None]
             args = list(filter(None, [base_arg, box_arg]))
             if not args or not all(a is args[0] for a in args[1:]):

@@ -1,18 +1,61 @@
 import abc
+import sys
 import types
 import typing as ta
 
 from .. import check
 from .. import lang
+from .types import BaseGenericAlias
 from .types import GenericAlias
 from .types import TypeLike
+
+
+if sys.version_info < (3, 8):
+    def get_args(tp):
+        if isinstance(tp, GenericAlias):
+            return tp.__args__
+        return None
+
+    def get_origin(tp):
+        if isinstance(tp, GenericAlias):
+            return tp.__origin__
+        if tp is ta.Generic:
+            return ta.Generic
+        return None
+
+else:
+    get_args = ta.get_args
+    get_origin = ta.get_origin
+
+
+if sys.version_info < (3, 9):
+    def get_parameters(tp):
+        if isinstance(tp, type) and issubclass(tp, ta.Generic):  # noqa
+            return tp.__parameters__  # noqa
+        if isinstance(tp, ta._GenericAlias):  # noqa
+            return tp.__parameters__  # noqa
+        raise TypeError(tp)
+
+else:
+    def get_parameters(tp):
+        if isinstance(tp, type) and issubclass(tp, ta.Generic):  # noqa
+            return tp.__parameters__  # noqa
+        if isinstance(tp, ta._GenericAlias):  # noqa
+            return tp.__parameters__  # noqa
+        if isinstance(tp, ta._SpecialGenericAlias):  # noqa
+            return tuple(ta.TypeVar(f'_{i}') for i in range(tp._nparams))  # noqa
+        raise TypeError(tp)
+
+
+def get_special_args(tp):
+    return tp.__args__
 
 
 def is_generic(cls: TypeLike) -> bool:
     if isinstance(cls, GenericAlias):
         return True
     elif isinstance(cls, type):
-        return issubclass(cls, ta.Generic) and cls.__parameters__  # noqa
+        return issubclass(cls, ta.Generic) and get_parameters(cls)  # noqa
     else:
         raise TypeError(cls)
 
@@ -20,41 +63,50 @@ def is_generic(cls: TypeLike) -> bool:
 def unerase_generic(cls: TypeLike) -> GenericAlias:
     check.arg(is_generic(cls))
     if isinstance(cls, type):
-        return cls.__class_getitem__(cls.__parameters__)
+        return cls.__class_getitem__(get_parameters(cls))
     elif isinstance(cls, GenericAlias):
         return cls
     else:
         raise TypeError(cls)
 
 
+if sys.version_info < (3, 9):
+    def _is_special(tp):
+        return tp._special
+
+else:
+    def _is_special(tp):
+        return isinstance(tp, ta._SpecialGenericAlias)  # noqa
+
+
 ROOT_SPECIALS_BY_NAME = {
-    s._name: s for a in dir(ta) for s in [getattr(ta, a)] if isinstance(s, GenericAlias) and s._special
+    s._name: s for a in dir(ta) for s in [getattr(ta, a)] if isinstance(s, BaseGenericAlias) and _is_special(s)
 }
 
 
-def get_root_special(cls: GenericAlias) -> GenericAlias:
-    if not isinstance(cls, GenericAlias):
+def get_root_special(cls: BaseGenericAlias) -> GenericAlias:
+    if not isinstance(cls, BaseGenericAlias):
         raise TypeError(cls)
-    elif cls._special:
+    elif _is_special(cls):
         return cls
     else:
-        check.state(not issubclass(cls.__origin__, ta.Generic))  # noqa
+        check.state(not issubclass(get_origin(cls), ta.Generic))  # noqa
         # FIXME: https://bugs.python.org/issue32873
         # special = getattr(ta, cls._name)
         special = ROOT_SPECIALS_BY_NAME[cls._name]
-        check.isinstance(special, GenericAlias)
+        check.isinstance(special, BaseGenericAlias)
         check.state(special is not cls)
-        check.state(special._special)
+        check.state(_is_special(special))
         return special
 
 
-def is_special_generic(cls: GenericAlias) -> bool:
-    if not isinstance(cls, GenericAlias):
+def is_special_generic(cls: BaseGenericAlias) -> bool:
+    if not isinstance(cls, BaseGenericAlias):
         raise TypeError(cls)
-    elif not issubclass(cls.__origin__, ta.Generic):  # noqa
+    elif not issubclass(get_origin(cls), ta.Generic):  # noqa
         get_root_special(cls)
         return True
-    elif cls._special:
+    elif _is_special(cls):
         return True
     else:
         return False
@@ -66,8 +118,8 @@ def is_new_type(cls: TypeLike) -> bool:
 
 def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
     if isinstance(cls, GenericAlias):
-        check.state(cls.__origin__ is not cls)
-        return generic_bases(cls.__origin__)
+        check.state(get_origin(cls) is not cls)
+        return generic_bases(get_origin(cls))
     elif not isinstance(cls, type):
         raise TypeError(cls)
     else:
@@ -78,8 +130,8 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
         return [
             (
                 (
-                    b.__getitem__((ta.Any,) * len(b.__parameters__))
-                    if b._special and b.__parameters__ else
+                    b.__getitem__((ta.Any,) * len(get_parameters(b)))
+                    if _is_special(b) and get_parameters(b) else
                     b
                 ) if isinstance(b, GenericAlias) else
                 b.__mro_entries__(bases) if hasattr(b, '__mro_entries__') else
@@ -88,7 +140,7 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
             for b in bases
             if b is not ta.Generic and not (
                 isinstance(b, GenericAlias) and
-                b.__origin__ is ta.Generic
+                get_origin(b) is ta.Generic
             )
         ]
 
@@ -96,7 +148,7 @@ def generic_bases(cls: TypeLike) -> ta.Sequence[TypeLike]:
 class _UnionVirtualMeta(type):
 
     def __subclasscheck__(cls, subclass):
-        return isinstance(subclass, GenericAlias) and cls.__origin__ is ta.Union
+        return isinstance(subclass, GenericAlias) and get_origin(cls) is ta.Union
 
     def __instancecheck__(cls, instance):
         raise TypeError
@@ -113,10 +165,10 @@ class UnionVirtual(metaclass=_UnionVirtualMeta):
 
 def erase_generic(cls: TypeLike) -> ta.Optional[ta.Type]:
     if isinstance(cls, GenericAlias):
-        if cls.__origin__ is ta.Union:
+        if get_origin(cls) is ta.Union:
             return UnionVirtual
         else:
-            return cls.__origin__
+            return get_origin(cls)
     elif isinstance(cls, type):
         return cls
     else:
@@ -150,11 +202,11 @@ def is_dependent(cls: ta.Type) -> bool:
 def unpack_optional(cls: TypeLike) -> ta.Optional[TypeLike]:
     if (
             is_generic(cls) and
-            getattr(cls, '__origin__', None) is ta.Union and
-            len(cls.__args__) == 2 and
-            type(None) in cls.__args__
+            get_origin(cls) is ta.Union and
+            len(get_special_args(cls)) == 2 and
+            type(None) in get_special_args(cls)
     ):
-        [arg] = [a for a in cls.__args__ if a is not type(None)]  # noqa
+        [arg] = [a for a in get_special_args(cls) if a is not type(None)]  # noqa
         return arg
     return None
 

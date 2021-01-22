@@ -27,16 +27,19 @@ from .. import check
 from .. import defs
 from .. import lang
 from .. import properties
+from .types import BaseGenericAlias
 from .types import GenericAlias
 from .types import NoneType
 from .types import TypeLike
 from .types import TypeLikes
 from .types import Var
-from .types import VariadicGenericAlias
 from .types import Variance
 from .util import erase_generic
 from .util import generic_bases
+from .util import get_origin
+from .util import get_parameters
 from .util import get_root_special
+from .util import get_special_args
 from .util import is_generic
 from .util import is_new_type
 from .util import is_special_generic
@@ -193,11 +196,11 @@ class UnionSpec(Spec, lang.Final):
         super().__init__(cls)
 
         check.arg(isinstance(cls, GenericAlias))
-        check.arg(cls.__origin__ is ta.Union)
+        check.arg(get_origin(cls) is ta.Union)
 
     @properties.cached
     def cls_args(self) -> ta.Sequence[Specable]:
-        return self._cls.__args__
+        return get_special_args(self._cls)
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
@@ -257,7 +260,7 @@ class TypeSpec(Spec, ta.Generic[T], lang.Sealed, lang.Abstract):
     def __init__(self, cls: TypeLike) -> None:
         super().__init__(cls)
 
-        check.arg(isinstance(cls, TypeLike.__args__))  # type: ignore
+        check.arg(isinstance(cls, get_special_args(TypeLike)))  # type: ignore
 
     @property
     def cls(self) -> TypeLike:
@@ -320,13 +323,12 @@ OBJECT = NonGenericTypeSpec(object)
 
 class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
-    def __init__(self, cls: GenericAlias) -> None:
+    def __init__(self, cls: BaseGenericAlias) -> None:
         super().__init__(cls)
 
-        check.arg(isinstance(cls, GenericAlias))
-        check.arg(not isinstance(cls, VariadicGenericAlias))
-        check.arg(cls.__args__)  # type: ignore
-        check.arg(isinstance(cls.__origin__, type))  # type: ignore
+        check.arg(isinstance(cls, BaseGenericAlias))
+        check.arg(get_special_args(cls))  # type: ignore
+        check.arg(isinstance(get_origin(cls), type))  # type: ignore
 
     @property
     def cls(self) -> GenericAlias:
@@ -334,7 +336,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @property
     def erased_cls(self) -> ta.Type:
-        return self.cls.__origin__  # type: ignore
+        return get_origin(self.cls)
 
     @properties.cached
     def erased(self) -> TypeSpec:
@@ -342,7 +344,7 @@ class GenericTypeSpec(TypeSpec[T], lang.Sealed, lang.Abstract):
 
     @property
     def cls_args(self) -> ta.Sequence[Specable]:
-        return self.cls.__args__  # type: ignore
+        return get_special_args(self.cls)  # type: ignore
 
     @properties.cached
     def args(self) -> ta.Sequence[Spec]:
@@ -368,13 +370,13 @@ class ParameterizedGenericTypeSpec(GenericTypeSpec[T], lang.Sealed, lang.Abstrac
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
         def reify_args(cls: Specable) -> TypeLike:
-            if not (isinstance(cls, GenericAlias) and cls.__args__):  # type: ignore
+            if not (isinstance(cls, GenericAlias) and get_special_args(cls)):  # type: ignore
                 return cls
             else:
-                check.state(cls.__origin__ is not None)  # type: ignore
-                args = [self.vars[a].cls if isinstance(a, Var) else a for a in cls.__args__]  # type: ignore
-                return cls.__origin__.__class_getitem__(tuple(args))  # type: ignore
-        return [reify_args(b) for b in self._cls.__origin__.__orig_bases__ if erase_generic(b) is not ta.Generic]  # type: ignore  # noqa
+                check.state(get_origin(cls) is not None)  # type: ignore
+                args = [self.vars[a].cls if isinstance(a, Var) else a for a in get_special_args(cls)]  # type: ignore
+                return get_origin(cls).__class_getitem__(tuple(args))  # type: ignore
+        return [reify_args(b) for b in get_origin(self._cls).__orig_bases__ if erase_generic(b) is not ta.Generic]  # type: ignore  # noqa
 
     @property
     @abc.abstractmethod
@@ -401,7 +403,7 @@ class ExplicitParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fi
 
     @properties.cached
     def cls_parameters(self) -> ta.Sequence[Var]:
-        return self.erased_cls.__parameters__  # type: ignore
+        return get_parameters(self.erased_cls)
 
     def accept(self, visitor: SpecVisitor[T]) -> T:
         return visitor.visit_explicit_parameterized_generic_type_spec(self)
@@ -411,9 +413,9 @@ class SpecialParameterizedGenericTypeSpec(ParameterizedGenericTypeSpec, lang.Fin
 
     def __init__(self, cls: GenericAlias) -> None:
         check.arg(is_special_generic(cls))
-        check.arg(not is_generic(cls.__origin__))
-        check.arg(not hasattr(cls.__origin__, '__orig_bases__'))
-        cls_parameters: ta.Sequence[Var] = get_root_special(cls).__parameters__
+        check.arg(not is_generic(get_origin(cls)))
+        check.arg(not hasattr(get_origin(cls), '__orig_bases__'))
+        cls_parameters: ta.Sequence[Var] = get_parameters(get_root_special(cls))
         check.arg(all(isinstance(p, Var) for p in cls_parameters))
         self._cls_parameters = cls_parameters
 
@@ -440,7 +442,7 @@ class TupleTypeSpec(VariadicGenericTypeSpec[T], lang.Final):
     def __init__(self, cls: GenericAlias) -> None:
         super().__init__(cls)
 
-        check.arg(cls.__origin__ is tuple)
+        check.arg(get_origin(cls) is tuple)
 
     @property
     def bases_cls(self) -> ta.Sequence[TypeLike]:
@@ -459,12 +461,10 @@ def _spec(cls: Specable) -> Spec:
         return ANY
     elif isinstance(cls, Var):
         return VarSpec(cls)
-    elif isinstance(cls, VariadicGenericAlias):
-        raise TypeError(cls)
-    elif isinstance(cls, GenericAlias):
-        if cls.__origin__ is tuple:
+    elif isinstance(cls, BaseGenericAlias):
+        if get_origin(cls) is tuple:
             return TupleTypeSpec(cls)
-        elif cls.__origin__ is ta.Union:
+        elif get_origin(cls) is ta.Union:
             return UnionSpec(cls)
         elif is_special_generic(cls):
             return SpecialParameterizedGenericTypeSpec(cls)
@@ -476,8 +476,8 @@ def _spec(cls: Specable) -> Spec:
         return ANY_UNION
     elif not isinstance(cls, type):
         raise TypeError(cls)
-    elif is_generic(cls) and cls.__parameters__:
-        return spec(cls.__class_getitem__((ta.Any,) * len(cls.__parameters__)))
+    elif is_generic(cls) and get_parameters(cls):
+        return spec(cls.__class_getitem__((ta.Any,) * len(get_parameters(cls))))
     else:
         return NonGenericTypeSpec(cls)
 

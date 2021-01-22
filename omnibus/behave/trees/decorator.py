@@ -1,9 +1,10 @@
 import random
 import typing as ta
 
-from .base import Task
+from ... import lang
 from .base import Decorator
 from .base import LoopDecorator
+from .base import Task
 
 
 E = ta.TypeVar('E')
@@ -93,7 +94,7 @@ class Repeat(LoopDecorator[E]):
             self._loop = True
 
 
-class Semaphore(ta.Protocol):
+class Semaphore(lang.Protocol):
 
     def acquire(self, num: int = 1) -> bool:
         ...

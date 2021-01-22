@@ -205,6 +205,10 @@ build: venv gen build-ext
 build-37: venv-37 gen
 	$(call do-build,.venv-37)
 
+.PHONY: build-39
+build-39: venv-39 gen
+	$(call do-build,.venv-39)
+
 
 ### Check
 
@@ -345,6 +349,10 @@ dist: venv build
 .PHONY: dist-37
 dist-37: venv-37
 	$(call do-dist,.venv-37,0,0)
+
+.PHONY: dist-39
+dist-39: venv-39
+	$(call do-dist,.venv-39,0,0)
 
 
 ### Dev
@@ -497,6 +505,7 @@ docker-invalidate:
 docker-clean-venv:
 	rm -rf .venv-docker
 	rm -rf .venv-docker-37
+	rm -rf .venv-docker-39
 
 .PHONY: docker-venv
 docker-venv:
@@ -505,6 +514,10 @@ docker-venv:
 .PHONY: docker-venv-37
 docker-venv-37:
 	./docker-dev make _docker-venv-37
+
+.PHONY: docker-venv-39
+docker-venv-39:
+	./docker-dev make _docker-venv-39
 
 .PHONY: _docker-venv
 _docker-venv:
@@ -520,6 +533,13 @@ _docker-venv-37:
 		$(call do-deps,.venv-docker-37,$(REQUIREMENTS_TXT)) ; \
 	fi
 
+.PHONY: _docker-venv-39
+_docker-venv-39:
+	if [ ! -d .venv-docker-39 ] ; then \
+		$(call do-venv,.venv-docker-39,$(PYTHON_39_VERSION)) ; \
+		$(call do-deps,.venv-docker-39,$(REQUIREMENTS_TXT)) ; \
+	fi
+
 ## Deps
 
 .PHONY: docker-deps
@@ -530,6 +550,10 @@ docker-deps:
 docker-deps-37:
 	./docker-dev make _docker-deps-37
 
+.PHONY: docker-deps-39
+docker-deps-39:
+	./docker-dev make _docker-deps-39
+
 .PHONY: _docker-deps
 _docker-deps: _docker-venv
 	$(call do-deps,.venv-docker,$(REQUIREMENTS_TXT))
@@ -537,6 +561,10 @@ _docker-deps: _docker-venv
 .PHONY: _docker-deps-37
 _docker-deps-37: _docker-venv-37
 	$(call do-deps,.venv-docker-37,$(REQUIREMENTS_TXT))
+
+.PHONY: _docker-deps-39
+_docker-deps-39: _docker-venv-39
+	$(call do-deps,.venv-docker-39,$(REQUIREMENTS_TXT))
 
 ## Build
 
@@ -548,6 +576,10 @@ docker-build: docker-venv
 docker-build-37: docker-venv-37
 	./docker-dev make _docker-build-37
 
+.PHONY: docker-build-39
+docker-build-39: docker-venv-39
+	./docker-dev make _docker-build-39
+
 .PHONY: _docker-build
 _docker-build: _docker-venv
 	$(call do-build,.venv-docker)
@@ -555,6 +587,10 @@ _docker-build: _docker-venv
 .PHONY: _docker-build-37
 _docker-build-37: _docker-venv-37
 	$(call do-build,.venv-docker-37)
+
+.PHONY: _docker-build-39
+_docker-build-39: _docker-venv-39
+	$(call do-build,.venv-docker-39)
 
 ## Test
 
@@ -566,6 +602,10 @@ docker-test: docker-build
 docker-test-37: docker-build-37
 	./docker-dev .venv-docker-37/bin/pytest -v -n auto $(PROJECT)
 
+.PHONY: docker-test-39
+docker-test-39: docker-build-39
+	./docker-dev .venv-docker-39/bin/pytest -v -n auto $(PROJECT)
+
 ## Dist
 
 .PHONY: docker-dist
@@ -576,6 +616,10 @@ docker-dist: docker-venv
 docker-dist-37: docker-venv-37
 	./docker-dev make _docker-dist-37
 
+.PHONY: docker-dist-39
+docker-dist-39: docker-venv-39
+	./docker-dev make _docker-dist-39
+
 .PHONY: _docker-dist
 _docker-dist: _docker-venv
 	$(call do-dist,.venv-docker,0,1)
@@ -583,6 +627,10 @@ _docker-dist: _docker-venv
 .PHONY: _docker-dist-37
 _docker-dist-37: _docker-venv-37
 	$(call do-dist,.venv-docker-37,0,1)
+
+.PHONY: _docker-dist-39
+_docker-dist-39: _docker-venv-39
+	$(call do-dist,.venv-docker-39,0,1)
 
 
 ### Ci
