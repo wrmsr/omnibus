@@ -17,6 +17,7 @@ from .coerce import seq  # noqa
 from .coerce import seq_of  # noqa
 from .coerce import seq_of_or_none  # noqa
 from .coerce import seq_or_none  # noqa
+from .collections import ORDERING_TYPES  # noqa
 from .collections import histogram  # noqa
 from .collections import list_dict  # noqa
 from .collections import mut_toposort  # noqa
@@ -27,6 +28,7 @@ from .collections import partition  # noqa
 from .collections import set_dict  # noqa
 from .collections import toposort  # noqa
 from .collections import unify  # noqa
+from .collections import unique  # noqa
 from .collections import unique_dict  # noqa
 from .frozen import Frozen  # noqa
 from .frozen import FrozenDict  # noqa

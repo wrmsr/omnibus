@@ -5,18 +5,15 @@ TODO:
 """
 import typing as ta  # noqa
 
-from .. import lang
-from ..serde.formats import yaml
-
-
-lang.warn_unstable()
+from ... import lang
+from ...serde.formats import yaml
 
 
 def reorder_cfg_service_ports(cfg: dict) -> dict:
     return cfg
 
 
-def main():
+def test_compose():
     with open('docker/docker-compose.yml') as r:
         buf = r.read()
 
@@ -93,7 +90,3 @@ def main():
     pprint.pprint(rocfg)
 
     print(yaml_.dump(rocfg, default_flow_style=False))
-
-
-if __name__ == '__main__':
-    main()
