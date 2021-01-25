@@ -3220,3 +3220,41 @@ cdef void _mod_float64_const(void *a, double c, void *d, size_t l) nogil:
 _pfn_mod_float64_const = <size_t> _mod_float64_const
 
 
+
+
+# cdef extern from "math.h":
+#     float       fmaf(float x, float y, float z)
+#     double      fma(double x, double y, double z)
+#     long double fmal(long double x, long double y, long double z)
+#
+#
+# % for (typ_nm, typ_s), fn_nam in zip(float_typ_pairs, ['fmaf', 'fma']):
+#
+#
+# \{cy_opt_decos()}
+# cdef void _fma_\{typ_nam}(void *a, void *b, void *d, size_t l) nogil:
+#     cdef \{typ_s} *pa = <\{typ_s} *> a
+#     cdef \{typ_s} *pb = <\{typ_s} *> b
+#     cdef \{typ_s} *pd = <\{typ_s} *> d
+#     cdef size_t i = 0
+#     while i < l:
+#         pd[i] = <\{typ_s}> \{fn_nam}(pa[i], pb[i])
+#         i += 1
+#
+# _pfn_fma_\{typ_nam} = <size_t> _fma_\{typ_nam}
+#
+#
+# \{cy_opt_decos()}
+# cdef void _fma_\{typ_nam}_const(void *a, \{typ_s} c, void *d, size_t l) nogil:
+#     cdef \{typ_s} *pa = <\{typ_s} *> a
+#     cdef \{typ_s} *pd = <\{typ_s} *> d
+#     cdef size_t i = 0
+#     while i < l:
+#         pd[i] = <\{typ_s}> \{fn_nam}(pa[i], c)
+#         i += 1
+#
+#
+# _pfn_fma_\{typ_nam}_const = <size_t> _fma_\{typ_nam}_const
+#
+#
+# % endfor
