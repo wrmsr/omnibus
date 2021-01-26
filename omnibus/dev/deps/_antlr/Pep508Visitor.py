@@ -121,20 +121,5 @@ class Pep508Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by Pep508Parser#urlReq.
-    def visitUrlReq(self, ctx:Pep508Parser.UrlReqContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by Pep508Parser#urlspec.
-    def visitUrlspec(self, ctx:Pep508Parser.UrlspecContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by Pep508Parser#uriReference.
-    def visitUriReference(self, ctx:Pep508Parser.UriReferenceContext):
-        return self.visitChildren(ctx)
-
-
 
 del Pep508Parser

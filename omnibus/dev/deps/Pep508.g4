@@ -120,7 +120,7 @@ oneSpec
 
 spec
     : nameReq
-    | urlReq
+//    | urlReq
     ;
 
 nameReq
@@ -221,8 +221,8 @@ envVar
     ;
 
 pythonStr
-    : SQUOTE (pythonChar | DQUOTE)* SQUOTE
-    | DQUOTE (pythonChar | SQUOTE)* DQUOTE
+    : SQUOTE (~DQUOTE)* SQUOTE
+    | DQUOTE (~SQUOTE)* DQUOTE
     ;
 
 pythonChar
@@ -258,27 +258,27 @@ pythonChar
     | '>'
     ;
 
-urlReq
-    : name extras? urlspec quotedMarker?
-    ;
+//urlReq
+//    : name extras? urlspec quotedMarker?
+//    ;
 
-urlspec
-    : '@' uriReference
-    ;
+//urlspec
+//    : '@' uriReference
+//    ;
 
-uriReference
-    : URI_CHAR+
-    ;
+//uriReference
+//    : URI_CHAR+
+//    ;
+
+//uriChar
+//    : LETTER_OR_DIGIT+
+//    |
 
 AND: 'and';
 EXTRA: 'extra';
 IN: 'in';
 NOT: 'not';
 OR: 'or';
-
-URI_CHAR
-    : [^ \t;]
-    ;
 
 LETTERS_OR_DIGITS
     : LETTER_OR_DIGIT+

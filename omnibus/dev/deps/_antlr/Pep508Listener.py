@@ -208,32 +208,5 @@ class Pep508Listener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by Pep508Parser#urlReq.
-    def enterUrlReq(self, ctx:Pep508Parser.UrlReqContext):
-        pass
-
-    # Exit a parse tree produced by Pep508Parser#urlReq.
-    def exitUrlReq(self, ctx:Pep508Parser.UrlReqContext):
-        pass
-
-
-    # Enter a parse tree produced by Pep508Parser#urlspec.
-    def enterUrlspec(self, ctx:Pep508Parser.UrlspecContext):
-        pass
-
-    # Exit a parse tree produced by Pep508Parser#urlspec.
-    def exitUrlspec(self, ctx:Pep508Parser.UrlspecContext):
-        pass
-
-
-    # Enter a parse tree produced by Pep508Parser#uriReference.
-    def enterUriReference(self, ctx:Pep508Parser.UriReferenceContext):
-        pass
-
-    # Exit a parse tree produced by Pep508Parser#uriReference.
-    def exitUriReference(self, ctx:Pep508Parser.UriReferenceContext):
-        pass
-
-
 
 del Pep508Parser
