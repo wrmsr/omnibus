@@ -136,39 +136,99 @@ _pfn_${op_nam}_${typ_nam}_const = <size_t> _${op_nam}_${typ_nam}_const
 % endfor
 
 
-# cdef extern from "math.h":
-#     float       fmaf(float x, float y, float z)
-#     double      fma(double x, double y, double z)
-#     long double fmal(long double x, long double y, long double z)
-#
-#
-# % for (typ_nm, typ_s), fn_nam in zip(float_typ_pairs, ['fmaf', 'fma']):
-#
-#
-# \{cy_opt_decos()}
-# cdef void _fma_\{typ_nam}(void *a, void *b, void *d, size_t l) nogil:
-#     cdef \{typ_s} *pa = <\{typ_s} *> a
-#     cdef \{typ_s} *pb = <\{typ_s} *> b
-#     cdef \{typ_s} *pd = <\{typ_s} *> d
-#     cdef size_t i = 0
-#     while i < l:
-#         pd[i] = <\{typ_s}> \{fn_nam}(pa[i], pb[i])
-#         i += 1
-#
-# _pfn_fma_\{typ_nam} = <size_t> _fma_\{typ_nam}
-#
-#
-# \{cy_opt_decos()}
-# cdef void _fma_\{typ_nam}_const(void *a, \{typ_s} c, void *d, size_t l) nogil:
-#     cdef \{typ_s} *pa = <\{typ_s} *> a
-#     cdef \{typ_s} *pd = <\{typ_s} *> d
-#     cdef size_t i = 0
-#     while i < l:
-#         pd[i] = <\{typ_s}> \{fn_nam}(pa[i], c)
-#         i += 1
-#
-#
-# _pfn_fma_\{typ_nam}_const = <size_t> _fma_\{typ_nam}_const
-#
-#
-# % endfor
+cdef extern from "math.h":
+    float       fmaf(float x, float y, float z) nogil
+    double      fma(double x, double y, double z) nogil
+    long double fmal(long double x, long double y, long double z) nogil
+
+
+% for (typ_nm, typ_s), fn_nm in zip(float_typ_pairs, ['fmaf', 'fma']):
+
+
+${cy_opt_decos()}
+cdef void _fma_${typ_nm}(void *a, void *b, void *c, void *d, size_t l) nogil:
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pb = <${typ_s} *> b
+    cdef ${typ_s} *pc = <${typ_s} *> c
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    while i < l:
+        pd[i] = <${typ_s}> ${fn_nm}(pa[i], pb[i], pc[i])
+        i += 1
+
+_pfn_fma_${typ_nm} = <size_t> _fma_${typ_nm}
+
+
+${cy_opt_decos()}
+cdef void _fma_${typ_nm}_mconst(void *a, ${typ_s} b, void *c, void *d, size_t l) nogil:
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pc = <${typ_s} *> c
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    while i < l:
+        pd[i] = <${typ_s}> ${fn_nm}(pa[i], b, pc[i])
+        i += 1
+
+
+_pfn_fma_${typ_nm}_mconst = <size_t> _fma_${typ_nm}_mconst
+
+
+${cy_opt_decos()}
+cdef void _fma_${typ_nm}_aconst(void *a, void *b, ${typ_s} c, void *d, size_t l) nogil:
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pb = <${typ_s} *> b
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    while i < l:
+        pd[i] = <${typ_s}> ${fn_nm}(pa[i], pb[i], c)
+        i += 1
+
+
+_pfn_fma_${typ_nm}_aconst = <size_t> _fma_${typ_nm}_aconst
+
+
+${cy_opt_decos()}
+cdef void _fma_${typ_nm}_mconst_aconst(void *a, ${typ_s} b, ${typ_s} c, void *d, size_t l) nogil:
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    while i < l:
+        pd[i] = <${typ_s}> ${fn_nm}(pa[i], b, c)
+        i += 1
+
+
+_pfn_fma_${typ_nm}_mconst_aconst = <size_t> _fma_${typ_nm}_mconst_aconst
+
+
+% endfor
+
+
+% for typ_nm, typ_s in float_typ_pairs:
+
+
+${cy_opt_decos()}
+cdef void _mm_${typ_nm}(void *a, void *b, void *d, size_t n, size_t m, size_t p) nogil:
+    cdef ${typ_s} *pa = <${typ_s} *> a
+    cdef ${typ_s} *pb = <${typ_s} *> b
+    cdef ${typ_s} *pd = <${typ_s} *> d
+    cdef size_t i = 0
+    cdef size_t j = 0
+    cdef size_t k = 0
+    cdef ${typ_s} tmp = 0.0
+    while i < n:
+        j = 0
+        while j < p:
+            tmp = 0.0
+            k = 0
+            while k < m:
+                tmp += pa[i*m+k] * pb[k*m+j]
+                k += 1
+            pd[i*m+j] = tmp
+            j += 1
+        i += 1
+
+
+_pfn_mm_${typ_nm} = <size_t> _mm_${typ_nm}
+
+
+% endfor
