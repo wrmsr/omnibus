@@ -182,12 +182,18 @@ parameters
     ;
 
 typedArgsList
-    : tpDef
-      ('=' test)?
-      (',' tpDef ('=' test)?)*
-      (',' ('*' tpDef? (',' tpDef ('=' test)?)* (',' ('**' tpDef ','?)?)? | '**' tpDef ','?)?)?
-    | '*' tpDef? (',' tpDef ('=' test)?)* (',' ('**' tpDef ','?)?)?
-    | '**' tpDef ','?
+    : a0=tpDefTest l0=tpDefTestList?
+      (',' ('*' va=tpDef? l1=tpDefTestList? (',' ('**' vk=tpDef ','?)?)? | '**' vk=tpDef ','?)?)?
+    | '*' va=tpDef? l2=tpDefTestList? (',' ('**' vk=tpDef ','?)?)?
+    | '**' vk=tpDef ','?
+    ;
+
+tpDefTestList
+    : (',' tpDefTest)+
+    ;
+
+tpDefTest
+    : tpDef ('=' test)?
     ;
 
 tpDef

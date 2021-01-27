@@ -22,6 +22,7 @@ SOFTWARE.
 // CSV Loader module
 // 2016, Jeroen van der Heijden (Transceptor Technology)
 #include <Python.h>
+
 #include <stdbool.h>
 #include <math.h>
 #include <stddef.h>

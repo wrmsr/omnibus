@@ -44,15 +44,14 @@ class TypeCommented(dc.Data, frozen=True, abstract=True, sealed='package', reord
 
 class Arg(Node, Annotated, TypeCommented):
     name: str
+    default: ta.Optional[Expr] = None
 
 
 class Args(Node):
     args: ta.Sequence[Arg] = ()
     vararg: ta.Optional[Arg] = None
     kw_only_args: ta.Sequence[Arg] = ()
-    kw_defaults: Exprs = ()
     kwarg: ta.Optional[Arg] = None
-    defaults: Exprs = ()
 
 
 class Kwarg(Node):

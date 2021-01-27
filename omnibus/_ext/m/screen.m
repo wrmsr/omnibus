@@ -2,14 +2,14 @@
 -framework AppKit
 -framework CoreFoundation
 */
-#include <unistd.h>
+#include <Python.h>
 
 #if __APPLE__
 #include <AppKit/NSScreen.h>
 
 #endif
 
-#include <Python.h>
+#include <unistd.h>
 
 
 static PyObject *

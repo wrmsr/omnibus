@@ -104,40 +104,51 @@ class CompactPart(PartTransform):
 compact_part = CompactPart()
 
 
-def render_part(part: Part, buf: io.StringIO) -> None:
-    if isinstance(part, str):
-        buf.write(part)
+class PartRenderer(dispatch.Class):
+    def __init__(self, buf: io.StringIO) -> None:
+        super().__init__()
 
-    elif isinstance(part, collections.abc.Sequence):
+        self._buf = buf
+
+    __call__ = dispatch.property()
+
+    def __call__(self, part: str) -> None:  # noqa
+        self._buf.write(part)
+
+    def __call__(self, part: collections.abc.Sequence) -> None:  # noqa
         for i, c in enumerate(part):
             if i:
-                buf.write(' ')
-            render_part(c, buf)
+                self._buf.write(' ')
+            self(c)
 
-    elif isinstance(part, Paren):
-        buf.write('(')
-        render_part(part.part, buf)
-        buf.write(')')
+    def __call__(self, part: DataPart) -> None:  # noqa
+        raise TypeError(part)
 
-    elif isinstance(part, List):
+    def __call__(self, part: Paren) -> None:  # noqa
+        self._buf.write('(')
+        self(part.part)
+        self._buf.write(')')
+
+    def __call__(self, part: List) -> None:  # noqa
         for i, c in enumerate(part.parts):
             if i:
-                buf.write(part.delimiter + ' ')
-            render_part(c, buf)
+                self._buf.write(part.delimiter + ' ')
+            self(c)
         if part.trailer:
-            buf.write(part.delimiter)
+            self._buf.write(part.delimiter)
 
-    elif isinstance(part, Concat):
+    def __call__(self, part: Concat) -> None:  # noqa
         for c in part.parts:
-            render_part(c, buf)
+            self(c)
 
-    elif isinstance(part, Block):
+    def __call__(self, part: Block) -> None:  # noqa
         for c in part.parts:
-            render_part(c, buf)
-            buf.write('\n')
+            self(c)
+            self._buf.write('\n')
 
-    elif isinstance(part, Node):
-        pass
 
-    else:
-        raise TypeError(part)
+def render_part(part: Part, buf: ta.Optional[io.StringIO] = None) -> io.StringIO:
+    if buf is None:
+        buf = io.StringIO()
+    PartRenderer(buf)(part)
+    return buf

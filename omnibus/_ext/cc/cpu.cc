@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 // https://github.com/fpelliccioni/cpuid-py-native/blob/fabf0a24685ab9c87b3120ecc4c55b14613291cd/cpuid.h
-#include <stdint.h>
-
 #include <Python.h>
+
+#include <stdint.h>
 
 
 #if (__x86_64__ || __i386__)

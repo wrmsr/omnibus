@@ -232,7 +232,7 @@ def one_of(*items: T, **kwargs) -> T:
     for item in items:
         if test(item):
             if value is not not_set:
-                raise ValueError(f'Expected exactly one of {items}, got {value} and {item}', items, value, item)
+                _raise(ValueError, f'Expected exactly one of {items}, got {value} and {item}', message, items, value, item)  # noqa
             value = item
     if value is not not_set:
         return ta.cast(T, value)

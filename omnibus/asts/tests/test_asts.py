@@ -1,7 +1,9 @@
+import ast
 import contextlib
 import glob
 import os.path
 import time
+import typing as ta
 
 import pytest
 
@@ -89,6 +91,62 @@ def test_exprs():
 
         from .. import rendering
         print(rendering.render(root))
+
+        print()
+
+
+class PyAstNode(ta.NamedTuple):
+    type: str
+    fields: ta.Sequence[ta.Tuple[str, ta.Any]]
+
+
+def _strip_py_ast(obj):
+    if obj is None:
+        return None
+    elif isinstance(obj, ast.AST):
+        return PyAstNode(
+            type(obj).__name__,
+            [(a, _strip_py_ast(getattr(obj, a))) for a in type(obj)._fields],
+        )
+    elif isinstance(obj, list):
+        return tuple(_strip_py_ast(e) for e in obj)
+    elif isinstance(obj, (int, str)):
+        return obj
+    else:
+        raise TypeError(obj)
+
+
+def test_stmts():
+    for src in [
+        '1 + 2\n',
+
+        'x = 1\n',
+        'x = 1\ny = 2\n',
+
+        'def f(x): return x + 1\n',
+        'def f(x=0): return x + 1\n',
+        'def f(x:int): return x + 1\n',
+        'def f(x:int=0): return x + 1\n',
+        'def f(x=0, *, y=1, z=2): return x + 1\n',
+        'def f(x=0, y=1, z=2): return x + 1\n',
+        'def f(x=0, y=1, z=2) -> int: return x + 1\n',
+    ]:
+        print(src.strip())
+
+        pa0 = _strip_py_ast(ast.parse(src))
+        print(pa0)
+
+        root = parsing.parse(src, 'file')
+        print(root)
+
+        from .. import rendering
+        buf = rendering.render(root)
+        print(buf.strip())
+
+        pa1 = _strip_py_ast(ast.parse(buf))
+        print(pa1)
+
+        assert pa0 == pa1
 
         print()
 

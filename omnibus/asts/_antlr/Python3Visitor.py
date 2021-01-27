@@ -61,6 +61,16 @@ class Python3Visitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Python3Parser#tpDefTestList.
+    def visitTpDefTestList(self, ctx:Python3Parser.TpDefTestListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Python3Parser#tpDefTest.
+    def visitTpDefTest(self, ctx:Python3Parser.TpDefTestContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Python3Parser#tpDef.
     def visitTpDef(self, ctx:Python3Parser.TpDefContext):
         return self.visitChildren(ctx)

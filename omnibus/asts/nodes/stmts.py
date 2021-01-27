@@ -61,6 +61,10 @@ class AugAssign(Stmt):
     value: Expr
 
 
+class Body(Stmt):
+    stmts: Stmts
+
+
 class Break(Stmt):
     pass
 

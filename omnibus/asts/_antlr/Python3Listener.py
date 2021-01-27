@@ -100,6 +100,24 @@ class Python3Listener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by Python3Parser#tpDefTestList.
+    def enterTpDefTestList(self, ctx:Python3Parser.TpDefTestListContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#tpDefTestList.
+    def exitTpDefTestList(self, ctx:Python3Parser.TpDefTestListContext):
+        pass
+
+
+    # Enter a parse tree produced by Python3Parser#tpDefTest.
+    def enterTpDefTest(self, ctx:Python3Parser.TpDefTestContext):
+        pass
+
+    # Exit a parse tree produced by Python3Parser#tpDefTest.
+    def exitTpDefTest(self, ctx:Python3Parser.TpDefTestContext):
+        pass
+
+
     # Enter a parse tree produced by Python3Parser#tpDef.
     def enterTpDef(self, ctx:Python3Parser.TpDefContext):
         pass

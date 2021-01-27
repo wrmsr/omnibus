@@ -3,7 +3,9 @@ import typing as ta
 from . import nodes as no
 from .. import antlr
 from .. import check
+from .. import collections as col
 from .. import dataclasses as dc
+from .. import lang
 from .._vendor import antlr4
 from ._antlr import Python3Lexer  # type: ignore
 from ._antlr import Python3Parser  # type: ignore
@@ -17,22 +19,31 @@ def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
     return check.single([v for v in cls.__members__.values() if v.value == value])
 
 
-class ArgList(ta.NamedTuple):
-    args: ta.List[ta.Any]
+class _Temp(dc.Enum, reorder=True):
+    ctx: ta.Optional[antlr4.ParserRuleContext] = dc.field(None, kwonly=True, check_type=(antlr4.ParserRuleContext, None))  # noqa
+
+
+class _Exprs(_Temp):
+    args: ta.List[no.Expr] = dc.field(coerce=col.seq_of(check.of_isinstance(no.Expr)))
 
 
 class _ParseVisitor(Python3Visitor):
 
     def visit(self, ctx: antlr4.ParserRuleContext):
         check.isinstance(ctx, antlr4.ParserRuleContext)
-        node = ctx.accept(self)
-        if node is not None:
+        ret = ctx.accept(self)
+        if ret is not None:
             # FIXME: ArgList is not a node
-            # node = check.isinstance(node, no.Node)
-            if isinstance(node, no.Node):
-                if antlr4.ParserRuleContext not in node.meta:
-                    node = dc.replace(node, meta={**node.meta, antlr4.ParserRuleContext: ctx})
-        return node
+            if isinstance(ret, no.Node):
+                if antlr4.ParserRuleContext not in ret.meta:
+                    ret = dc.replace(ret, meta={**ret.meta, antlr4.ParserRuleContext: ctx})
+            elif isinstance(ret, _Temp):
+                if ret.ctx is None:
+                    ret = dc.replace(ret, ctx=ctx)
+            else:
+                raise TypeError(ret)
+
+        return ret
 
     def aggregateResult(self, aggregate, nextResult):
         return check.one_of(aggregate, nextResult, not_none=True, default=None)
@@ -50,7 +61,7 @@ class _ParseVisitor(Python3Visitor):
 
     def visitArgList(self, ctx: Python3Parser.ArgListContext):
         args = [check.isinstance(self.visit(arg), no.Expr) for arg in ctx.arg()]
-        return ArgList(args)
+        return _Exprs(args)
 
     def visitArithExpr(self, ctx: Python3Parser.ArithExprContext) -> no.Expr:
         return self.visitBinOpExprCont(ctx.term(), ctx.arithExprCont(), lambda c: c.term())
@@ -61,7 +72,7 @@ class _ParseVisitor(Python3Visitor):
         expr = check.isinstance(self.visit(ctx.atom()), no.Expr)
         trailers = [self.visit(t) for t in ctx.trailer()]
         for trailer in trailers:
-            if isinstance(trailer, ArgList):
+            if isinstance(trailer, _Exprs):
                 args = [check.isinstance(a, no.Expr) for a in trailer.args]
                 expr = no.Call(expr, args)
             else:
@@ -135,8 +146,70 @@ class _ParseVisitor(Python3Visitor):
         else:
             raise ValueError(ctx)
 
+    def visitFileInput(self, ctx: Python3Parser.FileInputContext):
+        stmts = [self.visit(s) for s in ctx.stmt()]
+        return no.Body(stmts)
+
+    def visitFuncDef(self, ctx: Python3Parser.FuncDefContext):
+        args = check.isinstance(self.visit(ctx.parameters()), no.Args)
+        returns = self.visit(ctx.test()) if ctx.test() is not None else None
+        body = check.isinstance(self.visit(ctx.suite()), no.Stmt)
+        return no.FunctionDef(
+            name=ctx.NAME().getText(),
+            args=args,
+            body=[body],
+            returns=returns,
+        )
+
+    def visitReturnStmt(self, ctx: Python3Parser.ReturnStmtContext):
+        value = check.isinstance(self.visit(ctx.testList()), no.Expr) if ctx.testList() is not None else None
+        return no.Return(value)
+
     def visitShiftExpr(self, ctx: Python3Parser.ShiftExprContext):
         return self.visitBinOpExprCont(ctx.arithExpr(), ctx.shiftExprCont(), lambda c: c.arithExpr())
+
+    def visitSuite(self, ctx: Python3Parser.SuiteContext):
+        if ctx.simpleStmt() is not None:
+            check.state(not ctx.stmt())
+            return check.isinstance(self.visit(ctx.simpleStmt()), no.Stmt)
+        else:
+            stmts = [self.visit(s) for s in ctx.stmt()]
+            return no.Body(stmts)
+
+    def visitTpDef(self, ctx: Python3Parser.TpDefContext):
+        ann = self.visit(ctx.test()) if ctx.test() is not None else None
+        return no.Arg(ctx.NAME().getText(), annotation=ann)
+
+    def visitTpDefTest(self, ctx: Python3Parser.TpDefTestContext):
+        arg = check.isinstance(self.visit(ctx.tpDef()), no.Arg)
+        check.none(arg.default)
+        default = check.isinstance(self.visit(ctx.test()), no.Expr) if ctx.test() is not None else None
+        return dc.replace(arg, default=default)
+
+    def visitTypedArgsList(self, ctx: Python3Parser.TypedArgsListContext):
+        a0 = check.isinstance(self.visit(ctx.a0), no.Arg) if ctx.a0 is not None else None
+        l0 = [check.isinstance(self.visit(a), no.Arg) for a in ctx.l0.tpDefTest()] if ctx.l0 is not None else None
+        va = check.isinstance(self.visit(ctx.va), no.Arg) if ctx.va is not None else None
+        l1 = [check.isinstance(self.visit(a), no.Arg) for a in ctx.l1.tpDefTest()] if ctx.l1 is not None else None
+        vk = check.isinstance(self.visit(ctx.vk), no.Arg) if ctx.vk is not None else None
+        l2 = [check.isinstance(self.visit(a), no.Arg) for a in ctx.l2.tpDefTest()] if ctx.l2 is not None else None
+
+        if va is not None:
+            check.none(va.default)
+        if vk is not None:
+            check.none(vk.default)
+
+        if a0 is not None:
+            check.none(l2)
+            return no.Args(
+                args=[a0, *(l0 or [])],
+                vararg=va,
+                kw_only_args=l1 or [],
+                kwarg=vk,
+            )
+
+        else:
+            raise NotImplementedError
 
     def visitXorExpr(self, ctx: Python3Parser.XorExprContext):
         return self.visitBinOpExprCont(ctx.andExpr(), ctx.xorExprCont(), lambda c: c.andExpr())
@@ -166,10 +239,33 @@ def _parse(buf: str) -> Python3Parser:
     return parser
 
 
-def parse(buf: str) -> no.Node:
+class ParseMode(lang.AutoEnum):
+    INPUT = ...
+    FILE = ...
+    EVAL = ...
+
+
+def _get_parse_root(parser: Python3Parser, mode: ta.Union[ParseMode, str]) -> antlr4.ParserRuleContext:
+    if isinstance(mode, str):
+        mode = ParseMode[mode.upper()]
+    elif not isinstance(mode, ParseMode):
+        raise TypeError(mode)
+
+    if mode == ParseMode.INPUT:
+        return parser.singleInput()
+    elif mode == ParseMode.FILE:
+        return parser.fileInput()
+    elif mode == ParseMode.EVAL:
+        return parser.evalInput()
+    else:
+        raise ValueError(mode)
+
+
+def parse(buf: str, mode: ta.Union[ParseMode, str] = ParseMode.INPUT) -> no.Node:
     parser = _parse(buf)
     visitor = _ParseVisitor()
-    root = parser.singleInput()
+    root = _get_parse_root(parser, mode)
+
     try:
         return visitor.visit(root)
     except Exception:
