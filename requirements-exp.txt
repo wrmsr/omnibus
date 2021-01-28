@@ -35,7 +35,7 @@ scramp==1.2.0
 Theano==1.0.5
 tqdm==4.56.0
 typing-extensions==3.7.4.3
-urllib3==1.26.2
+urllib3==1.26.3
 xarray==0.16.2
 yarl==1.6.3
 
@@ -45,13 +45,13 @@ yarl==1.6.3
 bsddb3==6.2.9
 chardet>=3.0.4  #@conflict
 datadog==0.39.0
-ddtrace==0.45.0
+ddtrace==0.46.0
 dnspython==2.1.0
 duckdb==0.2.3
 elasticsearch==7.10.1
-fastavro==1.2.4
+fastavro==1.3.0
 fastparquet==0.5.0
-grpcio==1.34.1
+grpcio==1.35.0
 hyperscan==0.2.0
 idna==2.10
 jupyter-client==6.1.11
@@ -60,23 +60,23 @@ jupyter-core==4.7.0
 kafka-python==2.0.2
 kiwisolver==1.3.1
 llvmlite==0.35.0
-matplotlib==3.3.3
+matplotlib==3.3.4
 notebook==6.2.0
 oauthlib==3.1.0
-pandas==1.2.0
+pandas==1.2.1
 plotly==4.14.3
 plyvel==1.3.0
 protobuf==3.14.0
 py4j>=0.10.9  #@conflict
 pyglet==1.5.14
 pyjwt==1.7.1
-pymc3==3.10.0
+pymc3==3.11.0
 Pyomo==5.7.2
-pyroaring==0.2.9
+pyroaring==0.2.9  #@bug
 pyspark==3.0.1
 python-pcre==0.7
 python-snappy==0.6.0
-pyzmq==21.0.1
+pyzmq==22.0.0
 regex==2020.11.13
 rocksdb==0.7.0
 slackclient==2.9.3

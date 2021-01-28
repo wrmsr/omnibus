@@ -6,12 +6,12 @@ Cython==0.29.21
 ## optional integrations
 
 billiard==3.6.3.0
-boto3==1.16.57  #@auto
-botocore==1.19.57  #@auto
+boto3==1.16.61  #@auto
+botocore==1.19.61  #@auto
 cbor==1.0.0
 cytoolz==0.11.0
 docker==4.4.1
-google-api-core==1.25.0  #@auto
+google-api-core==1.25.1  #@auto
 google-api-python-client==1.12.8  #@auto
 google-auth-httplib2==0.0.4  #@auto
 google-auth==1.24.0  #@auto
@@ -33,13 +33,13 @@ PyMySQL==1.0.2
 pyobjc-core==7.1; sys_platform == 'darwin' and implementation_name != 'pypy'
 pyrsistent==0.17.3
 python-dateutil==2.8.1
-PyYAML==5.3.1
+PyYAML==5.3.1  #@conflict
 redis==3.5.3
 sortedcontainers==2.3.0
 SQLAlchemy==1.3.22
 toml==0.10.2
 toolz==0.11.1
-ujson==4.0.1; implementation_name != 'pypy'
+ujson==4.0.2; implementation_name != 'pypy'
 wrapt==1.12.1
 zstd==1.4.8.1
 
