@@ -87,7 +87,7 @@ uvloop==0.14.0
 
 ## slow optional integrations
 
-# z3-solver==4.8.7.0
+# z3-solver==4.8.10.0
 
 
 ## problematic optional integrations
