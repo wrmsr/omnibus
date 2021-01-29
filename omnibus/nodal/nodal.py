@@ -216,8 +216,8 @@ class Nodal(
         else:
             sup()
 
-    def __bool__(self) -> bool:
-        raise TypeError(self)
+    # def __bool__(self) -> bool:
+    #     raise TypeError(self)
 
     def yield_field_children(self, fld: ta.Union[dc.Field, str]) -> ta.Iterator[NodalT]:
         if isinstance(fld, dc.Field):
