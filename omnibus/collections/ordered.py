@@ -27,6 +27,11 @@ class OrderedSet(ta.MutableSet[T]):
         if item not in self._dct:
             self._dct[item] = None
 
+    def update(self, items: ta.Iterable[T]) -> None:
+        for item in items:
+            if item not in self._dct:
+                self._dct[item] = None
+
     def discard(self, item: T) -> None:
         if item in self._dct:
             del self._dct[item]
