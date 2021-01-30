@@ -185,8 +185,13 @@ class DepEnv:
 
     @properties.cached
     @property
+    def dep_lines(self) -> ta.Sequence[DepLine]:
+        return self.get_lines(DepLine)
+
+    @properties.cached
+    @property
     def deps(self) -> ta.Sequence[dp.NameDep]:
-        return [l.dep for l in self.get_lines(DepLine)]
+        return [l.dep for l in self.dep_lines]
 
 
 _INCLUDE_PAT = re.compile(r'-r\s*(?P<name>[^#]+)\s*(?P<comment>#.*)?')
@@ -323,19 +328,20 @@ def test_deps():
     explicit_dep_names = {d.name for d in de.deps}
     pinned_dep_names = {d.name for d in de.deps if any(v.op == '==' for v in d.vers)}
 
-    # pip_deps = get_pip_deps(interp=os.path.join(os.path.expanduser(dirp), '.venv/bin/python'))
-    # for df in de.files:
-    #     print(df.path)
-    #     for line in df.lines:
-    #         print(render_line(line))
-    #         if isinstance(line, DepLine):
-    #             if line.dep.name in pip_deps:
-    #                 pip_dep = pip_deps[line.dep.name]
-    #                 if len(line.dep.vers) == 1 and line.dep.vers[0] != pip_dep.latest_version:
-    #                     print(line.dep)
-    #                     print(pip_dep)
-
     pip_deps = get_pip_deps(interp=os.path.join(os.path.expanduser(dirp), '.venv/bin/python'))
+
+    file_rewrites = {}
+    for df in de.files:
+        new_lines = []
+        for line in df.lines:
+            if isinstance(line, DepLine) and 'auto' in line.hot_comments and line.dep.name in pip_deps.by_name:
+                pip_dep = pip_deps.by_name[line.dep.name]
+                if len(line.dep.vers) == 1 and line.dep.vers[0] != pip_dep.latest_version:
+                    line = dc.replace(line, dep=dc.replace(line.dep, vers=[dp.Version('==', pip_dep.latest_version)]))
+
+            new_lines.append(render_line(line))
+
+        file_rewrites[df.path] = '\n'.join(new_lines)
 
     disp_labels = ['Package', 'Version', 'Latest', 'Type']
     disp_atts = ['name', 'version', 'latest_version', 'latest_filetype']
@@ -356,4 +362,3 @@ def test_deps():
         for e in pip_deps:
             if e.name not in seen and pred(e.name.lower()):
                 print(' '.join(getattr(e, k).ljust(p) for k, p in zip(disp_atts, ps)))
-
