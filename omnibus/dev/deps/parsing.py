@@ -66,13 +66,13 @@ class Renderer(dispatch.Class):
         raise TypeError(node)
 
     def __call__(self, node: MarkerAnd) -> str:  # noqa
-        raise NotImplementedError
+        return ' '.join([self(node.left), 'and', self(node.right)])
 
     def __call__(self, node: MarkerExpr) -> str:  # noqa
-        raise NotImplementedError
+        return ' '.join([node.left, node.op, node.right])
 
     def __call__(self, node: MarkerOr) -> str:  # noqa
-        raise NotImplementedError
+        return ' '.join([self(node.left), 'or', self(node.right)])
 
     def __call__(self, node: NameDep) -> str:  # noqa
         return ''.join([
@@ -110,7 +110,7 @@ class _ParseVisitor(Pep508Visitor):
         return ctx.getText()
 
     def visitMarkerAnd(self, ctx: Pep508Parser.MarkerAndContext):
-        if len(ctx.markerExpr()) >= 1:
+        if len(ctx.markerExpr()) > 1:
             return MarkerAnd(*[self.visit(m) for m in ctx.markerExpr()])
         else:
             return self.visit(check.single(ctx.markerExpr()))
@@ -128,7 +128,7 @@ class _ParseVisitor(Pep508Visitor):
             return self.visit(ctx.marker())
 
     def visitMarkerOr(self, ctx: Pep508Parser.MarkerOrContext):
-        if len(ctx.markerAnd()) >= 1:
+        if len(ctx.markerAnd()) > 1:
             return MarkerOr(*[self.visit(m) for m in ctx.markerAnd()])
         else:
             return self.visit(check.single(ctx.markerAnd()))
@@ -137,10 +137,12 @@ class _ParseVisitor(Pep508Visitor):
         name = self.visit(ctx.name())
         extras = self.visit(ctx.extras()) if ctx.extras() else []
         vers = self.visit(ctx.versionspec()) if ctx.versionspec() else []
+        marker = self.visit(ctx.quotedMarker()) if ctx.quotedMarker() is not None else None
         return NameDep(
             name=name,
             extras=extras,
             vers=vers,
+            marker=marker,
         )
 
     def visitVersionMany(self, ctx: Pep508Parser.VersionManyContext):

@@ -315,7 +315,6 @@ def get_pip_deps(*, interp: ta.Optional[str] = None) -> PipDeps:
     return PipDeps([PipDep(**dct) for dct in dcts])
 
 
-@pytest.mark.skip
 def test_deps():
     dirp = os.getcwd()
     fn = 'requirements-exp.txt'
@@ -341,7 +340,11 @@ def test_deps():
 
             new_lines.append(render_line(line))
 
-        file_rewrites[df.path] = '\n'.join(new_lines)
+        file_rewrites[df.path] = '\n'.join([*new_lines, ''])
+
+    for p, s in file_rewrites.items():
+        with open(p, 'w') as f:
+            f.write(s)
 
     disp_labels = ['Package', 'Version', 'Latest', 'Type']
     disp_atts = ['name', 'version', 'latest_version', 'latest_filetype']
