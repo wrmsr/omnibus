@@ -1,25 +1,15 @@
-"""
-https://www.python.org/dev/peps/pep-0508/#names
-https://github.com/pypa/packaging
-"""
-import json
 import os.path
 import re
-import shlex
-import subprocess
-import sys
 import typing as ta
 
-import pytest  # noqa
-
-from .... import check
-from .... import collections as col
-from .... import dataclasses as dc
-from .... import dispatch
-from .... import lang
-from .... import properties
-from ...._vendor import antlr4  # noqa
-from ...deps import parsing as dp
+from . import parsing as dp
+from ... import check
+from ... import collections as col
+from ... import dataclasses as dc
+from ... import dispatch
+from ... import lang
+from ... import properties
+from ..._vendor import antlr4  # noqa
 
 
 T = ta.TypeVar('T')
@@ -273,95 +263,3 @@ def read_dep_env(file_name: str) -> DepEnv:
         files[fp] = df
 
     return DepEnv(files.values())
-
-
-class PipDep(dc.Pure):
-    name: str
-    version: str
-    latest_version: str
-    latest_filetype: str
-
-
-class PipDeps(dc.Frozen, ta.Sequence[PipDep]):
-    deps: ta.Sequence[PipDep] = dc.field(coerce=col.seq_of(check.of_isinstance(PipDep)))
-
-    # @ta.overload
-    # def __getitem__(self, s: slice) -> ta.Sequence[PipDep]: ...
-
-    def __getitem__(self, i: int) -> PipDep:
-        return self.deps[i]
-
-    def __len__(self) -> int:
-        return len(self.deps)
-
-    @properties.cached
-    @property
-    def by_name(self) -> ta.Mapping[str, PipDep]:
-        return col.unique_dict((d.name, d) for d in self.deps)
-
-
-def get_pip_deps(*, interp: ta.Optional[str] = None) -> PipDeps:
-    if interp is None:
-        interp = sys.executable
-
-    cmd = [interp, '-mpip', 'list', '-o', '--format=json']
-
-    # Fucking piece of shit pydevd:
-    #   https://github.com/fabioz/PyDev.Debugger/blob/179bdddc941a3f4d9400e96bcea79daac5d6144b/_pydev_bundle/pydev_monkey.py#L151
-    cmd_str = ' '.join(map(shlex.quote, cmd))
-    output = subprocess.check_output(cmd_str, shell=True)
-
-    dcts = json.loads(output.decode('utf-8'))
-    return PipDeps([PipDep(**dct) for dct in dcts])
-
-
-def test_deps():
-    dirp = os.getcwd()
-    fn = 'requirements-exp.txt'
-
-    dirp = os.path.expanduser(dirp)
-    fp = os.path.abspath(os.path.join(dirp, fn))
-
-    de = read_dep_env(fp)
-
-    explicit_dep_names = {d.name for d in de.deps}
-    pinned_dep_names = {d.name for d in de.deps if any(v.op == '==' for v in d.vers)}
-
-    pip_deps = get_pip_deps(interp=os.path.join(os.path.expanduser(dirp), '.venv/bin/python'))
-
-    file_rewrites = {}
-    for df in de.files:
-        new_lines = []
-        for line in df.lines:
-            if isinstance(line, DepLine) and 'auto' in line.hot_comments and line.dep.name in pip_deps.by_name:
-                pip_dep = pip_deps.by_name[line.dep.name]
-                if len(line.dep.vers) == 1 and line.dep.vers[0] != pip_dep.latest_version:
-                    line = dc.replace(line, dep=dc.replace(line.dep, vers=[dp.Version('==', pip_dep.latest_version)]))
-
-            new_lines.append(render_line(line))
-
-        file_rewrites[df.path] = '\n'.join([*new_lines, ''])
-
-    for p, s in file_rewrites.items():
-        with open(p, 'w') as f:
-            f.write(s)
-
-    disp_labels = ['Package', 'Version', 'Latest', 'Type']
-    disp_atts = ['name', 'version', 'latest_version', 'latest_filetype']
-
-    seen = set()
-    ps = [
-        max([len(l)] + [len(getattr(e, k)) for e in pip_deps if e.name not in seen])
-        for l, k in zip(disp_labels, disp_atts)
-    ]
-    print(' '.join(l.ljust(p) for l, p in zip(disp_labels, ps)))
-
-    for pred in [
-        lambda n: n in pinned_dep_names,
-        lambda n: n not in pinned_dep_names and n in explicit_dep_names,
-        lambda n: n not in pinned_dep_names and n not in explicit_dep_names,
-    ]:
-        print(' '.join('-' * p for p in ps))
-        for e in pip_deps:
-            if e.name not in seen and pred(e.name.lower()):
-                print(' '.join(getattr(e, k).ljust(p) for k, p in zip(disp_atts, ps)))
