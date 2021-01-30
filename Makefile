@@ -423,51 +423,7 @@ dep-updates: venv
 
 .PHONY: dep-autoupdate
 dep-autoupdate: venv
-	F=$$(mktemp) ; \
-	echo -e "\n\
-import json \n\
-import re \n\
-import sys \n\
-lst = json.loads(sys.stdin.read()) \n\
-vers = {e['name']: e['latest_version'] for e in lst} \n\
-rpls = [(n, re.compile(rf'^{n}==[0-9a-zA-Z\\-_\\.]+[ ]+#@auto\$$'), f'{n}=={v}  #@auto') for n, v in vers.items()] \n\
-seen = set() \n\
-exps = {} \n\
-pins = {} \n\
-for fn in ['requirements.txt', 'requirements-dev.txt', 'requirements-exp.txt']: \n\
-    with open(fn, 'r') as f: \n\
-        lines = f.readlines() \n\
-    rlines = [] \n\
-    for line in lines: \n\
-        m = re.match(r'^([A-Za-z][A-Za-z0-9\\-_]*)', line.strip()) \n\
-        if m is not None: \n\
-            exps[m.groups()[0].lower()] = fn \n\
-        if not line.strip().startswith('#') and '==' in line: \n\
-            pins[line.strip().partition('==')[0].strip().lower()] = fn \n\
-        for n, pat, rpl in rpls: \n\
-            if pat.fullmatch(line.strip()): \n\
-                rlines.append(rpl + '\\\\n') \n\
-                seen.add(n) \n\
-                break \n\
-        else: \n\
-            rlines.append(line) \n\
-    with open(fn, 'w') as f: \n\
-        f.write(''.join(rlines)) \n\
-ls = ['Package', 'Version', 'Latest', 'Type'] \n\
-ks = ['name', 'version', 'latest_version', 'latest_filetype'] \n\
-ps = [max([len(l)] + [len(e[k]) for e in lst if e['name'] not in seen]) for l, k in zip(ls, ks)] \n\
-print(' '.join(l.ljust(p) for l, p in zip(ls, ps))) \n\
-for pred in [ \n\
-    lambda n: n in pins, \n\
-    lambda n: n not in pins and n in exps, \n\
-    lambda n: n not in pins and n not in exps, \n\
-]: \n\
-    print(' '.join('-' * p for p in ps)) \n\
-    for e in lst: \n\
-        if e['name'] not in seen and pred(e['name'].lower()): \n\
-            print(' '.join(e[k].ljust(p) for k, p in zip(ks, ps))) \n\
-" > $$F ; \
-	.venv/bin/pip list -o --format=json | .venv/bin/python "$$F"
+	.venv/bin/python -m omnibus.dev.projects.deps updates -W requirements-exp.txt
 
 .PHONY: dep-cyaml
 dep-cyaml: venv

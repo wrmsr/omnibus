@@ -20,7 +20,7 @@ more-itertools==8.6.0
 nbclient==0.5.1
 nbconvert==6.0.7
 nbformat==5.1.2
-nest-asyncio==1.4.3
+nest-asyncio==1.5.1
 numba==0.52.0
 Pillow==8.1.0
 pkginfo==1.7.0
@@ -71,12 +71,12 @@ py4j>=0.10.9  #@conflict
 pyglet==1.5.14
 pyjwt==1.7.1
 pymc3==3.11.0
-Pyomo==5.7.2
+Pyomo==5.7.3
 pyroaring==0.2.9  #@bug
 pyspark==3.0.1
 python-pcre==0.7
 python-snappy==0.6.0
-pyzmq==22.0.0
+pyzmq==22.0.2
 regex==2020.11.13
 rocksdb==0.7.0
 slackclient==2.9.3
