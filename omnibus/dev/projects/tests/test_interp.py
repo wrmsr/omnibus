@@ -102,7 +102,8 @@ def install(args) -> None:
         python_configure_opts = ['--enable-framework']
         if _cmd(['brew', '--prefix', 'tcl-tk'], try_=True) is not None:
             tcl_tk_prefix = _cmd(['brew', '--prefix', 'tcl-tk'])
-            tcl_tk_ver = _cmd(r"brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+'", shell=True)
+            tcl_tk_ver_str = _cmd(['brew', 'ls', '--versions', 'tcl-tk'])
+            tcl_tk_ver = '.'.join(tcl_tk_ver_str.split()[1].split('.')[:2])
             python_configure_opts.extend([
                 f"--with-tcltk-includes='-I{tcl_tk_prefix}/include'",
                 f"--with-tcltk-libs='-L{tcl_tk_prefix}/lib -ltcl{tcl_tk_ver} -ltk{tcl_tk_ver}'",

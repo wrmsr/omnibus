@@ -35,6 +35,7 @@ class Cli(ap.Cli):
 
         file_rewrites = {}
         for df in de.files:
+            has_updates = False
             new_lines = []
             for line in df.lines:
                 if (
@@ -52,10 +53,12 @@ class Cli(ap.Cli):
                             ),
                         )
                         updated.add(line.dep.name)
+                        has_updates = True
 
                 new_lines.append(dfs.render_line(line))
 
-            file_rewrites[df.path] = '\n'.join([*new_lines, ''])
+            if has_updates:
+                file_rewrites[df.path] = '\n'.join([*new_lines, ''])
 
         if self.args.write:
             for p, s in file_rewrites.items():
