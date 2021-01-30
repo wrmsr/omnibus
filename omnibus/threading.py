@@ -90,3 +90,67 @@ class CountDownLatch:
                 self._lock.wait()
         finally:
             self._lock.release()
+
+
+class AtomicInt(lang.Final):
+
+    def __init__(self, value: int = 0, *, lock: lang.DefaultLockable = None) -> None:
+        super().__init__()
+
+        self._value = value
+        self._lock = lang.default_lock(lock, True)
+
+    @property
+    def value(self) -> int:
+        return self._value
+
+    @value.setter
+    def value(self, value: int) -> None:
+        self._value = value
+
+    def add(self, delta: int) -> int:
+        with self._lock:
+            self._value += delta
+            return self._value
+
+    def inc(self) -> int:
+        with self._lock:
+            self._value += 1
+            return self._value
+
+    def dec(self) -> int:
+        with self._lock:
+            self._value -= 1
+            return self._value
+
+    def get_and_add(self, delta: int) -> int:
+        with self._lock:
+            ret = self._value
+            self._value += delta
+            return ret
+
+    def get_and_inc(self) -> int:
+        with self._lock:
+            ret = self._value
+            self._value += 1
+            return ret
+
+    def get_and_dec(self) -> int:
+        with self._lock:
+            ret = self._value
+            self._value -= 1
+            return ret
+
+    def cas(self, expect: int, update: int) -> bool:
+        with self._lock:
+            if self._value == expect:
+                self._value = update
+                return True
+            else:
+                return False
+
+    def get_and_set(self, new: int) -> int:
+        with self._lock:
+            ret = self._value
+            self._value = new
+            return ret

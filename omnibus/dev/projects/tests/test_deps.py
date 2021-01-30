@@ -10,7 +10,7 @@ import subprocess
 import sys
 import typing as ta
 
-import pytest
+import pytest  # noqa
 
 from .... import check
 from .... import collections as col
@@ -20,6 +20,9 @@ from .... import lang
 from .... import properties
 from ...._vendor import antlr4  # noqa
 from ...deps import parsing as dp
+
+
+T = ta.TypeVar('T')
 
 
 class Operator(dc.Pure):
@@ -173,8 +176,17 @@ class DepEnv:
     files: ta.Sequence[DepFile] = dc.field(coerce=col.seq_of(check.of_isinstance(DepFile)))
 
     @properties.cached
+    @property
     def files_by_path(self) -> ta.Mapping[str, DepFile]:
         return col.unique_dict((f.path, f) for f in self.files)
+
+    def get_lines(self, cls: ta.Type[T] = object) -> ta.Sequence[T]:
+        return [l for f in self.files for l in f.lines if isinstance(l, cls)]
+
+    @properties.cached
+    @property
+    def deps(self) -> ta.Sequence[dp.NameDep]:
+        return [l.dep for l in self.get_lines(DepLine)]
 
 
 _INCLUDE_PAT = re.compile(r'-r\s*(?P<name>[^#]+)\s*(?P<comment>#.*)?')
@@ -265,7 +277,25 @@ class PipDep(dc.Pure):
     latest_filetype: str
 
 
-def get_pip_deps(*, interp: ta.Optional[str] = None) -> ta.Mapping[str, PipDep]:
+class PipDeps(dc.Frozen, ta.Sequence[PipDep]):
+    deps: ta.Sequence[PipDep] = dc.field(coerce=col.seq_of(check.of_isinstance(PipDep)))
+
+    # @ta.overload
+    # def __getitem__(self, s: slice) -> ta.Sequence[PipDep]: ...
+
+    def __getitem__(self, i: int) -> PipDep:
+        return self.deps[i]
+
+    def __len__(self) -> int:
+        return len(self.deps)
+
+    @properties.cached
+    @property
+    def by_name(self) -> ta.Mapping[str, PipDep]:
+        return col.unique_dict((d.name, d) for d in self.deps)
+
+
+def get_pip_deps(*, interp: ta.Optional[str] = None) -> PipDeps:
     if interp is None:
         interp = sys.executable
 
@@ -277,7 +307,7 @@ def get_pip_deps(*, interp: ta.Optional[str] = None) -> ta.Mapping[str, PipDep]:
     output = subprocess.check_output(cmd_str, shell=True)
 
     dcts = json.loads(output.decode('utf-8'))
-    return {dct['name']: PipDep(**dct) for dct in dcts}
+    return PipDeps([PipDep(**dct) for dct in dcts])
 
 
 @pytest.mark.skip
@@ -290,22 +320,40 @@ def test_deps():
 
     de = read_dep_env(fp)
 
-    print(de)
+    explicit_dep_names = {d.name for d in de.deps}
+    pinned_dep_names = {d.name for d in de.deps if any(v.op == '==' for v in d.vers)}
 
     # pip_deps = get_pip_deps(interp=os.path.join(os.path.expanduser(dirp), '.venv/bin/python'))
+    # for df in de.files:
+    #     print(df.path)
+    #     for line in df.lines:
+    #         print(render_line(line))
+    #         if isinstance(line, DepLine):
+    #             if line.dep.name in pip_deps:
+    #                 pip_dep = pip_deps[line.dep.name]
+    #                 if len(line.dep.vers) == 1 and line.dep.vers[0] != pip_dep.latest_version:
+    #                     print(line.dep)
+    #                     print(pip_dep)
 
-    for df in de.files:
-        print(df.path)
+    pip_deps = get_pip_deps(interp=os.path.join(os.path.expanduser(dirp), '.venv/bin/python'))
 
-        for line in df.lines:
-            # if isinstance(line, DepLine):
-            #     if line.dep.name in pip_deps:
-            #         pip_dep = pip_deps[line.dep.name]
-            #         if len(line.dep.vers) == 1 and line.dep.vers[0] != pip_dep.latest_version:
-            #             print(line.dep)
-            #             print(pip_dep)
+    disp_labels = ['Package', 'Version', 'Latest', 'Type']
+    disp_atts = ['name', 'version', 'latest_version', 'latest_filetype']
 
-            print(render_line(line))
+    seen = set()
+    ps = [
+        max([len(l)] + [len(getattr(e, k)) for e in pip_deps if e.name not in seen])
+        for l, k in zip(disp_labels, disp_atts)
+    ]
+    print(' '.join(l.ljust(p) for l, p in zip(disp_labels, ps)))
 
-    # df = DepFile(fp, lines)
-    # print(df)
+    for pred in [
+        lambda n: n in pinned_dep_names,
+        lambda n: n not in pinned_dep_names and n in explicit_dep_names,
+        lambda n: n not in pinned_dep_names and n not in explicit_dep_names,
+    ]:
+        print(' '.join('-' * p for p in ps))
+        for e in pip_deps:
+            if e.name not in seen and pred(e.name.lower()):
+                print(' '.join(getattr(e, k).ljust(p) for k, p in zip(disp_atts, ps)))
+
