@@ -10,4 +10,4 @@ clean:
 
 .PHONY: build
 build:
-	python -m mako.cmd vmath.pyx.mako > vmath.pyx
+	PYTHONPATH=$$(realpath ../../../..) python -m $$(pwd | rev | cut -d '/' -f1-4 | rev | tr -s '/' '.')._gen > vmath.pyx
