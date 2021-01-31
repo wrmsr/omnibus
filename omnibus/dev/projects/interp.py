@@ -366,7 +366,7 @@ class LinuxResolver(PyenvResolver):
 def _resolve_cmd(args) -> None:
     if sys.platform == 'darwin':
         resolver_cls = MacResolver
-    elif sys.platform == 'linux2':
+    elif sys.platform in ['linux', 'linux2']:
         resolver_cls = LinuxResolver
     else:
         raise EnvironmentError(f'Unsupported platform: {sys.platform}')

@@ -1,7 +1,13 @@
 import tkinter as tk
 
 from cpython.bytes cimport PyBytes_AsString
+from cpython.mem cimport PyMem_Malloc
 from libc.stdlib cimport atol
+from libc.string cimport strlen
+from libc.string cimport strncpy
+
+cdef extern from "Python.h":
+    const char* PyUnicode_AsUTF8(object unicode)
 
 
 DEF TCL_OK = 0
@@ -95,6 +101,23 @@ cdef int _PhotoPut(ClientData clientdata, Tcl_Interp* interp, int argc, const ch
     return TCL_OK
 
 
+cdef const char *_photo_put_cmd_name = NULL
+
+cdef const char *_get_photo_put_cmd_name():
+    global _photo_put_cmd_name
+    cdef size_t l
+    cdef char *p = NULL
+    if _photo_put_cmd_name == NULL:
+        n = __package__.split('.')[0] + '_tkx_photo_put'
+        pn = PyUnicode_AsUTF8(n)
+        l = strlen(pn) + 1
+        p = <char *> PyMem_Malloc(l)
+        strncpy(p, pn, l)
+        p[l - 1] = 0
+        _photo_put_cmd_name = <const char *> p
+    return _photo_put_cmd_name
+
+
 def photo_put(
         photo,
         int xsize,
@@ -110,10 +133,10 @@ def photo_put(
 
     ptk = photo.tk
     try:
-        ptk.call('omnibus_tkx_photo_put', photo, <ssize_t>(&pd))
+        ptk.call(_get_photo_put_cmd_name(), photo, <ssize_t>(&pd))
     except tk.TclError:
         _init(ptk.interpaddr())
-        ptk.call('omnibus_tkx_photo_put', photo, <ssize_t>(&pd))
+        ptk.call(_get_photo_put_cmd_name(), photo, <ssize_t>(&pd))
 
 
 def _init(size_t interp):
@@ -131,5 +154,3 @@ def _init(size_t interp):
     TK_FIND_PHOTO = (<Tk_FindPhoto_t*><size_t>ct.addressof(mod.Tk_FindPhoto))[0]
     global TK_PHOTO_PUT_BLOCK_85
     TK_PHOTO_PUT_BLOCK_85 = (<Tk_PhotoPutBlock_85_t*><size_t>ct.addressof(mod.Tk_PhotoPutBlock))[0]
-
-    TCL_CREATE_COMMAND(<Tcl_Interp*>interp, 'omnibus_tkx_photo_put', <Tcl_CmdProc*>_PhotoPut, <ClientData> 0, <Tcl_CmdDeleteProc*> NULL)

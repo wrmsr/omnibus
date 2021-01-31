@@ -5,7 +5,7 @@ import pytest
 from .. import tkx
 
 
-@pytest.mark.skip()
+# @pytest.mark.skip()
 def test_tk():
     root = tk.Tk()
 
