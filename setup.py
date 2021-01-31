@@ -234,7 +234,10 @@ else:
                     fpath.rpartition('.')[0].replace('/', '.'),
                     sources=[fpath],
                     language='c++',
-                    extra_compile_args=['-std=c++14'],
+                    extra_compile_args=[
+                        '-std=c++14',
+                        '-march=native',  # FIXME
+                    ],
                     optional=True,
                     define_macros=[
                         *([('CYTHON_TRACE', '1')] if TRACE else []),
