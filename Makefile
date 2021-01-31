@@ -96,47 +96,13 @@ brew-upgrade:
 define do-venv
 	set -e ; \
 	\
-	if [ -z "$$DEBUG" ] && [ "$$(python --version)" = "Python $(2)" ] ; then \
-		python -m venv $(1) ; \
-	\
-	else \
-		PYENV_INSTALL_DIR="$(2)" ; \
-		PYENV_INSTALL_FLAGS="-s -v"; \
-		if [ ! -z "$$DEBUG" ] ; then \
-			PYENV_INSTALL_DIR="$$PYENV_INSTALL_DIR"-debug ; \
-			PYENV_INSTALL_FLAGS="$$PYENV_INSTALL_FLAGS -g" ; \
-		fi ; \
-		\
-		if [ "$$(uname)" = "Darwin" ] && command -v brew ; then \
-			PYENV_CFLAGS="" ; \
-			PYENV_LDFLAGS="" ; \
-			for DEP in $(PYENV_BREW_DEPS); do \
-				DEP_PREFIX="$$(brew --prefix "$$DEP")" ; \
-				PYENV_CFLAGS="-I$$DEP_PREFIX/include $$PYENV_CFLAGS" ; \
-				PYENV_LDFLAGS="-L$$DEP_PREFIX/lib $$PYENV_LDFLAGS" ; \
-			done ; \
-			\
-			PYTHON_CONFIGURE_OPTS="--enable-framework" ; \
-			if brew --prefix tcl-tk ; then \
-				TCL_TK_PREFIX="$$(brew --prefix tcl-tk)" ; \
-				TCL_TK_VER="$$(brew ls --versions tcl-tk | head -n1 | egrep -o '[0-9]+\.[0-9]+')" ; \
-				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-includes='-I$$TCL_TK_PREFIX/include'" ; \
-				PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS --with-tcltk-libs='-L$$TCL_TK_PREFIX/lib -ltcl$$TCL_TK_VER -ltk$$TCL_TK_VER'" ; \
-			fi ; \
-			\
-			CFLAGS="$$PYENV_CFLAGS $$CFLAGS" \
-			LDFLAGS="$$PYENV_LDFLAGS $$LDFLAGS" \
-			PKG_CONFIG_PATH="$$(brew --prefix openssl)/lib/pkgconfig:$$PKG_CONFIG_PATH" \
-			PYTHON_CONFIGURE_OPTS="$$PYTHON_CONFIGURE_OPTS" \
-			"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
-		\
-		else \
-			"$(PYENV_BIN)" install $$PYENV_INSTALL_FLAGS $(2) ; \
-		\
-		fi ; \
-		\
-		"$(PYENV_ROOT)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv $(1) ; \
+	PY_BIN=$$(python3 $(PROJECT)/dev/projects/interp.py resolve "$(2)") ; \
+	RC=$$? ; \
+	if [ $$RC -ne 0 ]; then \
+		exit "failed to resolve interpreter: $$RC" ; \
 	fi ; \
+	\
+	"$$PY_BIN" -m venv $(1) ; \
 	\
 	$(1)/bin/pip install --upgrade pip setuptools wheel
 endef
@@ -222,7 +188,6 @@ typecheck: venv
 
 .PHONY: type-ignore-vendor
 type-ignore-vendor:
-	# # type: ignore
 	for F in $$(find $(PROJECT)/_vendor -name '*.py') ; do \
 		if [ ! -s "$$F" ] ; then \
 			continue ; \
