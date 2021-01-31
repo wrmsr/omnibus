@@ -4,9 +4,8 @@ TODO:
  - explicit subclass registration for serde
  - (optional) id + refs
 """
-import collections
+import collections.abc
 import operator
-import types
 import typing as ta
 
 from . import annotations as ans
@@ -16,21 +15,14 @@ from .. import dataclasses as dc
 from .. import lang
 from .. import reflect as rfl
 from ..serde import mapping as sm
+from .fields import build_nodal_fields
+from .fields import check_nodal_fields
+from .fields import FieldsInfo
 
 
 Self = ta.TypeVar('Self')
 NodalT = ta.TypeVar('NodalT', bound='Nodal')
 AnnotationT = ta.TypeVar('AnnotationT', bound=ans.Annotation)
-
-
-class FieldInfo(dc.Pure):
-    spec: rfl.TypeSpec
-    opt: bool = False
-    seq: bool = False
-
-
-class FieldsInfo(dc.Pure):
-    flds: ta.Mapping[str, FieldInfo]
 
 
 class _NodalMeta(dc.Meta):
@@ -148,39 +140,11 @@ class Nodal(
         check.state(dc.is_dataclass(cls))
 
     _nodal_cls: ta.ClassVar[ta.Type[NodalT]]
+    _nodal_fields: ta.ClassVar[FieldsInfo]
 
     @classmethod
     def _build_nodal_fields(cls) -> FieldsInfo:
-        th = ta.get_type_hints(cls)
-        flds = {}
-
-        for f in dc.fields(cls):
-            fs = rfl.spec(th[f.name])
-            opt = False
-            seq = False
-
-            if isinstance(fs, rfl.UnionSpec) and fs.optional_arg is not None:
-                fs = fs.optional_arg
-                opt = True
-
-            if isinstance(fs, rfl.SpecialParameterizedGenericTypeSpec) and fs.erased_cls is collections.abc.Sequence:
-                [fs] = fs.args
-                seq = True
-
-            if isinstance(fs, rfl.TypeSpec) and issubclass(fs.erased_cls, cls._nodal_cls):
-                flds[f.name] = FieldInfo(fs, opt, seq)
-
-            else:
-                def flatten(s):
-                    yield s
-                    if isinstance(s, (rfl.UnionSpec, rfl.GenericTypeSpec)):
-                        for a in s.args:
-                            yield from flatten(a)
-                l = list(flatten(fs))
-                if any(isinstance(e, rfl.TypeSpec) and issubclass(e.erased_cls, cls._nodal_cls) for e in l):
-                    raise TypeError(f'Peer fields must be sequences: {f.name} {fs}')
-
-        return FieldsInfo(flds)
+        return build_nodal_fields(cls, cls._nodal_cls)
 
     def __post_init__(self) -> None:
         cls = type(self)
@@ -190,24 +154,7 @@ class Nodal(
             fi = cls._build_nodal_fields()
             setattr(cls, '_nodal_fields', fi)
 
-        for a, f in fi.flds.items():
-            v = getattr(self, a)
-
-            if f.opt and v is None:
-                continue
-            elif v is None:
-                raise TypeError(v, f, a)
-
-            if f.seq:
-                if isinstance(v, types.GeneratorType):
-                    raise TypeError(v, f, a)
-                for e in v:
-                    if not isinstance(e, f.spec.erased_cls):
-                        raise TypeError(e, f, a)
-
-            else:
-                if not isinstance(v, f.spec.erased_cls):
-                    raise TypeError(v, f, a)
+        check_nodal_fields(self, fi)
 
         try:
             sup = super().__post_init__

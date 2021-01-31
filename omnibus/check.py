@@ -61,13 +61,13 @@ def of_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = N
     return inner
 
 
-def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
+def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> T:
     if not _issubclass(obj, spec):  # type: ignore
         _raise(TypeError, 'Must be subclass', message, spec)
     return obj
 
 
-def of_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
+def of_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
     def inner(obj):
         return issubclass(obj, spec, message)
     return inner
@@ -87,13 +87,13 @@ def of_not_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable
     return inner
 
 
-def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
+def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> T:
     if _issubclass(obj, spec):  # type: ignore
         _raise(TypeError, 'Must be not subclass', message, spec)
     return obj
 
 
-def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
+def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
     def inner(obj):
         return not_issubclass(obj, spec, message)
     return inner
