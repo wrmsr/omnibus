@@ -178,7 +178,7 @@ class PyenvInstallOpts(ta.NamedTuple):
             env=env if env is not None else {},
         )
 
-    def combine(self, others: 'PyenvInstallOpts') -> 'PyenvInstallOpts':
+    def combine(self, *others: 'PyenvInstallOpts') -> 'PyenvInstallOpts':
         opts = [*self.opts]
         conf_opts = [*self.conf_opts]
         cflags = [*self.cflags]
@@ -240,7 +240,7 @@ class PyenvResolver(Resolver):
 
     @cached_property
     def _pyenv_install_path(self) -> str:
-        return os.path.join(_check_not_none(self._pyenv_root), self._pyenv_install_name)
+        return os.path.join(_check_not_none(self._pyenv_root), 'versions', self._pyenv_install_name)
 
     _pyenv_basic_pio: ta.ClassVar[PyenvInstallOpts] = PyenvInstallOpts.new(opts=['-s', '-v'])
 
@@ -259,12 +259,12 @@ class PyenvResolver(Resolver):
 
     def _resolve_pyenv_existing_python(self) -> ta.Optional[str]:
         bin_path = os.path.join(self._pyenv_install_path, 'bin', 'python')
-        if not os.path.isfile(bin_path):
+        if os.path.isfile(bin_path):
             return bin_path
         return None
 
     def _resolve_pyenv_install_python(self) -> ta.Optional[str]:
-        pio = PyenvInstallOpts.new()
+        pio = PyenvInstallOpts.new().combine(*self._pyenv_pios)
 
         env = dict(pio.env)
         for k, l in [
@@ -339,7 +339,7 @@ class MacResolver(PyenvResolver):
     @cached_property
     def _brew_ssl_pio(self) -> PyenvInstallOpts:
         pkg_config_path = _cmd(['brew', '--prefix', 'openssl'])
-        if 'PKG_CONFIG_PATH':
+        if 'PKG_CONFIG_PATH' in os.environ:
             pkg_config_path += ':' + os.environ['PKG_CONFIG_PATH']
         return PyenvInstallOpts.new(env={'PKG_CONFIG_PATH': pkg_config_path})
 
