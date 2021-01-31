@@ -127,6 +127,19 @@ class Stream(lang.Final):
         return self._stack
 
     @property
+    def seq(self) -> ta.Sequence['Stream']:
+        l: ta.List[Stream] = []
+        cur = self
+        while cur is not None:
+            l.append(cur)
+            cur = cur._prev
+        return l
+
+    @property
+    def stack_seq(self) -> ta.Sequence[Stack]:
+        return list(self._stack)
+
+    @property
     def prev(self) -> ta.Optional['Stream']:
         return self._prev
 

@@ -45,6 +45,8 @@ class SimpleEffect(Effect, lang.Final):
     replace: int = 0
 
     def __call__(self, stream: Stream) -> ta.Tuple[Stack, ta.Iterable[Value]]:
+        # if stream.instr.opname in ('WITH_CLEANUP_START', 'BEGIN_FINALLY'):
+        #     breakpoint()
         if callable(self.offset):
             offset = self.offset(stream.instr)
         elif isinstance(self.offset, int):
@@ -166,6 +168,7 @@ class Op:
 
         self._name = name
         self._versions = frozenset(check.isinstance(v, float) for v in versions) if versions is not None else None
+        self._explicit = False
 
         if self._versions is not None and _VERSION_FLOAT not in self._versions:
             self._enabled = False
@@ -204,3 +207,7 @@ class Op:
     def steps(self) -> ta.List[Step]:
         check.state(self._enabled)
         return self._steps
+
+    @property
+    def explicit(self) -> bool:
+        return self._explicit

@@ -22,7 +22,7 @@ from .values import MethodInstance
 from .values import Name
 
 
-OPS = [
+EXPLICIT_OPS = [
 
     Op('NOP', [Step(NextDst(), NopEffect())]),
 
@@ -84,7 +84,7 @@ OPS = [
     # LIST_APPEND(i)
     # MAP_ADD(i)
 
-    Op('RETURN_VALUE', [Step(RetDst())]),
+    Op('RETURN_VALUE', [Step(RetDst(), SimpleEffect(-1))]),
     # YIELD_VALUE
     # YIELD_FROM
     # SETUP_ANNOTATIONS
@@ -92,10 +92,11 @@ OPS = [
     # POP_BLOCK
     # POP_EXCEPT
     # !POP_FINALLY(preserve_tos)
-    # !BEGIN_FINALLY
+    Op('BEGIN_FINALLY', [Step(NextDst(), SimpleEffect(0))]),
     # END_FINALLY
     # LOAD_BUILD_CLASS
     # SETUP_WITH(delta)
+    Op('SETUP_WITH', [Step(NextDst(), SimpleEffect(6)), Step(RelJmpDst(), SimpleEffect(6))]),
     # WITH_CLEANUP_START
     # WITH_CLEANUP_FINISH
 
@@ -115,6 +116,7 @@ OPS = [
     # BUILD_SET(count)
     # BUILD_MAP(count)
     # BUILD_CONST_KEY_MAP(count)
+    Op('BUILD_CONST_KEY_MAP', [Step(NextDst(), SimpleEffect(lambda i: -i.argval, replace=1))]),
     # BUILD_STRING(count)
     # BUILD_TUPLE_UNPACK(count)
     # BUILD_TUPLE_UNPACK_WITH_CALL(count)
@@ -161,7 +163,7 @@ OPS = [
 
 ]
 
-OPS.extend([
+EXPLICIT_OPS.extend([
 
     Op('LOAD_METHOD', [Step(NextDst(), PushEffect(lambda stream: [MethodInstance(stream.stack[0], stream.instr.argval), MethodCallable(stream.stack[0], stream.instr.argval)], 1))]),  # noqa
     Op('CALL_METHOD', [Step(NextDst(), SimpleEffect(replace=1))]),
@@ -169,5 +171,11 @@ OPS.extend([
 ] if sys.implementation.name != 'pypy' else [])
 
 
-OPS_BY_NAME: ta.Dict[str, Op] = {op.name: op for op in OPS if op.name in opcode.opmap}
+for _op in EXPLICIT_OPS:
+    _op._explicit = True
+del _op
+
+EXPLICIT_OPS_BY_NAME: ta.Dict[str, Op] = {op.name: op for op in EXPLICIT_OPS if op.name in opcode.opmap}
+
+OPS_BY_NAME = EXPLICIT_OPS_BY_NAME.copy()
 OPS_BY_NAME.update({name: Op(name) for name in opcode.opmap if name not in OPS_BY_NAME})

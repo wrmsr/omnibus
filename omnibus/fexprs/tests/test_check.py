@@ -1,4 +1,3 @@
-import functools
 import sys
 import threading
 import types
@@ -9,29 +8,7 @@ import pytest
 from .. import recon as recon_
 from .. import values as values_
 from ... import check
-
-
-class RecursionForbiddenException(RuntimeError):
-    pass
-
-
-def forbid_recursion(or_else: ta.Optional[ta.Callable] = None):
-    def outer(fn):
-        @functools.wraps(fn)
-        def inner(*args, **kwargs):
-            ident = threading.current_thread().ident
-            if ident in idents:
-                if or_else is not None:
-                    return or_else(*args, **kwargs)
-                raise RecursionForbiddenException(fn, args, kwargs)
-            idents.add(ident)
-            try:
-                return fn(*args, **kwargs)
-            finally:
-                idents.discard(ident)
-        idents = set()
-        return inner
-    return outer
+from ...threading import forbid_recursion
 
 
 def _build_frame_check_exception(
@@ -61,7 +38,8 @@ def _build_frame_check_exception(
 
 @pytest.mark.xfail
 def test_check(monkeypatch):
-    num_calls = 0
+    import dis
+    dis.dis(test_check)
 
     is_recursing = threading.local()
     is_recursing.value = False
@@ -78,5 +56,3 @@ def test_check(monkeypatch):
     z = 4
     with pytest.raises(ValueError):
         check.arg((x + y) == z)
-
-    assert num_calls == 1

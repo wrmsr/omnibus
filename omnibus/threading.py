@@ -1,4 +1,5 @@
 import contextlib
+import functools
 import threading
 import typing as ta
 import weakref
@@ -154,3 +155,26 @@ class AtomicInt(lang.Final):
             ret = self._value
             self._value = new
             return ret
+
+
+class RecursionForbiddenException(RuntimeError):
+    pass
+
+
+def forbid_recursion(or_else: ta.Optional[ta.Callable] = None):
+    def outer(fn):
+        @functools.wraps(fn)
+        def inner(*args, **kwargs):
+            ident = threading.current_thread().ident
+            if ident in idents:
+                if or_else is not None:
+                    return or_else(*args, **kwargs)
+                raise RecursionForbiddenException(fn, args, kwargs)
+            idents.add(ident)
+            try:
+                return fn(*args, **kwargs)
+            finally:
+                idents.discard(ident)
+        idents = set()
+        return inner
+    return outer

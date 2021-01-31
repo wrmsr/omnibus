@@ -64,6 +64,8 @@ class Analysis:
             while True:
                 instr = self.instrs[stream.ip]
                 op = OPS_BY_NAME[instr.opname]
+                # if not op.explicit:
+                #     breakpoint()
 
                 streams_by_src = streams_by_src_by_dst.setdefault(stream.ip, {})
                 src_ip = stream.prev.ip if stream.prev is not None else None
