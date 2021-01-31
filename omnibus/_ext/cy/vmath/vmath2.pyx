@@ -28,15 +28,34 @@ from libc.stdint cimport uint16_t
 from libc.stdint cimport uint32_t
 from libc.stdint cimport uint64_t
 
+cdef union OpArg:
+    size_t sz
+    void *p
+
+    int8_t i8
+    int16_t i16
+    int32_t i32
+    int64_t i64
+
+    uint8_t u8
+    uint16_t u16
+    uint32_t u32
+    uint64_t u64
+
+    float f32
+    double f64
+
+ctypedef void (*pfn_op_t) (OpArg *args) nogil
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef void _op_add_sz_pi8_pi8_pi8(void **args) nogil:
-    cdef size_t a0 = <size_t> args[0]
-    cdef int8_t *a1 = <int8_t *> args[1]
-    cdef int8_t *a2 = <int8_t *> args[2]
-    cdef int8_t *a3 = <int8_t *> args[3]
+cdef void _op_add_sz_pi8_pi8_pi8(OpArg *args) nogil:
+    cdef size_t a0 = args[0].sz
+    cdef int8_t *a1 = <int8_t *> args[1].p
+    cdef int8_t *a2 = <int8_t *> args[2].p
+    cdef int8_t *a3 = <int8_t *> args[3].p
     cdef size_t i = 0
     while i < a0:
         a1[i] = <int8_t> (a2[i] + a3[i])
@@ -48,11 +67,11 @@ _pfn_op_add_sz_pf32_pf32_pf32 = <size_t> _op_add_sz_pf32_pf32_pf32
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cdef void _op_add_sz_pf32_pf32_pf32(void **args) nogil:
-    cdef size_t a0 = <size_t> args[0]
-    cdef float *a1 = <float *> args[1]
-    cdef float *a2 = <float *> args[2]
-    cdef float *a3 = <float *> args[3]
+cdef void _op_add_sz_pf32_pf32_pf32(OpArg *args) nogil:
+    cdef size_t a0 = args[0].sz
+    cdef float *a1 = <float *> args[1].p
+    cdef float *a2 = <float *> args[2].p
+    cdef float *a3 = <float *> args[3].p
     cdef size_t i = 0
     while i < a0:
         a1[i] = <float> (a2[i] + a3[i])
@@ -60,17 +79,17 @@ cdef void _op_add_sz_pf32_pf32_pf32(void **args) nogil:
 
 _pfn_op_add_sz_pi8_pi8_pi8 = <size_t> _op_add_sz_pi8_pi8_pi8
 
-ctypedef void (*pfn_op_t) (void **args) nogil
-
 DEF MAX_ARGS = 16
 
 cpdef op(size_t fn, args):
     cdef pfn_op_t pfn = <pfn_op_t> fn
-    cdef void *aa[MAX_ARGS]
-    cdef bool isbuf[MAX_ARGS]
+    cdef OpArg op_args[MAX_ARGS]
+    cdef bool is_buf[MAX_ARGS]
     cdef Py_buffer bufs[MAX_ARGS]
     cdef int i = 0
-    memset(isbuf, 0, sizeof(bool) * MAX_ARGS)
+
+    memset(op_args, 0, sizeof(op_args))
+    memset(is_buf, 0, sizeof(bool) * MAX_ARGS)
 
     exc = None
     for t, v in args:
@@ -79,21 +98,21 @@ cpdef op(size_t fn, args):
             break
 
         if t == 'sz':
-            (<size_t*> &aa[i])[0] = <size_t> v
+            op_args[i].sz = <size_t> v
 
         elif t == 'i8':
-            (<int8_t*> &aa[i])[0] = <int8_t> v
+            op_args[i].i8 = <int8_t> v
 
         elif t == 'f32':
-            (<float*> &aa[i])[0] = <float> v
+            op_args[i].f32 = <float> v
 
         elif t in (
                 'pi8',
                 'pf32',
         ):
-            isbuf[i] = 1
+            is_buf[i] = 1
             PyObject_GetBuffer(v, &bufs[i], PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
-            aa[i] = bufs[i].buf
+            op_args[i].p = bufs[i].buf
 
         else:
             exc = ValueError(f'Unhandled arg type: {t}')
@@ -102,11 +121,11 @@ cpdef op(size_t fn, args):
         i += 1
 
     if exc is None:
-        pfn(aa)
+        pfn(op_args)
 
     i = 0
     while i < MAX_ARGS:
-        if isbuf[i]:
+        if is_buf[i]:
             PyBuffer_Release(&bufs[i])
         i += 1
 
