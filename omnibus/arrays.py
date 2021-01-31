@@ -1,4 +1,5 @@
 import array
+import itertools
 import typing as ta
 
 from . import dataclasses as dc
@@ -61,3 +62,11 @@ def _get_int_glyph(sz: int, unsigned: bool) -> str:
 INT_SIZES = [1, 2, 4, 8]
 INT_GLYPHS_BY_SIZE = {sz: _get_int_glyph(sz, False) for sz in INT_SIZES}
 UINT_GLYPHS_BY_SIZE = {sz: _get_int_glyph(sz, True) for sz in INT_SIZES}
+
+
+def repeat(t: str, v: ta.Any, n: int) -> array.array:
+    return array.array(t, itertools.repeat(v, n))
+
+
+def zeroes(t: str, n: int) -> array.array:
+    return repeat(t, TYPE_CODES[t].zero, n)

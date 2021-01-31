@@ -8,76 +8,7 @@ from cpython.buffer cimport PyBUF_SIMPLE
 from cpython.buffer cimport PyBuffer_Release
 from cpython.buffer cimport PyObject_GetBuffer
 
-cdef class BufferView:
-    cdef object o
-    cdef Py_buffer buf
-
-    def __cinit__(self, object o):
-        self.o = o
-        PyObject_GetBuffer(o, &self.buf, PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
-
-    def __dealloc__(self):
-        PyBuffer_Release(&self.buf)
-
-from libc.stdint cimport int8_t
-from libc.stdint cimport int16_t
-from libc.stdint cimport int32_t
-from libc.stdint cimport int64_t
-from libc.stdint cimport uint8_t
-from libc.stdint cimport uint16_t
-from libc.stdint cimport uint32_t
-from libc.stdint cimport uint64_t
-
-cdef union OpArg:
-    size_t sz
-    void *p
-
-    int8_t i8
-    int16_t i16
-    int32_t i32
-    int64_t i64
-
-    uint8_t u8
-    uint16_t u16
-    uint32_t u32
-    uint64_t u64
-
-    float f32
-    double f64
-
-ctypedef void (*pfn_op_t) (OpArg *args) nogil
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-cdef void _op_add_sz_pi8_pi8_pi8(OpArg *args) nogil:
-    cdef size_t a0 = args[0].sz
-    cdef int8_t *a1 = <int8_t *> args[1].p
-    cdef int8_t *a2 = <int8_t *> args[2].p
-    cdef int8_t *a3 = <int8_t *> args[3].p
-    cdef size_t i = 0
-    while i < a0:
-        a1[i] = <int8_t> (a2[i] + a3[i])
-        i += 1
-
-_pfn_op_add_sz_pf32_pf32_pf32 = <size_t> _op_add_sz_pf32_pf32_pf32
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-cdef void _op_add_sz_pf32_pf32_pf32(OpArg *args) nogil:
-    cdef size_t a0 = args[0].sz
-    cdef float *a1 = <float *> args[1].p
-    cdef float *a2 = <float *> args[2].p
-    cdef float *a3 = <float *> args[3].p
-    cdef size_t i = 0
-    while i < a0:
-        a1[i] = <float> (a2[i] + a3[i])
-        i += 1
-
-_pfn_op_add_sz_pi8_pi8_pi8 = <size_t> _op_add_sz_pi8_pi8_pi8
+from ._vmath2 cimport *
 
 DEF MAX_ARGS = 16
 
@@ -100,19 +31,33 @@ cpdef op(size_t fn, args):
         if t == 'sz':
             op_args[i].sz = <size_t> v
 
-        elif t == 'i8':
-            op_args[i].i8 = <int8_t> v
-
-        elif t == 'f32':
-            op_args[i].f32 = <float> v
-
-        elif t in (
-                'pi8',
-                'pf32',
-        ):
+        elif t.startswith('p'):
             is_buf[i] = 1
             PyObject_GetBuffer(v, &bufs[i], PyBUF_SIMPLE | PyBUF_ANY_CONTIGUOUS)
             op_args[i].p = bufs[i].buf
+
+        elif t == 'i8':
+            op_args[i].i8 = <int8_t> v
+        elif t == 'i16':
+            op_args[i].i16 = <int16_t> v
+        elif t == 'i32':
+            op_args[i].i32 = <int32_t> v
+        elif t == 'i64':
+            op_args[i].i64 = <int64_t> v
+
+        elif t == 'u8':
+            op_args[i].u8 = <uint8_t> v
+        elif t == 'u16':
+            op_args[i].u16 = <uint16_t> v
+        elif t == 'u32':
+            op_args[i].u32 = <uint32_t> v
+        elif t == 'u64':
+            op_args[i].u64 = <uint64_t> v
+
+        elif t == 'f32':
+            op_args[i].f32 = <float> v
+        elif t == 'f64':
+            op_args[i].f64 = <double> v
 
         else:
             exc = ValueError(f'Unhandled arg type: {t}')
