@@ -19,8 +19,15 @@ _callable = callable
 _NONE_TYPE = type(None)
 
 
+def _default_exception_factory(exc_cls: ta.Type[Exception], *args, **kwargs) -> Exception:
+    return exc_cls(*args, **kwargs)  # noqa
+
+
+_EXCEPTION_FACTORY = _default_exception_factory
+
+
 def _raise(
-        exception_type: type,
+        exception_type: ta.Type[Exception],
         default: ta.Optional[str],
         message: Messageable,
         *args: ta.Any,
@@ -34,7 +41,8 @@ def _raise(
         message = default
     if message is not None:
         args = message, *args
-    raise exception_type(*args, **kwargs)
+    exc = _EXCEPTION_FACTORY(exception_type, *args, **kwargs)
+    raise exc
 
 
 def state(condition: bool, message: Messageable = None) -> None:
@@ -44,14 +52,14 @@ def state(condition: bool, message: Messageable = None) -> None:
 
 def arg(condition: bool, message: Messageable = None) -> None:
     if not condition:
-        _raise(RuntimeError, 'Argument condition not met', message)
+        _raise(ValueError, 'Argument condition not met', message)
 
 
 def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
     if _isinstance(spec, tuple) and None in spec:  # type: ignore
         spec = tuple(filter(None, spec)) + (_NONE_TYPE,)  # type: ignore
     if not _isinstance(obj, spec):
-        _raise(TypeError, 'Must be instance', message, spec)
+        _raise(TypeError, 'Must be instance', message, obj, spec)
     return obj  # type: ignore
 
 
@@ -63,7 +71,7 @@ def of_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = N
 
 def issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> T:
     if not _issubclass(obj, spec):  # type: ignore
-        _raise(TypeError, 'Must be subclass', message, spec)
+        _raise(TypeError, 'Must be subclass', message, obj, spec)
     return obj
 
 
@@ -77,7 +85,7 @@ def not_isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: M
     if _isinstance(spec, tuple) and None in spec:  # type: ignore
         spec = tuple(filter(None, ta.cast(ta.Sequence, spec))) + (_NONE_TYPE,)
     if _isinstance(obj, spec):
-        _raise(TypeError, 'Must be not instance', message, spec)
+        _raise(TypeError, 'Must be not instance', message, obj, spec)
     return obj  # type: ignore
 
 
@@ -89,7 +97,7 @@ def of_not_isinstance(spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable
 
 def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> T:
     if _issubclass(obj, spec):  # type: ignore
-        _raise(TypeError, 'Must be not subclass', message, spec)
+        _raise(TypeError, 'Must be not subclass', message, obj, spec)
     return obj
 
 
@@ -101,7 +109,7 @@ def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messa
 
 def cast(obj: ta.Any, cls: ta.Type[T], message: Messageable = None) -> T:
     if not _isinstance(obj, cls):
-        _raise(TypeError, 'Must be instance', message, cls)
+        _raise(TypeError, 'Must be instance', message, obj, cls)
     return obj  # type: ignore
 
 
@@ -113,25 +121,25 @@ def not_none(obj: ta.Optional[T], message: Messageable = None) -> T:
 
 def none(obj: T, message: Messageable = None) -> None:
     if obj is not None:
-        _raise(TypeError, 'Must be None', message)
+        _raise(TypeError, 'Must be None', message, obj)
     return None  # type: ignore
 
 
 def empty(obj: SizedT, message: Messageable = None) -> SizedT:
     if len(obj) != 0:
-        _raise(RuntimeError, 'Must be empty', message)
+        _raise(ValueError, 'Must be empty', message, obj)
     return obj
 
 
 def not_empty(obj: SizedT, message: Messageable = None) -> SizedT:
     if len(obj) == 0:
-        _raise(RuntimeError, 'May not be empty', message)
+        _raise(ValueError, 'May not be empty', message, obj)
     return obj
 
 
 def non_empty_str(obj: ta.Optional[str], message: Messageable = None) -> str:
     if not isinstance(obj, str) or not obj:
-        _raise(RuntimeError, 'Must be non-empty str', message)
+        _raise(ValueError, 'Must be non-empty str', message, obj)
     return obj
 
 
@@ -139,7 +147,7 @@ def single(obj: ta.Iterable[T], message: Messageable = None) -> T:
     try:
         [value] = obj
     except ValueError:
-        _raise(RuntimeError, 'Must be single', message)
+        _raise(ValueError, 'Must be single', message, obj)
     else:
         return value
 
@@ -147,7 +155,7 @@ def single(obj: ta.Iterable[T], message: Messageable = None) -> T:
 def unique(it: IterableHashableT, message: Messageable = None) -> IterableHashableT:
     dupes = [e for e, c in collections.Counter(it).items() if c > 1]  # type: ignore
     if dupes:
-        _raise(ValueError, 'Must be unique', message, dupes)
+        _raise(ValueError, 'Must be unique', message, it, dupes)
     return it
 
 
@@ -165,13 +173,13 @@ def not_in(item: T, container: ta.Container[T], message: Messageable = None) -> 
 
 def callable(obj: T, message: Messageable = None) -> T:
     if not _callable(obj):
-        _raise(TypeError, 'Must be callable', message)
+        _raise(TypeError, 'Must be callable', message, obj)
     return obj
 
 
 def replacing(expected: ta.Any, old: ta.Any, new: T, message: Messageable = None) -> T:
     if old != expected:
-        _raise(TypeError, 'Must be replacing', message, expected, old)
+        _raise(TypeError, 'Must be replacing', message, expected, old, new)
     return new
 
 
@@ -184,9 +192,9 @@ def raises(fn: ta.Callable, exc: ta.Type[BaseException] = BaseException, message
         fn()
     except BaseException as e:
         if not _isinstance(e, exc):
-            _raise(TypeError, 'Must raise correct exception', message, exc, e)
+            _raise(TypeError, 'Must raise correct exception', message, fn, exc, e)
     else:
-        _raise(TypeError, 'Must raise', message, exc)
+        _raise(TypeError, 'Must raise', message, fn, exc)
 
 
 def sets_equal(given: ta.Set[T], expected: ta.Set[T], message: Messageable = None) -> None:
@@ -202,7 +210,7 @@ def exhausted(it: ta.Iterator[T], message: Messageable = None) -> None:
     except StopIteration:
         pass
     else:
-        _raise(ValueError, 'Iterator should be exhausted', message)
+        _raise(ValueError, 'Iterator should be exhausted', message, it)
 
 
 def one_of(*items: T, **kwargs) -> T:
@@ -232,7 +240,7 @@ def one_of(*items: T, **kwargs) -> T:
     for item in items:
         if test(item):
             if value is not not_set:
-                _raise(ValueError, f'Expected exactly one of {items}, got {value} and {item}', message, items, value, item)  # noqa
+                _raise(ValueError, f'Expected exactly one of {items}, got {value} and {item}', message, items, kwargs, value, item)  # noqa
             value = item
     if value is not not_set:
         return ta.cast(T, value)
@@ -241,4 +249,4 @@ def one_of(*items: T, **kwargs) -> T:
     if default_factory is not not_set:
         return default_factory()  # type: ignore
 
-    _raise(ValueError, f'Expected exactly one of {items}, got none', message, items)
+    _raise(ValueError, f'Expected exactly one of {items}, got none', message, items, kwargs)
