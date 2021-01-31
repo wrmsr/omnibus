@@ -155,5 +155,4 @@ def _init(size_t interp):
     global TK_PHOTO_PUT_BLOCK_85
     TK_PHOTO_PUT_BLOCK_85 = (<Tk_PhotoPutBlock_85_t*><size_t>ct.addressof(mod.Tk_PhotoPutBlock))[0]
 
-    print(_get_photo_put_cmd_name())
     TCL_CREATE_COMMAND(<Tcl_Interp*>interp, _get_photo_put_cmd_name(), <Tcl_CmdProc*>_PhotoPut, <ClientData> 0, <Tcl_CmdDeleteProc*> NULL)
