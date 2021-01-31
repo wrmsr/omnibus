@@ -144,6 +144,7 @@ from .objects import no_bool  # noqa
 from .objects import SimpleProxy  # noqa
 from .objects import super_meta  # noqa
 from .objects import unwrap_instance_weakproxy  # noqa
+from .strings import BOOL_STRS  # noqa
 from .strings import camelize  # noqa
 from .strings import decamelize  # noqa
 from .strings import DelimitedEscaping  # noqa

@@ -2,6 +2,7 @@
 """
 TODO:
  - ensure (test) deplessness
+ - pypy3.7-7.3.3
  - install (git clone) pyenv
  - replace shell shit
  - symlink as interp in omnibus repo root so can url github.com/wrmsr/omnibus/blob/master/interp.py

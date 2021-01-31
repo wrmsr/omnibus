@@ -10,6 +10,14 @@ import unicodedata
 T = ta.TypeVar('T')
 
 
+BOOL_STRS: ta.Mapping[bool, ta.AbstractSet[str]] = {
+    b: {s for s in ss for s in [s, s.capitalize(), s.upper()]} for b, ss in [
+        (True, ['1', 't', 'true', 'y', 'yes']),
+        (False, ['0', 'f', 'false', 'n', 'no']),
+    ]
+}
+
+
 def camelize(name: str) -> str:
     return ''.join(map(str.capitalize, name.split('_')))
 
