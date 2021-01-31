@@ -79,14 +79,14 @@ cdef int _PhotoPut(ClientData clientdata, Tcl_Interp* interp, int argc, const ch
         block.pixelSize = 1
         block.offset[0] = block.offset[1] = block.offset[2] = block.offset[3] = 0
     elif pd.mode in (PHOTO_MODE_RGB, PHOTO_MODE_RGBA):
-        block.pixelSize = 4
         block.offset[0] = 0
         block.offset[1] = 1
         block.offset[2] = 2
         if pd.mode == PHOTO_MODE_RGBA:
             block.offset[3] = 3
+            block.pixelSize = 4
         else:
-            block.offset[3] = 0
+            block.pixelSize = 3
     else:
         TCL_APPEND_RESULT(interp, b'Bad mode', <char*> NULL)
         return TCL_ERROR
@@ -154,3 +154,6 @@ def _init(size_t interp):
     TK_FIND_PHOTO = (<Tk_FindPhoto_t*><size_t>ct.addressof(mod.Tk_FindPhoto))[0]
     global TK_PHOTO_PUT_BLOCK_85
     TK_PHOTO_PUT_BLOCK_85 = (<Tk_PhotoPutBlock_85_t*><size_t>ct.addressof(mod.Tk_PhotoPutBlock))[0]
+
+    print(_get_photo_put_cmd_name())
+    TCL_CREATE_COMMAND(<Tcl_Interp*>interp, _get_photo_put_cmd_name(), <Tcl_CmdProc*>_PhotoPut, <ClientData> 0, <Tcl_CmdDeleteProc*> NULL)
