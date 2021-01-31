@@ -93,7 +93,7 @@ def not_issubclass(obj: T, spec: ta.Union[ta.Type[T], ta.Tuple, type], message: 
     return obj
 
 
-def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> ta.Callable[[ta.Any], T]:
+def of_not_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageable = None) -> ta.Callable[[ta.Any], T]:  # noqa
     def inner(obj):
         return not_issubclass(obj, spec, message)
     return inner

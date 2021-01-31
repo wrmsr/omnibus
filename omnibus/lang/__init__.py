@@ -64,7 +64,9 @@ from .enums import AutoEnum  # noqa
 from .enums import parse_enum  # noqa
 from .enums import ValueEnum  # noqa
 from .functions import cached_nullary  # noqa
+from .functions import CLASS_DESCRIPTORS  # noqa
 from .functions import ClassDctFn  # noqa
+from .functions import classmethodonly  # noqa
 from .functions import cls_dct_fn  # noqa
 from .functions import cmp  # noqa
 from .functions import constant  # noqa
@@ -74,12 +76,16 @@ from .functions import is_none  # noqa
 from .functions import is_not_none  # noqa
 from .functions import is_possibly_cls_dct  # noqa
 from .functions import maybe_call  # noqa
+from .functions import noinstancemethod  # noqa
 from .functions import optional_of  # noqa
 from .functions import raise_  # noqa
 from .functions import recurse  # noqa
 from .functions import staticfunction  # noqa
+from .functions import staticfunctiononly  # noqa
+from .functions import staticmethodonly  # noqa
 from .functions import try_  # noqa
 from .functions import unwrap_func  # noqa
+from .functions import unwrap_func_class_descriptors  # noqa
 from .imports import import_all  # noqa
 from .imports import import_module  # noqa
 from .imports import import_module_attr  # noqa
@@ -144,6 +150,7 @@ from .objects import no_bool  # noqa
 from .objects import SimpleProxy  # noqa
 from .objects import super_meta  # noqa
 from .objects import unwrap_instance_weakproxy  # noqa
+from .strings import BOOL_STR_VALS  # noqa
 from .strings import BOOL_STRS  # noqa
 from .strings import camelize  # noqa
 from .strings import decamelize  # noqa
@@ -154,6 +161,7 @@ from .strings import is_ident  # noqa
 from .strings import is_ident_cont  # noqa
 from .strings import is_ident_start  # noqa
 from .strings import is_sunder  # noqa
+from .strings import parse_bool  # noqa
 from .strings import prefix_lines  # noqa
 from .strings import redact  # noqa
 from .strings import Redacted  # noqa

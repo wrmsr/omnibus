@@ -80,29 +80,18 @@ def maybe_call(obj: ta.Any, att: str, *args, default: ta.Any = None, **kwargs) -
         return fn(*args, **kwargs)
 
 
-class staticfunction(staticmethod):
-    """
-    Allows calling @staticmethods within a classbody. Vanilla @staticmethods are not callable:
+CLASS_DESCRIPTORS = (classmethod, staticmethod)
 
-        TypeError: 'staticmethod' object is not callable
-    """
 
-    def __init__(self, fn: ta.Callable) -> None:
-        if isinstance(fn, staticmethod):
-            fn = fn.__func__  # type: ignore  # noqa
-        super().__init__(fn)
-        functools.update_wrapper(self, fn)
-
-    def __repr__(self) -> str:
-        return f'{type(self).__name__}({self.__func__})'
-
-    def __call__(self, *args, **kwargs):
-        return self.__func__(*args, **kwargs)
+def unwrap_func_class_descriptors(fn: ta.Callable) -> ta.Callable:
+    while isinstance(fn, CLASS_DESCRIPTORS):
+        fn = fn.__func__  # type: ignore  # noqa
+    return fn
 
 
 def unwrap_func(fn: ta.Callable) -> ta.Callable:
     while True:
-        if isinstance(fn, (classmethod, staticmethod)):
+        if isinstance(fn, CLASS_DESCRIPTORS):
             fn = fn.__func__  # type: ignore
         elif isinstance(fn, functools.partial):
             fn = fn.func
@@ -113,6 +102,65 @@ def unwrap_func(fn: ta.Callable) -> ta.Callable:
             elif nxt is fn:
                 raise TypeError(fn)
             fn = nxt
+
+
+class _DunderfuncWrapper:
+    __func__: ta.ClassVar[ta.Callable]
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        functools.update_wrapper(self, self.__func__)
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}({self.__func__})'
+
+    def __call__(self, *args, **kwargs):
+        return self.__func__(*args, **kwargs)
+
+
+class _NoinstancemethodDunderfuncWrapper(_DunderfuncWrapper):
+    def __get__(self, instance, owner):
+        if instance is not None:
+            raise TypeError(f'Cannot take instancemethod of {self.__func__}')
+        return self.__func__.__get__(instance, owner)
+
+
+class _FuncWrapper(_DunderfuncWrapper):
+    def __init__(self, fn: ta.Callable) -> None:
+        self.__func__ = unwrap_func_class_descriptors(fn)
+        super().__init__()
+
+
+class _UnwrappingDunderfuncWrapper(_DunderfuncWrapper):
+    def __init__(self, fn: ta.Callable) -> None:
+        super().__init__(unwrap_func_class_descriptors(fn))
+
+
+class staticfunction(_UnwrappingDunderfuncWrapper, staticmethod):  # noqa
+    """
+    Allows calling @staticmethods within a classbody. Vanilla @staticmethods are not callable:
+
+        TypeError: 'staticmethod' object is not callable
+    """
+
+    def __init__(self, fn: ta.Callable) -> None:
+        super().__init__(unwrap_func_class_descriptors(fn))
+
+
+class staticfunctiononly(staticfunction, _NoinstancemethodDunderfuncWrapper, staticmethod):  # noqa
+    pass
+
+
+class noinstancemethod(_FuncWrapper, _NoinstancemethodDunderfuncWrapper):  # noqa
+    pass
+
+
+class classmethodonly(_UnwrappingDunderfuncWrapper, _NoinstancemethodDunderfuncWrapper, classmethod):  # noqa
+    pass
+
+
+class staticmethodonly(_UnwrappingDunderfuncWrapper, _NoinstancemethodDunderfuncWrapper, staticmethod):  # noqa
+    pass
 
 
 class _CachedNullary(ta.Generic[T]):

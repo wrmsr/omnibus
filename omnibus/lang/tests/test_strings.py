@@ -1,3 +1,5 @@
+import pytest
+
 from .. import strings as strings_
 
 
@@ -35,3 +37,12 @@ def test_redact():
     assert barf == 'barf'
     assert barf != 'barfx'
     assert barf < 'barfx'
+
+
+def test_bools():
+    assert strings_.parse_bool('1') is True
+    assert strings_.parse_bool('t') is True
+    assert strings_.parse_bool('f') is False
+    assert strings_.parse_bool('tRuE') is True
+    with pytest.raises(ValueError):
+        assert strings_.parse_bool('tRuE', strict=True)

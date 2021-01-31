@@ -17,6 +17,21 @@ BOOL_STRS: ta.Mapping[bool, ta.AbstractSet[str]] = {
     ]
 }
 
+BOOL_STR_VALS = {s: b for b, ss in BOOL_STRS.items() for s in ss}
+
+
+def parse_bool(v: ta.Union[bool, str], *, strict: bool = False) -> bool:
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, str):
+        if not strict:
+            v = v.lower()
+        try:
+            return BOOL_STR_VALS[v]
+        except KeyError:
+            raise ValueError(v)
+    raise TypeError(v)
+
 
 def camelize(name: str) -> str:
     return ''.join(map(str.capitalize, name.split('_')))
