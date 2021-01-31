@@ -393,9 +393,6 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _main(argv: ta.Optional[ta.Sequence[str]] = None) -> None:
-    if argv is None:
-        argv = sys.argv
-
     if sys.version_info < REQUIRED_PYTHON_VERSION:
         raise EnvironmentError(f'Requires python {REQUIRED_PYTHON_VERSION}, got {sys.version_info} from {sys.executable}')  # noqa
 
