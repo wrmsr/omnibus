@@ -14,8 +14,8 @@ TODO:
  - pipx?
 """
 import argparse
+import logging
 import os.path
-import pprint
 import shutil
 import subprocess
 import sys
@@ -23,6 +23,9 @@ import typing as ta
 
 
 T = ta.TypeVar('T')
+
+
+log = logging.getLogger(__name__)
 
 
 REQUIRED_PYTHON_VERSION = (3, 7)
@@ -46,9 +49,9 @@ def _cmd(
         env: ta.Optional[ta.Mapping[str, str]] = None,
         **kwargs,
 ) -> ta.Optional[str]:
-    pprint.pprint(cmd)
+    log.debug(cmd)
     if env:
-        pprint.pprint(env)
+        log.debug(env)
 
     env = {**os.environ, **(env or {})}
 
@@ -62,15 +65,15 @@ def _cmd(
 
     try:
         buf = subprocess.check_output(cmd, env=env, **kwargs)
-    except es as e:
+    except es:
         if try_:
-            print(e)
+            log.exception(f'cmd failed: {cmd}')
             return None
         else:
             raise
 
     out = buf.decode('utf-8').strip()
-    print(out)
+    log.debug(out)
     return out
 
 
