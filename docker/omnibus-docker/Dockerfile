@@ -12,6 +12,7 @@ RUN ( \
         apt-transport-https \
         ca-certificates \
         curl \
+        dumb-init \
         gnupg-agent \
         software-properties-common \
 \

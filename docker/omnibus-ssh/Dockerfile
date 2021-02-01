@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:focal-20201008
 COPY .dockertimestamp /
 
 RUN ( \
@@ -9,6 +9,7 @@ RUN ( \
 \
     apt-get install -y \
 \
+        dumb-init \
         openssh-server \
         python \
         vim \
@@ -26,4 +27,6 @@ EXPOSE 22
 
 COPY docker/omnibus-ssh/docker-entrypoint.sh /home
 RUN chmod a+x /home/docker-entrypoint.sh
+
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["/home/docker-entrypoint.sh"]

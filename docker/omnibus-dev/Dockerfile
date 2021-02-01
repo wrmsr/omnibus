@@ -279,5 +279,4 @@ RUN chmod a+x ~/xu
 WORKDIR /omnibus
 
 ENTRYPOINT ["dumb-init", "--"]
-
 CMD ["sh", "-c", "echo 'Ready' && sleep infinity"]
