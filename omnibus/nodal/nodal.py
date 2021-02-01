@@ -108,6 +108,16 @@ def _confer_final(att, sub, sup, bases):
     return sub['abstract'] is dc.MISSING or not sub['abstract']
 
 
+_NODAL_SUPER_CONFERS = frozenset([
+    'repr',
+    'eq',
+    'allow_setattr',
+    'aspects',
+    'confer',
+    'kwonly',
+])
+
+
 class Nodal(
     dc.Data,
     ta.Generic[NodalT, AnnotationT],
@@ -121,11 +131,7 @@ class Nodal(
         'confer': {
             **_COMMON_META_KWARGS,
             'final': dc.Conferrer(_confer_final),
-            'repr': dc.SUPER,
-            'eq': dc.SUPER,
-            'allow_setattr': dc.SUPER,
-            'aspects': dc.SUPER,
-            'confer': dc.SUPER,
+            **{a: dc.SUPER for a in _NODAL_SUPER_CONFERS},
         },
     },
 ):

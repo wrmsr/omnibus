@@ -107,7 +107,11 @@ class TupleInit(Init):
                 [self.fctx.get_aspect(TupleStorage.Init).cls_name],
                 annotations={'return': self.fctx.nsb.put(self.fctx.ctx.cls)},
             )
-            return append_argspec_args(argspec, self.fctx.ctx.spec.fields.init)
+            return append_argspec_args(
+                argspec,
+                self.fctx.ctx.spec.fields.init,
+                kwonly=self.fctx.ctx.spec.extra_params.kwonly,
+            )
 
         @attach(Aspect.Function.Phase.RETURN)
         def build_return_lines(self) -> ta.List[str]:

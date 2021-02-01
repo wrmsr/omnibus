@@ -861,3 +861,32 @@ def test_iter():
         y: int
 
     assert list(C(2, 3)) == [2, 3]
+
+
+def test_cls_kwonly():
+    @api_.dataclass()
+    class A:
+        x: int
+
+    a = A(1)
+    assert a == 1
+
+    @api_.dataclass()
+    class B(A):
+        y: int
+
+    b = B(1, 2)
+    assert (b.x, b.y) == (1, 2)
+
+    @api_.dataclass(kwonly=True)
+    class C(B):
+        z: int
+
+    c = C(x=1, y=2, z=3)
+    assert (c.x, c.y, c.z) == (1, 2, 3)
+    with pytest.raises(TypeError):
+        C(1, 2, 3)
+    with pytest.raises(TypeError):
+        C(1, 2, z=3)
+    with pytest.raises(TypeError):
+        C(1, y=2, z=3)

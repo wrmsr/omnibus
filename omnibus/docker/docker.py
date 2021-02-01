@@ -23,6 +23,9 @@ import typing as ta
 
 import pkg_resources
 
+if ta.TYPE_CHECKING:
+    import docker.client
+
 from .. import check
 from .. import lang
 
@@ -44,7 +47,7 @@ def is_in_docker() -> bool:
     return all(k in dct and dct[k][2].startswith('/docker/') for k in {'cpu', 'memory'})
 
 
-def get_client(**kwargs):
+def get_client(**kwargs) -> 'docker.client.DockerClient':
     import docker
 
     kwargs.setdefault('timeout', 1)
@@ -67,7 +70,7 @@ def close_client(client):
 
 
 @contextlib.contextmanager
-def client_context(**kwargs):
+def client_context(**kwargs) -> ta.Iterator['docker.client.DockerClient']:
     client = get_client(**kwargs)
     try:
         yield client

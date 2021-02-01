@@ -29,7 +29,9 @@ class Init(Aspect, lang.Abstract):
 def append_argspec_args(
         argspec: code.ArgSpec,
         fields: ta.Iterable[dc.Field],
+        *,
         derivable_field_names: ta.AbstractSet[str] = frozenset(),
+        kwonly: ta.Optional[bool] = None,
 ) -> code.ArgSpec:
     args = []
     defaults = []
@@ -43,7 +45,7 @@ def append_argspec_args(
 
         efp = fld.metadata.get(ExtraFieldParams)
         derivable = (efp is not None and efp.derive is not dc.MISSING) or fld.name in derivable_field_names
-        if efp is not None and efp.kwonly:
+        if (efp is not None and efp.kwonly) or kwonly:
             if fld.default is dc.MISSING and fld.default_factory is dc.MISSING:
                 kwonlyargs.append(fld.name)
             elif fld.default is not dc.MISSING:
@@ -102,5 +104,6 @@ class StandardInit(Init):
             return append_argspec_args(
                 argspec,
                 self.fctx.ctx.spec.fields.init,
-                self.aspect.ctx.get_aspect(Defaulting).derivable_field_names,
+                derivable_field_names=self.aspect.ctx.get_aspect(Defaulting).derivable_field_names,
+                kwonly=self.aspect.ctx.spec.extra_params.kwonly,
             )

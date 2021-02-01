@@ -289,6 +289,18 @@ def _confer_enum_final(att, sub, sup, bases):
     return sub['abstract'] is dc.MISSING or not sub['abstract']
 
 
+ENUM_SUPER_CONFERS = frozenset([
+    'repr',
+    'reorder',
+    'eq',
+    'allow_setattr',
+    'kwonly',
+    'slots',
+    'aspects',
+    'confer',
+])
+
+
 class Enum(
     Data,
     abstract=True,
@@ -301,14 +313,8 @@ class Enum(
         'frozen': True,
         'confer': {
             'final': Conferrer(_confer_enum_final),
-            'repr': SUPER,
             'frozen': True,
-            'reorder': SUPER,
-            'eq': SUPER,
-            'allow_setattr': SUPER,
-            'slots': SUPER,
-            'aspects': SUPER,
-            'confer': SUPER,
+            **{a: SUPER for a in ENUM_SUPER_CONFERS},
         },
     },
 ):

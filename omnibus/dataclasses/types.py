@@ -114,6 +114,7 @@ class ExtraParams(lang.Final):
     metadata: ta.Optional[ta.Mapping[ta.Any, ta.Any]] = None
     validate: ta.Optional[bool] = None
     field_attrs: bool = False
+    kwonly: ta.Optional[bool] = None
     cache_hash: ta.Union[bool, str] = False
     pickle: bool = False
     reorder: bool = False
@@ -128,6 +129,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.metadata, (ta.Mapping, None, MISSING_TYPE))
         check.isinstance(self.validate, (bool, None, MISSING_TYPE))
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
+        check.isinstance(self.kwonly, (bool, None, MISSING_TYPE))
         check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
