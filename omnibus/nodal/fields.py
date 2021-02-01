@@ -1,3 +1,6 @@
+"""
+Note: These are explicitly usable by nodal-'like' but not actually nodal classes.
+"""
 import collections.abc
 import types
 import typing as ta
@@ -16,14 +19,16 @@ class FieldInfo(dc.Pure):
     spec: rfl.TypeSpec
     opt: bool = False
     seq: bool = False
+    peer: bool = False
 
     @classmethod
-    def of(
+    def build(
             cls,
             obj: ta.Union['FieldInfo', dc.Field],
             *,
+            root_cls: ta.Optional[type] = None,
             type_hints: ta.Optional[StrMap] = None,
-    ) -> 'FieldInfo':
+    ) -> ta.Optional['FieldInfo']:
         if isinstance(obj, FieldInfo):
             return obj
 
@@ -36,6 +41,7 @@ class FieldInfo(dc.Pure):
             fs = rfl.spec(ty)
             opt = False
             seq = False
+            peer = False
 
             if isinstance(fs, rfl.UnionSpec) and fs.optional_arg is not None:
                 fs = fs.optional_arg
@@ -45,7 +51,31 @@ class FieldInfo(dc.Pure):
                 [fs] = fs.args
                 seq = True
 
-            return FieldInfo(obj.name, fs, opt, seq)
+            if root_cls is not None:
+                if isinstance(fs, rfl.TypeSpec) and issubclass(fs.erased_cls, root_cls):
+                    peer = True
+
+                else:
+                    def flatten(s):
+                        yield s
+                        if isinstance(s, (rfl.UnionSpec, rfl.GenericTypeSpec)):
+                            for a in s.args:
+                                yield from flatten(a)
+
+                    l = list(flatten(fs))
+                    if any(isinstance(e, rfl.TypeSpec) and issubclass(e.erased_cls, root_cls) for e in l):
+                        raise TypeError(f'Peer fields must be simple (optional sequences): {obj.name} {fs}')
+
+            if not isinstance(fs, rfl.TypeSpec):
+                return None
+
+            return FieldInfo(
+                name=obj.name,
+                spec=fs,
+                opt=opt,
+                seq=seq,
+                peer=peer,
+            )
 
         else:
             raise TypeError(obj)
@@ -55,7 +85,13 @@ class FieldsInfo(dc.Pure):
     flds: ta.Mapping[str, FieldInfo]
 
 
-def build_nodal_fields(cls: type, root_cls: type) -> FieldsInfo:
+def build_nodal_fields(
+        cls: type,
+        root_cls: type,
+        *,
+        peers_only: bool = False,
+        strict: bool = False,
+) -> FieldsInfo:
     check.arg(isinstance(cls, type) and dc.is_dataclass(cls))
     check.issubclass(cls, root_cls)
 
@@ -63,21 +99,14 @@ def build_nodal_fields(cls: type, root_cls: type) -> FieldsInfo:
     flds = {}
 
     for f in dc.fields(cls):
-        fi = FieldInfo.of(f, type_hints=th)
+        fi = FieldInfo.build(f, root_cls=root_cls, type_hints=th)
 
-        if isinstance(fi.spec, rfl.TypeSpec) and issubclass(fi.spec.erased_cls, root_cls):
+        if fi is None:
+            if strict:
+                raise TypeError(f)
+
+        elif fi.peer or not peers_only:
             flds[f.name] = fi
-
-        else:
-            def flatten(s):
-                yield s
-                if isinstance(s, (rfl.UnionSpec, rfl.GenericTypeSpec)):
-                    for a in s.args:
-                        yield from flatten(a)
-
-            l = list(flatten(fi.spec))
-            if any(isinstance(e, rfl.TypeSpec) and issubclass(e.erased_cls, root_cls) for e in l):
-                raise TypeError(f'Peer fields must be sequences: {f.name} {fi.spec}')
 
     return FieldsInfo(flds)
 
@@ -90,7 +119,10 @@ def check_nodal_field_value(v: T, f: FieldInfo) -> T:
         raise TypeError(v, f)
 
     elif f.seq:
-        if isinstance(v, types.GeneratorType):
+        if isinstance(v, (types.GeneratorType, str)):
+            raise TypeError(v, f)
+
+        if not isinstance(v, ta.Sequence):
             raise TypeError(v, f)
 
         for e in v:

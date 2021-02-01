@@ -869,7 +869,7 @@ def test_cls_kwonly():
         x: int
 
     a = A(1)
-    assert a == 1
+    assert a.x == 1
 
     @api_.dataclass()
     class B(A):

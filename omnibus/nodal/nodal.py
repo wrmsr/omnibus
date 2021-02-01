@@ -146,19 +146,19 @@ class Nodal(
         check.state(dc.is_dataclass(cls))
 
     _nodal_cls: ta.ClassVar[ta.Type[NodalT]]
-    _nodal_fields: ta.ClassVar[FieldsInfo]
+    _nodal_peer_fields: ta.ClassVar[FieldsInfo]
 
     @classmethod
-    def _build_nodal_fields(cls) -> FieldsInfo:
-        return build_nodal_fields(cls, cls._nodal_cls)
+    def _build_nodal_peer_fields(cls) -> FieldsInfo:
+        return build_nodal_fields(cls, cls._nodal_cls, peers_only=True)
 
     def __post_init__(self) -> None:
         cls = type(self)
         try:
-            fi = cls.__dict__['_nodal_fields']
+            fi = cls.__dict__['_nodal_peer_fields']
         except KeyError:
-            fi = cls._build_nodal_fields()
-            setattr(cls, '_nodal_fields', fi)
+            fi = cls._build_nodal_peer_fields()
+            setattr(cls, '_nodal_peer_fields', fi)
 
         check_nodal_fields(self, fi)
 
