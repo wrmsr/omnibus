@@ -17,7 +17,8 @@ from .. import reflect as rfl
 from ..serde import mapping as sm
 from .fields import build_nodal_fields
 from .fields import check_nodal_fields
-from .fields import FieldsInfo
+from .fields import Fields
+from .types import IGNORE
 
 
 Self = ta.TypeVar('Self')
@@ -136,8 +137,19 @@ class Nodal(
     },
 ):
 
-    anns: ans.Annotations[AnnotationT] = dc.field((), kwonly=True, coerce=lambda o: lang.raise_(TypeError))
-    meta: ta.Mapping[ta.Any, ta.Any] = dc.field(col.frozendict(), kwonly=True, coerce=lambda o: lang.raise_(TypeError))
+    anns: ans.Annotations[AnnotationT] = dc.field(
+        (),
+        kwonly=True,
+        coerce=lambda o: lang.raise_(TypeError),
+        metadata={IGNORE: True},
+    )
+
+    meta: ta.Mapping[ta.Any, ta.Any] = dc.field(
+        col.frozendict(),
+        kwonly=True,
+        coerce=lambda o: lang.raise_(TypeError),
+        metadata={IGNORE: True},
+    )
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
@@ -146,10 +158,10 @@ class Nodal(
         check.state(dc.is_dataclass(cls))
 
     _nodal_cls: ta.ClassVar[ta.Type[NodalT]]
-    _nodal_peer_fields: ta.ClassVar[FieldsInfo]
+    _nodal_peer_fields: ta.ClassVar[Fields]
 
     @classmethod
-    def _build_nodal_peer_fields(cls) -> FieldsInfo:
+    def _build_nodal_peer_fields(cls) -> Fields:
         return build_nodal_fields(cls, cls._nodal_cls, peers_only=True)
 
     def __post_init__(self) -> None:

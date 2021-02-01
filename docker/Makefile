@@ -6,6 +6,7 @@ DOCKER_CI_IMAGES:= \
 DOCKER_IMAGES:= \
 	$(DOCKER_CI_IMAGES) \
 	omnibus-dev \
+	omnibus-docker \
 	omnibus-dynamodb \
 	omnibus-elasticmq \
 	omnibus-elasticsearch \

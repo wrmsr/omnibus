@@ -2,7 +2,7 @@ FROM ubuntu:focal-20201008
 COPY .dockertimestamp /
 
 
-# Packages
+# packages
 
 RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
 RUN ( \
@@ -13,10 +13,12 @@ RUN ( \
 \
     apt-get install -y \
 \
+        apt-transport-https \
         aria2 \
         bison \
         bmon \
         build-essential \
+        ca-certificates \
         clang \
         curl \
         cvs \
@@ -28,6 +30,7 @@ RUN ( \
         gcc \
         gdb \
         git \
+        gnupg-agent \
         htop \
         iputils-ping \
         iputils-tracepath \
@@ -99,12 +102,26 @@ RUN ( \
 RUN echo "\n\n" >> ~/.bashrc
 
 
-# Python build
+# docker
+
+RUN ( \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
+    add-apt-repository \
+        "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+        $(lsb_release -cs) \
+        stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce docker-ce-cli containerd.io \
+)
+
+
+
+# python build
 
 RUN apt-get build-dep -y python3 python3-tk
 
 
-# JDK
+# jdk
 
 RUN ( \
     add-apt-repository ppa:openjdk-r/ppa && \
@@ -161,7 +178,7 @@ RUN ( \
 )
 
 
-# Eclipse
+# eclipse
 
 RUN ( \
     cd /root && \
@@ -169,7 +186,7 @@ RUN ( \
 )
 
 
-# Configuration
+# configuration
 
 RUN ( \
     sed -i 's/^#*PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
@@ -257,7 +274,7 @@ fi \n\
 RUN chmod a+x ~/xu
 
 
-# Entrypoint
+# entrypoint
 
 WORKDIR /omnibus
 

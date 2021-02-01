@@ -8,31 +8,39 @@ import typing as ta
 from .. import check
 from .. import dataclasses as dc
 from .. import reflect as rfl
+from .types import IGNORE
 
 
 T = ta.TypeVar('T')
 StrMap = ta.Mapping[str, ta.Any]
 
 
-class FieldInfo(dc.Pure):
+class Field(dc.Pure):
     name: str
     spec: rfl.TypeSpec
     opt: bool = False
     seq: bool = False
     peer: bool = False
 
+    @property
+    def cls(self) -> type:
+        return self.spec.erased_cls
+
     @classmethod
     def build(
             cls,
-            obj: ta.Union['FieldInfo', dc.Field],
+            obj: ta.Union['Field', dc.Field],
             *,
             root_cls: ta.Optional[type] = None,
             type_hints: ta.Optional[StrMap] = None,
-    ) -> ta.Optional['FieldInfo']:
-        if isinstance(obj, FieldInfo):
+    ) -> ta.Optional['Field']:
+        if isinstance(obj, Field):
             return obj
 
         elif isinstance(obj, dc.Field):
+            if obj.metadata.get(IGNORE):
+                return None
+
             if type_hints is not None:
                 ty = type_hints[obj.name]
             else:
@@ -69,7 +77,7 @@ class FieldInfo(dc.Pure):
             if not isinstance(fs, rfl.TypeSpec):
                 return None
 
-            return FieldInfo(
+            return Field(
                 name=obj.name,
                 spec=fs,
                 opt=opt,
@@ -81,8 +89,8 @@ class FieldInfo(dc.Pure):
             raise TypeError(obj)
 
 
-class FieldsInfo(dc.Pure):
-    flds: ta.Mapping[str, FieldInfo]
+class Fields(dc.Pure):
+    flds: ta.Mapping[str, Field]
 
 
 def build_nodal_fields(
@@ -91,7 +99,7 @@ def build_nodal_fields(
         *,
         peers_only: bool = False,
         strict: bool = False,
-) -> FieldsInfo:
+) -> Fields:
     check.arg(isinstance(cls, type) and dc.is_dataclass(cls))
     check.issubclass(cls, root_cls)
 
@@ -99,7 +107,10 @@ def build_nodal_fields(
     flds = {}
 
     for f in dc.fields(cls):
-        fi = FieldInfo.build(f, root_cls=root_cls, type_hints=th)
+        if f.metadata.get(IGNORE):
+            continue
+
+        fi = Field.build(f, root_cls=root_cls, type_hints=th)
 
         if fi is None:
             if strict:
@@ -108,10 +119,10 @@ def build_nodal_fields(
         elif fi.peer or not peers_only:
             flds[f.name] = fi
 
-    return FieldsInfo(flds)
+    return Fields(flds)
 
 
-def check_nodal_field_value(v: T, f: FieldInfo) -> T:
+def check_nodal_field_value(v: T, f: Field) -> T:
     if f.opt and v is None:
         pass
 
@@ -126,17 +137,17 @@ def check_nodal_field_value(v: T, f: FieldInfo) -> T:
             raise TypeError(v, f)
 
         for e in v:
-            if not isinstance(e, f.spec.erased_cls):
+            if not isinstance(e, f.cls):
                 raise TypeError(e, f)
 
     else:
-        if not isinstance(v, f.spec.erased_cls):
+        if not isinstance(v, f.cls):
             raise TypeError(v, f)
 
     return v
 
 
-def check_nodal_fields(obj: ta.Any, fi: FieldsInfo) -> None:
+def check_nodal_fields(obj: ta.Any, fi: Fields) -> None:
     for a, f in fi.flds.items():
         v = getattr(obj, a)
         check_nodal_field_value(v, f)
