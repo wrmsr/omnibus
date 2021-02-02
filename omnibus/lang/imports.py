@@ -10,8 +10,8 @@ import types
 import typing as ta
 import warnings
 
+from .descriptors import staticfunction
 from .functions import cached_nullary
-from .functions import staticfunction
 
 
 class UnstableWarning(Warning):

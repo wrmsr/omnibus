@@ -6,7 +6,7 @@ from .. import descriptors as d_
 def test_noinstance():
     class C:
 
-        @d_.thisclass  # noqa
+        @d_.nosubclass  # noqa
         @classmethod
         def a(cls):
             return cls
@@ -33,7 +33,7 @@ def test_noinstance():
         assert g() is None
 
         @d_.noinstance  # noqa
-        @d_.thisclass  # noqa
+        @d_.nosubclass  # noqa
         @d_.staticfunction  # noqa
         @staticmethod
         def h():  # noqa

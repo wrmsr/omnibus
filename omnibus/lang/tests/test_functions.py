@@ -1,7 +1,5 @@
 import pickle
 
-import pytest
-
 from .. import functions as fns
 
 
@@ -129,58 +127,3 @@ def test_optional_of():
     f = fns.optional_of(lambda x: x + 1)
     assert f(1) == 2
     assert f(None) is None
-
-
-def test_noinstance():
-    class C:
-
-        @fns.classmethodonly  # noqa
-        @classmethod
-        def a(cls):
-            pass
-
-        @fns.classmethodonly
-        def b(cls):  # noqa
-            pass
-
-        # Not supported:
-        # @classmethod
-        # @fns.classmethodonly
-        # def c(cls):
-        #     pass
-
-        @fns.noinstance
-        def f(self):
-            pass
-
-        @fns.staticfunction  # noqa
-        @staticmethod
-        def g():
-            pass
-        assert g() is None
-
-        @fns.staticfunctiononly  # noqa
-        @staticmethod
-        def h():  # noqa
-            pass
-        assert h() is None
-
-    with pytest.raises(TypeError):
-        C().a()
-
-    with pytest.raises(TypeError):
-        C().b()
-
-    # with pytest.raises(TypeError):
-    #     C().c()
-    assert C.f(C()) is None
-
-    with pytest.raises(TypeError):
-        C().f()
-
-    assert C.g() is None
-    assert C().g() is None
-
-    assert C.h() is None
-    with pytest.raises(TypeError):
-        C().h()

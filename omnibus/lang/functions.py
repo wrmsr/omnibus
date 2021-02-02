@@ -3,6 +3,8 @@ import sys
 import types
 import typing as ta
 
+from .descriptors import is_method_descriptor
+
 
 T = ta.TypeVar('T')
 U = ta.TypeVar('U')
@@ -79,18 +81,9 @@ def maybe_call(obj: ta.Any, att: str, *args, default: ta.Any = None, **kwargs) -
         return fn(*args, **kwargs)
 
 
-CLASS_DESCRIPTORS = (classmethod, staticmethod)
-
-
-def unwrap_func_class_descriptors(fn: ta.Callable) -> ta.Callable:
-    while isinstance(fn, CLASS_DESCRIPTORS):
-        fn = fn.__func__  # type: ignore  # noqa
-    return fn
-
-
 def unwrap_func(fn: ta.Callable) -> ta.Callable:
     while True:
-        if isinstance(fn, CLASS_DESCRIPTORS):
+        if is_method_descriptor(fn):
             fn = fn.__func__  # type: ignore
         elif isinstance(fn, functools.partial):
             fn = fn.func
@@ -101,65 +94,6 @@ def unwrap_func(fn: ta.Callable) -> ta.Callable:
             elif nxt is fn:
                 raise TypeError(fn)
             fn = nxt
-
-
-class _DunderfuncWrapper:
-    __func__: ta.ClassVar[ta.Callable]
-
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        functools.update_wrapper(self, self.__func__)
-
-    def __repr__(self) -> str:
-        return f'{type(self).__name__}({self.__func__})'
-
-    def __call__(self, *args, **kwargs):
-        return self.__func__(*args, **kwargs)
-
-
-class _NoinstanceDunderfuncWrapper(_DunderfuncWrapper):
-    def __get__(self, instance, owner):
-        if instance is not None:
-            raise TypeError(f'Cannot take instancemethod of {self.__func__}')
-        return self.__func__.__get__(instance, owner)
-
-
-class _FuncWrapper(_DunderfuncWrapper):
-    def __init__(self, fn: ta.Callable) -> None:
-        self.__func__ = unwrap_func_class_descriptors(fn)
-        super().__init__()
-
-
-class _UnwrappingDunderfuncWrapper(_DunderfuncWrapper):
-    def __init__(self, fn: ta.Callable) -> None:
-        super().__init__(unwrap_func_class_descriptors(fn))
-
-
-class staticfunction(_UnwrappingDunderfuncWrapper, staticmethod):  # noqa
-    """
-    Allows calling @staticmethods within a classbody. Vanilla @staticmethods are not callable:
-
-        TypeError: 'staticmethod' object is not callable
-    """
-
-    def __init__(self, fn: ta.Callable) -> None:
-        super().__init__(unwrap_func_class_descriptors(fn))
-
-
-class staticfunctiononly(staticfunction, _NoinstanceDunderfuncWrapper, staticmethod):  # noqa
-    pass
-
-
-class noinstance(_FuncWrapper, _NoinstanceDunderfuncWrapper):  # noqa
-    pass
-
-
-class classmethodonly(_UnwrappingDunderfuncWrapper, _NoinstanceDunderfuncWrapper, classmethod):  # noqa
-    pass
-
-
-class staticmethodonly(_UnwrappingDunderfuncWrapper, _NoinstanceDunderfuncWrapper, staticmethod):  # noqa
-    pass
 
 
 class _CachedNullary(ta.Generic[T]):

@@ -16,24 +16,9 @@ def unwrap_method_descriptors(fn: ta.Callable) -> ta.Callable:
     return fn
 
 
-def unwrap_func(fn: ta.Callable) -> ta.Callable:
-    while True:
-        if is_method_descriptor(fn):
-            fn = fn.__func__  # type: ignore
-        elif isinstance(fn, functools.partial):
-            fn = fn.func
-        else:
-            nxt = getattr(fn, '__wrapped__', None)
-            if not callable(nxt):
-                return fn
-            elif nxt is fn:
-                raise TypeError(fn)
-            fn = nxt
-
-
 class _MethodDescriptorFlags(ta.NamedTuple):
     noinstance: bool
-    thisclass: bool
+    nosubclass: bool
     callable: bool
 
 
@@ -81,7 +66,7 @@ class _MethodDescriptor:
         self._flags = _flags
         self._flags_tup = tuple(_flags)
 
-    _thiscls: ta.Optional[type] = None
+    _owner: ta.Optional[type] = None
 
     def __repr__(self):
         return f'{type(self).__name__}({self.__func__})'
@@ -93,12 +78,12 @@ class _MethodDescriptor:
             if instance is not None:
                 raise TypeError(f'Cannot take instancemethod of {self.__func__}')
 
-        if flags.thisclass:
-            thiscls = self._thiscls
-            if thiscls is None:
-                thiscls = self._thiscls = [c for c in reversed(owner.__mro__) if self in c.__dict__.values()][0]
-            if owner is not thiscls:
-                raise TypeError(f'Cannot access {self.__func__} of class {thiscls} from class {owner}')
+        if flags.nosubclass:
+            _owner = self._owner
+            if _owner is None:
+                _owner = self._owner = [c for c in reversed(owner.__mro__) if self in c.__dict__.values()][0]
+            if owner is not _owner:
+                raise TypeError(f'Cannot access {self.__func__} of class {_owner} from class {owner}')
 
     @abc.abstractmethod
     def _get(self, instance, owner):
@@ -160,8 +145,8 @@ def _new_flags_method_descriptor(fn: ta.Callable, **kwargs) -> _MethodDescriptor
     return _new_method_descriptor(fn, _flags=_new_method_descriptor_flags(**kwargs))
 
 
-def thisclass(fn):
-    return _new_flags_method_descriptor(fn, thisclass=True)
+def nosubclass(fn):
+    return _new_flags_method_descriptor(fn, nosubclass=True)
 
 
 def noinstance(fn):
@@ -177,7 +162,7 @@ class _staticfunction(StaticMethodDescriptor):
 
     @staticmethod
     def _check_flags(flags: _MethodDescriptorFlags) -> bool:
-        return not flags.thisclass and not flags.noinstance
+        return not flags.nosubclass and not flags.noinstance
 
     __get__ = staticmethod.__get__
 

@@ -32,7 +32,7 @@ def cmp(l: ta.Any, r: ta.Any) -> int:
 
 
 DEF _method_descriptor_flag_noinstance  = 0
-DEF _method_descriptor_flag_thisclass   = 1
+DEF _method_descriptor_flag_nosubclass   = 1
 DEF _method_descriptor_flag_callable    = 2
 
 
@@ -43,12 +43,12 @@ def __MethodDescriptor__check_get(self, instance, owner):
         if instance is not None:
             raise TypeError(f'Cannot take instancemethod of {self.__func__}')
 
-    if flags_tup[_method_descriptor_flag_thisclass]:
-        thiscls = self._thiscls
-        if thiscls is None:
-            thiscls = self._thiscls = [c for c in reversed(owner.__mro__) if self in c.__dict__.values()][0]
-        if owner is not thiscls:
-            raise TypeError(f'Cannot access {self.__func__} of class {thiscls} from class {owner}')
+    if flags_tup[_method_descriptor_flag_nosubclass]:
+        _owner = self._owner
+        if _owner is None:
+            _owner = self._owner = [c for c in reversed(owner.__mro__) if self in c.__dict__.values()][0]
+        if owner is not _owner:
+            raise TypeError(f'Cannot access {self.__func__} of class {_owner} from class {owner}')
 
 
 def __MethodDescriptor___get__(self, instance, owner=None):
