@@ -32,7 +32,7 @@ def cmp(l: ta.Any, r: ta.Any) -> int:
 
 
 DEF _method_descriptor_flag_noinstance  = 0
-DEF _method_descriptor_flag_nosubclass   = 1
+DEF _method_descriptor_flag_nosubclass  = 1
 DEF _method_descriptor_flag_callable    = 2
 
 
