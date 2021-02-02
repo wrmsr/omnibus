@@ -120,10 +120,16 @@ class StaticMethodDescriptor(_MethodDescriptor, staticmethod):
     _get = staticmethod.__get__
 
 
+_MethodDescriptor._py__check_get = _MethodDescriptor._check_get  # noqa
+_MethodDescriptor._py___get__ = _MethodDescriptor.__get__  # noqa
+_MethodDescriptor._py___call__ = _MethodDescriptor.__call__  # noqa
+MethodDescriptor._py__get = MethodDescriptor._get  # noqa
+
 try:
     from .._ext.cy import lang as _cy
 except ImportError:
     pass
+
 else:
     _MethodDescriptor._check_get = _cy.__MethodDescriptor__check_get  # noqa
     _MethodDescriptor.__get__ = _cy.__MethodDescriptor___get__  # noqa

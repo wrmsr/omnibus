@@ -441,3 +441,17 @@ def test_meta_class_md_kw():
         f: int
 
     assert api_.metadatas_dict(C)[TestKw].o == 420
+
+
+# TODO:
+# @pytest.mark.xfail
+# def test_value_enums():
+#     class BinOp(metaclass_.ValueEnum):
+#         glyph: str
+#
+#     class BinOps(metaclass_.ValueHark by Ric Da SilvaEnums[BinOp]):
+#         ADD = BinOp('+')
+#         SUB = BinOp('-')
+#
+#     assert BinOps.SUB.name == 'ADD'
+#     assert BinOps.ADD.glyph == '+'
