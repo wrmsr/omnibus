@@ -117,7 +117,7 @@ class _DunderfuncWrapper:
         return self.__func__(*args, **kwargs)
 
 
-class _NoinstancemethodDunderfuncWrapper(_DunderfuncWrapper):
+class _NoinstanceDunderfuncWrapper(_DunderfuncWrapper):
     def __get__(self, instance, owner):
         if instance is not None:
             raise TypeError(f'Cannot take instancemethod of {self.__func__}')
@@ -146,19 +146,19 @@ class staticfunction(_UnwrappingDunderfuncWrapper, staticmethod):  # noqa
         super().__init__(unwrap_func_class_descriptors(fn))
 
 
-class staticfunctiononly(staticfunction, _NoinstancemethodDunderfuncWrapper, staticmethod):  # noqa
+class staticfunctiononly(staticfunction, _NoinstanceDunderfuncWrapper, staticmethod):  # noqa
     pass
 
 
-class noinstancemethod(_FuncWrapper, _NoinstancemethodDunderfuncWrapper):  # noqa
+class noinstance(_FuncWrapper, _NoinstanceDunderfuncWrapper):  # noqa
     pass
 
 
-class classmethodonly(_UnwrappingDunderfuncWrapper, _NoinstancemethodDunderfuncWrapper, classmethod):  # noqa
+class classmethodonly(_UnwrappingDunderfuncWrapper, _NoinstanceDunderfuncWrapper, classmethod):  # noqa
     pass
 
 
-class staticmethodonly(_UnwrappingDunderfuncWrapper, _NoinstancemethodDunderfuncWrapper, staticmethod):  # noqa
+class staticmethodonly(_UnwrappingDunderfuncWrapper, _NoinstanceDunderfuncWrapper, staticmethod):  # noqa
     pass
 
 

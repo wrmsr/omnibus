@@ -76,7 +76,7 @@ from .functions import is_none  # noqa
 from .functions import is_not_none  # noqa
 from .functions import is_possibly_cls_dct  # noqa
 from .functions import maybe_call  # noqa
-from .functions import noinstancemethod  # noqa
+from .functions import noinstance  # noqa
 from .functions import optional_of  # noqa
 from .functions import raise_  # noqa
 from .functions import recurse  # noqa

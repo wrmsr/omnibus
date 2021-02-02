@@ -149,7 +149,7 @@ def test_noinstance():
         # def c(cls):
         #     pass
 
-        @fns.noinstancemethod
+        @fns.noinstance
         def f(self):
             pass
 
