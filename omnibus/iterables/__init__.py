@@ -6,7 +6,9 @@ from .iterators import RetainIterator  # noqa
 from .iterators import unzip  # noqa
 from .simple import chain  # noqa
 from .simple import len  # noqa
+from .simple import pairwise  # noqa
 from .simple import read  # noqa
+from .simple import sliding_window  # noqa
 from .simple import split_filter  # noqa
 from .simple import unique_list  # noqa
 from .simple import void  # noqa

@@ -1,6 +1,8 @@
 import itertools
 import typing as ta
 
+from .. import lang
+
 
 T = ta.TypeVar('T')
 
@@ -9,6 +11,10 @@ len_ = len
 
 
 chain = itertools.chain.from_iterable
+
+
+class _MISSING(lang.Marker):
+    pass
 
 
 def void(it, exception=lambda item: RuntimeError('Unreachable', item)):
@@ -61,3 +67,18 @@ def split_filter(
         else:
             false.append(e)
     return true, false
+
+
+def sliding_window(it: ta.Iterable[T], n: int, seed: ta.Any = _MISSING) -> ta.Iterable[ta.Sequence[T]]:
+    cs = list(itertools.tee(it, n))
+    for i in range(n):
+        if seed is _MISSING:
+            for _ in range(i):
+                next(cs[i], None)
+        else:
+            cs[i] = itertools.chain([seed] * (n - i - 1), cs[i])
+    return zip(*cs)
+
+
+def pairwise(it: ta.Iterable[T], seed: ta.Any = _MISSING) -> ta.Iterable[T]:
+    return sliding_window(it, 2, seed=seed)
