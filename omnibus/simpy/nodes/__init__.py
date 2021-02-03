@@ -1,5 +1,4 @@
 from .base import Annotation  # noqa
-from .base import check_ident  # noqa
 from .base import Def  # noqa
 from .base import Expr  # noqa
 from .base import Ident  # noqa
@@ -11,17 +10,21 @@ from .defs import Args  # noqa
 from .defs import Fn  # noqa
 from .exprs import BinExpr  # noqa
 from .exprs import BinOp  # noqa
+from .exprs import BinOps  # noqa
 from .exprs import Call  # noqa
 from .exprs import CmpExpr  # noqa
 from .exprs import CmpOp  # noqa
+from .exprs import CmpOps  # noqa
 from .exprs import Const  # noqa
 from .exprs import GetAttr  # noqa
 from .exprs import GetItem  # noqa
 from .exprs import GetVar  # noqa
 from .exprs import Keyword  # noqa
+from .exprs import Op  # noqa
 from .exprs import Starred  # noqa
 from .exprs import UnaryExpr  # noqa
 from .exprs import UnaryOp  # noqa
+from .exprs import UnaryOps  # noqa
 from .stmts import Break  # noqa
 from .stmts import Continue  # noqa
 from .stmts import ExprStmt  # noqa

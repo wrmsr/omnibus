@@ -1,7 +1,5 @@
 import typing as ta
 
-from ... import dataclasses as dc
-from .base import check_ident
 from .base import Def
 from .base import Expr
 from .base import Ident
@@ -10,7 +8,7 @@ from .base import Stmt
 
 
 class Arg(Node):
-    name: Ident = dc.field(check=check_ident)
+    name: Ident
     default: ta.Optional[Expr] = None
 
 
@@ -22,6 +20,6 @@ class Args(Node):
 
 
 class Fn(Def):
-    name: Ident = dc.field(check=check_ident)
+    name: Ident
     args: Args
     body: ta.Sequence[Stmt]

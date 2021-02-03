@@ -71,11 +71,12 @@ class ValueEnum(
 
     def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
-        cls.Values = lang.new_type(
-            '_ValueEnums',
-            (_ValueEnums[cls],),
-            {'__dataclass_value_enum_types__': [cls]},
-        )
+        if not lang.is_abstract_class(cls):
+            cls.Values = lang.new_type(
+                '_ValueEnums',
+                (_ValueEnums[cls],),
+                {'__dataclass_value_enum_types__': [cls]},
+            )
 
 
 class _ValueEnumsMeta(lang.enums._ValueEnumMeta):  # noqa

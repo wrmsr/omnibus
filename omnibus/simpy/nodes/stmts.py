@@ -1,7 +1,6 @@
 import typing as ta
 
 from ... import dataclasses as dc
-from .base import check_ident
 from .base import Expr
 from .base import Ident
 from .base import Stmt
@@ -22,13 +21,13 @@ class If(Stmt):
 
 
 class ForIter(Stmt):
-    var: Ident = dc.field(check=check_ident)
+    var: Ident
     iter: Expr
     body: ta.Sequence[Stmt]
 
 
 class ForRange(Stmt):
-    var: Ident = dc.field(check=check_ident)
+    var: Ident
     start: ta.Optional[int] = None
     stop: ta.Optional[int] = None
     step: ta.Optional[int] = None
@@ -52,13 +51,13 @@ class ExprStmt(Stmt):
 
 
 class SetVar(Stmt):
-    name: Ident = dc.field(check=check_ident)
+    name: Ident
     value: Expr
 
 
 class SetAttr(Stmt):
     obj: Expr
-    attr: Ident = dc.field(check=check_ident)
+    attr: Ident
     value: Expr
 
 

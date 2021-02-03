@@ -10,47 +10,47 @@ from .. import dispatch
 AstT = ta.TypeVar('AstT', bound=ast.AST)
 
 
-def _get_ast_bin_op(an: ast.AST) -> str:
+def _get_ast_bin_op(an: ast.AST) -> no.BinOp:
     if isinstance(an, ast.Add):
-        return no.BinOp.ADD
+        return no.BinOps.ADD
     elif isinstance(an, ast.Sub):
-        return no.BinOp.SUB
+        return no.BinOps.SUB
     elif isinstance(an, ast.Mult):
-        return no.BinOp.MUL
+        return no.BinOps.MUL
     elif isinstance(an, ast.Div):
-        return no.BinOp.DIV
+        return no.BinOps.DIV
     else:
         raise TypeError(an)
 
 
-def _get_ast_cmp_op(an: ast.AST) -> str:
+def _get_ast_cmp_op(an: ast.AST) -> no.CmpOp:
     if isinstance(an, ast.Eq):
-        return no.CmpOp.EQ
+        return no.CmpOps.EQ
     elif isinstance(an, ast.NotEq):
-        return no.CmpOp.NE
+        return no.CmpOps.NE
     elif isinstance(an, ast.Gt):
-        return no.CmpOp.GT
+        return no.CmpOps.GT
     elif isinstance(an, ast.GtE):
-        return no.CmpOp.GE
+        return no.CmpOps.GE
     elif isinstance(an, ast.Lt):
-        return no.CmpOp.LT
+        return no.CmpOps.LT
     elif isinstance(an, ast.LtE):
-        return no.CmpOp.LE
+        return no.CmpOps.LE
     elif isinstance(an, ast.Is):
-        return no.CmpOp.IS
+        return no.CmpOps.IS
     elif isinstance(an, ast.IsNot):
-        return no.CmpOp.IS_NOT
+        return no.CmpOps.IS_NOT
     elif isinstance(an, ast.In):
-        return no.CmpOp.IN
+        return no.CmpOps.IN
     elif isinstance(an, ast.NotIn):
-        return no.CmpOp.NOT_IN
+        return no.CmpOps.NOT_IN
     else:
         raise TypeError(an)
 
 
-def _get_ast_unary_op(an: ast.AST) -> str:
+def _get_ast_unary_op(an: ast.AST) -> no.UnaryOp:
     if isinstance(an, ast.Not):
-        return no.UnaryOp.NOT
+        return no.UnaryOps.NOT
     else:
         raise TypeError(an)
 
@@ -83,7 +83,7 @@ class Translator(dispatch.Class):
 
     def translate(self, an: ast.arg) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg'])
-        return no.Arg(an.arg)
+        return no.Arg(no.Ident(an.arg))
 
     def translate(self, an: ast.arguments) -> no.Node:  # noqa
         _check_ast_fields(an, ['args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults'])
@@ -112,14 +112,14 @@ class Translator(dispatch.Class):
         t = check.single(an.targets)
         if isinstance(t, ast.Name):
             return no.SetVar(
-                self._get_name_id(t, ast.Store),
+                no.Ident(self._get_name_id(t, ast.Store)),
                 self.translate(an.value),
             )
         elif isinstance(t, ast.Attribute):
             obj, att = self._get_attribute_fields(t, ast.Store)
             return no.SetAttr(
                 self.translate(obj),
-                att,
+                no.Ident(att),
                 self.translate(an.value),
             )
         else:
@@ -127,7 +127,7 @@ class Translator(dispatch.Class):
 
     def translate(self, an: ast.Attribute) -> no.Node:  # noqa
         obj, att = self._get_attribute_fields(an, ast.Load)
-        return no.GetAttr(self.translate(obj), att)
+        return no.GetAttr(self.translate(obj), no.Ident(att))
 
     def translate(self, an: ast.BinOp) -> no.Node:  # noqa
         _check_ast_fields(an, ['left', 'op', 'right'])
@@ -174,7 +174,7 @@ class Translator(dispatch.Class):
     def translate(self, an: ast.For) -> no.Node:  # noqa
         _check_ast_fields(an, ['target', 'iter', 'body'])
         return no.ForIter(
-            self._get_name_id(an.target, ast.Store),
+            no.Ident(self._get_name_id(an.target, ast.Store)),
             self.translate(an.iter),
             [self.translate(e) for e in an.body]
         )
@@ -182,7 +182,7 @@ class Translator(dispatch.Class):
     def translate(self, an: ast.FunctionDef) -> no.Node:  # noqa
         _check_ast_fields(an, ['name', 'args', 'body'])
         return no.Fn(
-            name=an.name,
+            name=no.Ident(an.name),
             args=self.translate(an.args),
             body=[self.translate(b) for b in an.body],
         )
@@ -198,7 +198,7 @@ class Translator(dispatch.Class):
     def translate(self, an: ast.keyword) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg', 'value'])
         return no.Keyword(
-            an.arg,
+            no.Ident(an.arg) if an.arg is not None else None,
             self.translate(an.value),
         )
 
@@ -207,7 +207,7 @@ class Translator(dispatch.Class):
         return no.Module([self.translate(c) for c in an.body])
 
     def translate(self, an: ast.Name) -> no.Node:  # noqa
-        return no.GetVar(self._get_name_id(an, ast.Load))
+        return no.GetVar(no.Ident(self._get_name_id(an, ast.Load)))
 
     def translate(self, an: ast.NameConstant) -> no.Node:  # noqa
         _check_ast_fields(an, ['value'])

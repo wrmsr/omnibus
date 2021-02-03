@@ -1,8 +1,6 @@
 import typing as ta
 
 from ... import dataclasses as dc
-from ... import lang
-from .base import check_ident
 from .base import Expr
 from .base import Ident
 from .base import Node
@@ -13,12 +11,12 @@ class Const(Expr):
 
 
 class GetVar(Expr):
-    name: Ident = dc.field(check=check_ident)
+    name: Ident
 
 
 class GetAttr(Expr):
     obj: Expr
-    attr: Ident = dc.field(check=check_ident)
+    attr: Ident
 
 
 class GetItem(Expr):
@@ -26,46 +24,62 @@ class GetItem(Expr):
     idx: Expr
 
 
-class BinOp(lang.ValueEnum):
-    ADD = '+'
-    SUB = '-'
-    MUL = '*'
-    DIV = '/'
+class Op(Node, abstract=True):
+    glyph: str
+
+
+class BinOp(dc.ValueEnum, Op):
+    pass
+
+
+class BinOps(BinOp.Values):
+    ADD = BinOp('+')
+    SUB = BinOp('-')
+    MUL = BinOp('*')
+    DIV = BinOp('/')
 
 
 class BinExpr(Expr):
     left: Expr
-    op: str = dc.field(check=bool)
+    op: BinOp
     right: Expr
 
 
-class CmpOp(lang.ValueEnum):
-    EQ = '=='
-    NE = '!='
-    GT = '>'
-    GE = '>='
-    LT = '<'
-    LE = '<='
+class CmpOp(dc.ValueEnum, Op):
+    pass
 
-    IS = 'is'
-    IS_NOT = 'is_not'
 
-    IN = 'in'
-    NOT_IN = 'not_in'
+class CmpOps(CmpOp.Values):
+    EQ = CmpOp('==')
+    NE = CmpOp('!=')
+    GT = CmpOp('>')
+    GE = CmpOp('>=')
+    LT = CmpOp('<')
+    LE = CmpOp('<=')
+
+    IS = CmpOp('is')
+    IS_NOT = CmpOp('is_not')
+
+    IN = CmpOp('in')
+    NOT_IN = CmpOp('not_in')
 
 
 class CmpExpr(Expr):
     left: Expr
-    op: str = dc.field(check=bool)
+    op: CmpOp
     right: Expr
 
 
-class UnaryOp(lang.ValueEnum):
-    NOT = 'not'
+class UnaryOp(dc.ValueEnum, Op):
+    pass
+
+
+class UnaryOps(UnaryOp.Values):
+    NOT = UnaryOp('not')
 
 
 class UnaryExpr(Expr):
-    op: str = dc.field(check=bool)
+    op: UnaryOp
     value: Expr
 
 

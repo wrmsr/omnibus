@@ -1,14 +1,8 @@
 import typing as ta
 
 from ... import check
+from ... import dataclasses as dc
 from ... import nodal
-
-
-Ident = str
-
-
-def check_ident(i: Ident) -> Ident:
-    return check.non_empty_str(i)
 
 
 class Annotation(nodal.Annotation):
@@ -17,6 +11,10 @@ class Annotation(nodal.Annotation):
 
 class Node(nodal.Nodal['Node', Annotation]):
     pass
+
+
+class Ident(Node):
+    s: str = dc.field(check=check.non_empty_str)
 
 
 class Expr(Node, abstract=True):

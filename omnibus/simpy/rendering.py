@@ -29,8 +29,7 @@ class Renderer(dispatch.Class):
             default = ['=', self.render(node.default)]
         else:
             default = []
-
-        return r.Concat([node.name, *default])
+        return r.Concat([self.render(node.name), *default])
 
     def render(self, node: no.Args) -> r.Part:  # noqa
         l = []  # noqa
@@ -46,7 +45,7 @@ class Renderer(dispatch.Class):
         return r.List(l)
 
     def render(self, node: no.BinExpr) -> r.Part:  # noqa
-        return [self.paren(node.left), node.op, self.paren(node.right)]
+        return [self.paren(node.left), node.op.glyph, self.paren(node.right)]
 
     def render(self, node: no.Break) -> r.Part:  # noqa
         return 'break'
@@ -60,7 +59,7 @@ class Renderer(dispatch.Class):
         ])
 
     def render(self, node: no.CmpExpr) -> r.Part:  # noqa
-        return [self.paren(node.left), node.op, self.paren(node.right)]
+        return [self.paren(node.left), node.op.glyph, self.paren(node.right)]
 
     def render(self, node: no.Const) -> r.Part:  # noqa
         return repr(node.value)
@@ -72,7 +71,7 @@ class Renderer(dispatch.Class):
         return self.render(node.expr)
 
     def render(self, node: no.Fn) -> r.Part:  # noqa
-        args = [node.name, '(', self.render(node.args), ')']
+        args = [self.render(node.name), '(', self.render(node.args), ')']
         proto = r.Concat([*args, ':'])
         return r.Block([
             ['def', proto],
@@ -83,15 +82,18 @@ class Renderer(dispatch.Class):
 
     def render(self, node: no.ForIter) -> r.Part:  # noqa
         return r.Block([
-            ['for', node.var, 'in', r.Concat([self.render(node.iter), ':'])],
+            ['for', self.render(node.var), 'in', r.Concat([self.render(node.iter), ':'])],
             r.Section([r.Block([self.render(s) for s in node.body])]),
         ])
 
     def render(self, node: no.GetAttr) -> r.Part:  # noqa
-        return r.Concat([self.render(node.obj), '.', node.attr])
+        return r.Concat([self.render(node.obj), '.', self.render(node.attr)])
 
     def render(self, node: no.GetVar) -> r.Part:  # noqa
-        return node.name
+        return self.render(node.name)
+
+    def render(self, node: no.Ident) -> r.Part:  # noqa
+        return node.s
 
     def render(self, node: no.If) -> r.Part:  # noqa
         return r.Block([
@@ -105,7 +107,7 @@ class Renderer(dispatch.Class):
 
     def render(self, node: no.Keyword) -> r.Part:  # noqa
         if node.name is not None:
-            return r.Concat([node.name, '=', self(node.value)])
+            return r.Concat([self.render(node.name), '=', self(node.value)])
         else:
             return r.Concat(['**', self(node.value)])
 
@@ -122,19 +124,19 @@ class Renderer(dispatch.Class):
         return ['return', *([self.render(node.value)] if node.value is not None else [])]
 
     def render(self, node: no.SetAttr) -> r.Part:  # noqa
-        return [r.Concat([self.render(node.obj), '.', node.attr]), '=', self.render(node.value)]
+        return [r.Concat([self.render(node.obj), '.', self.render(node.attr)]), '=', self.render(node.value)]
 
     def render(self, node: no.SetVar) -> r.Part:  # noqa
-        return [node.name, '=', self.render(node.value)]
+        return [self.render(node.name), '=', self.render(node.value)]
 
     def render(self, node: no.Starred) -> r.Part:  # noqa
         return r.Concat(['*', self.render(node.value)])
 
     def render(self, node: no.UnaryExpr) -> r.Part:  # noqa
-        if node.op.isalpha():
-            return [node.op, self.paren(node.value)]
+        if node.op.glyph.isalpha():
+            return [node.op.glyph, self.paren(node.value)]
         else:
-            return r.Concat([node.op, self.paren(node.value)])
+            return r.Concat([node.op.glyph, self.paren(node.value)])
 
 
 def render(node: no.Node) -> str:
