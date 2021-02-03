@@ -3,8 +3,11 @@ import bisect
 import glob
 import typing as ta
 
+import yaml
+
 from .. import rendering as ren
 from ... import check
+from ...serde import mapping as sm
 from ..asts import translate
 
 
@@ -75,7 +78,7 @@ def test_gen():
             print()
 
             nr = translate(fn)
-            print(nr)
+            print(yaml.dump(sm.serialize(nr)))
             print()
 
             print(ren.render(nr))
