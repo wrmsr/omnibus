@@ -64,9 +64,9 @@ def _check_ast_fields(an: AstT, fields: ta.Iterable[str]) -> AstT:
 
 
 class Translator(dispatch.Class):
-    __call__ = dispatch.property()
+    translate = dispatch.property()
 
-    def __call__(self, an: ast.AST) -> no.Node:  # noqa
+    def translate(self, an: ast.AST) -> no.Node:  # noqa
         raise TypeError(an)
 
     def _get_name_id(self, an: ast.AST, ctx: ta.Type[ast.expr_context]) -> str:
@@ -81,11 +81,11 @@ class Translator(dispatch.Class):
         check.isinstance(an.ctx, ctx)
         return an.value, an.attr
 
-    def __call__(self, an: ast.arg) -> no.Node:  # noqa
+    def translate(self, an: ast.arg) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg'])
         return no.Arg(an.arg)
 
-    def __call__(self, an: ast.arguments) -> no.Node:  # noqa
+    def translate(self, an: ast.arguments) -> no.Node:  # noqa
         _check_ast_fields(an, ['args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults'])
 
         def zip_defaults(al, dl):
@@ -93,167 +93,166 @@ class Translator(dispatch.Class):
 
         def set_defaults(al, dl):
             return [
-                dc.replace(check.isinstance(self(a), no.Arg), default=self(d) if d is not None else None)
+                dc.replace(
+                    check.isinstance(self.translate(a), no.Arg),
+                    default=self.translate(d) if d is not None else None,
+                )
                 for a, d in zip_defaults(al, dl)
             ]
 
-        args = []  # noqa
-        args.extend(set_defaults(an.args, an.defaults))
-        if an.kwonlyargs:
-            args.extend(set_defaults(an.kwonlyargs, an.kw_defaults))
-
         return no.Args(
-            args,
-            self(an.vararg) if an.vararg is not None else None,
-            self(an.kwarg) if an.vararg is not None else None,
+            set_defaults(an.args, an.defaults),
+            self.translate(an.vararg) if an.vararg is not None else None,
+            set_defaults(an.kwonlyargs, an.kw_defaults),
+            self.translate(an.kwarg) if an.vararg is not None else None,
         )
 
-    def __call__(self, an: ast.Assign) -> no.Node:  # noqa
+    def translate(self, an: ast.Assign) -> no.Node:  # noqa
         _check_ast_fields(an, ['targets', 'value'])
         t = check.single(an.targets)
         if isinstance(t, ast.Name):
             return no.SetVar(
                 self._get_name_id(t, ast.Store),
-                self(an.value),
+                self.translate(an.value),
             )
         elif isinstance(t, ast.Attribute):
             obj, att = self._get_attribute_fields(t, ast.Store)
             return no.SetAttr(
-                self(obj),
+                self.translate(obj),
                 att,
-                self(an.value),
+                self.translate(an.value),
             )
         else:
             raise TypeError(t)
 
-    def __call__(self, an: ast.Attribute) -> no.Node:  # noqa
+    def translate(self, an: ast.Attribute) -> no.Node:  # noqa
         obj, att = self._get_attribute_fields(an, ast.Load)
-        return no.GetAttr(self(obj), att)
+        return no.GetAttr(self.translate(obj), att)
 
-    def __call__(self, an: ast.BinOp) -> no.Node:  # noqa
+    def translate(self, an: ast.BinOp) -> no.Node:  # noqa
         _check_ast_fields(an, ['left', 'op', 'right'])
         return no.BinExpr(
-            self(an.left),
+            self.translate(an.left),
             _get_ast_bin_op(an.op),
-            self(an.right),
+            self.translate(an.right),
         )
 
-    def __call__(self, an: ast.Break) -> no.Node:  # noqa
+    def translate(self, an: ast.Break) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.Break()
 
-    def __call__(self, an: ast.Call) -> no.Node:  # noqa
+    def translate(self, an: ast.Call) -> no.Node:  # noqa
         _check_ast_fields(an, ['func', 'args', 'keywords'])
         return no.Call(
-            self(an.func),
-            [self(a) for a in an.args],
-            [self(k) for k in (an.keywords or [])],
+            self.translate(an.func),
+            [self.translate(a) for a in an.args],
+            [self.translate(k) for k in (an.keywords or [])],
         )
 
-    def __call__(self, an: ast.Compare) -> no.Node:  # noqa
+    def translate(self, an: ast.Compare) -> no.Node:  # noqa
         _check_ast_fields(an, ['left', 'ops', 'comparators'])
         op = check.single(an.ops)
         right = check.single(an.comparators)
         return no.CmpExpr(
-            self(an.left),
+            self.translate(an.left),
             _get_ast_cmp_op(op),
-            self(right),
+            self.translate(right),
         )
 
-    def __call__(self, an: ast.Constant) -> no.Node:  # noqa
+    def translate(self, an: ast.Constant) -> no.Node:  # noqa
         _check_ast_fields(an, ['value', 'kind'])
         return no.Const(an.value)
 
-    def __call__(self, an: ast.Continue) -> no.Node:  # noqa
+    def translate(self, an: ast.Continue) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.Continue()
 
-    def __call__(self, an: ast.Expr) -> no.Node:  # noqa
+    def translate(self, an: ast.Expr) -> no.Node:  # noqa
         _check_ast_fields(an, ['value'])
-        return no.ExprStmt(self(an.value))
+        return no.ExprStmt(self.translate(an.value))
 
-    def __call__(self, an: ast.For) -> no.Node:  # noqa
+    def translate(self, an: ast.For) -> no.Node:  # noqa
         _check_ast_fields(an, ['target', 'iter', 'body'])
         return no.ForIter(
             self._get_name_id(an.target, ast.Store),
-            self(an.iter),
-            [self(e) for e in an.body]
+            self.translate(an.iter),
+            [self.translate(e) for e in an.body]
         )
 
-    def __call__(self, an: ast.FunctionDef) -> no.Node:  # noqa
+    def translate(self, an: ast.FunctionDef) -> no.Node:  # noqa
         _check_ast_fields(an, ['name', 'args', 'body'])
         return no.Fn(
             name=an.name,
-            args=self(an.args),
-            body=[self(b) for b in an.body],
+            args=self.translate(an.args),
+            body=[self.translate(b) for b in an.body],
         )
 
-    def __call__(self, an: ast.If) -> no.Node:  # noqa
+    def translate(self, an: ast.If) -> no.Node:  # noqa
         _check_ast_fields(an, ['test', 'body', 'orelse'])
         return no.If(
-            self(an.test),
-            [self(e) for e in an.body],
-            [self(e) for e in an.orelse] if an.orelse else None,
+            self.translate(an.test),
+            [self.translate(e) for e in an.body],
+            [self.translate(e) for e in an.orelse] if an.orelse else None,
         )
 
-    def __call__(self, an: ast.keyword) -> no.Node:  # noqa
+    def translate(self, an: ast.keyword) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg', 'value'])
         return no.Keyword(
             an.arg,
-            self(an.value),
+            self.translate(an.value),
         )
 
-    def __call__(self, an: ast.Module) -> no.Node:  # noqa
+    def translate(self, an: ast.Module) -> no.Node:  # noqa
         _check_ast_fields(an, ['body'])
-        return no.Module([self(c) for c in an.body])
+        return no.Module([self.translate(c) for c in an.body])
 
-    def __call__(self, an: ast.Name) -> no.Node:  # noqa
+    def translate(self, an: ast.Name) -> no.Node:  # noqa
         return no.GetVar(self._get_name_id(an, ast.Load))
 
-    def __call__(self, an: ast.NameConstant) -> no.Node:  # noqa
+    def translate(self, an: ast.NameConstant) -> no.Node:  # noqa
         _check_ast_fields(an, ['value'])
         return no.Const(an.value)
 
-    def __call__(self, an: ast.Num) -> no.Node:  # noqa
+    def translate(self, an: ast.Num) -> no.Node:  # noqa
         _check_ast_fields(an, ['n'])
         return no.Const(an.n)
 
-    def __call__(self, an: ast.Pass) -> no.Node:  # noqa
+    def translate(self, an: ast.Pass) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.Pass()
 
-    def __call__(self, an: ast.Raise) -> no.Node:  # noqa
+    def translate(self, an: ast.Raise) -> no.Node:  # noqa
         _check_ast_fields(an, ['exc'])
-        return no.Raise(self(check.not_none(an.exc)))
+        return no.Raise(self.translate(check.not_none(an.exc)))
 
-    def __call__(self, an: ast.Return) -> no.Node:  # noqa
+    def translate(self, an: ast.Return) -> no.Node:  # noqa
         _check_ast_fields(an, ['value'])
-        return no.Return(self(an.value) if an.value is not None else None)
+        return no.Return(self.translate(an.value) if an.value is not None else None)
 
-    def __call__(self, an: ast.Starred) -> no.Node:  # noqa
+    def translate(self, an: ast.Starred) -> no.Node:  # noqa
         _check_ast_fields(an, ['value', 'ctx'])
         check.isinstance(an.ctx, ast.Load)
-        return no.Star(self(an.value))
+        return no.Star(self.translate(an.value))
 
-    def __call__(self, an: ast.Str) -> no.Node:  # noqa
+    def translate(self, an: ast.Str) -> no.Node:  # noqa
         _check_ast_fields(an, ['s'])
         return no.Const(an.s)
 
-    def __call__(self, an: ast.Subscript) -> no.Node:  # noqa
+    def translate(self, an: ast.Subscript) -> no.Node:  # noqa
         _check_ast_fields(an, ['value', 'slice', 'ctx'])
         check.isinstance(an.ctx, ast.Load)
         return no.GetItem(
-            self(an.value),
-            self(an.slice),
+            self.translate(an.value),
+            self.translate(an.slice),
         )
 
-    def __call__(self, an: ast.UnaryOp) -> no.Node:  # noqa
+    def translate(self, an: ast.UnaryOp) -> no.Node:  # noqa
         _check_ast_fields(an, ['op', 'operand'])
         return no.UnaryExpr(
             _get_ast_unary_op(an.op),
-            self(an.operand),
+            self.translate(an.operand),
         )
 
 
 def translate(an: ast.AST) -> no.Node:
-    return Translator()(an)
+    return Translator().translate(an)

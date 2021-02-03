@@ -40,10 +40,10 @@ class Renderer(dispatch.Class):
         l.extend(self.render(a) for a in node.args)
         if node.vararg:
             l.append(r.Concat(['*', self.render(node.vararg)]))
-        elif node.kw_only_args:
+        elif node.kwonly_args:
             l.append('*')
-        if node.kw_only_args:
-            l.extend(self.render(a) for a in node.kw_only_args)
+        if node.kwonly_args:
+            l.extend(self.render(a) for a in node.kwonly_args)
         if node.kwarg is not None:
             l.append(r.Concat(['**', self.render(node.kwarg)]))
         return r.List(l)

@@ -13,6 +13,7 @@ import ast
 import inspect
 import textwrap
 
+from .. import rendering as ren
 from ... import dataclasses as dc
 from ... import lang
 from ..asts import translate
@@ -73,6 +74,7 @@ def test_simpy():
         try:
             nr = translate(ar)
             print(nr)
+            print(ren.render(nr))
         except Exception as e:  # noqa
             print(repr(e))
             raise

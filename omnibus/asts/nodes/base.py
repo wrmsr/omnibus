@@ -50,7 +50,7 @@ class Arg(Node, Annotated, TypeCommented):
 class Args(Node):
     args: ta.Sequence[Arg] = ()
     vararg: ta.Optional[Arg] = None
-    kw_only_args: ta.Sequence[Arg] = ()
+    kwonly_args: ta.Sequence[Arg] = ()
     kwarg: ta.Optional[Arg] = None
 
 

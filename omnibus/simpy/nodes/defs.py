@@ -17,6 +17,7 @@ class Arg(Node):
 class Args(Node):
     args: ta.Sequence[Arg] = ()
     vararg: ta.Optional[Arg] = None
+    kwonly_args: ta.Sequence[Arg] = ()
     kwarg: ta.Optional[Arg] = None
 
 

@@ -109,14 +109,14 @@ def _confer_final(att, sub, sup, bases):
     return sub['abstract'] is dc.MISSING or not sub['abstract']
 
 
-_NODAL_SUPER_CONFERS = frozenset([
+_NODAL_SUPER_CONFERS = {a: dc.SUPER for a in [
     'repr',
     'eq',
     'allow_setattr',
     'aspects',
     'confer',
     'kwonly',
-])
+]}
 
 
 class Nodal(
@@ -132,7 +132,7 @@ class Nodal(
         'confer': {
             **_COMMON_META_KWARGS,
             'final': dc.Conferrer(_confer_final),
-            **{a: dc.SUPER for a in _NODAL_SUPER_CONFERS},
+            **_NODAL_SUPER_CONFERS,
         },
     },
 ):

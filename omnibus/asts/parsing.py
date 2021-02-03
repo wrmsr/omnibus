@@ -204,7 +204,7 @@ class _ParseVisitor(Python3Visitor):
             return no.Args(
                 args=[a0, *(l0 or [])],
                 vararg=va,
-                kw_only_args=l1 or [],
+                kwonly_args=l1 or [],
                 kwarg=vk,
             )
 

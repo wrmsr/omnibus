@@ -27,6 +27,14 @@ class ForIter(Stmt):
     body: ta.Sequence[Stmt]
 
 
+class ForRange(Stmt):
+    var: Ident = dc.field(check=check_ident)
+    start: ta.Optional[int] = None
+    stop: ta.Optional[int] = None
+    step: ta.Optional[int] = None
+    body: ta.Sequence[Stmt] = ()
+
+
 class Break(Stmt):
     pass
 

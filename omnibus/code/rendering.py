@@ -35,6 +35,10 @@ class Block(DataPart):
     parts: ta.Sequence[Part]
 
 
+class Section(DataPart):
+    parts: ta.Sequence[Part]
+
+
 class Node(DataPart, ta.Generic[NodeT], final=False):
     node: NodeT
 
@@ -59,6 +63,9 @@ class PartTransform(dispatch.Class):
 
     def __call__(self, part: Block) -> Part:  # noqa
         return Block([self(c) for c in part.parts])
+
+    def __call__(self, part: Section) -> Part:  # noqa
+        return Section([self(c) for c in part.parts])
 
     def __call__(self, part: Node) -> Part:  # noqa
         return part
@@ -100,15 +107,22 @@ class CompactPart(PartTransform):
         parts = _drop_empties(self(c) for c in part.parts)
         return Block(parts) if parts else []
 
+    def __call__(self, part: Section) -> Part:  # noqa
+        parts = _drop_empties(self(c) for c in part.parts)
+        return Section(parts) if parts else []
+
 
 compact_part = CompactPart()
 
 
 class PartRenderer(dispatch.Class):
-    def __init__(self, buf: io.StringIO) -> None:
+    def __init__(self, buf: io.StringIO, *, indent: str = '    ') -> None:
         super().__init__()
 
         self._buf = buf
+
+        self._indents = 0
+        self._indent = indent
 
     __call__ = dispatch.property()
 
@@ -143,8 +157,17 @@ class PartRenderer(dispatch.Class):
 
     def __call__(self, part: Block) -> None:  # noqa
         for c in part.parts:
+            self._buf.write(self._indent * self._indents)
             self(c)
             self._buf.write('\n')
+
+    def __call__(self, part: Section) -> None:  # noqa
+        self._indents += 1
+        try:
+            for c in part.parts:
+                self(c)
+        finally:
+            self._indents -= 1
 
 
 def render_part(part: Part, buf: ta.Optional[io.StringIO] = None) -> io.StringIO:
