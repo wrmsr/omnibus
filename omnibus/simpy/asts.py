@@ -3,6 +3,7 @@ import typing as ta
 
 from . import nodes as no
 from .. import check
+from .. import dataclasses as dc
 from .. import dispatch
 
 
@@ -80,6 +81,33 @@ class Translator(dispatch.Class):
         check.isinstance(an.ctx, ctx)
         return an.value, an.attr
 
+    def __call__(self, an: ast.arg) -> no.Node:  # noqa
+        _check_ast_fields(an, ['arg'])
+        return no.Arg(an.arg)
+
+    def __call__(self, an: ast.arguments) -> no.Node:  # noqa
+        _check_ast_fields(an, ['args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults'])
+
+        def zip_defaults(al, dl):
+            return [(a, d) for a, d in zip(al, ([None] * (len(al) - len(dl or [])) + list(dl or [])))]
+
+        def set_defaults(al, dl):
+            return [
+                dc.replace(check.isinstance(self(a), no.Arg), default=self(d) if d is not None else None)
+                for a, d in zip_defaults(al, dl)
+            ]
+
+        args = []  # noqa
+        args.extend(set_defaults(an.args, an.defaults))
+        if an.kwonlyargs:
+            args.extend(set_defaults(an.kwonlyargs, an.kw_defaults))
+
+        return no.Args(
+            args,
+            self(an.vararg) if an.vararg is not None else None,
+            self(an.kwarg) if an.vararg is not None else None,
+        )
+
     def __call__(self, an: ast.Assign) -> no.Node:  # noqa
         _check_ast_fields(an, ['targets', 'value'])
         t = check.single(an.targets)
@@ -115,10 +143,11 @@ class Translator(dispatch.Class):
         return no.Break()
 
     def __call__(self, an: ast.Call) -> no.Node:  # noqa
-        _check_ast_fields(an, ['func', 'args'])
+        _check_ast_fields(an, ['func', 'args', 'keywords'])
         return no.Call(
             self(an.func),
             [self(a) for a in an.args],
+            [self(k) for k in (an.keywords or [])],
         )
 
     def __call__(self, an: ast.Compare) -> no.Node:  # noqa
@@ -154,9 +183,9 @@ class Translator(dispatch.Class):
     def __call__(self, an: ast.FunctionDef) -> no.Node:  # noqa
         _check_ast_fields(an, ['name', 'args', 'body'])
         return no.Fn(
-            an.name,
-            [_check_ast_fields(a, ['arg']).arg for a in an.args.args],
-            [self(b) for b in an.body],
+            name=an.name,
+            args=self(an.args),
+            body=[self(b) for b in an.body],
         )
 
     def __call__(self, an: ast.If) -> no.Node:  # noqa
@@ -165,6 +194,13 @@ class Translator(dispatch.Class):
             self(an.test),
             [self(e) for e in an.body],
             [self(e) for e in an.orelse] if an.orelse else None,
+        )
+
+    def __call__(self, an: ast.keyword) -> no.Node:  # noqa
+        _check_ast_fields(an, ['arg', 'value'])
+        return no.Kwarg(
+            an.arg,
+            self(an.value),
         )
 
     def __call__(self, an: ast.Module) -> no.Node:  # noqa
@@ -182,6 +218,10 @@ class Translator(dispatch.Class):
         _check_ast_fields(an, ['n'])
         return no.Const(an.n)
 
+    def __call__(self, an: ast.Pass) -> no.Node:  # noqa
+        _check_ast_fields(an, [])
+        return no.Pass()
+
     def __call__(self, an: ast.Raise) -> no.Node:  # noqa
         _check_ast_fields(an, ['exc'])
         return no.Raise(self(check.not_none(an.exc)))
@@ -189,6 +229,11 @@ class Translator(dispatch.Class):
     def __call__(self, an: ast.Return) -> no.Node:  # noqa
         _check_ast_fields(an, ['value'])
         return no.Return(self(an.value) if an.value is not None else None)
+
+    def __call__(self, an: ast.Starred) -> no.Node:  # noqa
+        _check_ast_fields(an, ['value', 'ctx'])
+        check.isinstance(an.ctx, ast.Load)
+        return no.Star(self(an.value))
 
     def __call__(self, an: ast.Str) -> no.Node:  # noqa
         _check_ast_fields(an, ['s'])

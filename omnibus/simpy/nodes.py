@@ -1,5 +1,6 @@
 import typing as ta
 
+from .. import check
 from .. import dataclasses as dc
 from .. import lang
 from .. import nodal
@@ -8,6 +9,11 @@ from .. import nodal
 Exprs = ta.Sequence['Expr']
 Stmts = ta.Sequence['Stmt']
 Defs = ta.Sequence['Def']
+Ident = str
+
+
+def check_ident(i: Ident) -> Ident:
+    return check.non_empty_str(i)
 
 
 class Annotation(nodal.Annotation):
@@ -27,12 +33,12 @@ class Const(Expr):
 
 
 class GetVar(Expr):
-    name: str
+    name: Ident = dc.field(check=check_ident)
 
 
 class GetAttr(Expr):
     obj: Expr
-    attr: str
+    attr: Ident = dc.field(check=check_ident)
 
 
 class GetItem(Expr):
@@ -49,7 +55,7 @@ class BinOp(lang.ValueEnum):
 
 class BinExpr(Expr):
     left: Expr
-    op: str
+    op: str = dc.field(check=bool)
     right: Expr
 
 
@@ -70,7 +76,7 @@ class CmpOp(lang.ValueEnum):
 
 class CmpExpr(Expr):
     left: Expr
-    op: str
+    op: str = dc.field(check=bool)
     right: Expr
 
 
@@ -79,13 +85,23 @@ class UnaryOp(lang.ValueEnum):
 
 
 class UnaryExpr(Expr):
-    op: str
+    op: str = dc.field(check=bool)
+    value: Expr
+
+
+class Kwarg(Node):
+    name: ta.Optional[Ident]
     value: Expr
 
 
 class Call(Expr):
     fn: Expr
     args: Exprs
+    kwargs: ta.Sequence[Kwarg] = ()
+
+
+class Star(Expr):
+    value: Expr
 
 
 class Stmt(Node, abstract=True):
@@ -97,13 +113,13 @@ class ExprStmt(Stmt):
 
 
 class SetVar(Stmt):
-    name: str
+    name: Ident = dc.field(check=check_ident)
     expr: Expr
 
 
 class SetAttr(Stmt):
     obj: Expr
-    attr: str
+    attr: Ident = dc.field(check=check_ident)
     value: Expr
 
 
@@ -128,7 +144,7 @@ class If(Stmt):
 
 
 class ForLoop(Stmt):
-    var: str
+    var: Ident = dc.field(check=check_ident)
     iter: Expr
     body: Stmts
 
@@ -141,13 +157,28 @@ class Continue(Stmt):
     pass
 
 
+class Pass(Stmt):
+    pass
+
+
 class Def(Node, abstract=True):
     pass
 
 
+class Arg(Node):
+    name: Ident = dc.field(check=check_ident)
+    default: ta.Optional[Expr] = None
+
+
+class Args(Node):
+    args: ta.Sequence[Arg] = ()
+    vararg: ta.Optional[Arg] = None
+    kwarg: ta.Optional[Arg] = None
+
+
 class Fn(Def):
-    name: str
-    params: ta.Sequence[str] = dc.field(check=lambda s: not isinstance(s, str) and all(e and isinstance(e, str) for e in s))  # noqa
+    name: Ident = dc.field(check=check_ident)
+    args: Args
     body: Stmts
 
 

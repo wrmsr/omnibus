@@ -55,5 +55,5 @@ class Args(Node):
 
 
 class Kwarg(Node):
-    name: str
+    name: ta.Optional[str]
     value: Expr

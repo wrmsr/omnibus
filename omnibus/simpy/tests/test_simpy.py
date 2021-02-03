@@ -51,6 +51,10 @@ def f4(pt, y):
         return pt.x
 
 
+def f5(a, b=2, *args, c, d=3, e, **kwargs):
+    pass
+
+
 def test_simpy():
     for f in [
         f0,
@@ -58,9 +62,10 @@ def test_simpy():
         f2,
         f3,
         f4,
+        f5,
         lang.descriptors._MethodDescriptor._py__check_get,  # noqa
         lang.descriptors._MethodDescriptor._py___get__,  # noqa
-        # lang.descriptors._MethodDescriptor._py___call__,  # noqa
+        lang.descriptors._MethodDescriptor._py___call__,  # noqa
         lang.descriptors.MethodDescriptor._py__get,  # noqa
     ]:
         print(f)
