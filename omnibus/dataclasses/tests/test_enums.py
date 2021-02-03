@@ -149,15 +149,16 @@ def test_enum_ident_eq():
     assert B(1) != B(1)
 
 
-# TODO:
-# @pytest.mark.xfail
-# def test_value_enums():
-#     class BinOp(enums_.ValueEnum):
-#         glyph: str
-#
-#     class BinOps(enums_.ValueEnums[BinOp]):
-#         ADD = BinOp('+')
-#         SUB = BinOp('-')
-#
-#     assert BinOps.SUB.name == 'ADD'
-#     assert BinOps.ADD.glyph == '+'
+def test_value_enums():
+    class BinOp(enums_.ValueEnum):
+        glyph: str
+
+    class BinOps(BinOp.Values):
+        ADD = BinOp('+')
+        SUB = BinOp('-')
+
+    assert BinOps.SUB.name == 'SUB'
+    assert BinOps.ADD.glyph == '+'
+
+    assert BinOps._by_name == {'ADD': BinOps.ADD, 'SUB': BinOps.SUB}
+    assert BinOps._by_value == {BinOps.ADD: 'ADD', BinOps.SUB: 'SUB'}

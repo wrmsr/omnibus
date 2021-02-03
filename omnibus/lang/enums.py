@@ -88,7 +88,7 @@ class _ValueEnumMeta(type):
     def __new__(mcls, name, bases, namespace, *, unique=False, ignore=(), **kwargs):
         if isinstance(ignore, str):
             raise TypeError(ignore)
-        cls = super().__new__(mcls, name, bases, namespace, **kwargs)
+        cls = super().__new__(mcls, name, bases, namespace, **kwargs)  # noqa
         for k in mcls.ILLEGAL_ATTRS:
             if k in namespace:
                 raise NameError(k)
@@ -100,7 +100,7 @@ class _ValueEnumMeta(type):
                 if k not in by_name and k not in mcls.ILLEGAL_ATTRS and k not in ignore and not is_dunder(k):
                     by_name[k] = v
         cls._by_name = by_name
-        cls._by_value = mcls._ByValueDescriptor()
+        cls._by_value = mcls._ByValueDescriptor()  # noqa
         if unique:
             getattr(cls, '_by_value')
         return cls
@@ -112,4 +112,5 @@ class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
     _by_value: ta.ClassVar[ta.Mapping[V, str]]
 
     def __new__(cls, *args, **kwargs):
+        # TODO: return instance
         raise TypeError

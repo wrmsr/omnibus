@@ -21,6 +21,7 @@ from .api import replace  # noqa
 from .api import validate  # noqa
 from .enums import Enum  # noqa
 from .enums import ENUM_SUPER_CONFERS  # noqa
+from .enums import ValueEnum  # noqa
 from .kwargs import register_class_metadata_kwarg_handler  # noqa
 from .kwargs import register_field_metadata_kwarg_handler  # noqa
 from .metaclass import Data  # noqa
