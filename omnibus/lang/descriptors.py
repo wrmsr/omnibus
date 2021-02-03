@@ -71,24 +71,33 @@ class _MethodDescriptor:
     def __repr__(self):
         return f'{type(self).__name__}({self.__func__})'
 
+    # @simpy.cythonize(_lang)
     def _check_get(self, instance, owner):
         flags = self._flags
 
         if flags.noinstance:
             if instance is not None:
-                raise TypeError(f'Cannot take instancemethod of {self.__func__}')
+                raise TypeError('Cannot take instancemethod of {}'.format(self.__func__))
 
         if flags.nosubclass:
             _owner = self._owner
             if _owner is None:
-                _owner = self._owner = [c for c in reversed(owner.__mro__) if self in c.__dict__.values()][0]
+                _owner = None
+                for c in reversed(owner.__mro__):
+                    if self in c.__dict__.values():
+                        _owner = c
+                        break
+                if _owner is None:
+                    raise TypeError('Cannot find owner of {} from class {}'.format(self.__func__, owner))
+                self._owner = _owner
             if owner is not _owner:
-                raise TypeError(f'Cannot access {self.__func__} of class {_owner} from class {owner}')
+                raise TypeError('Cannot access {} of class {} from class {}'.format(self.__func__, _owner, owner))
 
     @abc.abstractmethod
     def _get(self, instance, owner):
         raise NotImplementedError
 
+    # @simpy.cythonize(_lang)
     def __get__(self, instance, owner=None):
         if owner is not None:
             if instance is None:
@@ -98,16 +107,18 @@ class _MethodDescriptor:
         self._check_get(instance, owner)
         return self._get(instance, owner)
 
+    # @simpy.cythonize(_lang)
     def __call__(self, *args, **kwargs):
         flags = self._flags
 
         if not flags.callable:
-            raise TypeError(f'Cannot __call__ {self}')
+            raise TypeError('Cannot __call__ {}'.format(self))
 
         return self.__func__(*args, **kwargs)
 
 
 class MethodDescriptor(_MethodDescriptor):
+    # @simpy.cythonize(_lang)
     def _get(self, instance, owner):
         return self.__func__.__get__(instance, owner)  # noqa
 
