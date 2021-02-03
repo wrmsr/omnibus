@@ -10,49 +10,45 @@ from .. import dispatch
 AstT = ta.TypeVar('AstT', bound=ast.AST)
 
 
+_BIN_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.BinOp] = {
+    ast.Add: no.BinOps.ADD,
+    ast.Sub: no.BinOps.SUB,
+    ast.Mult: no.BinOps.MUL,
+    ast.Div: no.BinOps.DIV,
+}
+
+
 def _get_ast_bin_op(an: ast.AST) -> no.BinOp:
-    if isinstance(an, ast.Add):
-        return no.BinOps.ADD
-    elif isinstance(an, ast.Sub):
-        return no.BinOps.SUB
-    elif isinstance(an, ast.Mult):
-        return no.BinOps.MUL
-    elif isinstance(an, ast.Div):
-        return no.BinOps.DIV
-    else:
-        raise TypeError(an)
+    return _BIN_OP_MAP[type(an)]
+
+
+_CMP_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.CmpOp] = {
+    ast.Eq: no.CmpOps.EQ,
+    ast.NotEq: no.CmpOps.NE,
+    ast.Gt: no.CmpOps.GT,
+    ast.GtE: no.CmpOps.GE,
+    ast.Lt: no.CmpOps.LT,
+    ast.LtE: no.CmpOps.LE,
+
+    ast.Is: no.CmpOps.IS,
+    ast.IsNot: no.CmpOps.IS_NOT,
+
+    ast.In: no.CmpOps.IN,
+    ast.NotIn: no.CmpOps.NOT_IN,
+}
 
 
 def _get_ast_cmp_op(an: ast.AST) -> no.CmpOp:
-    if isinstance(an, ast.Eq):
-        return no.CmpOps.EQ
-    elif isinstance(an, ast.NotEq):
-        return no.CmpOps.NE
-    elif isinstance(an, ast.Gt):
-        return no.CmpOps.GT
-    elif isinstance(an, ast.GtE):
-        return no.CmpOps.GE
-    elif isinstance(an, ast.Lt):
-        return no.CmpOps.LT
-    elif isinstance(an, ast.LtE):
-        return no.CmpOps.LE
-    elif isinstance(an, ast.Is):
-        return no.CmpOps.IS
-    elif isinstance(an, ast.IsNot):
-        return no.CmpOps.IS_NOT
-    elif isinstance(an, ast.In):
-        return no.CmpOps.IN
-    elif isinstance(an, ast.NotIn):
-        return no.CmpOps.NOT_IN
-    else:
-        raise TypeError(an)
+    return _CMP_OP_MAP[type(an)]
+
+
+_UNARY_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.UnaryOp] = {
+    ast.Not: no.UnaryOps.NOT,
+}
 
 
 def _get_ast_unary_op(an: ast.AST) -> no.UnaryOp:
-    if isinstance(an, ast.Not):
-        return no.UnaryOps.NOT
-    else:
-        raise TypeError(an)
+    return _UNARY_OP_MAP[type(an)]
 
 
 def _check_ast_fields(an: AstT, fields: ta.Iterable[str]) -> AstT:
