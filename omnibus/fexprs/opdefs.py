@@ -92,7 +92,7 @@ EXPLICIT_OPS = [
     # POP_BLOCK
     # POP_EXCEPT
     # !POP_FINALLY(preserve_tos)
-    Op('BEGIN_FINALLY', [Step(NextDst(), SimpleEffect(0))]),
+    Op('BEGIN_FINALLY', [Step(NextDst(), SimpleEffect(0))], versions=[3.8]),
     # END_FINALLY
     # LOAD_BUILD_CLASS
     # SETUP_WITH(delta)

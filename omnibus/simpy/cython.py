@@ -20,4 +20,5 @@ TODO:
          from .._ext._cy._simpy import _lang
      except ImportError:
          pass
+   - ** functools.wraps orig
 """
