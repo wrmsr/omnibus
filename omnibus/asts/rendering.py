@@ -61,7 +61,7 @@ class Renderer(dispatch.Class):
         return r.Concat([
             self.render(node.func),
             '(',
-            r.List([self.render(a) for a in [*node.args, *node.kwargs]]),
+            r.List([self.render(a) for a in [*node.args, *node.keywords]]),
             ')',
         ])
 

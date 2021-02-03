@@ -138,19 +138,25 @@ class PartRenderer(dispatch.Class):
         self._indents = 0
         self._indent = indent
 
+        self._blank_lines = 0
         self._has_indented = False
 
     def _write(self, s: str) -> None:
         check.not_in('\n', s)
         if not self._has_indented:
             self._buf.write(self._indent * self._indents)
+            self._blank_lines = 0
             self._has_indented = True
 
         self._buf.write(s)
 
-    def _write_newline(self) -> None:
-        self._buf.write('\n')
-        self._has_indented = False
+    def _write_newline(self, n: int = 1) -> None:
+        check.arg(n >= 0)
+        d = n - self._blank_lines
+        if d > 0:
+            self._buf.write('\n' * n)
+            self._blank_lines += n
+            self._has_indented = False
 
     __call__ = dispatch.property()
 

@@ -73,7 +73,7 @@ class ClassDef(Stmt):
     name: str
     bases: Exprs
     body: Stmts
-    kwargs: ta.Sequence[Keyword] = ()
+    keywords: ta.Sequence[Keyword] = ()
     decorators: Exprs = ()
 
 

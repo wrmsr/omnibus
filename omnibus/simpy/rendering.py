@@ -131,7 +131,10 @@ class Renderer(dispatch.Class):
         return r.Concat(['*', self.render(node.value)])
 
     def render(self, node: no.UnaryExpr) -> r.Part:  # noqa
-        return r.Concat([node.op, self.paren(node.value)])
+        if node.op.isalpha():
+            return [node.op, self.paren(node.value)]
+        else:
+            return r.Concat([node.op, self.paren(node.value)])
 
 
 def render(node: no.Node) -> str:
