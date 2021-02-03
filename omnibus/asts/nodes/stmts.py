@@ -5,7 +5,7 @@ from .base import Annotated
 from .base import Args
 from .base import Expr
 from .base import Exprs
-from .base import Kwarg
+from .base import Keyword
 from .base import Node
 from .base import Stmt
 from .base import Stmts
@@ -73,7 +73,7 @@ class ClassDef(Stmt):
     name: str
     bases: Exprs
     body: Stmts
-    kwargs: ta.Sequence[Kwarg] = ()
+    kwargs: ta.Sequence[Keyword] = ()
     decorators: Exprs = ()
 
 

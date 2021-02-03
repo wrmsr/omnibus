@@ -54,6 +54,6 @@ class Args(Node):
     kwarg: ta.Optional[Arg] = None
 
 
-class Kwarg(Node):
+class Keyword(Node):
     name: ta.Optional[str]
     value: Expr

@@ -174,7 +174,7 @@ class Translator(dispatch.Class):
 
     def __call__(self, an: ast.For) -> no.Node:  # noqa
         _check_ast_fields(an, ['target', 'iter', 'body'])
-        return no.ForLoop(
+        return no.ForIter(
             self._get_name_id(an.target, ast.Store),
             self(an.iter),
             [self(e) for e in an.body]
@@ -198,7 +198,7 @@ class Translator(dispatch.Class):
 
     def __call__(self, an: ast.keyword) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg', 'value'])
-        return no.Kwarg(
+        return no.Keyword(
             an.arg,
             self(an.value),
         )

@@ -5,7 +5,7 @@ from ... import lang
 from .base import Args
 from .base import Expr
 from .base import Exprs
-from .base import Kwarg
+from .base import Keyword
 from .base import Node
 from .ops import BinOp
 from .ops import BoolOp
@@ -56,7 +56,7 @@ class Bytes(Expr):
 class Call(Expr):
     func: Expr
     args: Exprs = ()
-    kwargs: ta.Sequence[Kwarg] = ()
+    keywords: ta.Sequence[Keyword] = ()
 
 
 class Compare(Expr):

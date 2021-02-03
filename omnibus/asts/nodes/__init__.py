@@ -4,7 +4,7 @@ from .base import Args  # noqa
 from .base import Expr  # noqa
 from .base import ExprStmt  # noqa
 from .base import Exprs  # noqa
-from .base import Kwarg  # noqa
+from .base import Keyword  # noqa
 from .base import Node  # noqa
 from .base import Stmt  # noqa
 from .base import Stmts  # noqa
