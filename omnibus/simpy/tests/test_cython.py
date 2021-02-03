@@ -12,21 +12,17 @@ _HC_PREFIX = '# @simpy.'
 
 
 def _build_parents(root: ast.AST) -> ta.Mapping[ta.Any, ast.AST]:
-    dct = {}
-    todo = [root]
-    seen = set()
-    last = None
-    while todo:
-        cur = todo.pop()
-        if not isinstance(cur, (ast.expr_context, ast.operator, ast.cmpop, ast.unaryop)):
-            check.not_in(cur, seen)
-            seen.add(cur)
-        if last is not None:
-            dct[cur] = last
+    def rec(cur, parent):
+        if cur in dct:
+            dct[cur] = None
+            return
+        if parent is not None:
+            dct[cur] = parent
         for nxt in ast.iter_child_nodes(cur):
             if isinstance(nxt, ast.AST):
-                todo.append(nxt)
-        last = cur
+                rec(nxt, cur)
+    dct = {}
+    rec(root, None)
     return dct
 
 
@@ -65,7 +61,24 @@ def test_gen():
             fn = check.isinstance(hc_node, ast.FunctionDef)
             print(fn.name)
             print(fn)
+            print()
+
+            ps = []
+            c = fn
+            while True:
+                p = parents.get(c)
+                if not p:
+                    break
+                ps.append(p)
+                c = p
+            print(ps)
+            print()
+
             nr = translate(fn)
             print(nr)
+            print()
+
             print(ren.render(nr))
+            print()
+
             print()
