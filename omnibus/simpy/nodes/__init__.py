@@ -19,7 +19,6 @@ from .exprs import GetAttr  # noqa
 from .exprs import GetItem  # noqa
 from .exprs import GetVar  # noqa
 from .exprs import Keyword  # noqa
-from .exprs import Star  # noqa
 from .exprs import Starred  # noqa
 from .exprs import UnaryExpr  # noqa
 from .exprs import UnaryOp  # noqa

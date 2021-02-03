@@ -8,7 +8,7 @@ from .base import Stmt
 
 
 class Raise(Stmt):
-    exc: Expr
+    value: Expr
 
 
 class Return(Stmt):
@@ -53,7 +53,7 @@ class ExprStmt(Stmt):
 
 class SetVar(Stmt):
     name: Ident = dc.field(check=check_ident)
-    expr: Expr
+    value: Expr
 
 
 class SetAttr(Stmt):

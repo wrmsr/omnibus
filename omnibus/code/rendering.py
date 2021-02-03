@@ -2,6 +2,8 @@ import collections.abc
 import io
 import typing as ta
 
+from .. import check
+from .. import collections as col
 from .. import dataclasses as dc
 from .. import dispatch
 
@@ -11,6 +13,18 @@ NodeT = ta.TypeVar('NodeT')
 
 
 Part = ta.Union[str, ta.Sequence['Part'], 'DataPart']
+PartT = ta.TypeVar('PartT', bound=Part)
+
+
+def _check_part(o: PartT) -> PartT:
+    if isinstance(o, (str, DataPart)):
+        pass
+    elif isinstance(o, ta.Sequence):
+        for c in o:
+            _check_part(c)
+    else:
+        raise TypeError(o)
+    return o
 
 
 class DataPart(dc.Enum):
@@ -18,25 +32,25 @@ class DataPart(dc.Enum):
 
 
 class Paren(DataPart):
-    part: Part
+    part: Part = dc.field(coerce=_check_part)
 
 
 class List(DataPart):
-    parts: ta.Sequence[ta.Optional[Part]]
-    delimiter: str = ','
-    trailer: bool = False
+    parts: ta.Sequence[ta.Optional[Part]] = dc.field(coerce=col.seq_of(_check_part))
+    delimiter: str = dc.field(',', check_type=str)
+    trailer: bool = dc.field(False, check_type=bool)
 
 
 class Concat(DataPart):
-    parts: ta.Sequence[Part]
+    parts: ta.Sequence[Part] = dc.field(coerce=col.seq_of(_check_part))
 
 
 class Block(DataPart):
-    parts: ta.Sequence[Part]
+    parts: ta.Sequence[Part] = dc.field(coerce=col.seq_of(_check_part))
 
 
 class Section(DataPart):
-    parts: ta.Sequence[Part]
+    parts: ta.Sequence[Part] = dc.field(coerce=col.seq_of(_check_part))
 
 
 class Node(DataPart, ta.Generic[NodeT], final=False):
@@ -124,32 +138,46 @@ class PartRenderer(dispatch.Class):
         self._indents = 0
         self._indent = indent
 
+        self._has_indented = False
+
+    def _write(self, s: str) -> None:
+        check.not_in('\n', s)
+        if not self._has_indented:
+            self._buf.write(self._indent * self._indents)
+            self._has_indented = True
+
+        self._buf.write(s)
+
+    def _write_newline(self) -> None:
+        self._buf.write('\n')
+        self._has_indented = False
+
     __call__ = dispatch.property()
 
     def __call__(self, part: str) -> None:  # noqa
-        self._buf.write(part)
+        self._write(part)
 
     def __call__(self, part: collections.abc.Sequence) -> None:  # noqa
         for i, c in enumerate(part):
             if i:
-                self._buf.write(' ')
+                self._write(' ')
             self(c)
 
     def __call__(self, part: DataPart) -> None:  # noqa
         raise TypeError(part)
 
     def __call__(self, part: Paren) -> None:  # noqa
-        self._buf.write('(')
+        self._write('(')
         self(part.part)
-        self._buf.write(')')
+        self._write(')')
 
     def __call__(self, part: List) -> None:  # noqa
         for i, c in enumerate(part.parts):
             if i:
-                self._buf.write(part.delimiter + ' ')
+                self._write(part.delimiter + ' ')
             self(c)
         if part.trailer:
-            self._buf.write(part.delimiter)
+            self._write(part.delimiter)
 
     def __call__(self, part: Concat) -> None:  # noqa
         for c in part.parts:
@@ -157,9 +185,8 @@ class PartRenderer(dispatch.Class):
 
     def __call__(self, part: Block) -> None:  # noqa
         for c in part.parts:
-            self._buf.write(self._indent * self._indents)
             self(c)
-            self._buf.write('\n')
+            self._write_newline()
 
     def __call__(self, part: Section) -> None:  # noqa
         self._indents += 1

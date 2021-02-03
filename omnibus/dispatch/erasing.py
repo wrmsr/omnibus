@@ -73,7 +73,7 @@ class ErasingDispatcher(Dispatcher[Impl]):
         try:
             return match, self._registry[match]
         except registries.NotRegisteredException:
-            raise UnregisteredDispatchError(match)
+            raise UnregisteredDispatchError(cls)
 
     def _erase(self, cls: TypeOrSpec) -> ta.Type:
         return check.isinstance(rfl.erase_generic(cls.erased_cls if isinstance(cls, rfl.TypeSpec) else cls), type)

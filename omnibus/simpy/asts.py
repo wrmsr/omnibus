@@ -232,7 +232,7 @@ class Translator(dispatch.Class):
     def translate(self, an: ast.Starred) -> no.Node:  # noqa
         _check_ast_fields(an, ['value', 'ctx'])
         check.isinstance(an.ctx, ast.Load)
-        return no.Star(self.translate(an.value))
+        return no.Starred(self.translate(an.value))
 
     def translate(self, an: ast.Str) -> no.Node:  # noqa
         _check_ast_fields(an, ['s'])

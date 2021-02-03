@@ -80,9 +80,5 @@ class Call(Expr):
     keywords: ta.Sequence[Keyword] = ()
 
 
-class Star(Expr):
-    value: Expr
-
-
 class Starred(Expr):
     value: Expr
