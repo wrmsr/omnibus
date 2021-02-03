@@ -19,10 +19,11 @@ from .api import only  # noqa
 from .api import post_init  # noqa
 from .api import replace  # noqa
 from .api import validate  # noqa
+from .enums import Enum  # noqa
+from .enums import ENUM_SUPER_CONFERS  # noqa
 from .kwargs import register_class_metadata_kwarg_handler  # noqa
 from .kwargs import register_field_metadata_kwarg_handler  # noqa
 from .metaclass import Data  # noqa
-from .metaclass import Enum  # noqa
 from .metaclass import Frozen  # noqa
 from .metaclass import Meta  # noqa
 from .metaclass import Pure  # noqa

@@ -17,14 +17,9 @@ from .internals import DataclassParams
 from .kwargs import get_registered_class_metadata_kwargs
 from .process import tuples
 from .types import _Placeholder
-from .types import Conferrer
 from .types import ExtraParams
 from .types import MetaclassParams
 from .types import METADATA_ATTR
-from .types import SUPER
-
-
-T = ta.TypeVar('T')
 
 
 class _IgnoreTemplate:
@@ -280,42 +275,6 @@ class Pure(
         'frozen': True,
         'slots': True,
         'no_weakref': True,
-    },
-):
-    pass
-
-
-def _confer_enum_final(att, sub, sup, bases):
-    return sub['abstract'] is dc.MISSING or not sub['abstract']
-
-
-ENUM_SUPER_CONFERS = frozenset([
-    'repr',
-    'reorder',
-    'eq',
-    'allow_setattr',
-    'kwonly',
-    'slots',
-    'aspects',
-    'confer',
-])
-
-
-class Enum(
-    Data,
-    abstract=True,
-    eq=False,
-    frozen=True,
-    slots=True,
-    no_weakref=True,
-    confer={
-        'abstract': True,
-        'frozen': True,
-        'confer': {
-            'final': Conferrer(_confer_enum_final),
-            'frozen': True,
-            **{a: SUPER for a in ENUM_SUPER_CONFERS},
-        },
     },
 ):
     pass

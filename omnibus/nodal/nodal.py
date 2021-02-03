@@ -109,7 +109,7 @@ def _confer_final(att, sub, sup, bases):
     return sub['abstract'] is dc.MISSING or not sub['abstract']
 
 
-_NODAL_SUPER_CONFERS = {a: dc.SUPER for a in [
+NODAL_SUPER_CONFERS = {a: dc.SUPER for a in [
     'repr',
     'eq',
     'allow_setattr',
@@ -132,7 +132,7 @@ class Nodal(
         'confer': {
             **_COMMON_META_KWARGS,
             'final': dc.Conferrer(_confer_final),
-            **_NODAL_SUPER_CONFERS,
+            **NODAL_SUPER_CONFERS,
         },
     },
 ):
