@@ -13,7 +13,15 @@ def test_sexprs():
          ['return', ['+', 'x', 2]]],
 
         ['def', 'say_hi', [],
-         ['print', '~hi']]
+         ['print', '~hi']],
+
+        ['def', 'barf', ['x'],
+         ['y=', ['+', 'x', 2]],
+         ['return', 'y']],
+
+        ['def', 'pt_thing', ['pt'],
+         ['.x=', 'pt', ['+', ['.x', 'pt'], ['.y', 'pt']]],
+         ['return', 'pt']],
     ]:
         print(s)
 

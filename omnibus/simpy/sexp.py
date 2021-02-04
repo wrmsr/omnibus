@@ -43,6 +43,9 @@ def xlat(obj: ta.Any) -> no.Node:
         shift = functools.partial(args.pop, 0)
         tag = shift()
 
+        if not tag:
+            raise ValueError(tag)
+
         if tag == 'def':
             name = no.Ident(shift())
             fnargs = no.Args([no.Arg(no.Ident(a)) for a in shift()])
@@ -62,7 +65,7 @@ def xlat(obj: ta.Any) -> no.Node:
                 body,
             )
 
-        elif tag == 'return':
+        if tag == 'return':
             if args:
                 value = xlat(shift())
             else:
@@ -70,7 +73,7 @@ def xlat(obj: ta.Any) -> no.Node:
             check.empty(args)
             return no.Return(value)
 
-        elif tag in no.OPS_BY_GLYPH:
+        if tag in no.OPS_BY_GLYPH:
             op = no.OPS_BY_GLYPH[tag]
 
             if isinstance(op, no.BinOp):
@@ -99,19 +102,45 @@ def xlat(obj: ta.Any) -> no.Node:
             else:
                 raise TypeError(op)
 
-        else:
-            fn = xlat(tag)
-            cargs = []
-            for a in args:
-                xa = xlat(a)
-                if isinstance(xa, no.Expr):
-                    xe = xa
-                else:
-                    raise TypeError(xa)
-                cargs.append(xe)
-            return no.Call(
-                fn,
-                cargs,
+        if tag[0] == '.':
+            if tag[-1] == '=':
+                att = no.Ident(tag[1:-1])
+                obj = xlat(shift())
+                value = xlat(check.single(args))
+                return no.SetAttr(
+                    obj,
+                    att,
+                    value,
+                )
+
+            else:
+                att = no.Ident(tag[1:])
+                value = xlat(check.single(args))
+                return no.GetAttr(
+                    value,
+                    att,
+                )
+
+        if tag[-1] == '=':
+            name = no.Ident(tag[:-1])
+            value = xlat(check.single(args))
+            return no.SetVar(
+                name,
+                value,
             )
+
+        fn = xlat(tag)
+        cargs = []
+        for a in args:
+            xa = xlat(a)
+            if isinstance(xa, no.Expr):
+                xe = xa
+            else:
+                raise TypeError(xa)
+            cargs.append(xe)
+        return no.Call(
+            fn,
+            cargs,
+        )
 
     raise TypeError(obj)
