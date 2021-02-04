@@ -45,7 +45,7 @@ class Renderer(dispatch.Class):
         return r.List(l)
 
     def render(self, node: no.BinExpr) -> r.Part:  # noqa
-        return [self.paren(node.left), node.op.glyph, self.paren(node.right)]
+        return [self.paren(node.left), self.render(node.op), self.paren(node.right)]
 
     def render(self, node: no.Break) -> r.Part:  # noqa
         return 'break'
@@ -59,7 +59,7 @@ class Renderer(dispatch.Class):
         ])
 
     def render(self, node: no.CmpExpr) -> r.Part:  # noqa
-        return [self.paren(node.left), node.op.glyph, self.paren(node.right)]
+        return [self.paren(node.left), self.render(node.op), self.paren(node.right)]
 
     def render(self, node: no.Const) -> r.Part:  # noqa
         return repr(node.value)
@@ -117,6 +117,9 @@ class Renderer(dispatch.Class):
     def render(self, node: no.Module) -> r.Part:  # noqa
         return [self.render(d) for d in node.defs]
 
+    def render(self, node: no.Op) -> r.Part:  # noqa
+        return node.glyph_parts
+
     def render(self, node: no.Raise) -> r.Part:  # noqa
         return ['raise', *([self.render(node.value)] if node.value is not None else [])]
 
@@ -133,8 +136,8 @@ class Renderer(dispatch.Class):
         return r.Concat(['*', self.render(node.value)])
 
     def render(self, node: no.UnaryExpr) -> r.Part:  # noqa
-        if node.op.glyph.isalpha():
-            return [node.op.glyph, self.paren(node.value)]
+        if node.op.is_word:
+            return [*node.op.glyph_parts, self.paren(node.value)]
         else:
             return r.Concat([node.op.glyph, self.paren(node.value)])
 

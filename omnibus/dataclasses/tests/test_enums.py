@@ -162,3 +162,8 @@ def test_value_enums():
 
     assert BinOps._by_name == {'ADD': BinOps.ADD, 'SUB': BinOps.SUB}
     assert BinOps._by_value == {BinOps.ADD: 'ADD', BinOps.SUB: 'SUB'}
+
+    # TODO:
+    # assert BinOps('ADD') is BinOps.ADD
+    # assert 'ADD' in BinOps
+    # assert BinOps.ADD in BinOps

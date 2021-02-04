@@ -16,6 +16,10 @@ class IndexedSeq(ta.Sequence[T]):
         if len(self._idxs) != len(self._lst):
             raise ValueError(f'{len(self._idxs)} != {len(self._lst)}')
 
+    @property
+    def debug(self) -> ta.Sequence[T]:
+        return self._lst
+
     def __iter__(self) -> ta.Iterator[T]:
         return iter(self._lst)
 
@@ -45,6 +49,10 @@ class IndexedSetSeq(ta.Sequence[ta.AbstractSet[T]]):
         self._idxs = (ocol.IdentityKeyDict if identity else dict)((e, i) for i, es in enumerate(self._lst) for e in es)
         if len(self._idxs) != sum(map(len, self._lst)):
             raise ValueError(f'{len(self._idxs)} != {sum(map(len, self._lst))}')
+
+    @property
+    def debug(self) -> ta.Sequence[ta.AbstractSet[T]]:
+        return self._lst
 
     def __iter__(self) -> ta.Iterator[ta.AbstractSet[T]]:
         return iter(self._lst)

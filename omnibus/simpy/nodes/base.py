@@ -1,3 +1,8 @@
+"""
+TODO:
+ - terse serde likc iw
+ - coercion
+"""
 import typing as ta
 
 from ... import check

@@ -14,6 +14,7 @@ TODO:
  - symlink $ROOT/project as ./python -m omnibus.dev.project ?
  - include python bins? is this scaffold? -momnibus.dev.project new barf?
  - pipx?
+ - https://github.com/asdf-vm/asdf support (instead of pyenv)
 """
 import argparse
 import logging

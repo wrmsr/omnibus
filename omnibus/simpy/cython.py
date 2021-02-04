@@ -21,4 +21,7 @@ TODO:
      except ImportError:
          pass
    - ** functools.wraps orig
+ - pluggable 'profiles', largely affecting annotation handling:
+  - numbers (varint, lang.bits, chd) - ints, floats
+  - objects - mostly discarded? lol
 """

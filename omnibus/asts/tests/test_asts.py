@@ -3,12 +3,12 @@ import contextlib
 import glob
 import os.path
 import time
-import typing as ta
 
 import pytest
 
 from .. import nodes
 from .. import parsing
+from ... import pyasts
 
 
 @pytest.mark.xfail()
@@ -95,27 +95,6 @@ def test_exprs():
         print()
 
 
-class PyAstNode(ta.NamedTuple):
-    type: str
-    fields: ta.Sequence[ta.Tuple[str, ta.Any]]
-
-
-def _strip_py_ast(obj):
-    if obj is None:
-        return None
-    elif isinstance(obj, ast.AST):
-        return PyAstNode(
-            type(obj).__name__,
-            [(a, _strip_py_ast(getattr(obj, a))) for a in type(obj)._fields],
-        )
-    elif isinstance(obj, list):
-        return tuple(_strip_py_ast(e) for e in obj)
-    elif isinstance(obj, (int, str)):
-        return obj
-    else:
-        raise TypeError(obj)
-
-
 def test_stmts():
     for src in [
         '1 + 2\n',
@@ -133,7 +112,7 @@ def test_stmts():
     ]:
         print(src.strip())
 
-        pa0 = _strip_py_ast(ast.parse(src))
+        pa0 = pyasts.reduce_py_ast(ast.parse(src))
         print(pa0)
 
         root = parsing.parse(src, 'file')
@@ -143,7 +122,7 @@ def test_stmts():
         buf = rendering.render(root)
         print(buf.strip())
 
-        pa1 = _strip_py_ast(ast.parse(buf))
+        pa1 = pyasts.reduce_py_ast(ast.parse(buf))
         print(pa1)
 
         assert pa0 == pa1

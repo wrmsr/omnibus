@@ -16,7 +16,8 @@ import textwrap
 from .. import rendering as ren
 from ... import dataclasses as dc
 from ... import lang
-from ..asts import translate
+from ... import pyasts
+from ..pyasts import translate
 
 
 def f0(x, y):
@@ -74,8 +75,19 @@ def test_simpy():
         try:
             nr = translate(ar)
             print(nr)
-            print(ren.render(nr))
+
+            rd = ren.render(nr)
+            print(rd)
+
+            ar2 = ast.parse(rd, 'exec')
+            print(ar2)
+
+            rar = pyasts.reduce_py_ast(ar)
+            rar2 = pyasts.reduce_py_ast(ar2)
+            assert rar == rar2
+
         except Exception as e:  # noqa
             print(repr(e))
             raise
+
         print()

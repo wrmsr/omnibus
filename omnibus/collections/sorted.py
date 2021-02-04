@@ -281,6 +281,10 @@ class SortedListDict(SortedMutableMapping[K, V]):
         for k, v in yield_dict_init(*args, **kwargs):
             self[k] = v
 
+    @property
+    def debug(self) -> ta.Mapping[K, V]:
+        return dict(self)
+
     def __getitem__(self, key: K) -> V:
         item = self._impl.find((key, None))
         if item is None:
