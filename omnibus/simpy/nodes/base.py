@@ -23,10 +23,17 @@ _IDENT_START_CHARS: ta.AbstractSet[str] = {*string.ascii_letters, '_'}
 _IDENT_CHARS: ta.AbstractSet[str] = {*_IDENT_START_CHARS, *map(str, range(10))}
 
 
+def is_ident(s: str) -> bool:
+    return (
+            s and
+            isinstance(s, str) and
+            s[0] in _IDENT_START_CHARS and
+            not (set(s) - _IDENT_CHARS)
+    )
+
+
 def check_ident(s: str) -> str:
-    check.non_empty_str(s)
-    check.in_(s[0], _IDENT_START_CHARS)
-    check.empty(set(s) - _IDENT_CHARS)
+    check.arg(is_ident(s))
     return s
 
 

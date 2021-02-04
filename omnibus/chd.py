@@ -18,6 +18,7 @@ _FNV_OFFSET = 0xcbf29ce484222325
 _FNV_PRIME = 0x100000001b3
 
 
+# @simpy.cythonize
 def _fnv1a_64(data: bytes) -> uint64:
     hsh = _FNV_OFFSET
     for c in data:
@@ -50,6 +51,7 @@ class Chd:
     keys: ta.Sequence[bytes]
     values: ta.Sequence[bytes]
 
+    # @simpy.cythonize
     def get(self, key: bytes) -> ta.Optional[bytes]:
         r0 = self.r[0]
         h = fnv1a_64(key) ^ r0

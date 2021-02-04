@@ -1,3 +1,5 @@
+from collections import *  # noqa
+
 from .box import Box # noqa
 from .coerce import abs_set  # noqa
 from .coerce import abs_set_of  # noqa

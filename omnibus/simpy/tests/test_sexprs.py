@@ -2,7 +2,7 @@ import ast
 
 from .. import nodes as no  # noqa
 from .. import rendering as ren
-from .. import sexp
+from .. import sexprs
 
 
 def test_sexprs():
@@ -22,10 +22,13 @@ def test_sexprs():
         ['def', 'pt_thing', ['pt'],
          ['.x=', 'pt', ['+', ['.x', 'pt'], ['.y', 'pt']]],
          ['return', 'pt']],
+
+        ['def', 'ls', ['l0', 'l1'],
+         ['[=', 'l0', 0, ['[', 'l1', 1]]],
     ]:
         print(s)
 
-        t = sexp.xlat(s)
+        t = sexprs.xlat(s)
         print(t)
 
         rd = ren.render(t)

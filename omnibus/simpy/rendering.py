@@ -93,6 +93,9 @@ class Renderer(dispatch.Class):
     def render(self, node: no.GetAttr) -> r.Part:  # noqa
         return r.Concat([self.render(node.obj), '.', self.render(node.attr)])
 
+    def render(self, node: no.GetItem) -> r.Part:  # noqa
+        return r.Concat([self.render(node.obj), '[', self.render(node.idx), ']'])
+
     def render(self, node: no.GetVar) -> r.Part:  # noqa
         return self.render(node.name)
 
@@ -132,6 +135,9 @@ class Renderer(dispatch.Class):
 
     def render(self, node: no.SetAttr) -> r.Part:  # noqa
         return [r.Concat([self.render(node.obj), '.', self.render(node.attr)]), '=', self.render(node.value)]
+
+    def render(self, node: no.SetItem) -> r.Part:  # noqa
+        return [r.Concat([self.render(node.obj), '[', self.render(node.idx), ']']), '=', self.render(node.value)]
 
     def render(self, node: no.SetVar) -> r.Part:  # noqa
         return [self.render(node.name), '=', self.render(node.value)]
