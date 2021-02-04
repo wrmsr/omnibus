@@ -8,7 +8,7 @@ TODO:
   - * hot comments lol *
   - *prefer* a proper ann but *support* dumb hot comment scanning:
    - dedicated whole line::
-       #@simpy.cythonize(_lang)
+       #@simp.cythonize(_lang)
        def __call__(self, *args, **kwargs):
            flags = self._flags
            if not flags.callable:
@@ -17,7 +17,7 @@ TODO:
   - knows how to replace *and* replace, but how..
    - genned cy module replaces on import! all thats necessary is:
      try:
-         from .._ext._cy._simpy import _lang
+         from .._ext._cy._simp import _lang
      except ImportError:
          pass
    - ** functools.wraps orig

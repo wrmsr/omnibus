@@ -19,7 +19,7 @@ from ...serde import mapping as sm
 from ..pyasts import translate
 
 
-_HC_PREFIX = '# @simpy.'
+_HC_PREFIX = '# @simp.'
 
 
 def test_gen():

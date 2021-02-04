@@ -57,7 +57,7 @@ def f5(a, b=2, *args, c, d=3, e, **kwargs):
     pass
 
 
-def test_simpy():
+def test_simp():
     for f in [
         f0,
         f1,
