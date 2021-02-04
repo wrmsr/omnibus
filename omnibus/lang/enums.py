@@ -68,6 +68,7 @@ class _ValueEnumMeta(type):
     }
 
     ILLEGAL_ATTRS = {
+        '_name_value_pairs',
         '_by_name',
         '_by_value',
     }
@@ -77,37 +78,51 @@ class _ValueEnumMeta(type):
         def __get__(self, instance, owner=None):
             if owner is None:
                 return self
+
             by_value = {}
             for k, v in owner._by_name.items():
                 if v in by_value:
                     raise TypeError(f'Duplicate value {v!r} with name {k!r}')
                 by_value[v] = k
+
             owner._by_value = by_value
             return by_value
 
     def __new__(mcls, name, bases, namespace, *, unique=False, ignore=(), **kwargs):
         if isinstance(ignore, str):
             raise TypeError(ignore)
+
         cls = super().__new__(mcls, name, bases, namespace, **kwargs)  # noqa
+
         for k in mcls.ILLEGAL_ATTRS:
             if k in namespace:
                 raise NameError(k)
+
+        pairs = []
         by_name = {}
         for mrocls in cls.__mro__:
             if mrocls in mcls.IGNORED_BASES:
                 continue
             for k, v in mrocls.__dict__.items():
-                if k not in by_name and k not in mcls.ILLEGAL_ATTRS and k not in ignore and not is_dunder(k):
+                if k in mcls.ILLEGAL_ATTRS or k in ignore or is_dunder(k):
+                    continue
+                pairs.append((k, v))
+                if k not in by_name:
                     by_name[k] = v
+
+        cls._name_value_pairs = pairs
         cls._by_name = by_name
         cls._by_value = mcls._ByValueDescriptor()  # noqa
+
         if unique:
             getattr(cls, '_by_value')
+
         return cls
 
 
 class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
 
+    _name_value_pairs: ta.ClassVar[ta.Sequence[ta.Tuple[str, V]]]
     _by_name: ta.ClassVar[ta.Mapping[str, V]]
     _by_value: ta.ClassVar[ta.Mapping[V, str]]
 

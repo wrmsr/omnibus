@@ -77,7 +77,7 @@ def test_simpy():
             print(nr)
 
             rd = ren.render(nr)
-            print(rd)
+            print(rd.strip())
 
             ar2 = ast.parse(rd, 'exec')
             print(ar2)

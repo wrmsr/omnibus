@@ -1,18 +1,29 @@
-import typing as ta
+import ast
 
 from .. import nodes as no  # noqa
-
-
-T = ta.TypeVar('T')
-
-
-def c(o: T) -> T:
-    return o
+from .. import rendering as ren
+from .. import sexp
 
 
 def test_sexprs():
-    add2 = ['def', 'add2', ['x', 'y'],  # noqa
-            ['return', ['+', 'x', 2]]]
+    print()
 
-    say_hi = ['def', 'say_hi', [],  # noqa
-              ['print', c('hi')]]
+    for s in [
+        ['def', 'add2', ['x', 'y'],
+         ['return', ['+', 'x', 2]]],
+
+        ['def', 'say_hi', [],
+         ['print', '~hi']]
+    ]:
+        print(s)
+
+        t = sexp.xlat(s)
+        print(t)
+
+        rd = ren.render(t)
+        print(rd.strip())
+
+        ar2 = ast.parse(rd, 'exec')
+        print(ar2)
+
+        print()
