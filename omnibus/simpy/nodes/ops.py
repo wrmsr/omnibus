@@ -34,6 +34,11 @@ class BinOps(BinOp.Values):
     SUB = BinOp('-')
     MUL = BinOp('*')
     DIV = BinOp('/')
+    MOD = BinOp('%')
+
+    BIT_AND = BinOp('&')
+    BIT_OR = BinOp('|')
+    BIT_XOR = BinOp('^')
 
 
 class CmpOp(dc.ValueEnum, Op):

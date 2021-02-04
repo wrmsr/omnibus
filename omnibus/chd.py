@@ -19,12 +19,13 @@ _FNV_PRIME = 0x100000001b3
 
 
 # @simpy.cythonize
-def _fnv1a_64(data: bytes) -> uint64:
+# def _fnv1a_64(data: bytes) -> uint64:
+def _fnv1a_64(data):
     hsh = _FNV_OFFSET
     for c in data:
-        hsh ^= c
-        hsh *= _FNV_PRIME
-        hsh &= MAX_UINT64
+        hsh = hsh ^ c
+        hsh = hsh * _FNV_PRIME
+        hsh = hsh & MAX_UINT64
     return hsh
 
 
@@ -52,7 +53,8 @@ class Chd:
     values: ta.Sequence[bytes]
 
     # @simpy.cythonize
-    def get(self, key: bytes) -> ta.Optional[bytes]:
+    # def get(self, key: bytes) -> ta.Optional[bytes]:
+    def get(self, key):
         r0 = self.r[0]
         h = fnv1a_64(key) ^ r0
         i = h % len(self.indices)

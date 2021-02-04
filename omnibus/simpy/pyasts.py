@@ -15,6 +15,11 @@ _BIN_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.BinOp] = {
     ast.Sub: no.BinOps.SUB,
     ast.Mult: no.BinOps.MUL,
     ast.Div: no.BinOps.DIV,
+    ast.Mod: no.BinOps.MOD,
+
+    ast.BitAnd: no.BinOps.BIT_AND,
+    ast.BitOr: no.BinOps.BIT_OR,
+    ast.BitXor: no.BinOps.BIT_XOR,
 }
 
 
@@ -190,6 +195,10 @@ class Translator(dispatch.Class):
             [self.translate(e) for e in an.body],
             [self.translate(e) for e in an.orelse] if an.orelse else None,
         )
+
+    def translate(self, an: ast.Index) -> no.Node:  # noqa
+        _check_ast_fields(an, ['value'])
+        return self.translate(an.value)
 
     def translate(self, an: ast.keyword) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg', 'value'])
