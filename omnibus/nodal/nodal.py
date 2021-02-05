@@ -232,8 +232,8 @@ class Nodal(
                 rpl_kw[k] = v
         return dc.replace(self, **rpl_kw)
 
-    def fmap(self: Self, fn: ta.Callable[[NodalT], ta.Mapping[str, ta.Any]]) -> Self:
-        return self.map(fn, **fn(self))
+    # def fmap(self: Self, fn: ta.Callable[[NodalT], ta.Mapping[str, ta.Any]]) -> Self:
+    #     return self.map(fn, **fn(self))
 
 
 def meta_chain(
