@@ -74,6 +74,7 @@ pymc3==3.11.0
 Pyomo==5.7.3
 pyroaring==0.2.11
 pyspark==3.0.1
+python-openstackclient==5.4.0  # 351 transitive deps...
 python-pcre==0.7
 python-snappy==0.6.0
 pyzmq==22.0.2
@@ -92,10 +93,13 @@ uvloop==0.14.0
 
 ## problematic optional integrations
 
-# fastuuid==0.3.0; python_version > '3.7'
-# fuse-python==1.0.0
-# google-re2==0.0.6
-# v8eval==0.3.0
+# fastuuid==0.3.0; python_version > '3.7'  # finicky build
+# fuse-python==1.0.0  # sysdeps
+# google-re2==0.0.6  # long Compile
+# v8eval==0.3.0  # long compile
+
+
+## experimental repos
 
 # git+git://github.com/flier/pyfasthash@5f81262d4897e5d4b79c09179d901cdb6207e5f8
 # git+git://github.com/Maratyszcza/PeachPy@f189ad26e898171c17c96df9898d581d026d9c6d
