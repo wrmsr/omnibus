@@ -127,5 +127,7 @@ class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
     _by_value: ta.ClassVar[ta.Mapping[V, str]]
 
     def __new__(cls, *args, **kwargs):
-        # TODO: return instance
-        raise TypeError
+        if len(args) == 1 and isinstance(args, str):
+            [name] = args
+            return cls._by_name[name]
+        raise TypeError((args, kwargs))

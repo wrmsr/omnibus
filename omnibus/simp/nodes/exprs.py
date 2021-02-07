@@ -32,6 +32,12 @@ class BinExpr(Expr):
     right: Expr
 
 
+class BoolExpr(Expr):
+    left: Expr
+    op: BinOp
+    right: Expr
+
+
 class CmpExpr(Expr):
     left: Expr
     op: CmpOp

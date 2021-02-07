@@ -2,6 +2,7 @@ import typing as ta
 
 from .. import nodes as no
 from ... import check
+from ... import collections as col
 from .macros import DEFAULT_MACROS
 from .macros import DynamicMacro
 from .macros import NamedMacro
@@ -20,7 +21,7 @@ class Xlator:
         self._macros = list(macros)
 
         dynamic_macros: ta.List[DynamicMacro] = []
-        named_macros: ta.Dict[str, NamedMacro] = {}
+        named_macro_lists: ta.Dict[str, ta.List[NamedMacro]] = {}
         default_macro: ta.Optional[DynamicMacro] = None
         for m in self._macros:
             if isinstance(m, DynamicMacro):
@@ -29,13 +30,24 @@ class Xlator:
                 else:
                     dynamic_macros.append(m)
             elif isinstance(m, NamedMacro):
-                check.not_in(m.name, named_macros)
-                named_macros[m.name] = m
+                named_macro_lists.setdefault(m.name, []).append(m)
             else:
                 raise TypeError(m)
 
         self._dynamic_macros: ta.Sequence[DynamicMacro] = dynamic_macros
-        self._named_macros: ta.Mapping[str, NamedMacro] = named_macros
+
+        self._simple_named_macros: ta.Mapping[str, NamedMacro] = {
+            n: check.single(ms)
+            for n, ms in named_macro_lists.items()
+            if len(ms) == 1
+        }
+
+        self._arity_overloaded_named_macros: ta.Mapping[str, ta.Mapping[int, NamedMacro]] = {
+            n: col.unique_dict((check.isinstance(m.arity, int), m) for m in ms)
+            for n, ms in named_macro_lists.items()
+            if len(ms) > 1
+        }
+
         self._default_macro = default_macro
 
     def __call__(self, obj: ta.Any) -> no.Node:
@@ -63,11 +75,19 @@ class Xlator:
 
             if args and isinstance(args[0], str) and args[0]:
                 try:
-                    nm = self._named_macros[args[0]]
+                    nm = self._simple_named_macros[args[0]]
                 except KeyError:
                     pass
                 else:
                     return nm(self, args[1:])
+
+                try:
+                    ams = self._arity_overloaded_named_macros[args[0]]
+                except KeyError:
+                    pass
+                else:
+                    am = ams[len(args) - 1]
+                    return am(self, args[1:])
 
             if self._default_macro:
                 return self._default_macro(self, args)

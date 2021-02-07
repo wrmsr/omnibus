@@ -1,43 +1,99 @@
-import ast  # noqa
-import enum
+import string
+import typing as ta
+
+from ... import check
+from ... import collections as col
+from ... import dataclasses as dc
+from ... import properties
+from .base import Node
 
 
-class BinOp(enum.Enum):
-    ADD = '+'
-    BIT_AND = '&'
-    BIT_OR = '|'
-    BIT_XOR = '^'
-    DIV = '/'
-    FLOOR_DIV = '//'
-    L_SHIFT = '<<'
-    MAT_MULT = '*'
-    MOD = '%'
-    MULT = '*'
-    POW = '**'
-    R_SHIFT = '>>'
-    SUB = '-'
+class Op(Node, abstract=True):
+    GLYPH_WORD_SEP: ta.ClassVar[str] = '_'
+    GLYPH_WORD_CHARS: ta.ClassVar[ta.AbstractSet[str]] = {*string.ascii_lowercase, GLYPH_WORD_SEP}
+
+    glyph: str
+
+    dc.validate(lambda glyph: not set(glyph) & set(string.whitespace))
+
+    @properties.cached
+    def is_word(self) -> bool:
+        return not (set(self.glyph) - Op.GLYPH_WORD_CHARS)
+
+    @properties.cached
+    def glyph_parts(self) -> ta.Sequence[str]:
+        return self.glyph.split(Op.GLYPH_WORD_SEP)
 
 
-class BoolOp(enum.Enum):
-    AND = 'and'
-    OR = 'or'
+class BinOp(dc.ValueEnum, Op):
+    pass
 
 
-class CmpOp(enum.Enum):
-    EQ = '=='
-    GT = '>'
-    GTE = '>='
-    IN = 'in'
-    IS = 'is'
-    IS_NOT = 'is not'
-    LT = '<'
-    LTE = '<='
-    NOT_EQ = '!='
-    NOT_IN = 'not in'
+class BinOps(BinOp.Values):
+    ADD = BinOp('+')
+    SUB = BinOp('-')
+    MUL = BinOp('*')
+    DIV = BinOp('/')
+    MOD = BinOp('%')
+
+    BIT_AND = BinOp('&')
+    BIT_OR = BinOp('|')
+    BIT_XOR = BinOp('^')
+
+    LSH = BinOp('<<')
+    RSH = BinOp('>>')
+
+    FLOOR_DIV = BinOp('//')
+    POW = BinOp('**')
+    MAT_MUL = BinOp('@')
 
 
-class UnaryOp(enum.Enum):
-    INVERT = '~'
-    NOT = 'not'
-    ADD = '+'
-    SUB = '-'
+class BoolOp(dc.ValueEnum, Op):
+    pass
+
+
+class BoolOps(BoolOp.Values):
+    AND = BoolOp('and')
+    OR = BoolOp('or')
+
+
+class CmpOp(dc.ValueEnum, Op):
+    pass
+
+
+class CmpOps(CmpOp.Values):
+    EQ = CmpOp('==')
+    NE = CmpOp('!=')
+    GT = CmpOp('>')
+    GE = CmpOp('>=')
+    LT = CmpOp('<')
+    LE = CmpOp('<=')
+
+    IS = CmpOp('is')
+    IS_NOT = CmpOp('is_not')
+
+    IN = CmpOp('in')
+    NOT_IN = CmpOp('not_in')
+
+
+class UnaryOp(dc.ValueEnum, Op):
+    pass
+
+
+class UnaryOps(UnaryOp.Values):
+    PLUS = UnaryOp('+')
+    MINUS = UnaryOp('-')
+    INVERT = UnaryOp('~')
+
+    NOT = UnaryOp('not')
+
+
+OPS_BY_GLYPH_BY_CLS: ta.Mapping[ta.Type[Op], ta.Mapping[str, Op]] = {
+    c: col.unique_dict((o.glyph, o) for o in ns._by_name.values() for o in [check.isinstance(o, Op)])
+    for c, ns in [
+        (BinOp, BinOps),
+        (BoolOp, BoolOps),
+        (CmpOp, CmpOps),
+        (UnaryOp, UnaryOps),
+    ]
+}

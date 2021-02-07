@@ -15,10 +15,6 @@ from ._antlr import Python3Visitor  # type: ignore
 T = ta.TypeVar('T')
 
 
-def _get_enum_value(value: ta.Any, cls: ta.Type[T]) -> T:
-    return check.single([v for v in cls.__members__.values() if v.value == value])
-
-
 class _Temp(dc.Enum, reorder=True):
     ctx: ta.Optional[antlr4.ParserRuleContext] = dc.field(None, kwonly=True, check_type=(antlr4.ParserRuleContext, None))  # noqa
 
@@ -51,7 +47,7 @@ class _ParseVisitor(Python3Visitor):
     def visitBinOpExprCont(self, left, conts, contfn):
         expr = check.isinstance(self.visit(left), no.Expr)
         for cont in conts:
-            op = _get_enum_value(cont.op.text, no.BinOp)
+            op = no.OPS_BY_GLYPH_BY_CLS[no.BinOp][cont.op.text]
             right = check.isinstance(self.visit(contfn(cont)), no.Expr)
             expr = no.BinExpr(expr, op, right)
         return expr
@@ -138,7 +134,7 @@ class _ParseVisitor(Python3Visitor):
 
     def visitFactor(self, ctx: Python3Parser.FactorContext):
         if ctx.factor() is not None:
-            op = _get_enum_value(ctx.op.text, no.UnaryOp)
+            op = no.OPS_BY_GLYPH_BY_CLS[no.UnaryOp][ctx.op.text]
             value = self.visit(ctx.factor())
             return no.UnaryExpr(op, value)
         elif ctx.power() is not None:

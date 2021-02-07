@@ -13,6 +13,7 @@ from .default import DEFAULT_MACROS
 class NamedMacro(dc.Frozen, allow_setattr=True):
     name: str
     fn: Macro
+    arity: ta.Optional[int] = None
 
     def __call__(self, xlat: Xlat, args: Args) -> no.Node:
         return self.fn(xlat, args)
@@ -23,9 +24,10 @@ def named_macro(
         *,
         default: bool = False,
         register_on: ta.Iterable[ta.MutableSequence[Macro]] = (),
+        arity: ta.Optional[int] = None,
 ) -> ta.Callable[..., Macro]:
     def inner(fn):
-        m = NamedMacro(name if name is not None else fn.__name__, fn)
+        m = NamedMacro(name if name is not None else fn.__name__, fn, arity=arity)
         functools.update_wrapper(m, fn)
         for r in register_on:
             r.append(m)
@@ -83,6 +85,15 @@ def bin_op_macro(op: no.BinOp, xlat: Xlat, args: Args) -> no.Node:
     )
 
 
+def bool_op_macro(op: no.BoolOp, xlat: Xlat, args: Args) -> no.Node:
+    left, right = map(xlat, args)
+    return no.BoolExpr(
+        left,
+        op,
+        right,
+    )
+
+
 def cmp_op_macro(op: no.CmpOp, xlat: Xlat, args: Args) -> no.Node:
     left, right = map(xlat, args)
     return no.CmpExpr(
@@ -101,11 +112,12 @@ def unary_op_macro(op: no.UnaryOp, xlat: Xlat, args: Args) -> no.Node:
 
 
 check.not_empty([
-    named_macro(op.glyph, default=True)(functools.partial(fn, op))
-    for ns, fn in [
-        (no.BinOps, bin_op_macro),
-        (no.CmpOps, cmp_op_macro),
-        (no.UnaryOps, unary_op_macro),
+    named_macro(op.glyph, default=True, arity=arity)(functools.partial(fn, op))
+    for ns, fn, arity in [
+        (no.BinOps, bin_op_macro, 2),
+        (no.BoolOps, bool_op_macro, 2),
+        (no.CmpOps, cmp_op_macro, 2),
+        (no.UnaryOps, unary_op_macro, 1),
     ]
     for op in ns._by_name.values()
 ])

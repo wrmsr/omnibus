@@ -40,6 +40,22 @@ class BinOps(BinOp.Values):
     BIT_OR = BinOp('|')
     BIT_XOR = BinOp('^')
 
+    LSH = BinOp('<<')
+    RSH = BinOp('>>')
+
+    FLOOR_DIV = BinOp('//')
+    POW = BinOp('**')
+    MAT_MUL = BinOp('@')
+
+
+class BoolOp(dc.ValueEnum, Op):
+    pass
+
+
+class BoolOps(BoolOp.Values):
+    AND = BoolOp('and')
+    OR = BoolOp('or')
+
 
 class CmpOp(dc.ValueEnum, Op):
     pass
@@ -65,11 +81,19 @@ class UnaryOp(dc.ValueEnum, Op):
 
 
 class UnaryOps(UnaryOp.Values):
+    PLUS = UnaryOp('+')
+    MINUS = UnaryOp('-')
+    INVERT = UnaryOp('~')
+
     NOT = UnaryOp('not')
 
 
-OPS_BY_GLYPH: ta.Mapping[str, Op] = col.unique_dict((o.glyph, o) for c in [
-    BinOps,
-    CmpOps,
-    UnaryOps,
-] for o in c._by_name.values() for o in [check.isinstance(o, Op)])
+OPS_BY_GLYPH_BY_CLS: ta.Mapping[ta.Type[Op], ta.Mapping[str, Op]] = {
+    c: col.unique_dict((o.glyph, o) for o in ns._by_name.values() for o in [check.isinstance(o, Op)])
+    for c, ns in [
+        (BinOp, BinOps),
+        (BoolOp, BoolOps),
+        (CmpOp, CmpOps),
+        (UnaryOp, UnaryOps),
+    ]
+}

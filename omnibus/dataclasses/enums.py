@@ -113,3 +113,13 @@ class _ValueEnumsMeta(lang.enums._ValueEnumMeta):  # noqa
 
 class _ValueEnums(lang.ValueEnum[ValueEnumT], metaclass=_ValueEnumsMeta):
     __dataclass_value_enum_types__: ta.Optional[ta.Collection[ta.Type[ValueEnum]]] = None
+
+    def __new__(cls, *args, **kwargs):
+        if len(args) == 1:
+            [arg] = args
+            if cls.__dataclass_value_enum_types__:  # noqa
+                if isinstance(arg, tuple(cls.__dataclass_value_enum_types__)):  # noqa
+                    return arg
+            if isinstance(args, str):
+                return cls._by_name[arg]
+        raise TypeError((args, kwargs))

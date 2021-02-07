@@ -2,8 +2,8 @@ from .base import Annotated  # noqa
 from .base import Arg  # noqa
 from .base import Args  # noqa
 from .base import Expr  # noqa
-from .base import ExprStmt  # noqa
 from .base import Exprs  # noqa
+from .base import ExprStmt  # noqa
 from .base import Keyword  # noqa
 from .base import Node  # noqa
 from .base import Stmt  # noqa
@@ -41,9 +41,15 @@ from .exprs import UnaryExpr  # noqa
 from .exprs import Yield  # noqa
 from .exprs import YieldFrom  # noqa
 from .ops import BinOp  # noqa
+from .ops import BinOps  # noqa
 from .ops import BoolOp  # noqa
+from .ops import BoolOps  # noqa
 from .ops import CmpOp  # noqa
+from .ops import CmpOps  # noqa
+from .ops import Op  # noqa
+from .ops import OPS_BY_GLYPH_BY_CLS  # noqa
 from .ops import UnaryOp  # noqa
+from .ops import UnaryOps  # noqa
 from .stmts import AnnAssign  # noqa
 from .stmts import Assert  # noqa
 from .stmts import Assign  # noqa

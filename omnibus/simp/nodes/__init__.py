@@ -11,6 +11,7 @@ from .defs import Arg  # noqa
 from .defs import Args  # noqa
 from .defs import Fn  # noqa
 from .exprs import BinExpr  # noqa
+from .exprs import BoolExpr  # noqa
 from .exprs import Call  # noqa
 from .exprs import CmpExpr  # noqa
 from .exprs import Const  # noqa
@@ -22,10 +23,12 @@ from .exprs import Starred  # noqa
 from .exprs import UnaryExpr  # noqa
 from .ops import BinOp  # noqa
 from .ops import BinOps  # noqa
+from .ops import BoolOp  # noqa
+from .ops import BoolOps  # noqa
 from .ops import CmpOp  # noqa
 from .ops import CmpOps  # noqa
 from .ops import Op  # noqa
-from .ops import OPS_BY_GLYPH  # noqa
+from .ops import OPS_BY_GLYPH_BY_CLS  # noqa
 from .ops import UnaryOp  # noqa
 from .ops import UnaryOps  # noqa
 from .stmts import Break  # noqa

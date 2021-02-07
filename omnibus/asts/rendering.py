@@ -52,7 +52,7 @@ class Renderer(dispatch.Class):
         return [r.List([self.render(t) for t in node.targets]), '=', self.render(node.value)]
 
     def render(self, node: no.BinExpr) -> r.Part:  # noqa
-        return [self.paren(node.left), node.op.value, self.paren(node.right)]
+        return [self.paren(node.left), node.op.glyph, self.paren(node.right)]
 
     def render(self, node: no.Body) -> r.Part:  # noqa
         return r.Block([self.render(s) for s in node.stmts])
@@ -122,7 +122,7 @@ class Renderer(dispatch.Class):
         return r.Concat(['(', r.List([self.render(e) for e in node.items], trailer=len(node.items) == 1), ')'])
 
     def render(self, node: no.UnaryExpr) -> r.Part:  # noqa
-        return r.Concat([node.op.value, self.paren(node.value)])
+        return r.Concat([node.op.glyph, self.paren(node.value)])
 
     def render(self, node: no.Yield) -> r.Part:  # noqa
         return ['yield', self.render(node.value)]
