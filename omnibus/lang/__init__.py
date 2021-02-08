@@ -169,3 +169,9 @@ from .strings import redact  # noqa
 from .strings import Redacted  # noqa
 from .typing import typed_lambda  # noqa
 from .typing import typed_partial  # noqa
+
+
+try:
+    from .._ext.cy._simp import lang as _  # noqa
+except ImportError:
+    pass

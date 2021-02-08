@@ -71,7 +71,7 @@ class _MethodDescriptor:
     def __repr__(self):
         return f'{type(self).__name__}({self.__func__})'
 
-    # @simpy.cythonize(_lang)
+    # @simp.cythonize(lang)
     def _check_get(self, instance, owner):
         flags = self._flags
 
@@ -97,7 +97,7 @@ class _MethodDescriptor:
     def _get(self, instance, owner):
         raise NotImplementedError
 
-    # @simpy.cythonize(_lang)
+    # @simp.cythonize(lang)
     def __get__(self, instance, owner=None):
         if owner is not None:
             if instance is None:
@@ -107,7 +107,7 @@ class _MethodDescriptor:
         self._check_get(instance, owner)
         return self._get(instance, owner)
 
-    # @simpy.cythonize(_lang)
+    # @simp.cythonize(lang)
     def __call__(self, *args, **kwargs):
         flags = self._flags
 
@@ -118,7 +118,7 @@ class _MethodDescriptor:
 
 
 class MethodDescriptor(_MethodDescriptor):
-    # @simpy.cythonize(_lang)
+    # @simp.cythonize(lang)
     def _get(self, instance, owner):
         return self.__func__.__get__(instance, owner)  # noqa
 
@@ -129,23 +129,6 @@ class ClassMethodDescriptor(_MethodDescriptor, classmethod):
 
 class StaticMethodDescriptor(_MethodDescriptor, staticmethod):
     _get = staticmethod.__get__
-
-
-_MethodDescriptor._py__check_get = _MethodDescriptor._check_get  # noqa
-_MethodDescriptor._py___get__ = _MethodDescriptor.__get__  # noqa
-_MethodDescriptor._py___call__ = _MethodDescriptor.__call__  # noqa
-MethodDescriptor._py__get = MethodDescriptor._get  # noqa
-
-try:
-    from .._ext.cy import lang as _cy
-except ImportError:
-    pass
-
-else:
-    _MethodDescriptor._check_get = _cy.__MethodDescriptor__check_get  # noqa
-    _MethodDescriptor.__get__ = _cy.__MethodDescriptor___get__  # noqa
-    _MethodDescriptor.__call__ = _cy.__MethodDescriptor___call__  # noqa
-    MethodDescriptor._get = _cy._MethodDescriptor_func__get  # noqa
 
 
 def _new_method_descriptor(fn: ta.Callable, **kwargs) -> _MethodDescriptor:

@@ -11,18 +11,22 @@ from .classes import Final
 from .descriptors import staticfunction
 
 
+# @simp.cythonize(lang)
 def isclose(a: float, b: float, *, rel_tol: float = 1e-09, abs_tol: float = 0.0) -> float:
     return abs(a - b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
 
 
+# @simp.cythonize(lang)
 def get_bit(bit: int, value: int) -> int:
     return (value >> bit) & 1
 
 
+# @simp.cythonize(lang)
 def get_bits(bits_from: int, num_bits: int, value: int) -> int:
     return (value & ((1 << (bits_from + num_bits)) - 1)) >> bits_from
 
 
+# @simp.cythonize(lang)
 def set_bit(bit: int, bit_value: ta.Union[bool, int], value: int) -> int:
     if bit_value:
         return value | (1 << bit)
@@ -30,6 +34,7 @@ def set_bit(bit: int, bit_value: ta.Union[bool, int], value: int) -> int:
         return value & ~(1 << bit)
 
 
+# @simp.cythonize(lang)
 def set_bits(bits_from: int, num_bits: int, bits_value: int, value: int) -> int:
     return value & ~(((1 << num_bits) - 1) << bits_from) | (bits_value << bits_from)
 

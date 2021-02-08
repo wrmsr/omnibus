@@ -62,6 +62,16 @@ def f6(x: int, y: int) -> int:
     return z
 
 
+def f7():
+    x = 2
+    if x > 2 or x > 1:
+        print('yes')
+    elif x > 3 and x > 4:
+        print('maybe')
+    else:
+        print('no')
+
+
 def test_simp():
     for f in [
         f0,
@@ -71,10 +81,11 @@ def test_simp():
         f4,
         f5,
         f6,
-        lang.descriptors._MethodDescriptor._py__check_get,  # noqa
-        lang.descriptors._MethodDescriptor._py___get__,  # noqa
-        lang.descriptors._MethodDescriptor._py___call__,  # noqa
-        lang.descriptors.MethodDescriptor._py__get,  # noqa
+        f7,
+        lang.unwrap_func(lang.descriptors._MethodDescriptor._check_get),  # noqa
+        lang.unwrap_func(lang.descriptors._MethodDescriptor.__get__),  # noqa
+        lang.unwrap_func(lang.descriptors._MethodDescriptor.__call__),  # noqa
+        lang.unwrap_func(lang.descriptors.MethodDescriptor._get),  # noqa
     ]:
         print(f)
         ar = ast.parse(textwrap.dedent(inspect.getsource(f)), 'exec')
