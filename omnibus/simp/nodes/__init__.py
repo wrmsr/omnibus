@@ -1,4 +1,4 @@
-from .base import Annotation  # noqa
+from .base import Annotated  # noqa
 from .base import check_ident  # noqa
 from .base import Def  # noqa
 from .base import Expr  # noqa
@@ -6,6 +6,7 @@ from .base import Ident  # noqa
 from .base import is_ident  # noqa
 from .base import Module  # noqa
 from .base import Node  # noqa
+from .base import NodeAnnotation  # noqa
 from .base import Stmt  # noqa
 from .defs import Arg  # noqa
 from .defs import Args  # noqa

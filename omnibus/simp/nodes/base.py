@@ -11,11 +11,11 @@ from ... import dataclasses as dc
 from ... import nodal
 
 
-class Annotation(nodal.Annotation):
+class NodeAnnotation(nodal.Annotation):
     pass
 
 
-class Node(nodal.Nodal['Node', Annotation]):
+class Node(nodal.Nodal['Node', NodeAnnotation]):
     pass
 
 
@@ -39,6 +39,10 @@ def check_ident(s: str) -> str:
 
 class Ident(Node):
     s: str = dc.field(check=check_ident)
+
+
+class Annotated(dc.Data, frozen=True, abstract=True, reorder=True):
+    annotation: ta.Optional['Expr'] = None
 
 
 class Expr(Node, abstract=True):

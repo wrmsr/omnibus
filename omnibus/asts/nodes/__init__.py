@@ -6,6 +6,7 @@ from .base import Exprs  # noqa
 from .base import ExprStmt  # noqa
 from .base import Keyword  # noqa
 from .base import Node  # noqa
+from .base import NodeAnnotation  # noqa
 from .base import Stmt  # noqa
 from .base import Stmts  # noqa
 from .base import Strs  # noqa

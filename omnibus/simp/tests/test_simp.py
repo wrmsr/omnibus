@@ -57,6 +57,11 @@ def f5(a, b=2, *args, c, d=3, e, **kwargs):
     pass
 
 
+def f6(x: int, y: int) -> int:
+    z: int = x + y
+    return z
+
+
 def test_simp():
     for f in [
         f0,
@@ -65,6 +70,7 @@ def test_simp():
         f3,
         f4,
         f5,
+        f6,
         lang.descriptors._MethodDescriptor._py__check_get,  # noqa
         lang.descriptors._MethodDescriptor._py___get__,  # noqa
         lang.descriptors._MethodDescriptor._py___call__,  # noqa

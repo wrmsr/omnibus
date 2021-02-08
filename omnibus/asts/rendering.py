@@ -72,19 +72,9 @@ class Renderer(dispatch.Class):
         return self.render(node.expr)
 
     def render(self, node: no.FunctionDef) -> r.Part:  # noqa
-        args = [
-            node.name,
-            '(',
-            self.render(node.args),
-            ')',
-        ]
-
+        args = [node.name, '(', self.render(node.args), ')']
         if node.returns is not None:
-            proto = [
-                r.Concat(args),
-                '->',
-                r.Concat([self.render(node.returns), ':']),
-            ]
+            proto = [r.Concat(args), '->', r.Concat([self.render(node.returns), ':'])]
         else:
             proto = r.Concat([*args, ':'])
 

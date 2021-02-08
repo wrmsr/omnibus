@@ -82,9 +82,39 @@ class Translator(dispatch.Class):
         check.isinstance(an.ctx, ctx)
         return an.value, an.attr
 
+    def _make_assign(self, an: ast.AST, target: ast.AST, value: ast.AST, **kwargs) -> no.Node:
+        if isinstance(target, ast.Name):
+            return no.SetVar(
+                no.Ident(self._get_name_id(target, ast.Store)),
+                self.translate(value),
+                **kwargs,
+            )
+        elif isinstance(target, ast.Attribute):
+            obj, att = self._get_attribute_fields(target, ast.Store)
+            return no.SetAttr(
+                self.translate(obj),
+                no.Ident(att),
+                self.translate(value),
+                **kwargs,
+            )
+        else:
+            raise TypeError(target)
+
+    def translate(self, an: ast.AnnAssign) -> no.Node:  # noqa
+        _check_ast_fields(an, ['target', 'annotation', 'value', 'simple'])
+        return self._make_assign(
+            an,
+            an.target,
+            an.value,
+            annotation=self.translate(an.annotation) if an.annotation is not None else None,
+        )
+
     def translate(self, an: ast.arg) -> no.Node:  # noqa
-        _check_ast_fields(an, ['arg'])
-        return no.Arg(no.Ident(an.arg))
+        _check_ast_fields(an, ['arg', 'annotation'])
+        return no.Arg(
+            no.Ident(an.arg),
+            annotation=self.translate(an.annotation) if an.annotation is not None else None,
+        )
 
     def translate(self, an: ast.arguments) -> no.Node:  # noqa
         _check_ast_fields(an, ['args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults'])
@@ -110,21 +140,11 @@ class Translator(dispatch.Class):
 
     def translate(self, an: ast.Assign) -> no.Node:  # noqa
         _check_ast_fields(an, ['targets', 'value'])
-        t = check.single(an.targets)
-        if isinstance(t, ast.Name):
-            return no.SetVar(
-                no.Ident(self._get_name_id(t, ast.Store)),
-                self.translate(an.value),
-            )
-        elif isinstance(t, ast.Attribute):
-            obj, att = self._get_attribute_fields(t, ast.Store)
-            return no.SetAttr(
-                self.translate(obj),
-                no.Ident(att),
-                self.translate(an.value),
-            )
-        else:
-            raise TypeError(t)
+        return self._make_assign(
+            an,
+            check.single(an.targets),
+            an.value,
+        )
 
     def translate(self, an: ast.Attribute) -> no.Node:  # noqa
         obj, att = self._get_attribute_fields(an, ast.Load)
@@ -181,11 +201,12 @@ class Translator(dispatch.Class):
         )
 
     def translate(self, an: ast.FunctionDef) -> no.Node:  # noqa
-        _check_ast_fields(an, ['name', 'args', 'body'])
+        _check_ast_fields(an, ['name', 'args', 'body', 'returns'])
         return no.Fn(
             name=no.Ident(an.name),
             args=self.translate(an.args),
             body=[self.translate(b) for b in an.body],
+            annotation=self.translate(an.returns) if an.returns is not None else None,
         )
 
     def translate(self, an: ast.If) -> no.Node:  # noqa

@@ -1,6 +1,7 @@
 import typing as ta
 
 from ... import dataclasses as dc
+from .base import Annotated
 from .base import Expr
 from .base import Ident
 from .base import Stmt
@@ -50,18 +51,18 @@ class ExprStmt(Stmt):
     expr: Expr
 
 
-class SetVar(Stmt):
+class SetVar(Stmt, Annotated):
     name: Ident
     value: Expr
 
 
-class SetAttr(Stmt):
+class SetAttr(Stmt, Annotated):
     obj: Expr
     attr: Ident
     value: Expr
 
 
-class SetItem(Stmt):
+class SetItem(Stmt, Annotated):
     obj: Expr
     idx: Expr
     value: Expr

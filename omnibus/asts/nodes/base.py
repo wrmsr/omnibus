@@ -14,11 +14,11 @@ Stmts = ta.Sequence['Stmt']
 Exprs = ta.Sequence['Expr']
 
 
-class Annotation(nodal.Annotation):
+class NodeAnnotation(nodal.Annotation):
     pass
 
 
-class Node(nodal.Nodal['Node', Annotation], sealed='package'):
+class Node(nodal.Nodal['Node', NodeAnnotation], sealed='package'):
     pass
 
 

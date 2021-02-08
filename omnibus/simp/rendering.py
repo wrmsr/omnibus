@@ -33,7 +33,10 @@ class Renderer(dispatch.Class):
             default = ['=', self.render(node.default)]
         else:
             default = []
-        return r.Concat([self.render(node.name), *default])
+        if node.annotation is not None:
+            return [r.Concat([self.render(node.name), ':']), self.render(node.annotation), *default]
+        else:
+            return r.Concat([self.render(node.name), *default])
 
     def render(self, node: no.Args) -> r.Part:  # noqa
         l = []  # noqa
@@ -76,7 +79,11 @@ class Renderer(dispatch.Class):
 
     def render(self, node: no.Fn) -> r.Part:  # noqa
         args = [self.render(node.name), '(', self.render(node.args), ')']
-        proto = r.Concat([*args, ':'])
+        if node.annotation is not None:
+            proto = [r.Concat(args), '->', r.Concat([self.render(node.annotation), ':'])]
+        else:
+            proto = r.Concat([*args, ':'])
+
         return r.Block([
             ['def', proto],
             r.Section([
@@ -134,13 +141,39 @@ class Renderer(dispatch.Class):
         return ['return', *([self.render(node.value)] if node.value is not None else [])]
 
     def render(self, node: no.SetAttr) -> r.Part:  # noqa
-        return [r.Concat([self.render(node.obj), '.', self.render(node.attr)]), '=', self.render(node.value)]
+        return [
+            r.Concat([
+                self.render(node.obj),
+                '.',
+                self.render(node.attr),
+                *([':'] if node.annotation is not None else []),
+            ]),
+            *([self.render(node.annotation)] if node.annotation is not None else []),
+            '=',
+            self.render(node.value),
+        ]
 
     def render(self, node: no.SetItem) -> r.Part:  # noqa
-        return [r.Concat([self.render(node.obj), '[', self.render(node.idx), ']']), '=', self.render(node.value)]
+        return [
+            r.Concat([
+                self.render(node.obj),
+                '[',
+                self.render(node.idx),
+                ']',
+                *([':'] if node.annotation is not None else []),
+            ]),
+            *([self.render(node.annotation)] if node.annotation is not None else []),
+            '=',
+            self.render(node.value),
+        ]
 
     def render(self, node: no.SetVar) -> r.Part:  # noqa
-        return [self.render(node.name), '=', self.render(node.value)]
+        return [
+            r.Concat([self.render(node.name), *([':'] if node.annotation is not None else [])]),
+            *([self.render(node.annotation)] if node.annotation is not None else []),
+            '=',
+            self.render(node.value),
+        ]
 
     def render(self, node: no.Starred) -> r.Part:  # noqa
         return r.Concat(['*', self.render(node.value)])
