@@ -91,7 +91,8 @@ class BasicTreeAnalysis(ta.Generic[NodeT]):
 
         self._nodes = self._idx_seq_fac(nodes)
         self._node_set: ta.AbstractSet[NodeT] = node_set
-        self._children_by_node: ta.Mapping[ta.Optional[NodeT], col.IndexedSeq[NodeT]] = {n: self._idx_seq_fac(cs) for n, cs in children_by_node.items()}  # noqa
+        self._children_by_node: ta.Mapping[ta.Optional[NodeT], col.IndexedSeq[NodeT]] = self._dict_fac(
+            [(n, self._idx_seq_fac(cs)) for n, cs in children_by_node.items()])
         self._child_sets_by_node: ta.Mapping[ta.Optional[NodeT], ta.AbstractSet[NodeT]] = child_sets_by_node
         self._parents_by_node: ta.Mapping[NodeT, ta.Optional[NodeT]] = parents_by_node
 
@@ -214,7 +215,8 @@ class BasicTreeAnalysis(ta.Generic[NodeT]):
     def from_nodal(cls, root: NodalT, **kwargs) -> 'BasicTreeAnalysis[NodalT]':
         return cls(root, lambda n: n.children, **kwargs)
 
-    @properties.cached
+    @properties.cached  # noqa
+    @property
     def _node_sets_by_type(self) -> ta.MutableMapping[type, ta.AbstractSet[NodeT]]:
         return weakref.WeakKeyDictionary()
 

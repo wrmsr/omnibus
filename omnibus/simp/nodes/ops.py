@@ -5,10 +5,9 @@ from ... import check
 from ... import collections as col
 from ... import dataclasses as dc
 from ... import properties
-from .base import Node
 
 
-class Op(Node, abstract=True):
+class Op(dc.Enum, abstract=True, reorder=True):
     GLYPH_WORD_SEP: ta.ClassVar[str] = '_'
     GLYPH_WORD_CHARS: ta.ClassVar[ta.AbstractSet[str]] = {*string.ascii_lowercase, GLYPH_WORD_SEP}
 

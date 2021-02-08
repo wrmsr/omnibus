@@ -17,6 +17,7 @@ from .. import rendering as ren
 from ... import dataclasses as dc
 from ... import lang
 from ... import pyasts
+from ...graphs import trees
 from ..pyasts import translate
 
 
@@ -102,6 +103,9 @@ def test_simp():
             rar = pyasts.reduce_py_ast(ar)
             rar2 = pyasts.reduce_py_ast(ar2)
             assert rar == rar2
+
+            basic = trees.BasicTreeAnalysis.from_nodal(nr, identity=True)
+            print(basic)
 
         except Exception as e:  # noqa
             print(repr(e))
