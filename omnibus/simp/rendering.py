@@ -54,6 +54,9 @@ class Renderer(dispatch.Class):
     def render(self, node: no.BinExpr) -> r.Part:  # noqa
         return [self.paren(node.left), self.render(node.op), self.paren(node.right)]
 
+    def render(self, node: no.BoolExpr) -> r.Part:  # noqa
+        return [self.paren(node.left), self.render(node.op), self.paren(node.right)]
+
     def render(self, node: no.Break) -> r.Part:  # noqa
         return 'break'
 

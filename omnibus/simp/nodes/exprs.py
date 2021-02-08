@@ -4,6 +4,7 @@ from .base import Expr
 from .base import Ident
 from .base import Node
 from .ops import BinOp
+from .ops import BoolOp
 from .ops import CmpOp
 from .ops import UnaryOp
 
@@ -34,7 +35,7 @@ class BinExpr(Expr):
 
 class BoolExpr(Expr):
     left: Expr
-    op: BinOp
+    op: BoolOp
     right: Expr
 
 

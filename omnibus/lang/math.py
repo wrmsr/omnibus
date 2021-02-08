@@ -27,7 +27,7 @@ def get_bits(bits_from: int, num_bits: int, value: int) -> int:
 
 
 # @simp.cythonize(lang)
-def set_bit(bit: int, bit_value: ta.Union[bool, int], value: int) -> int:
+def set_bit(bit: int, bit_value: int, value: int) -> int:
     if bit_value:
         return value | (1 << bit)
     else:

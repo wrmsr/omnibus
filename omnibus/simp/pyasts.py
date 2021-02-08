@@ -20,11 +20,24 @@ _BIN_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.BinOp] = {
     ast.BitAnd: no.BinOps.BIT_AND,
     ast.BitOr: no.BinOps.BIT_OR,
     ast.BitXor: no.BinOps.BIT_XOR,
+
+    ast.LShift: no.BinOps.LSH,
+    ast.RShift: no.BinOps.RSH,
 }
 
 
 def _get_ast_bin_op(an: ast.AST) -> no.BinOp:
     return _BIN_OP_MAP[type(an)]
+
+
+_BOOL_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.BoolOp] = {
+    ast.And: no.BoolOps.AND,
+    ast.Or: no.BoolOps.OR,
+}
+
+
+def _get_ast_bool_op(an: ast.AST) -> no.BoolOp:
+    return _BOOL_OP_MAP[type(an)]
 
 
 _CMP_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.CmpOp] = {
@@ -48,6 +61,8 @@ def _get_ast_cmp_op(an: ast.AST) -> no.CmpOp:
 
 
 _UNARY_OP_MAP: ta.Mapping[ta.Type[ast.AST], no.UnaryOp] = {
+    ast.Invert: no.UnaryOps.INVERT,
+
     ast.Not: no.UnaryOps.NOT,
 }
 
@@ -156,6 +171,15 @@ class Translator(dispatch.Class):
             self.translate(an.left),
             _get_ast_bin_op(an.op),
             self.translate(an.right),
+        )
+
+    def translate(self, an: ast.BoolOp) -> no.Node:  # noqa
+        _check_ast_fields(an, ['op', 'values'])
+        left, right = an.values
+        return no.BoolExpr(
+            self.translate(left),
+            _get_ast_bool_op(an.op),
+            self.translate(right),
         )
 
     def translate(self, an: ast.Break) -> no.Node:  # noqa
