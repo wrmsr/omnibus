@@ -9,7 +9,7 @@ wheel>=0.36.0
 
 ## actual code deps
 
-boto3-stubs==1.17.2.1  #@auto
+boto3-stubs==1.17.3.0  #@auto
 sqlalchemy-stubs==0.4; implementation_name != 'pypy'
 Mako==1.1.4
 pytest-asyncio==0.14.0
@@ -26,7 +26,7 @@ pytest==6.2.2
 ## useful tools
 
 astpretty==2.1.0
-awscli==1.19.2  #@auto
+awscli==1.19.3  #@auto
 docutils>=0.15.2  #@conflict
 flake8==3.8.4
 gprof2dot==2019.11.30
