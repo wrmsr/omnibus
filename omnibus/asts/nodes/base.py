@@ -57,3 +57,7 @@ class Args(Node):
 class Keyword(Node):
     name: ta.Optional[str]
     value: Expr
+
+
+class Module(Node):
+    stmts: Stmts

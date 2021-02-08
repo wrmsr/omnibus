@@ -5,6 +5,7 @@ from .base import Expr  # noqa
 from .base import Exprs  # noqa
 from .base import ExprStmt  # noqa
 from .base import Keyword  # noqa
+from .base import Module  # noqa
 from .base import Node  # noqa
 from .base import NodeAnnotation  # noqa
 from .base import Stmt  # noqa
