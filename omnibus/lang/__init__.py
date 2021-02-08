@@ -93,6 +93,7 @@ from .imports import import_module  # noqa
 from .imports import import_module_attr  # noqa
 from .imports import lazy_import  # noqa
 from .imports import proxy_import  # noqa
+from .imports import try_import  # noqa
 from .imports import UnstableWarning  # noqa
 from .imports import warn_unstable  # noqa
 from .imports import yield_import_all  # noqa
@@ -171,7 +172,4 @@ from .typing import typed_lambda  # noqa
 from .typing import typed_partial  # noqa
 
 
-try:
-    from .._ext.cy._simp import lang as _  # noqa
-except ImportError:
-    pass
+try_import('.._ext.cy._simp.lang')

@@ -179,3 +179,12 @@ def import_all(
             include_special=include_special,
     ):
         pass
+
+
+def try_import(spec: str) -> ta.Optional[types.ModuleType]:
+    s = spec.lstrip('.')
+    l = len(spec) - len(s)
+    try:
+        return __import__(s, globals(), level=l)
+    except ImportError:
+        return None
