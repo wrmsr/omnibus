@@ -16,7 +16,7 @@ T = ta.TypeVar('T')
 
 def call_many_with_timeout(
         fns: ta.Iterable[ta.Callable[[], T]],
-        timeout_s: int = None,
+        timeout_s: ta.Optional[int] = None,
         timeout_exception: Exception = RuntimeError('Thread timeout'),
 ) -> ta.List[T]:
     if timeout_s is None:
@@ -56,7 +56,7 @@ def call_many_with_timeout(
 
 def run_with_timeout(
         *fns: ta.Callable[[], None],
-        timeout_s: int = None,
+        timeout_s: ta.Optional[int] = None,
         timeout_exception: Exception = RuntimeError('Thread timeout'),
 ) -> None:
     call_many_with_timeout(fns, timeout_s, timeout_exception)
@@ -64,7 +64,7 @@ def run_with_timeout(
 
 def waitpid_with_timeout(
         pid: int,
-        timeout_s: int = None,
+        timeout_s: ta.Optional[int] = None,
         timeout_exception: Exception = RuntimeError('waitpid timeout')
 ) -> int:
     if timeout_s is None:
@@ -85,7 +85,7 @@ def waitpid_with_timeout(
 
 
 @contextlib.contextmanager
-def with_env(**env):
+def with_env(**env) -> ta.Iterator[None]:
     prev = {}
 
     for k, v in env.items():

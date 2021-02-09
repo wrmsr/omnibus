@@ -120,6 +120,6 @@ class _ValueEnums(lang.ValueEnum[ValueEnumT], metaclass=_ValueEnumsMeta):
             if cls.__dataclass_value_enum_types__:  # noqa
                 if isinstance(arg, tuple(cls.__dataclass_value_enum_types__)):  # noqa
                     return arg
-            if isinstance(args, str):
-                return cls._by_name[arg]
+            if isinstance(arg, str):
+                return cls.__members_by_name__[arg]
         raise TypeError((args, kwargs))

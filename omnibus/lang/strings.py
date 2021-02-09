@@ -167,7 +167,7 @@ class DelimitedEscaping:
         self._escaped_chars = frozenset(escaped_chars)
 
         for c in [delimit_char, quote_char, escape_char]:
-            if not isinstance(c, str) or len(c) != 1:  # type: ignore
+            if not isinstance(c, str) or len(c) != 1:
                 raise TypeError(c)
         for c in self._escaped_chars:
             if not isinstance(c, str):

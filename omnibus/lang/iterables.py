@@ -42,7 +42,7 @@ def asrange(i: Rangeable) -> ta.Iterable[int]:
         raise TypeError(i)
 
 
-def multirange(*dims: Rangeable) -> ta.Iterator[ta.Sequence[int]]:
+def multirange(*dims: Rangeable) -> ta.Iterable[ta.Sequence[int]]:
     if not dims:
         return []
     return itertools.product(*map(asrange, dims))

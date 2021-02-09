@@ -119,7 +119,7 @@ check.not_empty([
         (no.CmpOps, cmp_op_macro, 2),
         (no.UnaryOps, unary_op_macro, 1),
     ]
-    for op in ns._by_name.values()
+    for n in ns for op in [ns(n)]
 ])
 
 

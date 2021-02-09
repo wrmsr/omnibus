@@ -3,7 +3,9 @@ from .yaml_examples import Examples
 
 
 def test_yaml():
-    for name, buf in Examples._by_name.items():
+    for name in Examples:
+        buf = Examples(name)
+
         print('#######################')
         print(name)
         print()

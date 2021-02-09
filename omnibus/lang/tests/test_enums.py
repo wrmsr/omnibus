@@ -39,13 +39,16 @@ def test_valueenum():
         Z = 2
 
     assert E.Y == 1
-    assert len(E._by_name) == 3
-    assert E._by_name['Y'] == 1
+    assert len(E.__members_by_name__) == 3
+    assert E.__members_by_name__['Y'] == 1
 
-    assert len(E._by_value) == 3
-    assert E._by_value[1] == 'Y'
+    assert len(E.__members_by_value__) == 3
+    assert E.__members_by_value__[1] == 'Y'
 
     with pytest.raises(Exception):
         class F(enums_.ValueEnum, unique=True):
             X = 1
             Y = 1
+
+    assert list(E) == ['X', 'Y', 'Z']
+    assert list(E.__members__) == [('X', 0), ('Y', 1), ('Z', 2)]

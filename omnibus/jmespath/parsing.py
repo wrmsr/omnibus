@@ -53,7 +53,7 @@ class _ParseVisitor(JmespathVisitor):
         return n.String(ctx.RAW_STRING().getText())
 
     def visitComparisonExpression(self, ctx: JmespathParser.ComparisonExpressionContext):
-        cmp = n.Compare.Op._by_value[ctx.COMPARATOR().getText()]
+        cmp = n.Compare.Op.__members_by_value__[ctx.COMPARATOR().getText()]
         right = self._nonChainingVisit(ctx.expression(1))
         left = self._nonChainingVisit(ctx.expression(0))
         return n.Compare(cmp, left, right)

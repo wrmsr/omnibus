@@ -42,7 +42,7 @@ class SetOnceProperty(Property[T]):
         raise TypeError('Operation not supported')
 
 
-def set_once(attr_name: str = None):
+def set_once(attr_name: ta.Optional[str] = None):
     return SetOnceProperty(attr_name)
 
 

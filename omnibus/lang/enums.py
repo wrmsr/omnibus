@@ -68,10 +68,13 @@ class _ValueEnumMeta(type):
     }
 
     ILLEGAL_ATTRS = {
-        '_name_value_pairs',
-        '_by_name',
-        '_by_value',
+        '__members__',
+        '__members_by_name__',
+        '__members_by_value__',
     }
+
+    def __iter__(cls) -> ta.Iterator[str]:
+        return iter(cls.__members_by_name__)
 
     class _ByValueDescriptor:
 
@@ -80,12 +83,12 @@ class _ValueEnumMeta(type):
                 return self
 
             by_value = {}
-            for k, v in owner._by_name.items():
+            for k, v in owner.__members_by_name__.items():
                 if v in by_value:
                     raise TypeError(f'Duplicate value {v!r} with name {k!r}')
                 by_value[v] = k
 
-            owner._by_value = by_value
+            owner.__members_by_value__ = by_value
             return by_value
 
     def __new__(mcls, name, bases, namespace, *, unique=False, ignore=(), **kwargs):
@@ -110,24 +113,24 @@ class _ValueEnumMeta(type):
                 if k not in by_name:
                     by_name[k] = v
 
-        cls._name_value_pairs = pairs
-        cls._by_name = by_name
-        cls._by_value = mcls._ByValueDescriptor()  # noqa
+        cls.__members__ = pairs
+        cls.__members_by_name__ = by_name
+        cls.__members_by_value__ = mcls._ByValueDescriptor()  # noqa
 
         if unique:
-            getattr(cls, '_by_value')
+            getattr(cls, '__members_by_value__')
 
         return cls
 
 
 class ValueEnum(ta.Generic[V], metaclass=_ValueEnumMeta):
 
-    _name_value_pairs: ta.ClassVar[ta.Sequence[ta.Tuple[str, V]]]
-    _by_name: ta.ClassVar[ta.Mapping[str, V]]
-    _by_value: ta.ClassVar[ta.Mapping[V, str]]
+    __members__: ta.ClassVar[ta.Sequence[ta.Tuple[str, V]]]
+    __members_by_name__: ta.ClassVar[ta.Mapping[str, V]]
+    __members_by_value__: ta.ClassVar[ta.Mapping[V, str]]
 
     def __new__(cls, *args, **kwargs):
-        if len(args) == 1 and isinstance(args, str):
+        if len(args) == 1 and isinstance(args[0], str):
             [name] = args
-            return cls._by_name[name]
+            return cls.__members_by_name__[name]
         raise TypeError((args, kwargs))

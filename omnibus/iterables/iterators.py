@@ -89,7 +89,7 @@ class PeekIterator(ta.Iterator[T]):
 
 class ProxyIterator(ta.Iterator[T]):
 
-    def __init__(self, fn) -> None:
+    def __init__(self, fn: ta.Callable[[], T]) -> None:
         self._fn = fn
 
     def __iter__(self) -> ta.Iterator[T]:

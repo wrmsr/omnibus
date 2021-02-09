@@ -174,7 +174,7 @@ class Mmap:
             length: int,
             *,
             prot: int = PROT_READ | PROT_WRITE,
-            flags: int = None,
+            flags: ta.Optional[int] = None,
             fd: int = -1,
             offset: int = 0,
             desired_base: int = 0,

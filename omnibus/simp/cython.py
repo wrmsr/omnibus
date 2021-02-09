@@ -1,5 +1,7 @@
 """
 TODO:
+ - ** include md5 of src file, simp.cython.install('lang') may or may not decide not to patch if src present and !=
+  - but src _never required_
  - simp -> cy duh
  - anns? lang.descriptors tuple hit?
  - classpath scan, Makefile gen step

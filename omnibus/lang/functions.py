@@ -27,7 +27,7 @@ _CLS_DCT_ATTR_SETS = [
 def _skip_cls_dct_frames(f: types.FrameType) -> types.FrameType:
     if sys.implementation.name == 'pypy':
         if f.f_code is functools.partial.__call__.__code__:
-            return _skip_cls_dct_frames(f.f_back)
+            return _skip_cls_dct_frames(f.f_back)  # type: ignore
 
     return f
 
@@ -120,7 +120,7 @@ class _CachedNullary(ta.Generic[T]):
 
     def __call__(self) -> T:
         if self._value is not _MISSING:
-            return self._value
+            return self._value  # type: ignore
         value = self._value = self._value_fn()
         return value
 
@@ -169,7 +169,7 @@ class _CachedNullaryDescriptor(_CachedNullary[T]):
 def cached_nullary(fn: ta.Callable[[], T]) -> ta.Callable[[], T]:
     if isinstance(fn, staticmethod):
         return _CachedNullary(fn, value_fn=unwrap_func(fn))  # type: ignore
-    scope = classmethod if isinstance(fn, classmethod) else None  # type: ignore
+    scope = classmethod if isinstance(fn, classmethod) else None
     return _CachedNullaryDescriptor(fn, scope)
 
 
@@ -178,7 +178,7 @@ def raise_(exc: ta.Union[Exception, ta.Type[Exception]]) -> ta.NoReturn:
 
 
 def try_(
-        exc: ta.Union[Exception, ta.Iterable[Exception]] = Exception,
+        exc: ta.Union[ta.Type[Exception], ta.Iterable[ta.Type[Exception]]] = Exception,
         default: ta.Optional[T] = None,
 ) -> ta.Callable[..., T]:
     def outer(fn):
@@ -193,7 +193,7 @@ def try_(
 
 
 def recurse(fn: ta.Callable[..., T], *args, **kwargs) -> T:
-    def rec(*args, **kwargs):
+    def rec(*args, **kwargs) -> T:
         return fn(rec, *args, **kwargs)
     return rec(*args, **kwargs)
 
@@ -232,7 +232,7 @@ def is_not_none(o: ta.Any) -> bool:
 
 
 def cmp(l: ta.Any, r: ta.Any) -> int:
-    return (l > r) - (l < r)
+    return int(l > r) - int(l < r)
 
 
 try:

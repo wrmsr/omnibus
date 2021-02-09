@@ -182,8 +182,8 @@ class JsonCodec(AbstractCodec[F, str]):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        self.encode = functools.partial(dumps, **self._dump_kwargs)
-        self.decode = functools.partial(loads, **self._load_kwargs)
+        self.encode = functools.partial(dumps, **self._dump_kwargs)  # type: ignore
+        self.decode = functools.partial(loads, **self._load_kwargs)  # type: ignore
 
     def encode(self, o: F) -> str:
         return dumps(o, **self._dump_kwargs)  # noqa
@@ -230,8 +230,8 @@ class JsonBytesCodec(AbstractCodec[F, bytes]):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
-        self.encode = functools.partial(dumpb, **self._dump_kwargs)
-        self.decode = functools.partial(loads, **self._load_kwargs)
+        self.encode = functools.partial(dumpb, **self._dump_kwargs)  # type: ignore
+        self.decode = functools.partial(loads, **self._load_kwargs)  # type: ignore
 
     def encode(self, o: F) -> bytes:
         return dumpb(o, **self._dump_kwargs)  # noqa
