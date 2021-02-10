@@ -1,6 +1,7 @@
 import dataclasses as dc
 import typing as ta
 
+from .. import construction as csn
 from ... import properties
 from ..internals import FieldType
 from ..internals import get_field_type
@@ -48,7 +49,7 @@ class DictStorage(Storage):
         if self.dict_attr in self.ctx.spec.fields.by_name:
             raise AttributeError(self.dict_attr)
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         # FIXME: should ClassVars should get field_attrs (instead of returning default)?
         for fld in self.ctx.spec.fields.instance:
             default = fld if self.ctx.spec.extra_params.field_attrs else \
@@ -66,6 +67,8 @@ class DictStorage(Storage):
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)
+
+        return []
 
     @attach(Aspect.Function)
     class Building(Storage.Building['DictStorage']):

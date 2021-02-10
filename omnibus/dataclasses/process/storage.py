@@ -18,6 +18,7 @@ import abc
 import dataclasses as dc
 import typing as ta
 
+from .. import construction as csn
 from . import bootstrap
 from ... import check
 from ... import code
@@ -43,7 +44,7 @@ class Storage(Aspect, lang.Abstract):
         return [bootstrap.Fields]
 
     @abc.abstractmethod
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         raise NotImplementedError
 
     @attach(Aspect.Function)
@@ -129,7 +130,7 @@ class StandardStorage(Storage):
             dct[mang] = fld.name
         return Mangling(dct)
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         metadata = self.ctx.cls.__dict__.get(METADATA_ATTR, {})
         if Mangling in metadata:
             raise KeyError(Mangling)
@@ -153,6 +154,8 @@ class StandardStorage(Storage):
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)
+
+        return []
 
     @attach(Aspect.Function)
     class Building(Storage.Building['StandardStorage']):

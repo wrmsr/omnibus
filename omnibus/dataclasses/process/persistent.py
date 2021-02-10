@@ -5,6 +5,7 @@ TODO:
 import dataclasses as dc
 import typing as ta
 
+from .. import construction as csn
 from ... import check
 from ... import collections as ocol
 from ... import properties
@@ -58,7 +59,7 @@ class PersistentStorage(Storage):
     def check(self) -> None:
         check.state(check.not_none(self.ctx.spec.params).frozen)
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         for idx, fld in enumerate(self.ctx.spec.fields.instance):
             dsc = PersistentDescriptor(
                 fld,
@@ -67,6 +68,8 @@ class PersistentStorage(Storage):
                 field_attrs=self.ctx.spec.extra_params.field_attrs,
             )
             self.ctx.set_new_attribute(fld.name, dsc)
+
+        return []
 
     @attach('init')
     class Init(Storage.Function['PersistentStorage']):

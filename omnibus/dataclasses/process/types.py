@@ -5,6 +5,7 @@ import types
 import typing as ta
 import weakref
 
+from .. import construction as csn
 from ... import check
 from ... import code
 from ... import collections as ocol
@@ -290,8 +291,8 @@ class Aspect(AttachmentCollection, lang.Abstract):
     def check(self) -> None:
         pass
 
-    def process(self) -> None:
-        pass
+    def process(self) -> ta.Sequence[csn.Action]:
+        return []
 
     class Function(AttachmentCollection, lang.Abstract, ta.Generic[AspectT]):
 

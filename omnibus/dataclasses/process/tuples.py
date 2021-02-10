@@ -1,6 +1,7 @@
 import dataclasses as dc
 import typing as ta
 
+from .. import construction as csn
 from ... import check
 from ... import code
 from ... import properties
@@ -49,7 +50,7 @@ class TupleStorage(Storage):
             dct[f.name] = len(dct)
         return dct
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         # FIXME: should ClassVars should get field_attrs (instead of returning default)?
         for fld in self.ctx.spec.fields.instance:
             default = fld if self.ctx.spec.extra_params.field_attrs else \
@@ -66,6 +67,8 @@ class TupleStorage(Storage):
             )
             # FIXME: check not overwriting
             setattr(self.ctx.cls, fld.name, dsc)
+
+        return []
 
     @attach(Aspect.Function)
     class Building(Storage.Building['TupleStorage']):
@@ -89,14 +92,15 @@ class TupleStorage(Storage):
 
 class TupleInit(Init):
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.spec.params.init:
-            return
+            return []
 
         fctx = self.ctx.function(['init'])
         init = fctx.get_aspect(TupleInit.Init)
         fn = init.build('__new__')
         self.ctx.set_new_attribute('__new__', fn)
+        return []
 
     @attach('init')
     class Init(Aspect.Function['TupleInit']):

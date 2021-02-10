@@ -1,5 +1,6 @@
 import typing as ta
 
+from .. import construction as csn
 from ... import check
 from .bootstrap import Fields
 from .bootstrap import FixVarAnnotations
@@ -63,8 +64,10 @@ class Driver(ta.Generic[TypeT]):
         return self._ctx
 
     def __call__(self) -> None:
+        actions: ta.List[csn.Action] = []
         for aspects in self.ctx.aspect_plan:
             for aspect in aspects:
                 aspect.check()
             for aspect in aspects:
-                aspect.process()
+                for action in aspect.process():
+                    actions.append(action)

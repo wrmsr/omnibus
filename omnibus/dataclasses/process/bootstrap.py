@@ -2,6 +2,7 @@ import dataclasses as dc
 import sys
 import typing as ta
 
+from .. import construction as csn
 from ... import check
 from ..fields import build_cls_fields
 from ..internals import DataclassParams
@@ -27,13 +28,13 @@ class FixVarAnnotations(Aspect):
         ta.ClassVar,
     }
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         anns = self.ctx.cls.__dict__.get('__annotations__', {})
         if not anns:
-            return
+            return []
         mod = sys.modules.get(self.ctx.cls.__dict__.get('__module__'))
         if mod is None:
-            return
+            return []
 
         for name, ann in anns.items():
             if not isinstance(ann, str):
@@ -50,6 +51,8 @@ class FixVarAnnotations(Aspect):
                 continue
             anns[name] = obj['[' + suffix] if suffix else obj
 
+        return []
+
 
 class Params(Aspect):
 
@@ -57,7 +60,7 @@ class Params(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [FixVarAnnotations]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         self.ctx.set_new_attribute(PARAMS, self.ctx.params, raise_=True)
         check.state(self.ctx.spec.params is self.ctx.params)
 
@@ -79,6 +82,8 @@ class Params(Aspect):
         md[Original(ExtraParams)] = self.ctx.original_extra_params
         md[Original(MetaclassParams)] = self.ctx.original_metaclass_params
 
+        return []
+
 
 class Fields(Aspect):
 
@@ -86,12 +91,13 @@ class Fields(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Params]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         build_cls_fields(
             self.ctx.cls,
             reorder=self.ctx.extra_params.reorder,
             install=True,
         )
+        return []
 
 
 class Slots(Aspect):

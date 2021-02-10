@@ -1,4 +1,5 @@
 import dataclasses as dc
+import inspect
 import typing as ta
 
 from .. import check
@@ -87,6 +88,9 @@ class ExtraFieldParams(lang.Final):
         check.isinstance(self.kwargs, (ta.Mapping, None))
 
 
+check.empty(set(dc.Field.__slots__) & {f.name for f in dc.fields(ExtraFieldParams)})
+
+
 Mangler = ta.Callable[[str], str]
 
 
@@ -143,6 +147,9 @@ class ExtraParams(lang.Final):
         if self.confer is not dc.MISSING and self.confer is not None:
             check.arg(not isinstance(self.confer, str))
             check.empty(set(self.confer) - CONFERS)
+
+
+check.empty(set(inspect.signature(dc.dataclass).parameters) & {f.name for f in dc.fields(ExtraParams)})
 
 
 EXTRA_PARAMS_CONFER_DEFAULTS = {

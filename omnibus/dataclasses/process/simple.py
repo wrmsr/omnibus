@@ -2,6 +2,7 @@ import dataclasses as dc
 import inspect
 import typing as ta
 
+from .. import construction as csn
 from ... import code
 from ... import properties
 from ..internals import cmp_fn
@@ -27,9 +28,9 @@ class Repr(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.params.repr:
-            return
+            return []
 
         lines = []
         nsb = code.NamespaceBuilder(unavailable_names=['self'])
@@ -65,6 +66,8 @@ class Repr(Aspect):
 
         self.ctx.set_new_attribute(fn.__name__, recursive_repr(fn))
 
+        return []
+
 
 class Eq(Aspect):
 
@@ -72,9 +75,9 @@ class Eq(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.params.eq:
-            return
+            return []
 
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
@@ -90,6 +93,8 @@ class Eq(Aspect):
             ),
         )
 
+        return []
+
 
 class Order(Aspect):
 
@@ -101,9 +106,9 @@ class Order(Aspect):
         if self.ctx.params.order and not self.ctx.params.eq:
             raise ValueError('eq must be true if order is true')
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.params.order:
-            return
+            return []
 
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
@@ -129,6 +134,8 @@ class Order(Aspect):
                     globals=self.ctx.spec.globals,
                 )
             )
+
+        return []
 
 
 class Hash(Aspect):
@@ -156,7 +163,7 @@ class Hash(Aspect):
         if self.cache_attr in self.ctx.spec.fields.by_name:
             raise AttributeError(self.cache_attr)
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         # Was this class defined with an explicit __hash__?  Note that if __eq__ is defined in this class, then python
         # will automatically set __hash__ to None.  This is a heuristic, as it's possible that such a __hash__ == None
         # was not auto-generated, but it close enough.
@@ -169,7 +176,7 @@ class Hash(Aspect):
             has_explicit_hash,
         )]
         if not ha:
-            return
+            return []
         fn = ha(self.ctx.cls, self.ctx.spec.fields.instance, self.ctx.spec.globals)
 
         if self.ctx.spec.extra_params.cache_hash:
@@ -186,6 +193,8 @@ class Hash(Aspect):
 
         self.ctx.cls.__hash__ = fn
 
+        return []
+
 
 class Doc(Aspect):
 
@@ -193,10 +202,12 @@ class Doc(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Init]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not getattr(self.ctx.cls, '__doc__'):
             sig = inspect.signature(self.ctx.cls)
             self.ctx.cls.__doc__ = self.ctx.cls.__name__ + str(sig).replace(' -> None', '')
+
+        return []
 
 
 class PostInitAspect(Aspect):
@@ -236,9 +247,11 @@ class Pickle(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if self.ctx.extra_params.pickle and self.ctx.cls.__reduce__ is object.__reduce__:
             setattr(self.ctx.cls, '__reduce__', SimplePickle.__reduce__)
+
+        return []
 
 
 class Placeholders(Aspect):
@@ -269,9 +282,9 @@ class Frozen(Aspect):
             elif self.ctx.params.frozen:
                 raise TypeError('cannot inherit frozen dataclass from a non-frozen one')
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.params.frozen:
-            return
+            return []
 
         locals = {}
 
@@ -299,7 +312,7 @@ class Frozen(Aspect):
             attr_predicate = ' or '.join(aps)
         elif isinstance(allow_setattr, bool):
             if allow_setattr:
-                return
+                return []
         else:
             raise TypeError(allow_setattr)
 
@@ -328,6 +341,8 @@ class Frozen(Aspect):
             )
             self.ctx.set_new_attribute(fn.__name__, fn, raise_=True)
 
+        return []
+
 
 class Iterable(Aspect):
 
@@ -335,9 +350,9 @@ class Iterable(Aspect):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Fields]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.extra_params.iterable:
-            return
+            return []
 
         atts = [f.name for f in self.ctx.spec.fields.instance]
 
@@ -345,3 +360,5 @@ class Iterable(Aspect):
             return iter(getattr(obj, a) for a in atts)
 
         self.ctx.set_new_attribute('__iter__', __iter__, raise_=True)
+
+        return []

@@ -1,6 +1,7 @@
 import dataclasses as dc
 import typing as ta
 
+from .. import construction as csn
 from ... import code
 from ... import lang
 from ... import properties
@@ -22,7 +23,7 @@ class Init(Aspect, lang.Abstract):
     def deps(self) -> ta.Collection[ta.Type[Aspect]]:
         return [Defaulting, Storage]
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         raise TypeError
 
 
@@ -82,14 +83,15 @@ def append_argspec_args(
 
 class StandardInit(Init):
 
-    def process(self) -> None:
+    def process(self) -> ta.Sequence[csn.Action]:
         if not self.ctx.spec.params.init:
-            return
+            return []
 
         fctx = self.ctx.function(['init'])
         init = fctx.get_aspect(StandardInit.Init)
         fn = init.build('__init__')
         self.ctx.set_new_attribute('__init__', fn)
+        return []
 
     @attach('init')
     class Init(Aspect.Function['StandardInit']):
