@@ -1,8 +1,8 @@
 import dataclasses as dc
 import typing as ta
 
-from ... import code
-from ... import lang
+from .. import code
+from .. import lang
 
 
 @dc.dataclass(frozen=True)
