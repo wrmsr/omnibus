@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SubsTest
 {
-    //===
+    //region A
 
     public interface ANode<A>
     {
@@ -77,29 +77,37 @@ public class SubsTest
         return new AConst<>(val);
     }
 
-    //===
+    //endregion
+
+    //region B
 
     public interface BNode
             extends ANode<BNode>
     {
+        default <R, C> R acceptAVisitor(AVisitor<BNode, R, C> visitor, C ctx)
+        {
+            return acceptBVisitor((BVisitor<R, C>) visitor, ctx);
+        }
+
         <R, C> R acceptBVisitor(BVisitor<R, C> visitor, C ctx);
     }
 
     public interface BVisitor<R, C>
+            extends AVisitor<BNode, R, C>
     {
         default R visitBNode(BNode node, C ctx)
         {
-            throw new IllegalStateException(Objects.toString(node));
+            return visitANode(node, ctx);
         }
 
         default R visitBAdd(BAdd node, C ctx)
         {
-            return visitBNode(node, ctx);
+            return visitAAdd(node, ctx);
         }
 
         default R visitBConst(BConst node, C ctx)
         {
-            return visitBNode(node, ctx);
+            return visitAConst(node, ctx);
         }
 
         default R visitBMul(BMul node, C ctx)
@@ -152,13 +160,6 @@ public class SubsTest
             this.right = right;
         }
 
-        @SuppressWarnings({"unchecked"})
-        @Override
-        public <R, C> R acceptAVisitor(AVisitor<BNode, R, C> visitor, C ctx)
-        {
-            return acceptBVisitor((BVisitor<R, C>) visitor, ctx);
-        }
-
         @Override
         public <R, C> R acceptBVisitor(BVisitor<R, C> visitor, C ctx)
         {
@@ -181,7 +182,9 @@ public class SubsTest
         return new BMul(left, right);
     }
 
-    //===
+    //endregion
+
+    //region AEval
 
     public static class AEval<A>
             implements AVisitor<A, Integer, Void>
@@ -204,7 +207,9 @@ public class SubsTest
         return node.acceptAVisitor(new AEval<A>(), null);
     }
 
-    //===
+    //endregion
+
+    //region BEval
 
     public static class BEval
             extends AEval<BNode>
@@ -234,7 +239,7 @@ public class SubsTest
         return node.acceptBVisitor(new BEval(), null);
     }
 
-    //===
+    //endregion
 
     @Test
     public void testSubs()
