@@ -1,3 +1,12 @@
+"""
+TODO:
+
+ ['def' {'foo': int}, ['a', ['b', 1], {'c': int}. [{'d': int}, 2]],
+  ['return', ['+', ['+', ['+', 'a', 'b'], 'c'], 'd']]]
+
+ ['def', 'foo', ['*args', '**kwargs'],
+  ['return', True]]
+"""
 import ast
 
 from .. import nodes as no  # noqa
