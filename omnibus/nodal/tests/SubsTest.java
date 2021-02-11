@@ -116,22 +116,6 @@ public class SubsTest
         }
     }
 
-    public static class BConst
-            extends AConst<BNode>
-            implements BNode
-    {
-        public BConst(int val)
-        {
-            super(val);
-        }
-
-        @Override
-        public <R, C> R acceptBVisitor(BVisitor<R, C> visitor, C ctx)
-        {
-            return visitor.visitBConst(this, ctx);
-        }
-    }
-
     public static class BAdd
             extends AAdd<BNode>
             implements BNode
@@ -145,6 +129,22 @@ public class SubsTest
         public <R, C> R acceptBVisitor(BVisitor<R, C> visitor, C ctx)
         {
             return visitor.visitBAdd(this, ctx);
+        }
+    }
+
+    public static class BConst
+            extends AConst<BNode>
+            implements BNode
+    {
+        public BConst(int val)
+        {
+            super(val);
+        }
+
+        @Override
+        public <R, C> R acceptBVisitor(BVisitor<R, C> visitor, C ctx)
+        {
+            return visitor.visitBConst(this, ctx);
         }
     }
 
@@ -190,15 +190,15 @@ public class SubsTest
             implements AVisitor<A, Integer, Void>
     {
         @Override
-        public Integer visitAConst(AConst<A> node, Void ctx)
-        {
-            return node.val;
-        }
-
-        @Override
         public Integer visitAAdd(AAdd<A> node, Void ctx)
         {
             return node.left.acceptAVisitor(this, ctx) + node.right.acceptAVisitor(this, ctx);
+        }
+
+        @Override
+        public Integer visitAConst(AConst<A> node, Void ctx)
+        {
+            return node.val;
         }
     }
 
@@ -215,18 +215,6 @@ public class SubsTest
             extends AEval<BNode>
             implements BVisitor<Integer, Void>
     {
-        @Override
-        public Integer visitBAdd(BAdd node, Void ctx)
-        {
-            return visitAAdd(node, ctx);
-        }
-
-        @Override
-        public Integer visitBConst(BConst node, Void ctx)
-        {
-            return visitAConst(node, ctx);
-        }
-
         @Override
         public Integer visitBMul(BMul node, Void ctx)
         {
