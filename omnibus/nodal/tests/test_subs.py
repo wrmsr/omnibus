@@ -109,5 +109,4 @@ def test_subs():
     assert BEval()(AAdd(AConst(1), AConst(2))) == 1 + 2
     assert BEval()(BMul(BConst(2), BConst(3))) == 2 * 3
     assert BEval()(BMul(BConst(2), BAdd(BConst(3), BConst(4)))) == 2 * (3 + 4)
-
     assert BEval()(BMul(BConst(2), BAdd(BConst(3), BMul(BConst(4), BConst(5))))) == 2 * (3 + (4 * 5))
