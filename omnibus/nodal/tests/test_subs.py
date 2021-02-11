@@ -4,6 +4,7 @@ TODO:
  - base hierarchy no longer final/sealed but that's also the whole point..
   - special handling of sealing? enforce subtree has subtypes of all?
  - generate mapper between AFoo and BFoo
+ - transformers need to lift
 """
 import dataclasses as dc
 import typing as ta
