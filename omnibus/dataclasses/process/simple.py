@@ -5,7 +5,6 @@ import typing as ta
 from .. import construction as csn
 from ... import code
 from ... import properties
-from ..internals import cmp_fn
 from ..internals import FieldType
 from ..internals import hash_action
 from ..internals import PARAMS
@@ -82,18 +81,18 @@ class Eq(Aspect):
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
-        self.ctx.set_new_attribute(
-            '__eq__',
-            cmp_fn(
-                '__eq__',
-                '==',
-                self_tuple,
-                other_tuple,
-                globals=self.ctx.spec.globals,
-            ),
-        )
 
-        return []
+        return [csn.SetAttr(
+            '__eq__',
+            csn.Function(
+                '__eq__',
+                code.ArgSpec(['self', 'other']),
+                '\n'.join([
+                    f'if other.__class__ is self.__class__: return {self_tuple} == {other_tuple}',
+                    'return NotImplemented',
+                ]),
+            ),
+        )]
 
 
 class Order(Aspect):
@@ -110,6 +109,7 @@ class Order(Aspect):
         if not self.ctx.params.order:
             return []
 
+        ret = []
         flds = [f for f in self.ctx.spec.fields.instance if f.compare]
         self_tuple = tuple_str('self', flds)
         other_tuple = tuple_str('other', flds)
@@ -124,18 +124,19 @@ class Order(Aspect):
                     f'Cannot overwrite attribute {name} in class {self.ctx.cls.__name__}. '
                     f'Consider using functools.total_ordering')
 
-            self.ctx.set_new_attribute(
+            ret.append(csn.SetAttr(
                 name,
-                cmp_fn(
+                csn.Function(
                     name,
-                    op,
-                    self_tuple,
-                    other_tuple,
-                    globals=self.ctx.spec.globals,
-                )
-            )
+                    code.ArgSpec(['self', 'other']),
+                    '\n'.join([
+                        f'if other.__class__ is self.__class__: return {self_tuple} {op} {other_tuple}',
+                        'return NotImplemented',
+                    ]),
+                ),
+            ))
 
-        return []
+        return ret
 
 
 class Hash(Aspect):

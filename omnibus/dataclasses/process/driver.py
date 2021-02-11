@@ -71,3 +71,7 @@ class Driver(ta.Generic[TypeT]):
             for aspect in aspects:
                 for action in aspect.process():
                     actions.append(action)
+
+        cctx = csn.Context(self.ctx.spec)
+        for act in actions:
+            csn.apply(act, cctx)
