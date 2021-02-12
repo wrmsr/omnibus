@@ -12,14 +12,16 @@ import textwrap
 import traceback
 import typing as ta
 
-import setuptools.command.build_ext
-import setuptools.command.build_py
-import setuptools.command.sdist
+import setuptools as st
+import setuptools.command.build_ext  # noqa
+import setuptools.command.build_py  # noqa
+import setuptools.command.sdist  # noqa
 
+import distutils as du
 import distutils.ccompiler
 import distutils.cmd
-import distutils.command.build
-import distutils.command.build_ext
+import distutils.command.build  # noqa
+import distutils.command.build_ext  # noqa
 import distutils.core
 import distutils.errors
 import distutils.log
@@ -270,8 +272,8 @@ def try_compile(
         src: str,
         *,
         errors: ta.Collection[ta.Type[BaseException]] = (
-                distutils.errors.CompileError,
-                distutils.errors.LinkError,
+                du.errors.CompileError,
+                du.errors.LinkError,
                 subprocess.CalledProcessError,
         ),
         **kwargs
@@ -283,8 +285,8 @@ def try_compile(
         with open(file_name, 'w') as fp:
             fp.write(src)
 
-        compiler = distutils.ccompiler.new_compiler()
-        distutils.sysconfig.customize_compiler(compiler)
+        compiler = du.ccompiler.new_compiler()
+        du.sysconfig.customize_compiler(compiler)
 
         def new_exec(old, *args, **kwargs):
             os.close(sys.stderr.fileno())
@@ -308,13 +310,13 @@ def try_compile(
             )
             subprocess.check_call(bin_file_name)
         except tuple(errors):
-            distutils.log.debug(traceback.format_exc())
+            du.log.debug(traceback.format_exc())
             if name:
-                distutils.log.warn(f'{name} not found')
+                du.log.warn(f'{name} not found')
             return False
         else:
             if name:
-                distutils.log.info(f'{name} found')
+                du.log.info(f'{name} found')
             return True
         finally:
             for att, old in old_os_atts.items():
@@ -338,7 +340,7 @@ def _hook(obj, att):
     return inner
 
 
-@_hook(distutils.command.build_ext.build_ext, 'initialize_options')  # noqa
+@_hook(du.command.build_ext.build_ext, 'initialize_options')  # noqa
 def _new_build_ext_init_opts(old, self, *args, **kwargs):
     old(self, *args, **kwargs)
     self.parallel = os.cpu_count()
@@ -360,14 +362,14 @@ def _rewrite_sdist_template(template, distribution):
     return template
 
 
-@_hook(setuptools.command.sdist.sdist, 'read_template')
+@_hook(st.command.sdist.sdist, 'read_template')
 def _new_sdist_read_template(old, self):
     self.filelist.distribution = self.distribution
     self.template = _rewrite_sdist_template(self.template, self.distribution)
     old(self)
 
 
-@_hook(setuptools.command.build_py.build_py, 'find_package_modules')
+@_hook(st.command.build_py.build_py, 'find_package_modules')
 def _new_build_py_find_package_modules(old, self, package, package_dir):
     modules = old(self, package, package_dir)
     if package == PROJECT:
@@ -394,7 +396,7 @@ else:
                     try:
                         ep.resolve()
                     except Exception as e:
-                        distutils.log.warn(f'Failed to resolve {ep!r} from {ep.dist!r}: {e!r}')
+                        du.log.warn(f'Failed to resolve {ep!r} from {ep.dist!r}: {e!r}')
                         continue
                     good_eps.append(ep)
             eps = good_eps
@@ -407,8 +409,8 @@ else:
 # region Main Class
 
 
-class Distribution(distutils.core.Distribution):
-    global_options = distutils.core.Distribution.global_options + [  # noqa
+class Distribution(du.core.Distribution):
+    global_options = du.core.Distribution.global_options + [  # noqa
         ('dev', None, 'install dev'),
     ]
 
@@ -428,7 +430,7 @@ class Distribution(distutils.core.Distribution):
     @none_ignoring_cached_property  # noqa
     @property
     def packages(self):
-        return setuptools.find_packages(
+        return st.find_packages(
             include=[PROJECT, PROJECT + '.*'],
             exclude=[
                 'tests', '*.tests', '*.tests.*',
@@ -511,9 +513,9 @@ class Distribution(distutils.core.Distribution):
                 continue
             yield fpath, e
 
-    def _yield_cc_ext_modules(self) -> ta.Iterator[setuptools.Extension]:
+    def _yield_cc_ext_modules(self) -> ta.Iterator[st.Extension]:
         for fpath, e in self._yield_ext_fpaths('cc/*.cc'):
-            yield setuptools.Extension(
+            yield st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 extra_compile_args=['-std=c++14'],
@@ -521,7 +523,7 @@ class Distribution(distutils.core.Distribution):
                 **self._exts_by_fname.get(os.path.basename(fpath), {}),
             )
 
-    def _yield_cy_ext_modules(self) -> ta.Iterator[setuptools.Extension]:
+    def _yield_cy_ext_modules(self) -> ta.Iterator[st.Extension]:
         try:
             import Cython
         except ImportError:
@@ -532,7 +534,7 @@ class Distribution(distutils.core.Distribution):
 
         lst = []
         for fpath, e in self._yield_ext_fpaths('cy/**/*.pyx'):
-            lst.append(setuptools.Extension(
+            lst.append(st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 language='c++',
@@ -559,12 +561,12 @@ class Distribution(distutils.core.Distribution):
             },
         )
 
-    def _yield_m_ext_modules(self) -> ta.Iterator[setuptools.Extension]:
+    def _yield_m_ext_modules(self) -> ta.Iterator[st.Extension]:
         if not APPLE:
             return
 
         for fpath, e in self._yield_ext_fpaths('m/*.m'):
-            yield setuptools.Extension(
+            yield st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 extra_link_args=[
@@ -584,7 +586,7 @@ class Distribution(distutils.core.Distribution):
 # region Commands
 
 
-CMDCLASS: ta.MutableMapping[str, ta.Type[distutils.cmd.Command]] = {}
+CMDCLASS: ta.MutableMapping[str, ta.Type[du.cmd.Command]] = {}
 
 
 def _cmdclass(name):
@@ -597,7 +599,7 @@ def _cmdclass(name):
 
 
 @_cmdclass('cyaml')
-class CyamlCommand(distutils.cmd.Command):
+class CyamlCommand(du.cmd.Command):
     description = 'install cyaml'
     user_options = []
 
@@ -631,7 +633,7 @@ class CyamlCommand(distutils.cmd.Command):
 
 
 if __name__ == '__main__':
-    setuptools.setup(
+    st.setup(
         name=ABOUT['__title__'] + (('-' + __dist__) if __dist__ is not None else ''),  # noqa
         version=ABOUT['__version__'],
         description=ABOUT['__description__'],
