@@ -4,6 +4,16 @@ from .. import pyasts
 
 
 def test_pyasts():
-    an = ast.parse('123', 'eval')
-    n = pyasts.translate(an)
-    print(n)
+    print()
+
+    for s in [
+        '123',
+        '1 + 1',
+    ]:
+        an = ast.parse(s, 'eval')
+        print(an)
+
+        n = pyasts.translate(an)
+        print(n)
+
+        print()
