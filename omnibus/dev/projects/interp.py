@@ -90,7 +90,7 @@ class cached_property:  # noqa
         if self._name is None:
             self._name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is not None:
             if self._name is None:
                 raise NameError(self)

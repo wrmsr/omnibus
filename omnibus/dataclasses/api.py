@@ -341,18 +341,21 @@ def dataclass(
 
 
 @lang.cls_dct_fn()
-def install(cls_dct, cls, *args, **kwargs) -> None:
+def _install(cls_dct, cls, *args, **kwargs):
     if len(args) == 1 and isinstance(args[0], cls):
         [obj] = args
+        ret = obj
     else:
         obj = cls(*args, **kwargs)
+        ret = args[0] if args else None
     cls_dct.setdefault(METADATA_ATTR, {}).setdefault(Extras, []).append(obj)
+    return ret
 
 
-check_ = functools.partial(install, Checker)
-derive = functools.partial(install, Deriver)
-post_init = functools.partial(install, PostInit)
-validate = functools.partial(install, Validator)
+check_ = functools.partial(_install, Checker)
+derive = functools.partial(_install, Deriver)
+post_init = functools.partial(_install, PostInit)
+validate = functools.partial(_install, Validator)
 
 
 @lang.cls_dct_fn()

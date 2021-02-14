@@ -238,7 +238,10 @@ class PostInitAspect(Aspect):
 
             ret = []
             for pi in self.fctx.ctx.spec.rmro_extras_by_cls[PostInit]:
-                ret.append(f'{self.fctx.nsb.put(pi.fn)}({self.fctx.self_name})')
+                if isinstance(pi.fn, (property, properties.Property)):
+                    ret.append(f'{self.fctx.nsb.put(pi.fn)}.__get__({self.fctx.self_name}, {self.fctx.self_name}.__class__)')  # noqa
+                else:
+                    ret.append(f'{self.fctx.nsb.put(pi.fn)}({self.fctx.self_name})')
             return ret
 
 

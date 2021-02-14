@@ -196,7 +196,7 @@ class cached_property:  # noqa
         if self._name is None:
             self._name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is None:
             return self
         if self._name is None:
@@ -228,7 +228,7 @@ class cached_nullary:  # noqa
         if self._name is None:
             self._name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is None:
             return self
         if self._name is None:
@@ -254,7 +254,7 @@ class wrapper:  # noqa
         self._instance = instance
         functools.update_wrapper(self, wrapped)
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         return type(self)(self._wrapper, self._wrapped, instance=instance)
 
     def __call__(self, *args, **kwargs):

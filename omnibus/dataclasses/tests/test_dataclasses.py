@@ -890,3 +890,42 @@ def test_cls_kwonly():
         C(1, 2, z=3)
     with pytest.raises(TypeError):
         C(1, y=2, z=3)
+
+
+def test_eager_props():
+    @api_.dataclass()
+    class A:
+        x: int
+
+        @api_.post_init
+        @property
+        def y(self) -> int:
+            nonlocal nc
+            nc += 1
+            return self.x + 1
+
+    nc = 0
+    a = A(2)
+    assert nc == 1
+    assert a.x == 2
+    assert a.y == 3
+    assert nc == 2
+
+    @api_.dataclass()
+    class B:
+        x: int
+
+        @api_.post_init
+        @properties.cached
+        @property
+        def y(self) -> int:
+            nonlocal nc
+            nc += 1
+            return self.x + 1
+
+    nc = 0
+    b = B(20)
+    assert nc == 1
+    assert b.x == 20
+    assert b.y == 21
+    assert nc == 1

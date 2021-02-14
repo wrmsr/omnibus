@@ -36,7 +36,7 @@ cdef class FieldDescriptor:
         if self.name is None:
             self.name = name
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner=None):
         if instance is not None:
             try:
                 return getattr(instance, self.attr)
