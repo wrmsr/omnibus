@@ -876,7 +876,7 @@ fragment S_CHAR
     ;
 
 COMPLEX_DEFINE
-    : '#' WHITESPACE? 'define'  ~[#]* -> skip
+    : '#' WHITESPACE? 'define'  ~[#\r\n]* -> skip
     ;
 
 INCLUDE_DIRECTIVE

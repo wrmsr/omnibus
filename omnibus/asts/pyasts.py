@@ -6,13 +6,6 @@ AST
   comprehension
   excepthandler
     ExceptHandler
-  expr_context
-    AugLoad
-    AugStore
-    Del
-    Load
-    Param
-    Store
   keyword
   mod
     Expression
