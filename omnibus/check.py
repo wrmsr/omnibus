@@ -55,10 +55,18 @@ def arg(condition: bool, message: Messageable = None) -> None:
         _raise(ValueError, 'Argument condition not met', message)
 
 
-def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if _isinstance(spec, tuple) and None in spec:  # type: ignore
+def _unpack_isinstance_spec(spec: ta.Any) -> tuple:
+    if not _isinstance(spec, tuple):
+        spec = (spec,)
+    if None in spec:
         spec = tuple(filter(None, spec)) + (_NONE_TYPE,)  # type: ignore
-    if not _isinstance(obj, spec):
+    if ta.Any in spec:
+        spec = (object,)
+    return spec
+
+
+def isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
+    if not _isinstance(obj, _unpack_isinstance_spec(spec)):
         _raise(TypeError, 'Must be instance', message, obj, spec)
     return obj  # type: ignore
 
@@ -82,9 +90,7 @@ def of_issubclass(spec: ta.Union[ta.Type[T], ta.Tuple, type], message: Messageab
 
 
 def not_isinstance(obj: ta.Any, spec: ta.Union[ta.Type[T], ta.Tuple], message: Messageable = None) -> T:
-    if _isinstance(spec, tuple) and None in spec:  # type: ignore
-        spec = tuple(filter(None, ta.cast(ta.Sequence, spec))) + (_NONE_TYPE,)
-    if _isinstance(obj, spec):
+    if _isinstance(obj, _unpack_isinstance_spec(spec)):
         _raise(TypeError, 'Must be not instance', message, obj, spec)
     return obj  # type: ignore
 

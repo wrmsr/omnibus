@@ -527,6 +527,7 @@ class Distribution(du.core.Distribution):
         try:
             import Cython
         except ImportError:
+            du.log.info('Cython not found, not building cython modules')
             return
 
         import Cython.Build

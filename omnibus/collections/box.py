@@ -29,15 +29,29 @@ class _BoxMeta(abc.ABCMeta):
         if 'Box' not in globals():
             return super().__new__(mcls, name, bases, namespace, **kwargs)  # noqa
 
+        for k, b in [
+            ('abstract', lang.Abstract),
+            ('final', lang.Final),
+        ]:
+            if k not in kwargs:
+                continue
+            v = kwargs.pop(k)
+            if not isinstance(v, bool):
+                raise TypeError(v)
+            if v is not True:
+                raise ValueError(v)
+            if v and b not in bases:
+                bases += (b,)
+
         # if Final not in bases and Abstract not in bases:
         #     bases = (*bases, Final)
 
-        if '_value_cls' not in namespace:
+        if '__box_value_cls__' not in namespace:
             [base_arg] = {
-                b._value_cls
+                b.__box_value_cls__
                 for b in bases
                 if Box in b.__mro__
-                and hasattr(b, '_value_cls')
+                and hasattr(b, '__box_value_cls__')
             } or [None]
             [box_arg] = [
                 a
@@ -49,28 +63,39 @@ class _BoxMeta(abc.ABCMeta):
             args = list(filter(None, [base_arg, box_arg]))
             if not args or not all(a is args[0] for a in args[1:]):
                 raise TypeError(args)
-            namespace['_value_cls'] = args[0]
-        if not isinstance(namespace['_value_cls'], type):
-            raise TypeError(namespace['_value_cls'])
+            namespace['__box_value_cls__'] = args[0]
+        if not isinstance(namespace['__box_value_cls__'], type):
+            raise TypeError(namespace['__box_value_cls__'])
 
         cls = super().__new__(mcls, name, bases, namespace, **kwargs)  # noqa
-        if cls.value is not Box.value:
+
+        if cls.value is not Box.value:  # noqa
             raise lang.FinalException(cls)
+        if 'is_valid' in cls.__dict__:
+            iv = cls.__dict__['is_valid']
+            if not isinstance(iv, (classmethod, staticmethod)):
+                raise TypeError(cls, iv)
+
         return cls
 
 
 @functools.total_ordering
 class Box(lang.Abstract, ta.Generic[T], metaclass=_BoxMeta):
-    _value_cls: ta.ClassVar[ta.Type[T]]
+    __box_value_cls__: ta.ClassVar[ta.Type[T]]
 
     def __init__(self, value: T) -> None:
         super().__init__()
-        if not isinstance(value, self._value_cls):
+        if not isinstance(value, self.__box_value_cls__):
             raise TypeError(value)
+        if not self.is_valid(value):
+            raise ValueError(value)
         self._value = value
 
-    def repr(self) -> str:
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}({self._value!r})'
+
+    def __str__(self) -> str:
+        return repr(self)
 
     def __hash__(self) -> int:
         return hash(self._value)
@@ -86,7 +111,11 @@ class Box(lang.Abstract, ta.Generic[T], metaclass=_BoxMeta):
         return self._value < other._value  # type: ignore
 
     def __bool__(self) -> bool:
-        return bool(self._value)
+        raise TypeError(self)
+
+    @classmethod
+    def is_valid(cls, val: T) -> bool:
+        return True
 
     @property
     def value(self) -> T:
@@ -96,7 +125,7 @@ class Box(lang.Abstract, ta.Generic[T], metaclass=_BoxMeta):
     def of(cls: BoxT, obj: ta.Union['BoxT', T]) -> BoxT:  # type: ignore
         if isinstance(obj, cls):  # type: ignore  # noqa
             return obj  # type: ignore
-        elif isinstance(obj, cls._value_cls):
+        elif isinstance(obj, cls.__box_value_cls__):
             return cls(obj)   # type: ignore  # noqa
         else:
             raise TypeError(obj)
