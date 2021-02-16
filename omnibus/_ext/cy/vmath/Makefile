@@ -10,4 +10,4 @@ clean:
 
 .PHONY: build
 build:
-	PYTHONPATH=$$(realpath ../../../..) python -m $$(pwd | rev | cut -d '/' -f1-4 | rev | tr -s '/' '.')._gen > vmath.pyx
+	PYTHONPATH=../../../.. python -m $$(pwd | rev | cut -d '/' -f1-4 | rev | tr -s '/' '.')._gen > vmath.pyx

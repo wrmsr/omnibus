@@ -1,9 +1,10 @@
 import os.path
 
-with open(os.path.join(os.path.dirname(__file__), '../setup.py'), 'r') as f:
-    _setup_header = f.readline()
-if _setup_header.strip() != '#@omnibus':
-    raise EnvironmentError('Should not be present')
+# FIXME: omnibus-all
+# with open(os.path.join(os.path.dirname(__file__), '../setup.py'), 'r') as f:
+#     _setup_header = f.readline()
+# if _setup_header.strip() != '#@omnibus':
+#     raise EnvironmentError('Should not be present')
 
 
 _BASE_DIR = os.path.abspath(os.path.dirname(__file__))

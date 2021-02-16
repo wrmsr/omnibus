@@ -1,9 +1,9 @@
 #@omnibus
 import dataclasses as dc
-import fnmatch
 import functools
 import glob
-import os
+import os.path
+import re
 import shutil
 import subprocess
 import sys
@@ -31,7 +31,11 @@ import distutils.sysconfig
 PROJECT = 'omnibus'
 
 
-__dist__ = None
+__dist__ = 'all'
+
+
+if f'__{PROJECT.upper()}_DIST' in os.environ:
+    __dist__ = os.environ[f'__{PROJECT.upper()}_DIST'] or None
 
 
 # region Dists
@@ -40,12 +44,22 @@ __dist__ = None
 @dc.dataclass(frozen=True)
 class DistType:
     name: ta.Optional[str]
-    deps: ta.Sequence[ta.Optional[str]]
+    deps: ta.Sequence[ta.Optional[str]] = None
+    pkg_names: ta.Optional[ta.Collection[str]] = None
+    mod_names: ta.Optional[ta.Collection[str]] = None
+    included_file_pats: ta.Optional[ta.Sequence[str]] = None
+    excluded_file_pats: ta.Optional[ta.Sequence[str]] = None
+
+    @property
+    def rname(self) -> str:
+        return PROJECT + (('-' + self.name) if self.name is not None else '')
 
 
 DISTS_BY_NAME: ta.Mapping[ta.Optional[str], DistType] = {d.name: d for d in [
-    DistType(None, []),
-    DistType('dev', [None]),
+    DistType('all', pkg_names=['tests'], mod_names=['conftest'], included_file_pats=[r'requirements.*\.txt']),
+    DistType(None),
+    DistType('dev', deps=[None], pkg_names=['dev']),
+    DistType('exp', deps=['dev']),
 ]}
 
 DIST = DISTS_BY_NAME[__dist__]
@@ -57,9 +71,11 @@ DIST = DISTS_BY_NAME[__dist__]
 # region Env
 
 
-def _read_about() -> ta.Mapping[str, ta.Any]:
+def _read_about(fp: ta.Optional[str] = None) -> ta.Mapping[str, ta.Any]:
+    if not fp:
+        fp = os.path.join(PROJECT, '__about__.py')
     dct = {}
-    with open(os.path.join(os.path.dirname(__file__), PROJECT, '__about__.py'), 'rb') as f:
+    with open(fp, 'rb') as f:
         src = f.read()
         if sys.version_info[0] > 2:
             src = src.decode('UTF-8')
@@ -83,38 +99,37 @@ TRACE = os.environ.get('TRACE')
 # region Config
 
 
-STATIC_FILES: ta.AbstractSet[str] = set()
-
-
-INCLUDED_STATIC_FILE_PATHS: ta.AbstractSet[str] = {
-    '*.cc',
-    '*.dss',
-    '*.g4',
-    '*.h',
-    '*.interp',
-    '*.m',
-    '*.pxd',
-    '*.pyi',
-    '*.pyx',
-    '*.tokens',
+INCLUDED_FILE_PATS: ta.AbstractSet[str] = {
+    rf'{PROJECT}/.*',
+    'LICENSE.*',
 }
 
 
-EXCLUDED_STATIC_FILE_PATHS: ta.AbstractSet[str] = {
-    '*.py',
-    '*.so',
-    '*/__pycache__/*',
-    '*/_ext/cy/*.cpp',
-    '*/tests/*',
+EXCLUDED_FILE_NAMES: ta.AbstractSet[str] = {
+    '.DS_Store',
+    '.gitignore',
+    'Makefile',
+}
+
+
+EXCLUDED_FILE_EXTS: ta.AbstractSet[str] = {
+    'so',
+}
+
+
+EXCLUDED_FILE_PATS: ta.AbstractSet[str] = {
+    *[rf'.*/{re.escape(f)}' for f in EXCLUDED_FILE_NAMES],
+    *[rf'.*\.{re.escape(x)}' for x in EXCLUDED_FILE_EXTS],
+
+    r'.*/\.benchmarks/.*',
+    r'.*/\.mypy_cache/.*',
+    r'.*/\.pytest_cache/.*',
+    r'.*/__pycache__/.*',
+
 }
 
 
 EXTRAS_REQUIRE: ta.Mapping[str, ta.Sequence[str]] = {
-}
-
-
-IGNORED_PACKAGE_MODULES: ta.AbstractSet[str] = {
-    'conftest',
 }
 
 
@@ -184,13 +199,14 @@ _IGNORE = object()
 
 
 class cached_property:  # noqa
-    def __init__(self, fn, *, name=None, ignore_if=lambda _: False):
+    def __init__(self, fn, *, name=None, ignore_if=lambda _: False, clear_on_init=False):
         super().__init__()
         if isinstance(fn, property):
             fn = fn.fget
         self._fn = fn
         self._ignore_if = ignore_if
         self._name = name
+        self._clear_on_init = clear_on_init
 
     def __set_name__(self, owner, name):
         if self._name is None:
@@ -201,6 +217,10 @@ class cached_property:  # noqa
             return self
         if self._name is None:
             raise TypeError(self)
+        try:
+            return instance.__dict__[self._name]
+        except KeyError:
+            pass
         value = self._fn.__get__(instance, owner)()
         if value is _IGNORE:
             return None
@@ -210,11 +230,13 @@ class cached_property:  # noqa
     def __set__(self, instance, value):
         if self._ignore_if(value):
             return
+        if instance.__dict__[self._name] == value:
+            return
         raise TypeError(self._name)
 
 
-none_ignoring_cached_property = functools.partial(cached_property, ignore_if=lambda v: v is None)
-falsey_ignoring_cached_property = functools.partial(cached_property, ignore_if=lambda v: not v)
+none_ignoring_cached_property = functools.partial(cached_property, ignore_if=lambda v: v is None, clear_on_init=True)
+falsey_ignoring_cached_property = functools.partial(cached_property, ignore_if=lambda v: not v, clear_on_init=True)
 
 
 class cached_nullary:  # noqa
@@ -346,34 +368,96 @@ def _new_build_ext_init_opts(old, self, *args, **kwargs):
     self.parallel = os.cpu_count()
 
 
-def _rewrite_sdist_template(template, distribution):
+@_hook(st.dist._Distribution, '__init__')  # noqa
+def _new_dist_distribution_init(old, self, *args, **kwargs):
+    for b in type(self).__mro__:
+        for k, v in b.__dict__.items():
+            if isinstance(v, cached_property) and v._clear_on_init and v._name in self.__dict__:  # noqa
+                del self.__dict__[v._name]  # noqa
+
+    old(self, *args, **kwargs)
+
+
+def _dump_zip_file(fp: str) -> None:
+    import zipfile
+    du.log.info(fp)
+    with zipfile.ZipFile(fp) as zf:
+        for zfe in sorted(zf.namelist()):
+            du.log.info(f'  {zfe}')
+
+
+def _clean_egg_info_dir(ei_cmd):
+    ei = ei_cmd.egg_info
+    if ei and os.path.isdir(ei):
+        if os.path.isfile(os.path.join(ei, 'SOURCES.txt')):
+            shutil.rmtree(ei)
+
+
+st.command.sdist.sdist.user_options.append(('clean-work-dir', None, 'cleans working directory before building'))
+st.command.sdist.sdist.clean_work_dir = False
+
+
+@_hook(st.command.sdist.sdist, 'run')
+def _new_sdist_run(old, self):
+    if self.clean_work_dir:
+        ei_cmd = self.get_finalized_command('egg_info')
+        _clean_egg_info_dir(ei_cmd)
+
+    oafs = set(self.archive_files or [])
+
+    old(self)
+
+    for af in self.archive_files:
+        if af in oafs or not af.endswith('.zip'):
+            continue
+        _dump_zip_file(af)
+
+
+@_hook(st.command.sdist.sdist, 'add_defaults')
+def _new_sdist_add_defaults(old, self):
+    # Opted for a patch over subclasses as sdist itself has numerous subclasses, and the old-style linkage between them
+    # makes trying to override 'properly' even more brittle than this. Oh the joys of python packaging.
+    fl = self.filelist
+    fl.distribution = self.distribution
+
+    # The least invasive approach seems to be to construct a real manifest on demand. It'd be preferable to call
+    # manifest_maker methods directly but the odds of version breakage seem too high.
+    out_lines = [f'include {fn}' for fn in self.distribution.package_data[PROJECT]]
+    out_lines.extend(self.distribution.manifest_lines)
+
     tmp_dir = tempfile.mkdtemp()
-    with open(template, 'r') as f:
-        lines = f.readlines()
-    lines = [
-        l
-        for l in lines
-        for l in [l.strip()]
-        if not (distribution.is_dev and l.endswith('#@dev'))
-    ]
-    template = os.path.join(tmp_dir, os.path.basename(template))
-    with open(template, 'w') as f:
-        f.write('\n'.join(lines))
-    return template
+    out_template = os.path.join(tmp_dir, os.path.basename(self.template))
+    with open(out_template, 'w') as f:
+        f.write('\n'.join(out_lines))
+    self.template = out_template
 
+    @_hook(fl, 'sort')
+    def _new_sort(old):
+        # manifest_maker puts the manifest in its outputs, but it points to a temp file (and as an abspath). As this
+        # script itself doesn't need the file the produced sdist is still self-sufficient.
+        for i in range(len(fl.files) - 1, -1, -1):
+            if fl.files[i].endswith('/MANIFEST.in'):
+                del fl.files[i]
 
-@_hook(st.command.sdist.sdist, 'read_template')
-def _new_sdist_read_template(old, self):
-    self.filelist.distribution = self.distribution
-    self.template = _rewrite_sdist_template(self.template, self.distribution)
+        old()
+
     old(self)
 
 
 @_hook(st.command.build_py.build_py, 'find_package_modules')
 def _new_build_py_find_package_modules(old, self, package, package_dir):
     modules = old(self, package, package_dir)
-    if package == PROJECT:
-        modules = [t for t in modules if t[1] not in IGNORED_PACKAGE_MODULES]
+
+    dists_by_mod_name = {}
+    for d in DISTS_BY_NAME.values():
+        for dn in (d.mod_names or []):
+            if dn in dists_by_mod_name:
+                raise KeyError(dn)
+            dists_by_mod_name[dn] = d.name
+
+    exclude = {m for m, d in dists_by_mod_name.items() if d != __dist__}
+    modules = [t for t in modules if t[1] not in exclude]
+
     return modules
 
 
@@ -403,6 +487,41 @@ else:
         return eps
 
 
+try:
+    import wheel.bdist_wheel
+except ImportError:
+    pass
+else:
+    wheel.bdist_wheel.bdist_wheel.user_options.append(('clean-work-dir', None, 'cleans working directory before building'))  # noqa
+    wheel.bdist_wheel.bdist_wheel.clean_work_dir = False
+
+    @_hook(wheel.bdist_wheel.bdist_wheel, 'run')
+    def _new_bdist_wheel_run(old, self):
+        odfs = set(getattr(self.distribution, 'dist_files', []))
+
+        if self.clean_work_dir and not self.skip_build:
+            ei_cmd = self.get_finalized_command('egg_info')
+            _clean_egg_info_dir(ei_cmd)
+
+            b_cmd = self.get_finalized_command('build')
+            bl = os.path.dirname(b_cmd.build_lib) if b_cmd.build_lib else None
+            if bl and os.path.isdir(bl):
+                es = list(os.scandir(bl))
+                if all(e.is_dir() and any(e.name.startswith(p) for p in ['bdist.', 'lib.', 'temp.']) for e in es):
+                    shutil.rmtree(bl)
+
+        old(self)
+
+        for df in getattr(self.distribution, 'dist_files', []):
+            if df in odfs:
+                continue
+            dfn = df[2]
+            if not dfn.endswith('.whl'):
+                continue
+
+            _dump_zip_file(dfn)
+
+
 # endregion
 
 
@@ -410,56 +529,155 @@ else:
 
 
 class Distribution(du.core.Distribution):
-    global_options = du.core.Distribution.global_options + [  # noqa
-        ('dev', None, 'install dev'),
-    ]
-
-    dev = 0
-
-    _has_finalized_options = False
-
-    def finalize_options(self):
-        super().finalize_options()  # noqa
-        self._has_finalized_options = True
 
     @cached_property  # noqa
     @property
-    def is_dev(self):
-        return self.dev or int(os.environ.get(f'__{PROJECT.upper()}_DEV', '0'))
+    def git_revision(self) -> ta.Optional[str]:
+        if not os.path.isdir('.git'):
+            return None
+        try:
+            buf = subprocess.check_output('git config --get remote.origin.url', shell=True)
+        except Exception:  # noqa
+            return None
+        url = (buf or b'').decode('utf-8')
+        if not url or url.strip() != ABOUT['__url__']:
+            return None
+        buf = subprocess.check_output('git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty', shell=True)
+        rev = buf.decode('utf-8')
+        du.log.info(f'.revision = {rev}')
+        return rev
+
+    # region Packages
+
+    @dc.dataclass()
+    class PkgNode:
+        name: str
+        dir_path: str
+        full_name: str
+        file_names: ta.AbstractSet[str]
+        dist: ta.Optional[str] = None
+        children: ta.Mapping[str, 'Distribution.PkgNode'] = dc.field(default_factory=dict)
+
+    @cached_property  # noqa
+    @property
+    def root_pkg_node(self) -> PkgNode:
+        dists_by_pkg_name = {}
+        for d in DISTS_BY_NAME.values():
+            for dn in (d.pkg_names or []):
+                if dn in dists_by_pkg_name:
+                    raise KeyError(dn)
+                dists_by_pkg_name[dn] = d.name
+
+        def rec(
+                dir_prefix: str,
+                dir_name: str,
+                parent_dist: ta.Optional[str] = None,
+        ) -> ta.Optional[Distribution.PkgNode]:
+            dir_path = os.path.join(dir_prefix, dir_name)
+
+            dns = []
+            fns = set()
+            for e in os.scandir(dir_path):
+                if e.is_dir():  # noqa
+                    dns.append(e.name)  # noqa
+                else:
+                    fns.add(e.name)  # noqa
+
+            if '__init__.py' not in fns:
+                return None
+
+            dist = parent_dist
+            ddist = dists_by_pkg_name.get(dir_name)
+            if ddist is not None:
+                dist = ddist
+            if '__about__.py' in fns:
+                abt = _read_about(os.path.join(dir_path, '__about__.py'))
+                abt_dist = abt.get('__dist__')
+                if abt_dist is not None:
+                    if not isinstance(abt_dist, str) or not abt_dist:
+                        raise ValueError(dir_prefix, dir_name, abt_dist)
+                    dist = abt_dist
+
+            children = {}
+            for dn in dns:
+                c = rec(dir_path, dn, dist)
+                if c is not None:
+                    children[dn] = c
+
+            return Distribution.PkgNode(
+                name=dir_name,
+                dir_path=dir_path,
+                full_name='.'.join([*(dir_prefix.split(os.path.sep) if dir_prefix else []), dir_name]),
+                file_names=fns,
+                dist=dist,
+                children=children,
+            )
+
+        return rec('', PROJECT, None)
+
+    @cached_property  # noqa
+    @property
+    def pkg_nodes(self) -> ta.Sequence[PkgNode]:
+        def rec(n):
+            lst.append(n)
+            for c in n.children.values():
+                rec(c)
+        lst = []
+        rec(self.root_pkg_node)
+        return lst
+
+    @cached_property  # noqa
+    @property
+    def pkg_nodes_by_dir_path(self) -> ta.Mapping[str, PkgNode]:
+        return {n.dir_path: n for n in self.pkg_nodes}
 
     @none_ignoring_cached_property  # noqa
     @property
     def packages(self):
-        return st.find_packages(
-            include=[PROJECT, PROJECT + '.*'],
-            exclude=[
-                'tests', '*.tests', '*.tests.*',
-                'conftest', '*.conftest',
-                *([] if self.is_dev else ['dev', '*.dev', '*.dev.*'])
-            ],
-        )
+        include = {n.full_name for n in self.pkg_nodes if n.dist == __dist__ or __dist__ == 'all'}
+        return st.find_packages(include=sorted(include))
+
+    def get_path_pkg_node(self, path: str) -> ta.Optional[PkgNode]:
+        fdps = path.split(os.path.sep)
+        for i in range(len(fdps) - 1, -1, -1):
+            cp = os.path.sep.join(fdps[:i + 1])
+            n = self.pkg_nodes_by_dir_path.get(cp)
+            if n is not None:
+                return n
+        return None
+
+    # endregion
 
     # region Data
-
-    def _get_static_files(self, path: str) -> ta.Sequence[str]:
-        ret = []
-        for (dirpath, dirnames, filenames) in os.walk(path, followlinks=True):
-            for filename in filenames:
-                for filepath in [os.path.join(dirpath, filename)]:
-                    if (
-                            any(fnmatch.fnmatch(filepath, pat) for pat in INCLUDED_STATIC_FILE_PATHS) and
-                            not any(fnmatch.fnmatch(filepath, pat) for pat in EXCLUDED_STATIC_FILE_PATHS)
-                    ):
-                        ret.append(filepath)
-        return ret
 
     @falsey_ignoring_cached_property  # noqa
     @property
     def package_data(self) -> ta.Mapping[str, ta.Sequence[str]]:
-        return {PROJECT: [
-            *STATIC_FILES,
-            *self._get_static_files(PROJECT),
-        ]}
+        afns = {os.path.join(dp, fn) for dp, dns, fns in os.walk(PROJECT, followlinks=True) for fn in fns}
+        afns.update(e.name for e in os.scandir('.') if not e.is_dir())  # noqa
+
+        ips = [re.compile(p) for p in {*INCLUDED_FILE_PATS, *(DIST.included_file_pats or [])}]
+        eps = [re.compile(p) for p in {*EXCLUDED_FILE_PATS, *(DIST.excluded_file_pats or [])}]
+
+        ffns = {
+            fn for fn in afns
+            if any(p.match(fn) is not None for p in ips) and
+            all(p.match(fn) is None for p in eps)
+        }
+
+        afns = set()
+        for fn in ffns:
+            n = self.get_path_pkg_node(fn)
+            nd = n.dist if n is not None else None
+            if nd == __dist__ or __dist__ == 'all':
+                afns.add(fn)
+
+        return {PROJECT: sorted(afns)}
+
+    @cached_property  # noqa
+    @property
+    def manifest_lines(self) -> ta.Sequence[str]:
+        return [f'exclude {f}' for e in self._cy_ext_modules for f in e.sources]
 
     # endregion
 
@@ -470,9 +688,10 @@ class Distribution(du.core.Distribution):
     def install_requires(self) -> ta.Sequence[str]:
         return [
             *[
-                PROJECT + (('-' + d.name) if d.name is not None else '') + '==' + ABOUT['__version__']
-                for dn in DIST.deps
-                for d in [DISTS_BY_NAME[dn]]],
+                d.rname + '==' + ABOUT['__version__']
+                for dn in (DIST.deps or [])
+                for d in [DISTS_BY_NAME[dn]]
+            ],
         ]
 
     @falsey_ignoring_cached_property  # noqa
@@ -487,12 +706,12 @@ class Distribution(du.core.Distribution):
     @none_ignoring_cached_property  # noqa
     @property
     def ext_modules(self):
-        if not self._has_finalized_options:
-            return _IGNORE
+        if __dist__ not in [None, 'all']:
+            return []
         return [
-            *self._yield_cc_ext_modules(),
-            *self._yield_cy_ext_modules(),
-            *self._yield_m_ext_modules(),
+            *self._cc_ext_modules,
+            *self._cy_ext_modules,
+            *self._m_ext_modules,
         ]
 
     @cached_property  # noqa
@@ -513,29 +732,35 @@ class Distribution(du.core.Distribution):
                 continue
             yield fpath, e
 
-    def _yield_cc_ext_modules(self) -> ta.Iterator[st.Extension]:
+    @cached_property  # noqa
+    @property
+    def _cc_ext_modules(self) -> ta.Sequence[st.Extension]:
+        lst = []
         for fpath, e in self._yield_ext_fpaths('cc/*.cc'):
-            yield st.Extension(
+            lst.append(st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 extra_compile_args=['-std=c++14'],
                 optional=True,
                 **self._exts_by_fname.get(os.path.basename(fpath), {}),
-            )
+            ))
+        return lst
 
-    def _yield_cy_ext_modules(self) -> ta.Iterator[st.Extension]:
+    @cached_property  # noqa
+    @property
+    def _cy_ext_modules(self) -> ta.Sequence[st.Extension]:
         try:
             import Cython
         except ImportError:
             du.log.info('Cython not found, not building cython modules')
-            return
+            return []
 
         import Cython.Build
         import Cython.Compiler.Options
 
-        lst = []
+        raw = []
         for fpath, e in self._yield_ext_fpaths('cy/**/*.pyx'):
-            lst.append(st.Extension(
+            raw.append(st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 language='c++',
@@ -550,8 +775,8 @@ class Distribution(du.core.Distribution):
                 **(e.kwargs if e is not None else {}),
             ))
 
-        yield from Cython.Build.cythonize(
-            lst,
+        lst = Cython.Build.cythonize(
+            raw,
             language_level=3,
             gdb_debug=DEBUG,
             compiler_directives={
@@ -562,12 +787,17 @@ class Distribution(du.core.Distribution):
             },
         )
 
-    def _yield_m_ext_modules(self) -> ta.Iterator[st.Extension]:
-        if not APPLE:
-            return
+        return lst
 
+    @cached_property  # noqa
+    @property
+    def _m_ext_modules(self) -> ta.Sequence[st.Extension]:
+        if not APPLE:
+            return []
+
+        lst = []
         for fpath, e in self._yield_ext_fpaths('m/*.m'):
-            yield st.Extension(
+            lst.append(st.Extension(
                 fpath.rpartition('.')[0].replace('/', '.'),
                 sources=[fpath],
                 extra_link_args=[
@@ -576,7 +806,8 @@ class Distribution(du.core.Distribution):
                 ],
                 optional=True,
                 **self._exts_by_fname.get(os.path.basename(fpath), {}),
-            )
+            ))
+        return lst
 
     # endregion
 
@@ -635,11 +866,12 @@ class CyamlCommand(du.cmd.Command):
 
 if __name__ == '__main__':
     st.setup(
-        name=ABOUT['__title__'] + (('-' + __dist__) if __dist__ is not None else ''),  # noqa
+        name=DIST.rname,
         version=ABOUT['__version__'],
         description=ABOUT['__description__'],
         author=ABOUT['__author__'],
         url=ABOUT['__url__'],
+        license=ABOUT['__license__'],
 
         distclass=Distribution,
         cmdclass=CMDCLASS,
@@ -648,8 +880,6 @@ if __name__ == '__main__':
         classifiers=ABOUT['__classifiers__'],
 
         setup_requires=['setuptools'],
-
-        py_modules=[PROJECT],
 
         include_package_data=True,
 

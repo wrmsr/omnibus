@@ -265,10 +265,8 @@ define do-dist
 
 	if [ $(2) == "1" ] ; then \
 		cp setup-dev.py $(DIST_BUILD_DIR)/setup.py ; \
-		cp MANIFEST-dev.in $(DIST_BUILD_DIR)/MANIFEST.in ; \
 	else \
 		cp setup.py $(DIST_BUILD_DIR)/setup.py ; \
-		cp MANIFEST.in $(DIST_BUILD_DIR)/MANIFEST.in ; \
 	fi
 
 	find $(DIST_BUILD_DIR) -name '*.so' -delete
@@ -581,6 +579,14 @@ ci-test:
 
 
 ### Utils
+
+.PHONY: file-types
+file-types:
+	find $(PROJECT) -type f | \
+		rev | egrep -o '^[^/]+' | rev | \
+		egrep -v '^\.' | grep '\.' | \
+		rev | egrep -o '^[^\.]+' | rev | \
+		sort | uniq -c
 
 .PHONY: my-repl
 my-repl: venv
