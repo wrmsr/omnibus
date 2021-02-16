@@ -414,7 +414,9 @@ def _clean_egg_info_dir(ei_cmd):
             shutil.rmtree(ei)
 
 
-st.command.sdist.sdist.user_options.append(('clean-work-dir', None, 'cleans working directory before building'))
+_CLEAN_WORK_DIR_OPT = ('clean-work-dir', None, 'cleans working directory before building')
+
+st.command.sdist.sdist.user_options.append(_CLEAN_WORK_DIR_OPT)
 st.command.sdist.sdist.clean_work_dir = False
 
 
@@ -513,7 +515,7 @@ try:
 except ImportError:
     pass
 else:
-    wheel.bdist_wheel.bdist_wheel.user_options.append(('clean-work-dir', None, 'cleans working directory before building'))  # noqa
+    wheel.bdist_wheel.bdist_wheel.user_options.append(_CLEAN_WORK_DIR_OPT)
     wheel.bdist_wheel.bdist_wheel.clean_work_dir = False
 
     @_hook(wheel.bdist_wheel.bdist_wheel, 'run')
