@@ -1,9 +1,11 @@
 #@omnibus
 """
 TODO:
- - replace __dist__ = in build
+ - ** oof, support '.venv/bin/python ../omnibus/setup.py install --force'
+ - make_archive hook?
+  - .revision
+  - replace __dist__ = in build
  - .egg dirs in build/
- - .revision
  - do something sensible when running setup.py in dev/exp - even if just raise EnvironmentError
   - all can build any, None can build None, others can't build anything
 """
@@ -91,7 +93,10 @@ def _read_about(fp: ta.Optional[str] = None) -> ta.Mapping[str, ta.Any]:
     return dct
 
 
-ABOUT = _read_about()
+DIR = os.path.realpath(os.path.dirname(__file__))
+
+
+ABOUT = _read_about(os.path.join(DIR, PROJECT, '__about__.py'))
 
 
 APPLE = sys.platform == 'darwin'
@@ -289,6 +294,14 @@ class wrapper:  # noqa
 
     def __call__(self, *args, **kwargs):
         return self._wrapper(self._wrapped, *([self._instance] if self._instance is not None else []), *args, **kwargs)
+
+
+def _strip_dir_prefix(pth: str) -> str:
+    pth = os.path.realpath(pth)
+    pfx = DIR + os.path.sep
+    if not pth.startswith(pfx):
+        raise ValueError(pth)
+    return pth[len(pfx):]
 
 
 # endregion
@@ -585,7 +598,7 @@ class Distribution(du.core.Distribution):
 
             dns = []
             fns = set()
-            for e in os.scandir(dir_path):
+            for e in os.scandir(os.path.join(DIR, dir_path)):
                 if e.is_dir():  # noqa
                     dns.append(e.name)  # noqa
                 else:
@@ -599,7 +612,7 @@ class Distribution(du.core.Distribution):
             if ddist is not None:
                 dist = ddist
             if '__about__.py' in fns:
-                abt = _read_about(os.path.join(dir_path, '__about__.py'))
+                abt = _read_about(os.path.join(DIR, dir_path, '__about__.py'))
                 abt_dist = abt.get('__dist__')
                 if abt_dist is not None:
                     if not isinstance(abt_dist, str) or not abt_dist:
@@ -661,8 +674,13 @@ class Distribution(du.core.Distribution):
     @falsey_ignoring_cached_property  # noqa
     @property
     def package_data(self) -> ta.Mapping[str, ta.Sequence[str]]:
-        afns = {os.path.join(dp, fn) for dp, dns, fns in os.walk(PROJECT, followlinks=True) for fn in fns}
-        afns.update(e.name for e in os.scandir('.') if not e.is_dir())  # noqa
+        afns = {
+            _strip_dir_prefix(os.path.join(dp, fn))
+            for dp, dns, fns in os.walk(os.path.join(DIR, PROJECT), followlinks=True)
+            for fn in fns
+        }
+
+        afns.update(e.name for e in os.scandir(DIR) if not e.is_dir())  # noqa
 
         ips = [re.compile(p) for p in {*INCLUDED_FILE_PATS, *(DIST.included_file_pats or [])}]
         eps = [re.compile(p) for p in {*EXCLUDED_FILE_PATS, *(DIST.excluded_file_pats or [])}]
@@ -734,7 +752,8 @@ class Distribution(du.core.Distribution):
         return dct
 
     def _yield_ext_fpaths(self, pat: str) -> ta.Iterator[ta.Tuple[str, ta.Optional[Ext]]]:
-        for fpath in glob.glob(f'{PROJECT}/_ext/{pat}', recursive=True):
+        for fpath in glob.glob(f'{DIR}/{PROJECT}/_ext/{pat}', recursive=True):
+            fpath = _strip_dir_prefix(fpath)
             e = self._exts_by_fname.get(os.path.basename(fpath))
             if e is not None and not e.cond():
                 continue
