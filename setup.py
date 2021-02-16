@@ -1,4 +1,10 @@
 #@omnibus
+"""
+TODO:
+ - replace __dist__ = in build
+ - .egg dirs in build/
+ - .revision
+"""
 import dataclasses as dc
 import functools
 import glob
