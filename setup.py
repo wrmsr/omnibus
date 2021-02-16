@@ -31,7 +31,7 @@ import distutils.sysconfig
 PROJECT = 'omnibus'
 
 
-__dist__ = 'all'
+__dist__ = None
 
 
 if f'__{PROJECT.upper()}_DIST' in os.environ:
