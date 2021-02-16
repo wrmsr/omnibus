@@ -4,6 +4,7 @@ TODO:
  - replace __dist__ = in build
  - .egg dirs in build/
  - .revision
+ - do something sensible when running setup.py in dev/exp - even if just raise EnvironmentError
 """
 import dataclasses as dc
 import functools
