@@ -5,6 +5,7 @@ TODO:
  - .egg dirs in build/
  - .revision
  - do something sensible when running setup.py in dev/exp - even if just raise EnvironmentError
+  - all can build any, None can build None, others can't build anything
 """
 import dataclasses as dc
 import functools
