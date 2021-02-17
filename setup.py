@@ -2,12 +2,25 @@
 """
 TODO:
  - ** oof, support '.venv/bin/python ../omnibus/setup.py install --force'
+ - pyox support w/ exts
+ - pipx awareness? all was used for in IW was sysdeps lol
+  - https://github.com/indygreg/PyOxidizer/blob/300cde219dbda0cb37dd90822f230b2514ed116b/docs/packaging_extension_modules.rst#building-with-a-custom-distutils
+ - test import * (via lang), at least in all+None
  - make_archive hook?
   - .revision
   - replace __dist__ = in build
  - .egg dirs in build/
+  - build process = make all sdist first, build off that in build/ ?
  - do something sensible when running setup.py in dev/exp - even if just raise EnvironmentError
   - all can build any, None can build None, others can't build anything
+ - codify all this in om.dev.pkg? even if '__dists__' not reusable still hygienic to decouple
+  - also gen piecewise py-file, blocked on asts, same machinery for lambduhs etc
+ - lint:
+  - valid dist name
+  - valid nesting
+ - fix om/conftest.py
+ - reduce makefile usage *without* fsu
+  - audit relevant litecli cmd bullshit
 """
 import dataclasses as dc
 import functools
