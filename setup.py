@@ -21,6 +21,7 @@ TODO:
  - fix om/conftest.py
  - reduce makefile usage *without* fsu
   - audit relevant litecli cmd bullshit
+ - stick authoritative __dist__ on Distribution? need ref in all hooks
 """
 import dataclasses as dc
 import functools
