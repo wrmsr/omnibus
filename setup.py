@@ -1,6 +1,7 @@
 #@omnibus
 """
 TODO:
+ - MetadataInconsistent
  - ** oof, support '.venv/bin/python ../omnibus/setup.py install --force'
  - pyox support w/ exts
  - pipx awareness? all was used for in IW was sysdeps lol
