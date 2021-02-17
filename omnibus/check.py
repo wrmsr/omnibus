@@ -1,5 +1,9 @@
 """
 ~com.google.common.base.Preconditions
+
+TODO:
+ - pluggable _unpack_isinstance_spec - reflect? or at least lang.Callable
+ - and, still: fexprs
 """
 import collections
 import typing as ta
