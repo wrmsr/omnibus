@@ -23,7 +23,7 @@ _HC_PREFIX = '# @simp.'
 
 
 def test_gen():
-    for filnam in glob.glob('**/*.py', recursive=True):
+    for filnam in glob.glob(__package__.split('.')[0] + '/**/*.py', recursive=True):
         with open(filnam, 'r') as f:
             buf = f.read()
 
