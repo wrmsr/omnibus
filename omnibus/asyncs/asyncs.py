@@ -5,6 +5,8 @@ TODO:
   517 ns ± 13.2 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
   - injected io provider - sync vs greenlet aio trampolined
  - push/pull bridge?
+
+https://github.com/sqlalchemy/sqlalchemy/blob/1e75c189da721395bc8c2d899c722a5b9a170404/lib/sqlalchemy/util/_concurrency_py3k.py#L83
 """
 import asyncio
 import concurrent.futures as cf
