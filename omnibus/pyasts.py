@@ -66,5 +66,5 @@ class BasicAnalysis(trees.BasicTreeAnalysis[ast.AST]):
         return col.SkipListDict((ln, self._idx_seq_fac(ns)) for ln, ns in dct.items())
 
 
-def analyze(root: ast.AST) -> trees.BasicTreeAnalysis[ast.AST]:
+def analyze(root: ast.AST) -> BasicAnalysis:
     return BasicAnalysis(root)

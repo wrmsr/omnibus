@@ -3,17 +3,23 @@ TODO:
  - regex first, run through tokenizer next to skip strs (prob have to reconcile w/ regex, tok prob discards cmnts)
  - move all to omnibus.pyasts - + Analysis
  - ** need to disable cy hooks when importing to gen cy hooks lol **
+ - *also* support nicer deco's, but comments have to be first-class for circdeps (lang, ...) - this is high in the stack
+ - MarkedFileFnResolver -> marked 'object' resolver? move to om.pyasts somehow
 """
 import ast
 import bisect
+import dataclasses as dc
 import glob
 import os.path
+import types
+import typing as ta
 
 import yaml
 
 from .. import rendering as ren
 from ... import check
 from ... import lang  # noqa
+from ... import properties
 from ... import pyasts
 from ...serde import mapping as sm
 from ..pyasts import translate
@@ -22,53 +28,100 @@ from ..pyasts import translate
 _HC_PREFIX = '# @simp.'
 
 
-def test_gen():
-    for filnam in glob.glob(__package__.split('.')[0] + '/**/*.py', recursive=True):
-        with open(filnam, 'r') as f:
-            buf = f.read()
+@dc.dataclass(frozen=True)
+class MarkedFn:
+    mark: str
+    fn: ta.Callable
+    pyast: ast.AST
+    mod: types.ModuleType
 
-        lines = buf.splitlines()
-        hcs = {i for i, l in enumerate(lines) if l.strip().startswith(_HC_PREFIX)}
-        if not hcs:
-            continue
 
-        first_nodes_by_lineno = {}
-        root = ast.parse(buf, 'exec')
+class MarkedFileFnResolver(ta.Iterable[MarkedFn]):
+    def __init__(self, file_name: str, mark_prefix: str = _HC_PREFIX) -> None:
+        super().__init__()
+        self._file_name = file_name
+        self._mark_prefix = mark_prefix
 
-        for cur in ast.walk(root):
+    @properties.cached  # noqa
+    @property
+    def content(self) -> str:
+        with open(self._file_name, 'r') as f:
+            return f.read()
+
+    @properties.cached  # noqa
+    @property
+    def mod(self) -> types.ModuleType:
+        n, _, ext = self._file_name.rpartition('.')
+        check.state(ext == 'py')
+        return lang.import_module(n.replace(os.path.sep, '.'))
+
+    @properties.cached
+    @property
+    def lines(self) -> ta.Sequence[str]:
+        return self.content.splitlines()
+
+    @properties.cached  # noqa
+    @property
+    def marked_linenos(self) -> ta.AbstractSet[int]:
+        return {i for i, l in enumerate(self.lines) if l.strip().startswith(self._mark_prefix)}
+
+    @properties.cached  # noqa
+    @property
+    def pyast(self) -> ast.AST:
+        return ast.parse(self.content, 'exec')
+
+    @properties.cached  # noqa
+    @property
+    def basic(self) -> pyasts.BasicAnalysis:
+        return pyasts.analyze(self.pyast)
+
+    @properties.cached  # noqa
+    @property
+    def first_nodes_by_lineno(self) -> ta.Mapping[int, ast.AST]:
+        dct = {}
+        for cur in ast.walk(self.pyast):
             if (
                     isinstance(cur, ast.AST) and
                     hasattr(cur, 'lineno') and
                     cur.lineno and
-                    cur.lineno not in first_nodes_by_lineno
+                    cur.lineno not in dct
             ):
-                first_nodes_by_lineno[cur.lineno] = cur
+                dct[cur.lineno] = cur
+        return dct
 
-        hc_nodes = {}
-        linenos = sorted(first_nodes_by_lineno)
-        for hc in hcs:
-            i = bisect.bisect(linenos, hc)
+    @properties.cached  # noqa
+    @property
+    def marked_pyasts_by_mark_lineno(self) -> ta.Mapping[int, ast.AST]:
+        if not self.marked_linenos:
+            return {}
+        dct = {}
+        linenos = sorted(self.first_nodes_by_lineno)
+        for ln in self.marked_linenos:
+            i = bisect.bisect(linenos, ln)
             # TODO: while(isinstance(hcn, ast.Decorator)): ...
-            hc_nodes[hc] = first_nodes_by_lineno[linenos[i]]
+            dct[ln] = self.first_nodes_by_lineno[linenos[i]]
+        return dct
 
-        basic = pyasts.analyze(root)
+    class FnResolver:
+        def __init__(self, parent: 'MarkedFileFnResolver', mark_lineno: int) -> None:
+            super().__init__()
+            self._parent = parent
+            self._mark_lineno = mark_lineno
 
-        for hc, hc_node in hc_nodes.items():
-            fn = check.isinstance(hc_node, ast.FunctionDef)
-            print(fn.name)
-            print(fn)
-            print()
+            self._mark = self._parent.lines[self._mark_lineno]
+            self._pyast = self._parent.marked_pyasts_by_mark_lineno[mark_lineno]
 
+        @properties.cached  # noqa
+        @property
+        def mqn(self) -> str:
             ps = []
-            c = fn
+            c = self._pyast
             while True:
-                p = basic.parents_by_node[c]
+                p = self._parent.basic.parents_by_node[c]
                 if not p:
                     break
                 ps.append(p)
                 c = p
-            print(ps)
-            print()
 
             ns = []
             check.isinstance(ps[-1], ast.Module)
@@ -78,27 +131,38 @@ def test_gen():
                 else:
                     raise TypeError(p)
 
-            mqfn = '.'.join([*ns, fn.name])
-            print(mqfn)
-            print()
+            return '.'.join([*ns, self._pyast.name])
 
-            # 'omnibus/lang/descriptors.py'
-            n, _, ext = filnam.rpartition('.')
-            check.state(ext == 'py')
-            mod = lang.import_module(n.replace(os.path.sep, '.'))
-            print(mod)
-            print()
-
-            o = mod
-            for p in mqfn.split('.'):
+        @properties.cached  # noqa
+        @property
+        def fn(self) -> ta.Callable:
+            o = self._parent.mod
+            for p in self.mqn.split('.'):
                 o = getattr(o, p)
-            print(o)
-            print()
+            return check.callable(o)
 
-            # for p in ps:
-            #     if isinstance(p, ast.Class)
+        @properties.cached  # noqa
+        @property
+        def marked_fn(self) -> MarkedFn:
+            return MarkedFn(
+                mark=self._mark,
+                fn=self.fn,
+                pyast=self._pyast,
+                mod=self._parent.mod,
+            )
 
-            nr = translate(fn)
+    def __iter__(self) -> ta.Iterator[MarkedFn]:
+        for ln in self.marked_pyasts_by_mark_lineno:
+            fnr = self.FnResolver(self, ln)
+            yield fnr.marked_fn
+
+
+def test_gen():
+    for file_name in glob.glob(__package__.split('.')[0] + '/**/*.py', recursive=True):
+        mffr = MarkedFileFnResolver(file_name)
+        for mf in mffr:
+            nr = translate(mf.pyast)
+
             print(yaml.dump(sm.serialize(nr)))
             print()
 
