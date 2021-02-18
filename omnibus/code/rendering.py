@@ -31,8 +31,9 @@ class DataPart(dc.Enum):
     pass
 
 
-class Paren(DataPart):
+class Wrap(DataPart):
     part: Part = dc.field(coerce=_check_part)
+    wrapper: ta.Tuple[str, str] = ('(', ')')
 
 
 class List(DataPart):
@@ -66,8 +67,8 @@ class PartTransform(dispatch.Class):
     def __call__(self, part: collections.abc.Sequence) -> Part:  # noqa
         return [self(c) for c in part]
 
-    def __call__(self, part: Paren) -> Part:  # noqa
-        return Paren(self(part.part))
+    def __call__(self, part: Wrap) -> Part:  # noqa
+        return Wrap(self(part.part))
 
     def __call__(self, part: List) -> Part:  # noqa
         return List([self(c) for c in part.parts], part.delimiter, part.trailer)
@@ -172,10 +173,10 @@ class PartRenderer(dispatch.Class):
     def __call__(self, part: DataPart) -> None:  # noqa
         raise TypeError(part)
 
-    def __call__(self, part: Paren) -> None:  # noqa
-        self._write('(')
+    def __call__(self, part: Wrap) -> None:  # noqa
+        self._write(part.wrapper[0])
         self(part.part)
-        self._write(')')
+        self._write(part.wrapper[1])
 
     def __call__(self, part: List) -> None:  # noqa
         for i, c in enumerate(part.parts):

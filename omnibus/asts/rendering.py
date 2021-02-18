@@ -22,7 +22,7 @@ class Renderer(dispatch.Class):
         raise TypeError(node)
 
     def paren(self, node: no.Node) -> r.Part:  # noqa
-        return r.Paren(self(node)) if needs_paren(node) else self(node)
+        return r.Wrap(self(node)) if needs_paren(node) else self(node)
 
     def render(self, node: no.Arg) -> r.Part:  # noqa
         if node.default is not None:

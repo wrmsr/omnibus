@@ -26,7 +26,7 @@ class Renderer(dispatch.Class):
         raise TypeError(node)
 
     def paren(self, node: no.Node) -> r.Part:  # noqa
-        return r.Paren(self(node)) if needs_paren(node) else self(node)
+        return r.Wrap(self(node)) if needs_paren(node) else self(node)
 
     def render(self, node: no.Arg) -> r.Part:  # noqa
         if node.default is not None:
@@ -63,9 +63,7 @@ class Renderer(dispatch.Class):
     def render(self, node: no.Call) -> r.Part:  # noqa
         return r.Concat([
             self.render(node.fn),
-            '(',
-            r.List([self.render(a) for a in [*node.args, *node.keywords]]),
-            ')',
+            r.Wrap(r.List([self.render(a) for a in [*node.args, *node.keywords]])),
         ])
 
     def render(self, node: no.CmpExpr) -> r.Part:  # noqa
@@ -81,7 +79,7 @@ class Renderer(dispatch.Class):
         return self.render(node.expr)
 
     def render(self, node: no.Fn) -> r.Part:  # noqa
-        args = [self.render(node.name), '(', self.render(node.args), ')']
+        args = [self.render(node.name), r.Wrap(self.render(node.args))]
         if node.annotation is not None:
             proto = [r.Concat(args), '->', r.Concat([self.render(node.annotation), ':'])]
         else:
