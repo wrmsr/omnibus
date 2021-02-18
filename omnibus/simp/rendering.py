@@ -102,7 +102,7 @@ class Renderer(dispatch.Class):
         return r.Concat([self.render(node.obj), '.', self.render(node.attr)])
 
     def render(self, node: no.GetItem) -> r.Part:  # noqa
-        return r.Concat([self.render(node.obj), '[', self.render(node.idx), ']'])
+        return r.Concat([self.render(node.obj), r.Wrap(self.render(node.idx), ('[', ']'))])
 
     def render(self, node: no.GetVar) -> r.Part:  # noqa
         return self.render(node.name)
@@ -158,9 +158,7 @@ class Renderer(dispatch.Class):
         return [
             r.Concat([
                 self.render(node.obj),
-                '[',
-                self.render(node.idx),
-                ']',
+                r.Wrap(self.render(node.idx), ('[', ']')),
                 *([':'] if node.annotation is not None else []),
             ]),
             *([self.render(node.annotation)] if node.annotation is not None else []),

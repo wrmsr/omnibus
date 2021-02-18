@@ -68,7 +68,7 @@ class PartTransform(dispatch.Class):
         return [self(c) for c in part]
 
     def __call__(self, part: Wrap) -> Part:  # noqa
-        return Wrap(self(part.part))
+        return Wrap(self(part.part), part.wrapper)
 
     def __call__(self, part: List) -> Part:  # noqa
         return List([self(c) for c in part.parts], part.delimiter, part.trailer)
