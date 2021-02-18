@@ -5,8 +5,3 @@ requires = [
     "wheel",
     "Cython>=0.29",
 ]
-
-# [tool.black]
-# line-length = 120
-# target-version = ['py37', 'py38']
-# exclude = ".*/tests/cpython/.*"
