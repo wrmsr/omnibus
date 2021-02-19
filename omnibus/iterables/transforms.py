@@ -22,6 +22,11 @@ from .. import lang
 
 
 T = ta.TypeVar('T')
+U = ta.TypeVar('U')
+
+It = ta.Iterable[T]
+Gen = ta.Generator[T, None, None]
+ItToGen = ta.Callable[[It[T]], Gen[U]]
 
 
 map_ = map
@@ -93,22 +98,22 @@ def compose(*children):
 
 
 @alias()
-def nop(items):
+def nop(items: T) -> T:
     return items
 
 
 @alias()
-def lazy(items):
+def lazy(items: It[T]) -> Gen[T]:
     yield from items
 
 
 @alias()
-def eager(items):
-    return items if isinstance(items, (list, tuple)) else list(items)
+def eager(items: It[T]) -> ta.Sequence[T]:
+    return items if isinstance(items, ta.Sequence) else list(items)
 
 
 @alias()
-def discard(items):
+def discard(items: It[T]) -> Gen[None]:
     for _ in items:
         pass
     return
@@ -116,7 +121,7 @@ def discard(items):
 
 
 @constructor()
-def apply(function):
+def apply(function: ta.Callable[[T], ta.Any]) -> ItToGen[T, T]:
     check.callable(function)
 
     def run(items):
@@ -128,17 +133,17 @@ def apply(function):
 
 
 @constructor()
-def map(function):
+def map(function: ta.Callable[[T], U]) -> ItToGen[T, U]:
     return functools.partial(map_, check.callable(function))
 
 
 @constructor()
-def filter(predicate):
+def filter(predicate: ta.Callable[[T], bool]) -> ItToGen[T, T]:
     return functools.partial(filter_, check.callable(predicate))
 
 
 @constructor()
-def filter_false(predicate):
+def filter_false(predicate: ta.Callable[[T], bool]) -> ItToGen[T, T]:
     return functools.partial(itertools.filterfalse, check.callable(predicate))
 
 
@@ -157,17 +162,17 @@ def zip_same_length(*its):
 
 
 @constructor()
-def type_filter(type):
-    return filter(lambda obj: isinstance(obj, type))
+def type_filter(cls: ta.Type) -> ItToGen[T, T]:
+    return filter(lambda obj: isinstance(obj, cls))
 
 
 @constructor()
-def type_remove(type):
-    return filter(lambda obj: not isinstance(obj, type))
+def type_remove(cls: ta.Type) -> ItToGen[T, T]:
+    return filter(lambda obj: not isinstance(obj, cls))
 
 
 @constructor()
-def flat_map(function):
+def flat_map(function: ta.Callable[[T], ta.Iterable[U]]) -> ItToGen[T, U]:
     return compose(map(function), flatten)
 
 
