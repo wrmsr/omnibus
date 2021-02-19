@@ -5,6 +5,11 @@ TODO:
  - ** need to disable cy hooks when importing to gen cy hooks lol **
  - *also* support nicer deco's, but comments have to be first-class for circdeps (lang, ...) - this is high in the stack
  - MarkedFileFnResolver -> marked 'object' resolver? move to om.pyasts somehow
+
+cy nodes:
+ - DEF
+ - cdef var
+ - cdef fn
 """
 import ast
 import bisect
