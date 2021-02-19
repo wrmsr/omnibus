@@ -91,7 +91,7 @@ class Renderer(dispatch.Class):
         return r.Concat(['[', r.List([self.render(e) for e in node.items]), ']'])
 
     def render(self, node: no.Name) -> r.Part:  # noqa
-        return node.name
+        return node.id
 
     def render(self, node: no.Return) -> r.Part:  # noqa
         return ['return', *([self.render(node.value)] if node.value is not None else [])]
