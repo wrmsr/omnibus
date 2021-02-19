@@ -115,13 +115,45 @@ class Translator(dispatch.Class):
         _check_ast_fields(an, [])
         return no.AnnAssign()
 
+    def translate(self, an: ast.arg) -> no.Node:  # noqa
+        _check_ast_fields(an, ['arg', 'annotation'])
+        return no.Arg(
+            no.Ident(an.arg),
+            annotation=self.translate(an.annotation) if an.annotation is not None else None,
+        )
+
+    def translate(self, an: ast.arguments) -> no.Node:  # noqa
+        _check_ast_fields(an, ['args', 'vararg', 'kwonlyargs', 'kw_defaults', 'kwarg', 'defaults'])
+
+        def zip_defaults(al, dl):
+            return [(a, d) for a, d in zip(al, ([None] * (len(al) - len(dl or [])) + list(dl or [])))]
+
+        def set_defaults(al, dl):
+            return [
+                dc.replace(
+                    check.isinstance(self.translate(a), no.Arg),
+                    default=self.translate(d) if d is not None else None,
+                )
+                for a, d in zip_defaults(al, dl)
+            ]
+
+        return no.Args(
+            set_defaults(an.args, an.defaults),
+            self.translate(an.vararg) if an.vararg is not None else None,
+            set_defaults(an.kwonlyargs, an.kw_defaults),
+            self.translate(an.kwarg) if an.vararg is not None else None,
+        )
+
     def translate(self, an: ast.Assert) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.Assert()
 
     def translate(self, an: ast.Assign) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.Assign()
+        _check_ast_fields(an, ['targets', 'value'])
+        return no.Assign(
+            targets=[self.translate(e) for e in an.targets],
+            value=self.translate(an.value),
+        )
 
     def translate(self, an: ast.AsyncFor) -> no.Node:  # noqa
         _check_ast_fields(an, [])
@@ -136,8 +168,11 @@ class Translator(dispatch.Class):
         return no.AsyncWith()
 
     def translate(self, an: ast.Attribute) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.Attribute()
+        _check_ast_fields(an, ['value', 'attr', 'ctx'])
+        return no.Attribute(
+            value=self.translate(an.value),
+            attr=an.attr,
+        )
 
     def translate(self, an: ast.AugAssign) -> no.Node:  # noqa
         _check_ast_fields(an, [])
@@ -169,8 +204,12 @@ class Translator(dispatch.Class):
         return no.Break()
 
     def translate(self, an: ast.Call) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.Call()
+        _check_ast_fields(an, ['func', 'args', 'keywords'])
+        return no.Call(
+            self.translate(an.func),
+            [self.translate(a) for a in an.args],
+            [self.translate(k) for k in (an.keywords or [])],
+        )
 
     def translate(self, an: ast.ClassDef) -> no.Node:  # noqa
         _check_ast_fields(an, [])
@@ -205,16 +244,26 @@ class Translator(dispatch.Class):
         return no.ExprStmt(self.translate(an.value))
 
     def translate(self, an: ast.For) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.For()
+        _check_ast_fields(an, ['target', 'iter', 'body', 'orelse'])
+        return no.For(
+            target=self.translate(an.target),
+            iter=self.translate(an.iter),
+            body=[self.translate(b) for b in an.body],
+            or_else=[self.translate(b) for b in an.orelse] if an.orelse is not None else an.orelse,
+        )
 
     def translate(self, an: ast.FormattedValue) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.FormattedValue()
 
     def translate(self, an: ast.FunctionDef) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.FunctionDef()
+        _check_ast_fields(an, ['name', 'args', 'body', 'returns'])
+        return no.FunctionDef(
+            name=an.name,
+            args=self.translate(an.args),
+            body=[self.translate(b) for b in an.body],
+            returns=self.translate(an.returns) if an.returns is not None else None,
+        )
 
     def translate(self, an: ast.GeneratorExp) -> no.Node:  # noqa
         _check_ast_fields(an, [])
@@ -233,12 +282,12 @@ class Translator(dispatch.Class):
         return no.IfExp()
 
     def translate(self, an: ast.Import) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.Import()
+        _check_ast_fields(an, ['names'])
+        return no.Import(an.names)
 
     def translate(self, an: ast.ImportFrom) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.ImportFrom()
+        _check_ast_fields(an, ['module', 'names', 'level'])
+        return no.ImportFrom(an.module, an.names, an.level)
 
     def translate(self, an: ast.JoinedStr) -> no.Node:  # noqa
         _check_ast_fields(an, [])
@@ -249,16 +298,16 @@ class Translator(dispatch.Class):
         return no.Lambda()
 
     def translate(self, an: ast.List) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.List()
+        _check_ast_fields(an, ['elts', 'ctx'])
+        return no.List([self.translate(e) for e in an.elts])
 
     def translate(self, an: ast.ListComp) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.ListComp()
 
     def translate(self, an: ast.Name) -> no.Node:  # noqa
-        _check_ast_fields(an, [])
-        return no.Name()
+        _check_ast_fields(an, ['id', 'ctx'])
+        return no.Name(an.id)
 
     def translate(self, an: ast.NamedExpr) -> no.Node:  # noqa
         _check_ast_fields(an, [])

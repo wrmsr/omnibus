@@ -122,7 +122,7 @@ class ListComp(Expr):
 
 
 class Name(Expr):
-    name: str
+    id: str
 
 
 class NamedExpr(Expr):
