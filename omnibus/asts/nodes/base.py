@@ -42,6 +42,11 @@ class TypeCommented(dc.Data, frozen=True, abstract=True, sealed='package', reord
     type_comment: ta.Optional[str] = None
 
 
+class Alias(Node):
+    name: str
+    as_: ta.Optional[str] = None
+
+
 class Arg(Node, Annotated, TypeCommented):
     name: str
     default: ta.Optional[Expr] = None

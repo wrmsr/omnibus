@@ -24,6 +24,9 @@ class Renderer(dispatch.Class):
     def paren(self, node: no.Node) -> r.Part:  # noqa
         return r.Wrap(self(node)) if needs_paren(node) else self(node)
 
+    def render(self, node: no.Alias) -> r.Part:  # noqa
+        return [node.name, ['as', node.as_] if node.as_ is not None else []]
+
     def render(self, node: no.Arg) -> r.Part:  # noqa
         if node.default is not None:
             default = ['=', self.render(node.default)]
@@ -81,8 +84,14 @@ class Renderer(dispatch.Class):
         return [
             'def',
             proto,
-            self.render(check.single(node.body)),  # FIXME: ...
+            r.Block([self.render(b) for b in node.body]),
         ]
+
+    def render(self, node: no.Import) -> r.Part:  # noqa
+        return ['import', r.List([self.render(n) for n in node.names])]
+
+    def render(self, node: no.ImportFrom) -> r.Part:  # noqa
+        return ['from', node.module, 'import', r.List([self.render(n) for n in node.names])]
 
     def render(self, node: no.Lambda) -> r.Part:  # noqa
         return ['lambda', r.Concat([self.render(node.args), ':']), self.render(node.body)]
@@ -90,11 +99,14 @@ class Renderer(dispatch.Class):
     def render(self, node: no.List) -> r.Part:  # noqa
         return r.Concat(['[', r.List([self.render(e) for e in node.items]), ']'])
 
+    def render(self, node: no.Module) -> r.Part:  # noqa
+        return [self.render(d) for d in node.stmts]
+
     def render(self, node: no.Name) -> r.Part:  # noqa
         return node.id
 
     def render(self, node: no.Return) -> r.Part:  # noqa
-        return ['return', *([self.render(node.value)] if node.value is not None else [])]
+        return ['return', [self.render(node.value)] if node.value is not None else []]
 
     def render(self, node: no.Set) -> r.Part:  # noqa
         return r.Concat(['{', r.List([self.render(e) for e in node.items]), '}'])

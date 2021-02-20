@@ -1,6 +1,7 @@
 import ast  # noqa
 import typing as ta
 
+from .base import Alias
 from .base import Annotated
 from .base import Args
 from .base import Expr
@@ -111,12 +112,12 @@ class If(Stmt):
 
 
 class Import(Stmt):
-    names: Strs
+    names: ta.Sequence[Alias]
 
 
 class ImportFrom(Stmt):
     module: str
-    names: str
+    names: ta.Sequence[Alias]
     level: ta.Optional[int] = None
 
 

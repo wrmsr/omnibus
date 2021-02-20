@@ -10,7 +10,7 @@ def test_pyasts():
     for s in [
         '123',
         '1 + 1',
-        open(__file__, 'r').read(),
+        # open(__file__, 'r').read(),
     ]:
         an = ast.parse(s, 'exec')
         print(an)
@@ -18,5 +18,5 @@ def test_pyasts():
         n = pyasts.translate(an)
         print(n)
 
-        # print(rendering.render(n))
+        print(rendering.render(n))
         print()

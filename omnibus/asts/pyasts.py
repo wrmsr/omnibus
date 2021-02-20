@@ -1,6 +1,5 @@
 """
 AST
-  alias
   arg
   arguments
   comprehension
@@ -26,6 +25,7 @@ import typing as ta
 
 from . import nodes as no
 from .. import check
+from .. import dataclasses as dc
 from .. import dispatch
 
 
@@ -114,6 +114,10 @@ class Translator(dispatch.Class):
     def translate(self, an: ast.AnnAssign) -> no.Node:  # noqa
         _check_ast_fields(an, [])
         return no.AnnAssign()
+
+    def translate(self, an: ast.alias) -> no.Node:  # noqa
+        _check_ast_fields(an, ['name', 'asname'])
+        return no.Alias(an.name, an.asname)
 
     def translate(self, an: ast.arg) -> no.Node:  # noqa
         _check_ast_fields(an, ['arg', 'annotation'])
@@ -283,11 +287,11 @@ class Translator(dispatch.Class):
 
     def translate(self, an: ast.Import) -> no.Node:  # noqa
         _check_ast_fields(an, ['names'])
-        return no.Import(an.names)
+        return no.Import([self.translate(n) for n in an.names])
 
     def translate(self, an: ast.ImportFrom) -> no.Node:  # noqa
         _check_ast_fields(an, ['module', 'names', 'level'])
-        return no.ImportFrom(an.module, an.names, an.level)
+        return no.ImportFrom(an.module, [self.translate(n) for n in an.names], an.level)
 
     def translate(self, an: ast.JoinedStr) -> no.Node:  # noqa
         _check_ast_fields(an, [])

@@ -3,6 +3,7 @@ TODO:
  - ** diffing **
  - explicit subclass registration for serde
  - (optional) id + refs
+ - stronger typechecking.. ta.Sequence[str]
 """
 import collections.abc
 import operator
