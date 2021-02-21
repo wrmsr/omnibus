@@ -111,6 +111,7 @@ class Validation(Aspect):
                 chk_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check
                 chk_ty_md = fld.metadata.get(ExtraFieldParams, ExtraFieldParams()).check_type
                 if chk_ty_md is not None:
+                    # FIXME: dedupe against check._unpack_bullshit
                     if isinstance(chk_ty_md, tuple) and None in chk_ty_md:
                         chk_ty_md = tuple(filter(None, chk_ty_md)) + (type(None),)
                     isinstance(None, chk_ty_md)  # noqa

@@ -1,5 +1,6 @@
 """
 TODO:
+ - use importlib already?
  - pkgutil.walk_packages?
  - importutil._util._LazyModule
 """

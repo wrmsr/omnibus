@@ -3,6 +3,28 @@ TODO:
  - SingletonEnum? - java-style inner classes are all singletons - could tools understand shared parent inheritance?
  - inheritance>
  - IntEnum/Flag from base
+
+TODO:
+
+@functools.total_ordering
+class OrderedEnum(enum.Enum):
+    __member_indexes__: ta.ClassVar[ta.Mapping[ta.Any, int]]
+    def __lt__(self, other):
+        if type(self) is not type(self):
+            return NotImplemented
+        try:
+            mi = type(self).__dict__['__member_indexes__']
+        except KeyError:
+            mi = {v: i for i, v in enumerate(type(self))}
+            setattr(type(self), '__member_indexes__', mi)
+        return mi[self] < mi[other]
+
+@functools.total_ordering
+class ValueOrderedEnum(Enum):
+    def __lt__(self, other):
+        if type(self) is not type(other):
+            return NotImplemented
+        return self.value < other.value
 """
 import enum
 import typing as ta

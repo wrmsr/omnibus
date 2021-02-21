@@ -22,6 +22,10 @@ from .classes import LazySingleton  # noqa
 from .classes import make_abstract  # noqa
 from .classes import Marker  # noqa
 from .classes import Mixin  # noqa
+from .classes import Resolvable  # noqa
+from .classes import ResolvableClassNameError  # noqa
+from .classes import get_cls_fqcn  # noqa
+from .classes import get_fqcn_cls  # noqa
 from .classes import Namespace  # noqa
 from .classes import NotInstantiable  # noqa
 from .classes import NotPicklable  # noqa
