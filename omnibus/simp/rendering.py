@@ -136,10 +136,10 @@ class Renderer(dispatch.Class):
         return node.glyph_parts
 
     def render(self, node: no.Raise) -> r.Part:  # noqa
-        return ['raise', *([self.render(node.value)] if node.value is not None else [])]
+        return ['raise', [self.render(node.value)] if node.value is not None else []]
 
     def render(self, node: no.Return) -> r.Part:  # noqa
-        return ['return', *([self.render(node.value)] if node.value is not None else [])]
+        return ['return', [self.render(node.value)] if node.value is not None else []]
 
     def render(self, node: no.SetAttr) -> r.Part:  # noqa
         return [
@@ -149,7 +149,7 @@ class Renderer(dispatch.Class):
                 self.render(node.attr),
                 *([':'] if node.annotation is not None else []),
             ]),
-            *([self.render(node.annotation)] if node.annotation is not None else []),
+            [self.render(node.annotation)] if node.annotation is not None else [],
             '=',
             self.render(node.value),
         ]
@@ -161,7 +161,7 @@ class Renderer(dispatch.Class):
                 r.Wrap(self.render(node.idx), ('[', ']')),
                 *([':'] if node.annotation is not None else []),
             ]),
-            *([self.render(node.annotation)] if node.annotation is not None else []),
+            [self.render(node.annotation)] if node.annotation is not None else [],
             '=',
             self.render(node.value),
         ]
@@ -169,7 +169,7 @@ class Renderer(dispatch.Class):
     def render(self, node: no.SetVar) -> r.Part:  # noqa
         return [
             r.Concat([self.render(node.name), *([':'] if node.annotation is not None else [])]),
-            *([self.render(node.annotation)] if node.annotation is not None else []),
+            [self.render(node.annotation)] if node.annotation is not None else [],
             '=',
             self.render(node.value),
         ]
