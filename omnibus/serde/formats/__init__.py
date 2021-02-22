@@ -5,6 +5,6 @@ TODO:
  - stream json
  - fast (enough) json? ditch uj/orj?
  - edn r/w
- - cbor
+ - cbor (simp'd)
  - ** no proto / thrift ** - dedicated pkgs
 """
