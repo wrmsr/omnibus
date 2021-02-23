@@ -120,6 +120,7 @@ class ExtraParams(lang.Final):
     field_attrs: bool = False
     kwonly: ta.Optional[bool] = None
     cache_hash: ta.Union[bool, str] = False
+    strict_eq: ta.Union[bool] = False
     pickle: bool = False
     reorder: bool = False
     allow_setattr: ta.Union[bool, str, ta.Iterable[str]] = False
@@ -135,6 +136,7 @@ class ExtraParams(lang.Final):
         check.isinstance(self.field_attrs, (bool, MISSING_TYPE))
         check.isinstance(self.kwonly, (bool, None, MISSING_TYPE))
         check.isinstance(self.cache_hash, (bool, str, MISSING_TYPE))
+        check.isinstance(self.strict_eq, (bool, MISSING_TYPE))
         check.isinstance(self.pickle, (bool, MISSING_TYPE))
         check.isinstance(self.reorder, (bool, MISSING_TYPE))
         check.isinstance(self.allow_setattr, (bool, str, ta.Iterable, MISSING_TYPE))

@@ -89,7 +89,7 @@ class Eq(Aspect):
                 code.ArgSpec(['self', 'other']),
                 '\n'.join([
                     f'if other.__class__ is self.__class__: return {self_tuple} == {other_tuple}',
-                    'return NotImplemented',
+                    'raise TypeError(self, other)' if self.ctx.extra_params.strict_eq else 'return NotImplemented',
                 ]),
             ),
         )]

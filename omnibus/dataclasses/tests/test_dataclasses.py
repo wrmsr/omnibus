@@ -929,3 +929,22 @@ def test_eager_props():
     assert b.x == 20
     assert b.y == 21
     assert nc == 1
+
+
+def test_strict_eq():
+    @api_.dataclass()
+    class A:
+        x: int = 2
+
+    assert A(2) == A(2)
+    assert A(2) != A(3)
+    assert A(2) != 2
+
+    @api_.dataclass(strict_eq=True)
+    class B:
+        x: int = 2
+
+    assert B(2) == B(2)
+    assert B(2) != B(3)
+    with pytest.raises(TypeError):
+        B(2) == 2  # noqa
