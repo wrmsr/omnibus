@@ -125,9 +125,10 @@ _Cell = ta.Any
 
 class CellLambda(LambdaWrapper[T], cl.Final):
 
-    def __init__(self, name: str, cell: _Cell) -> None:
+    def __init__(self, name: str, whence: str, cell: _Cell) -> None:
         super().__init__()
         self._name = name
+        self._whence = whence
         self._cell = cell
 
     @property
@@ -135,11 +136,15 @@ class CellLambda(LambdaWrapper[T], cl.Final):
         return self._name
 
     @property
+    def whence(self) -> str:
+        return self._whence
+
+    @property
     def cell(self) -> _Cell:
         return self._cell
 
     def __str__(self) -> str:
-        return f'{self.__class__.__name__}<{self._name}@{id(self._cell):x}>'
+        return f'{self.__class__.__name__}<{self._whence}::{self._name}@{id(self._cell):x}>'
 
     def __call__(self) -> T:
         return self._cell.cell_contents
@@ -157,7 +162,8 @@ class CellLambda(LambdaWrapper[T], cl.Final):
 
         [name] = names
         [cell] = obj.__closure__
-        return CellLambda(name, cell)
+        whence = '.'.join(p for s in [obj.__module__, obj.__qualname__] for p in s.split('.') if p.isidentifier())
+        return CellLambda(name, whence, cell)
 
 
 const = ConstLambda
@@ -213,6 +219,7 @@ def test_wrap():
     assert gl() is GLOBAL_C
 
     cell2 = object()
-    l = maybe_wrap(lambda: cell2)
+    rl = lambda: cell2
+    l = maybe_wrap(rl)
     assert isinstance(l, CellLambda)
     assert l() is cell2
