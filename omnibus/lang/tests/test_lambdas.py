@@ -1,4 +1,5 @@
 import abc
+import functools
 import typing as ta
 
 from .. import classes as cl
@@ -35,7 +36,10 @@ class LambdaWrapper(ta.Generic[T], cl.Abstract):
             return obj
         if not isinstance(obj, type(lambda: 0)):
             return obj
-        return cls._maybe_of(obj)
+        ret = cls._maybe_of(obj)
+        if ret is not obj:
+            functools.update_wrapper(ret, obj)
+        return ret
 
     @abc.abstractclassmethod  # noqa
     def _maybe_of(cls, obj):
@@ -164,9 +168,6 @@ class CellLambda(LambdaWrapper[T], cl.Final):
         [cell] = obj.__closure__
         whence = '.'.join(p for s in [obj.__module__, obj.__qualname__] for p in s.split('.') if p.isidentifier())
         return CellLambda(name, whence, cell)
-
-
-const = ConstLambda
 
 
 LAMBDA_WRAPPERS: ta.Sequence[ta.Type[LambdaWrapper]] = [
