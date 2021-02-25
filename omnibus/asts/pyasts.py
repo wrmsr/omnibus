@@ -1,7 +1,5 @@
 """
 AST
-  arg
-  arguments
   comprehension
   excepthandler
     ExceptHandler
