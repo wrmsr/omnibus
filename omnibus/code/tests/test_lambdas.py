@@ -2,8 +2,8 @@ import abc
 import functools
 import typing as ta
 
-from .. import classes as cl
-from .. import warn_unstable
+from ... import lang
+from ...lang import warn_unstable
 
 
 warn_unstable()
@@ -25,7 +25,7 @@ def _code_diff(l, r, *, ignore=()):
     return {k: (vl, vr) for k in sorted({*dl, *dr}) for vl, vr in [(dl.get(k), dr.get(k))] if vl != vr}
 
 
-class LambdaWrapper(ta.Generic[T], cl.Abstract):
+class LambdaWrapper(ta.Generic[T], lang.Abstract):
     @abc.abstractmethod
     def __call__(self) -> T:
         raise NotImplementedError
@@ -46,7 +46,7 @@ class LambdaWrapper(ta.Generic[T], cl.Abstract):
         raise NotImplementedError
 
 
-class ConstLambda(LambdaWrapper[T], cl.Final):
+class ConstLambda(LambdaWrapper[T], lang.Final):
 
     def __init__(self, value: T) -> None:
         super().__init__()
@@ -82,7 +82,7 @@ class ConstLambda(LambdaWrapper[T], cl.Final):
 _GLOBAL = None
 
 
-class GlobalLambda(LambdaWrapper[T], cl.Final):
+class GlobalLambda(LambdaWrapper[T], lang.Final):
 
     def __init__(self, name: str, module: str, globals: ta.Mapping) -> None:
         super().__init__()
@@ -127,7 +127,7 @@ class GlobalLambda(LambdaWrapper[T], cl.Final):
 _Cell = ta.Any
 
 
-class CellLambda(LambdaWrapper[T], cl.Final):
+class CellLambda(LambdaWrapper[T], lang.Final):
 
     def __init__(self, name: str, whence: str, cell: _Cell) -> None:
         super().__init__()
