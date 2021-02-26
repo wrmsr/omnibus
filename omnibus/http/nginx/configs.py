@@ -1,4 +1,6 @@
 """
+https://blog.detectify.com/2020/11/10/common-nginx-misconfigurations/
+
 daemon off;
 worker_processes 1;
 error_log /dev/null;
