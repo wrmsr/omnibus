@@ -879,29 +879,40 @@ class CyamlCommand(du.cmd.Command):
     description = 'install cyaml'
     user_options = []
 
+    PYYAML_URL = 'https://files.pythonhosted.org/packages/a0/a4/d63f2d7597e1a4b55aa3b4d6c5b029991d3b824b5bd331af8d4ab1ed687d/PyYAML-5.4.1.tar.gz'  # noqa
+    PYYAML_SHA = 'dfa0009b17652ae1605bf0328fabd983ff238a5c'
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
     def run(self):
         self.announce('Installing cyaml')
 
         import tempfile
         dp = tempfile.mkdtemp()
+        du.log.info(f'Building in {dp}')
 
         import os.path
         fp = os.path.join(dp, 'cyaml.tar.gz')
 
         import urllib.request
-        urllib.request.urlretrieve('https://pyyaml.org/download/pyyaml/PyYAML-5.3.1.tar.gz', fp)
+        urllib.request.urlretrieve(self.PYYAML_URL, fp)  # noqa
 
         import hashlib
         sha = hashlib.sha1()
         with open(fp, 'rb') as f:
             sha.update(f.read())
         digest = sha.hexdigest()
-        if digest != '3b20272e119990b2bbeb03815a1dd3f3e48af07e':
+        if digest != self.PYYAML_SHA:
             raise ValueError(f'Hash cyaml mismatch: {digest}')
 
         subprocess.check_call(
             f'cd {dp} && '
-            f'{os.path.abspath(sys.executable)} -m pip install cyaml.tar.gz --global-option="--with-libyaml"'
+            f'{os.path.abspath(sys.executable)} -m pip install cyaml.tar.gz --global-option="--with-libyaml"',
+            shell=True,
         )
 
 

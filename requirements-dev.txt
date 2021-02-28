@@ -9,9 +9,8 @@ wheel>=0.36.0
 
 ## actual code deps
 
-boto3-stubs==1.17.15.0  #@auto
-sqlalchemy-stubs==0.4; implementation_name != 'pypy'
-Mako==1.1.4
+boto3-stubs==1.17.17.0  #@auto
+mako==1.1.4
 pytest-asyncio==0.14.0
 pytest-benchmark==3.2.3
 pytest-clarity==0.3.0a0
@@ -21,19 +20,20 @@ pytest-randomly==3.5.0; implementation_name != 'pypy'
 pytest-timeout==1.4.2
 pytest-xdist==2.2.1
 pytest==6.2.2
+sqlalchemy-stubs==0.4; implementation_name != 'pypy'
 
 
 ## useful tools
 
 astpretty==2.1.0
-awscli==1.19.15  #@auto
+awscli==1.19.17  #@auto
 docutils>=0.15.2  #@conflict
 flake8==3.8.4
 gprof2dot==2021.2.21
 guppy3==3.1.0; implementation_name != 'pypy'
 httpie==2.4.0
 ipdb==0.13.4
-ipython==7.20.0
+ipython==7.21.0
 litecli==1.5.0
 mycli==1.23.2; implementation_name != 'pypy'
 mypy==0.812; implementation_name != 'pypy'
