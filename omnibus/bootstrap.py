@@ -5,6 +5,7 @@ TODO:
  - repl server
  - packaging fixups
  - profiling
+ - rlimits
 """
 import faulthandler
 import gc
