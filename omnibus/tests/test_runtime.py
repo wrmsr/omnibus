@@ -1,6 +1,6 @@
 """
 Given their special status, these are more formal than other interfaces (which increasingly tend to just be callables
-taking a dataclass, in which Nop* is juts void).
+taking a dataclass, in which Nop* is just void).
 
 We want to support and balance the following:
  - contextual (threadlocal and.. 'otherwise') overriding
