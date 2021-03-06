@@ -6,6 +6,7 @@ TODO:
  - packaging fixups
  - profiling
  - rlimits
+ - chdir
 """
 import faulthandler
 import gc

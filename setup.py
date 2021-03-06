@@ -423,10 +423,15 @@ def _dump_zip_file(fp: str) -> None:
 
 
 def _clean_egg_info_dir(ei_cmd):
+    breakpoint()
     ei = ei_cmd.egg_info
     if ei and os.path.isdir(ei):
-        if os.path.isfile(os.path.join(ei, 'SOURCES.txt')):
-            shutil.rmtree(ei)
+        tlfp = os.path.join(ei, 'top_level.txt')
+        if os.path.isfile(tlfp):
+            with open(tlfp, 'r') as f:
+                buf = f.read()
+            if buf.strip() == PROJECT:
+                shutil.rmtree(ei)
 
 
 _CLEAN_WORK_DIR_OPT = ('clean-work-dir', None, 'cleans working directory before building')
