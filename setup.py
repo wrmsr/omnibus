@@ -423,7 +423,6 @@ def _dump_zip_file(fp: str) -> None:
 
 
 def _clean_egg_info_dir(ei_cmd):
-    breakpoint()
     ei = ei_cmd.egg_info
     if ei and os.path.isdir(ei):
         tlfp = os.path.join(ei, 'top_level.txt')
