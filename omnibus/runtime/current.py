@@ -3,9 +3,9 @@ import threading
 import typing as ta
 
 from .default import _DEFAULT
-from .errors import Errors
-from .logging import Logger
-from .metrics import Metrics
+from .facets.errors import Errors
+from .facets.logging import Logger
+from .facets.metrics import Metrics
 from .runtime import InvalidatableRuntime
 from .runtime import Runtime
 
@@ -13,28 +13,16 @@ from .runtime import Runtime
 get: ta.Callable[..., Runtime]
 
 
-def log() -> Logger:
-    return get().log
-
-
-def errors() -> Errors:
-    return get().errors
-
-
-def metrics() -> Metrics:
-    return get().metrics
-
-
 class CurrentRuntime(Runtime):
 
-    def log(self) -> Logger:
-        return log()
-
     def errors(self) -> Errors:
-        return errors()
+        return get().errors
+
+    def log(self) -> Logger:
+        return get().log
 
     def metrics(self) -> Metrics:
-        return metrics()
+        return get().metrics
 
 
 _CURRENT = threading.local()

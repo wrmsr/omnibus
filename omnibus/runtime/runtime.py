@@ -15,19 +15,19 @@ TODO:
 """
 import abc
 
-from .errors import Errors
-from .logging import Logger
-from .metrics import Metrics
+from .facets.errors import Errors
+from .facets.logging import Logger
+from .facets.metrics import Metrics
 
 
 class Runtime(abc.ABC):
 
     @abc.abstractproperty
-    def log(self) -> Logger:
+    def errors(self) -> Errors:
         raise NotImplementedError
 
     @abc.abstractproperty
-    def errors(self) -> Errors:
+    def log(self) -> Logger:
         raise NotImplementedError
 
     @abc.abstractproperty
@@ -55,11 +55,11 @@ class ProxyRuntime(Runtime):
             raise TypeError(underlying)
         self._underlying = underlying
 
-    def log(self) -> Logger:
-        return self._underlying.log
-
     def errors(self) -> Errors:
         return self._underlying.errors
+
+    def log(self) -> Logger:
+        return self._underlying.log
 
     def metrics(self) -> Metrics:
         return self._underlying.metrics
@@ -67,10 +67,10 @@ class ProxyRuntime(Runtime):
 
 class InvalidRuntime(Runtime):
 
-    def log(self) -> Logger:
+    def errors(self) -> Errors:
         raise RuntimeError(self)
 
-    def errors(self) -> Errors:
+    def log(self) -> Logger:
         raise RuntimeError(self)
 
     def metrics(self) -> Metrics:

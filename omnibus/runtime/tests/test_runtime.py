@@ -1,7 +1,7 @@
 import logging
 import typing as ta
 
-from ..current import log
+from ..auto import log
 
 
 def configure_standard_logging(level: ta.Any = None) -> logging.Handler:
@@ -14,8 +14,8 @@ def configure_standard_logging(level: ta.Any = None) -> logging.Handler:
 
 
 def test_runtime():
-    log().info('hi')
-    log().wrapped.info('hi2')
+    log.info('hi')
+    log.wrapped.info('hi2')
 
 
 def _main():
