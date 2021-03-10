@@ -114,3 +114,15 @@ class ItemSeqTypeMap(ta.Generic[T]):
                     ret.append(item)
             self._cache[cls] = ret
             return ret
+
+
+class MissingDict(ta.Dict[K, V]):
+    def __init__(self, missing_fn: ta.Callable[[K], V]) -> None:
+        if not callable(missing_fn):
+            raise TypeError(missing_fn)
+        super().__init__()
+        self._missing_fn = missing_fn
+
+    def __missing__(self, key):
+        v = self[key] = self._missing_fn(key)
+        return v

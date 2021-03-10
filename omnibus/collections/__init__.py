@@ -19,13 +19,13 @@ from .coerce import seq  # noqa
 from .coerce import seq_of  # noqa
 from .coerce import seq_of_or_none  # noqa
 from .coerce import seq_or_none  # noqa
-from .collections import ORDERING_TYPES  # noqa
 from .collections import histogram  # noqa
 from .collections import list_dict  # noqa
 from .collections import mut_toposort  # noqa
 from .collections import order_frozen_set  # noqa
 from .collections import order_set  # noqa
 from .collections import order_values  # noqa
+from .collections import ORDERING_TYPES  # noqa
 from .collections import partition  # noqa
 from .collections import set_dict  # noqa
 from .collections import toposort  # noqa
@@ -34,8 +34,8 @@ from .collections import unique  # noqa
 from .collections import unique_dict  # noqa
 from .frozen import Frozen  # noqa
 from .frozen import FrozenDict  # noqa
-from .frozen import FrozenList  # noqa
 from .frozen import frozendict  # noqa
+from .frozen import FrozenList  # noqa
 from .frozen import frozenlist  # noqa
 from .identity import IdentityHashableDict  # noqa
 from .identity import IdentityHashableList  # noqa
@@ -45,9 +45,10 @@ from .identity import IdentitySet  # noqa
 from .identity import IdentityWrapper  # noqa
 from .indexed import IndexedSeq # noqa
 from .indexed import IndexedSetSeq # noqa
-from .maps import ItemSeqTypeMap  # noqa
 from .maps import guarded_map_update  # noqa
 from .maps import invert_set_map  # noqa
+from .maps import ItemSeqTypeMap  # noqa
+from .maps import MissingDict  # noqa
 from .maps import multikey_dict  # noqa
 from .maps import traverse_links  # noqa
 from .maps import yield_dict_init  # noqa
