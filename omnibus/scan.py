@@ -126,6 +126,57 @@ def inline_regex_formatter(s: str) -> ta.Optional[Pat]:
         return None
 
 
+class GlyphSplitter:
+
+    def __init__(self, glyphs: ta.Tuple[str, str] = ('{', '}')) -> None:
+        super().__init__()
+
+        glyphs = tuple(map(check.of_isinstance(str), glyphs))
+        check.state(all(len(s) == 1 for s in glyphs))
+        check.state(len(glyphs) == 2)
+
+        self._glyphs = glyphs
+
+        self._double_glyphs: ta.Tuple[str, str] = tuple(s * 2 for s in glyphs)  # noqa
+        self._escaped_glyphs: ta.Tuple[str, str] = tuple(map(re.escape, glyphs))  # noqa
+
+        self._lglyph_pat = re.compile(r'(%s)' % (self._escaped_glyphs[0] * 2,))
+        self._rglyph_pat = re.compile(r'(%s)' % (self._escaped_glyphs[1] * 2,))
+        self._single_glyph_pat = re.compile(r'(%s[^%s]*?%s)' % (
+            self._escaped_glyphs[0], self._escaped_glyphs[1], self._escaped_glyphs[1]))
+
+    @dc.dataclass(frozen=True)
+    class Match:
+        s: str
+
+    def split(self, s: str) -> ta.Sequence[ta.Union['GlyphSplitter.Match', str]]:
+        ps = self._lglyph_pat.split(s)
+        ps = [p[::-1] for p in ps for p in reversed(self._rglyph_pat.split(p[::-1]))]
+
+        lst = []
+        for p in ps:
+            if p in self._double_glyphs:
+                lst.append(p)
+                continue
+
+            ms = list(self._single_glyph_pat.finditer(p))
+            if not ms:
+                lst.append(p)
+                continue
+
+            l = 0
+            for i, m in enumerate(ms):
+                if m.start() != l:
+                    lst.append(p[l:m.start()])
+                lst.append(self.Match(p[m.start() + 1:m.end() - 1]))
+                l = m.end()
+
+            if l < len(p):
+                lst.append(p[l:])
+
+        return lst
+
+
 class Scanner:
 
     _DEFAULT_PAT = r'.+?'
@@ -151,24 +202,13 @@ class Scanner:
     ) -> None:
         super().__init__()
 
-        glyphs = tuple(map(check.of_isinstance(str), glyphs))
-        check.arg(all(len(s) == 1 for s in glyphs))
-        check.arg(len(glyphs) == 2)
         check.arg(_count_groups(srp.parse(ws_pat_s)) == 0)
 
         self._spec = check.isinstance(spec, str)
-        self._glyphs = glyphs
+        self._gs = GlyphSplitter(glyphs)
         self._formatters = [check.callable(f) for f in (formatters or self.DEFAULT_FORMATTERS)]
         self._ws_pat_s = ws_pat_s
         self._ignore_case = ignore_case
-
-        self._double_glyphs: ta.Tuple[str, str] = tuple(s * 2 for s in glyphs)  # noqa
-        self._escaped_glyphs: ta.Tuple[str, str] = tuple(map(re.escape, glyphs))  # noqa
-
-        self._lglyph_pat = re.compile(r'(%s)' % (self._escaped_glyphs[0] * 2,))
-        self._rglyph_pat = re.compile(r'(%s)' % (self._escaped_glyphs[1] * 2,))
-        self._single_glyph_pat = re.compile(r'(%s[^%s]*?%s)' % (
-            self._escaped_glyphs[0], self._escaped_glyphs[1], self._escaped_glyphs[1]))
 
         pat_s, slots = self._build(spec)
         self._pat_s = pat_s
@@ -186,8 +226,8 @@ class Scanner:
 
     def _build(self, spec: str) -> ta.Tuple[str, ta.Sequence[_Slot]]:
         lst = [
-            p if isinstance(p, str) else self._build_spec(check.isinstance(p, SpecStr).s)
-            for p in self._split_spec(spec)
+            p if isinstance(p, str) else self._build_spec(check.isinstance(p, GlyphSplitter.Match).s)
+            for p in self._gs.split(spec)
         ]
         check.unique(p.name for p in lst if isinstance(p, Spec) and p.name is not None)
 
@@ -223,33 +263,6 @@ class Scanner:
             buf.write(s)
 
         return buf.getvalue(), slots
-
-    def _split_spec(self, s: str) -> ta.Sequence[ta.Union[SpecStr, str]]:
-        ps = self._lglyph_pat.split(s)
-        ps = [p[::-1] for p in ps for p in reversed(self._rglyph_pat.split(p[::-1]))]
-
-        lst = []
-        for p in ps:
-            if p in self._double_glyphs:
-                lst.append(p)
-                continue
-
-            ms = list(self._single_glyph_pat.finditer(p))
-            if not ms:
-                lst.append(p)
-                continue
-
-            l = 0
-            for i, m in enumerate(ms):
-                if m.start() != l:
-                    lst.append(p[l:m.start()])
-                lst.append(SpecStr(p[m.start() + 1:m.end() - 1]))
-                l = m.end()
-
-            if l < len(p):
-                lst.append(p[l:])
-
-        return lst
 
     def _build_spec(self, s: str) -> Spec:
         if not s or s == ':':
