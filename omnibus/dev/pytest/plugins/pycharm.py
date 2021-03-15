@@ -3,7 +3,7 @@ import threading
 from ._registry import register_plugin  # noqa
 
 
-# @register_plugin
+@register_plugin
 class PycharmPlugin:
 
     def pytest_exception_interact(self, node, call, report):

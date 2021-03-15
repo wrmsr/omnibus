@@ -209,33 +209,33 @@ class Renderer(disp.Class):
     def __call__(self, item: Item) -> None:  # noqa
         raise TypeError(item)
 
-    def __call__(self, item: Raw) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Raw) -> None:   # noqa
         self._out.write(item.raw)
 
-    def __call__(self, item: Text) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Text) -> None:  # noqa
         self._out.write(html.escape(item.text))
 
-    def __call__(self, item: Cell) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Cell) -> None:  # noqa
         self._out.write('<td>')
         self(item.value)
         self._out.write('</td>')
 
-    def __call__(self, item: Row) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Row) -> None:  # noqa
         self._out.write('<tr>')
         for cell in item.cells:
             self(cell)
         self._out.write('</tr>')
 
-    def __call__(self, item: Table) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Table) -> None:  # noqa
         self._out.write('<table>')
         for row in item.rows:
             self(row)
         self._out.write('</table>')
 
-    def __call__(self, item: Id) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Id) -> None:  # noqa
         self._out.write(f'"{item.id}"')
 
-    def __call__(self, item: Attrs) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Attrs) -> None:  # noqa
         if item.attrs:
             self._out.write('[')
             for i, (k, v) in enumerate(item.attrs.items()):
@@ -247,11 +247,11 @@ class Renderer(disp.Class):
                 self._out.write('>')
             self._out.write(']')
 
-    def __call__(self, item: RawStmt) -> None:  # type: ignore  # noqa
+    def __call__(self, item: RawStmt) -> None:  # noqa
         self._out.write(item.raw)
         self._out.write('\n')
 
-    def __call__(self, item: Edge) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Edge) -> None:  # noqa
         self(item.left)
         self._out.write(' -> ')
         self(item.right)
@@ -260,14 +260,14 @@ class Renderer(disp.Class):
             self(item.attrs)
         self._out.write(';\n')
 
-    def __call__(self, item: Node) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Node) -> None:  # noqa
         self(item.id)
         if item.attrs.attrs:
             self._out.write(' ')
             self(item.attrs)
         self._out.write(';\n')
 
-    def __call__(self, item: Graph) -> None:  # type: ignore  # noqa
+    def __call__(self, item: Graph) -> None:  # noqa
         self._out.write('digraph ')
         self(item.id)
         self._out.write(' {\n')
