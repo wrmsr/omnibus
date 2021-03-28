@@ -1,3 +1,8 @@
+"""
+TODO:
+ - https://stackoverflow.com/questions/19308847/graphviz-vertical-ordering
+  - (same expected mro past top ~= same expected ver pos, order by name)
+"""
 import typing as ta
 
 from ...graphs.dot import dot
@@ -32,10 +37,15 @@ def _main():
 
     from ... import lang
 
-    [spec] = sys.argv[1:]
-    cls = lang.import_module_attr(spec)
+    roots = []
+    for spec in sys.argv[1:]:
+        cls = lang.import_module_attr(spec)
+        roots.append(cls)
 
-    scd = gen_class_dot([cls])
+    if not roots:
+        return
+
+    scd = gen_class_dot(roots)
     dot.open_dot(dot.render(scd))
 
 
