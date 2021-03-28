@@ -209,3 +209,9 @@ def render_part(part: Part, buf: ta.Optional[io.StringIO] = None) -> io.StringIO
         buf = io.StringIO()
     PartRenderer(buf)(part)
     return buf
+
+
+def render(part: Part) -> str:
+    part = remove_nodes(part)  # noqa
+    part = compact_part(part)
+    return render_part(part).getvalue()
