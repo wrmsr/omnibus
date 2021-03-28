@@ -1,2 +1,2 @@
-FROM amazon/dynamodb-local:1.13.5
+FROM amazon/dynamodb-local:1.15.0
 COPY .dockertimestamp /
