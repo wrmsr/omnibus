@@ -32,7 +32,7 @@ RUN ( \
 
 
 RUN ( \
-    export WAL2JSON_VERSION=2_2 && \
+    export WAL2JSON_VERSION='2_3' && \
     mkdir /tmp/build && \
     cd /tmp/build && \
     wget "https://github.com/eulerto/wal2json/archive/wal2json_${WAL2JSON_VERSION}.tar.gz" && \
@@ -45,7 +45,7 @@ RUN ( \
 
 
 RUN ( \
-    export PLV8_VERSION=v2.3.15 && \
+    export PLV8_VERSION='v2.3.15' && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     curl -o "${PLV8_VERSION}.tar.gz" -SL "https://github.com/plv8/plv8/archive/${PLV8_VERSION}.tar.gz" && \
