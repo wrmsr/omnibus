@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20201008
+FROM ubuntu:focal-20210325
 COPY .dockertimestamp /
 
 
@@ -129,8 +129,8 @@ RUN ( \
     apt-get install -y \
     \
         openjdk-8-jdk \
-        openjdk-14-jdk \
-        openjdk-15-jdk \
+        openjdk-11-jdk \
+        openjdk-16-jdk \
     \
 )
 
@@ -183,6 +183,22 @@ RUN ( \
 RUN ( \
     cd /root && \
     wget https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2020-09/R/eclipse-cpp-2020-09-R-linux-gtk-x86_64.tar.gz \
+)
+
+
+# pyenv versions
+
+RUN ( \
+    for V in \
+\
+        '3.8.8' \
+        '3.7.10' \
+        '3.9.2' \
+        '3.7-7.3.3' \
+\
+    ; do \
+        ~/.pyenv/bin/pyenv install -s -v "$V" ; \
+    done \
 )
 
 
