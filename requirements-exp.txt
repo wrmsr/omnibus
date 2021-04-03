@@ -13,7 +13,7 @@ aiohttp==3.7.4.post0
 cryptography==3.3.1  #@garbage
 graphviz==0.16
 importlib-resources==5.1.2
-ipykernel==5.5.2
+ipykernel==5.5.3
 jedi==0.17.2  #@bug(https://github.com/ipython/ipython/issues/12742)
 jmespath==0.10.0
 more-itertools==8.7.0
