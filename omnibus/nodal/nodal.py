@@ -55,6 +55,8 @@ class _NodalMeta(dc.Meta):
             ann_cls = check.issubclass(nos.cls_args[1], ans.Annotation)
             namespace['_ann_cls'] = ann_cls
 
+            # FIXME: isinstance(ans.Annotations[ann_cls], type) is FALSE in 38, TRUE IN 39
+            # https://github.com/python/cpython/commit/48b069a003ba6c684a9ba78493fbbec5e89f10b8#diff-ddb987fca5f5df0c9a2f5521ed687919d70bb3d64eaeb8021f98833a2a716887
             Annotations = lang.new_type(  # noqa
                 f'Annotations${name}',
                 (ans.Annotations[ann_cls],),
