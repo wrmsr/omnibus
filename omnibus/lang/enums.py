@@ -55,8 +55,10 @@ class _AutoEnumMeta(enum.EnumMeta):
 
         def __init__(self, src: _EnumDict) -> None:  # type: ignore
             super().__init__()
+            if hasattr(src, '_cls_name'):  # 3.9
+                self._cls_name = src._cls_name  # type: ignore
             self.update(src)
-            if hasattr(src, '_generate_next_value'):
+            if hasattr(src, '_generate_next_value'):  # 3.8
                 self._generate_next_value = src._generate_next_value  # type: ignore
 
         def __setitem__(self, key, value):
