@@ -2,9 +2,9 @@ SHELL:=/bin/bash
 
 PROJECT:=omnibus
 
-PYTHON_VERSION:=3.8.8
-PYTHON_37_VERSION:=3.7.10
-PYTHON_39_VERSION:=3.9.2
+PYTHON_VERSION:=3.8.12
+PYTHON_37_VERSION:=3.7.12
+PYTHON_39_VERSION:=3.9.7
 PYPY_37_VERSION:=3.7-7.3.3
 
 PYENV_ROOT:=$(shell sh -c "if [ -z '$${PYENV_ROOT}' ] ; then echo '$${HOME}/.pyenv' ; else echo '$${PYENV_ROOT%/}' ; fi")
