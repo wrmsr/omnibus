@@ -6,6 +6,7 @@ services:
   omnibus-dynamodb:
     build: '.'
     image: 'wrmsr/omnibus-dynamodb:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     expose:
       - '8000'
@@ -15,6 +16,7 @@ services:
   omnibus-elasticmq:
     build: '.'
     image: 'wrmsr/omnibus-elasticmq:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     expose:
       - '9324'
@@ -24,6 +26,7 @@ services:
   omnibus-elasticsearch:
     build: '.'
     image: 'wrmsr/omnibus-elasticsearch:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       ES_JAVA_OPTS: '-Xms750m -Xmx750m'
@@ -37,6 +40,7 @@ services:
   omnibus-kafka:
     build: '.'
     image: 'wrmsr/omnibus-kafka:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     hostname: 'omnibus-kafka'
     environment:
@@ -57,6 +61,7 @@ services:
   omnibus-memcached:
     build: '.'
     image: 'wrmsr/omnibus-memcached:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     expose:
       - '11211'
@@ -66,6 +71,7 @@ services:
   omnibus-minio:
     build: '.'
     image: 'wrmsr/omnibus-minio:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       MINIO_ACCESS_KEY: 'AKIAIOSFODNN7EXAMPLE'
@@ -78,6 +84,7 @@ services:
   omnibus-mongo:
     build: '.'
     image: 'wrmsr/omnibus-mongo:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       MONGO_INITDB_ROOT_USERNAME: 'root'
@@ -90,6 +97,7 @@ services:
   omnibus-mysql-master:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       MYSQL_USER: 'omnibus'
@@ -103,6 +111,7 @@ services:
   omnibus-mysql-slave:
     build: '.'
     image: 'wrmsr/omnibus-mysql:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       MYSQL_USER: 'omnibus'
@@ -121,6 +130,7 @@ services:
   omnibus-postgres-master:
     build: '.'
     image: 'wrmsr/omnibus-postgres:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       POSTGRES_USER: 'omnibus'
@@ -134,6 +144,7 @@ services:
   omnibus-postgres-slave:
     build: '.'
     image: 'wrmsr/omnibus-postgres:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       POSTGRES_USER: 'omnibus'
@@ -152,6 +163,7 @@ services:
   omnibus-redis:
     build: '.'
     image: 'wrmsr/omnibus-redis:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     expose:
       - '6379'
@@ -161,6 +173,7 @@ services:
   omnibus-spark-master:
     build: '.'
     image: 'wrmsr/omnibus-spark-master:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       - 'INIT_DAEMON_STEP=setup_spark'
@@ -172,6 +185,7 @@ services:
   omnibus-spark-worker:
     build: '.'
     image: 'wrmsr/omnibus-spark-worker:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     environment:
       - 'SPARK_MASTER=spark://omnibus-spark-master:7077'
@@ -185,6 +199,7 @@ services:
 
   omnibus-ssh:
     image: 'wrmsr/omnibus-ssh:latest'
+    platform: 'linux/x86_64'
     hostname: 'omnibus-ssh'
     environment:
       SSH_PASSWORD: 'omnibus'
@@ -195,6 +210,7 @@ services:
 
   omnibus-zookeeper:
     image: 'wrmsr/omnibus-zookeeper:latest'
+    platform: 'linux/x86_64'
     hostname: 'omnibus-zookeeper'
     environment:
       ZOO_MY_ID: '1'
@@ -208,6 +224,7 @@ services:
   omnibus-dev:
     build: '.'
     image: 'wrmsr/omnibus-dev:latest'
+    platform: 'linux/x86_64'
     restart: 'unless-stopped'
     cap_add:
       - 'SYS_PTRACE'
@@ -239,6 +256,7 @@ services:
   omnibus-ci:
     build: '.'
     image: 'wrmsr/omnibus-ci:latest'
+    platform: 'linux/x86_64'
     restart: 'no'
     depends_on:
       - 'omnibus-mysql-master'

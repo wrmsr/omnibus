@@ -180,10 +180,10 @@ RUN ( \
 
 # eclipse
 
-RUN ( \
-    cd /root && \
-    wget https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2020-09/R/eclipse-cpp-2020-09-R-linux-gtk-x86_64.tar.gz \
-)
+# RUN ( \
+#     cd /root && \
+#     wget https://ftp.osuosl.org/pub/eclipse/technology/epp/downloads/release/2020-09/R/eclipse-cpp-2020-09-R-linux-gtk-x86_64.tar.gz \
+# )
 
 
 # pyenv versions
@@ -191,9 +191,10 @@ RUN ( \
 RUN ( \
     for V in \
 \
-        '3.7.10' \
-        '3.8.8' \
-        '3.9.2' \
+        '3.7.12' \
+        '3.8.12' \
+        '3.9.7' \
+        '3.10.0' \
 \
     ; do \
         ~/.pyenv/bin/pyenv install -s -v "$V" ; \

@@ -55,19 +55,19 @@ images:
 	set -e ; \
 	for IMG in $(DOCKER_IMAGES) ; do \
 		echo "$$IMG" ; \
-		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
+		(cd .. && docker build --platform linux/x86_64 --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
 
 .PHONY:
 push:
 	for IMG in $(DOCKER_IMAGES) ; do \
-		docker push "$(DOCKER_USER)/$$IMG" ; \
+		docker push --platform linux/x86_64 "$(DOCKER_USER)/$$IMG" ; \
 	done
 
 .PHONY:
 pull:
 	for IMG in $(DOCKER_IMAGES) ; do \
-		docker pull "$(DOCKER_USER)/$$IMG" ; \
+		docker pull --platform linux/x86_64 "$(DOCKER_USER)/$$IMG" ; \
 	done
 
 .PHONY: start
@@ -98,26 +98,26 @@ reup: stop
 
 .PHONY: enable-ptrace
 enable-ptrace:
-	docker run --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
+	docker run --platform linux/x86_64 --privileged -it python:3 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
 
 .PHONY: ci-pull
 ci-pull:
 	for IMG in $(DOCKER_CI_IMAGES) omnibus-ci ; do \
-		egrep '^FROM ' "$$IMG/Dockerfile" | cut -c 6- | xargs docker pull ; \
+		egrep '^FROM ' "$$IMG/Dockerfile" | cut -c 6- | xargs docker pull --platform linux/x86_64 ; \
 	done
 
 .PHONY: ci-images
 ci-images:
 	set -e ; \
 	for IMG in $(DOCKER_CI_IMAGES) ; do \
-		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
+		(cd .. && docker build --platform linux/x86_64 --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
 
 	DI=$$(mktemp) ; \
 	cd .. ; \
 	(cat .dockerignore | egrep -v '^omnibus$$') > "$$DI" ; \
 	tar cvh --exclude-from="$$DI" * .dockertimestamp | \
-		docker build --tag "$(DOCKER_USER)/omnibus-ci" -f "docker/omnibus-ci/Dockerfile" -
+		docker build --platform linux/x86_64 --tag "$(DOCKER_USER)/omnibus-ci" -f "docker/omnibus-ci/Dockerfile" -
 
 .PHONY: ci
 ci: ci-images
