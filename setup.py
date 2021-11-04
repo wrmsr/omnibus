@@ -814,7 +814,8 @@ class Distribution(du.core.Distribution):
                 language='c++',
                 extra_compile_args=[
                     '-std=c++14',
-                    '-march=native',  # FIXME
+                    # '-march=native',  # FIXME
+                    # '-march=apple-m1',
                 ],
                 optional=True,
                 define_macros=[
