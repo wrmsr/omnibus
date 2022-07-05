@@ -17,5 +17,5 @@ lz4==2.2.1
 msgpack==0.6.2
 mypy==0.760
 pyrsistent==0.15.6
-ujson==1.35
+ujson==5.4.0
 zstd==1.4.4.0
