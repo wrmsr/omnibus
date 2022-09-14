@@ -22,3 +22,7 @@ def test_tpch():
     cg = gens_.CustomerGenerator(10, 1, 20)
     for c in cg:  # noqa
         pass
+
+
+def test_rand():
+    print(rand_.RandomAlphaNumeric(420, 100, 1).next_value())

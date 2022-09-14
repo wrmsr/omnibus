@@ -53,7 +53,7 @@ RUN ( \
         libsasl2-dev \
         libsnappy-dev \
         libsqlite3-dev \
-        libssl-dev \
+        libsl-dev \
         libxml2-dev \
         libxml2-utils \
         libxslt-dev \

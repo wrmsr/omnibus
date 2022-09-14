@@ -49,6 +49,8 @@ TODO:
   - ** explicit support for cached at least **
  - memoize predicate/factory/specialmethod?
   - workaround its done in .of() lols
+ - WIRE:
+  -
 """
 import collections
 import collections.abc

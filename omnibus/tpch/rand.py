@@ -104,7 +104,7 @@ class PyLongGen(Gen):
         self._advance_seed(self._expected_usage_per_row * row_count)
 
 
-_CY_ENABLED = True
+_CY_ENABLED = False
 
 try:
     if not _CY_ENABLED:

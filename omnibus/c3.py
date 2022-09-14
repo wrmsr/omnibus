@@ -62,7 +62,7 @@ def merge(sequences: ta.MutableSequence[ta.List[T]]) -> ta.List[T]:
     """
 
     result: ta.List[T] = []
-    candidate: ta.Optional[T]
+    candidate: ta.Optional[T] = None
     while True:
         sequences = [s for s in sequences if s]   # purge empty sequences
         if not sequences:
