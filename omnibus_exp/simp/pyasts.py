@@ -2,9 +2,9 @@ import ast
 import typing as ta
 
 from . import nodes as no
-from .. import check
-from .. import dataclasses as dc
-from .. import dispatch
+from omnibus import check
+from omnibus import dataclasses as dc
+from omnibus import dispatch
 
 
 AstT = ta.TypeVar('AstT', bound=ast.AST)

@@ -148,7 +148,6 @@ class Interface(metaclass=_InterfaceMeta):
 
 
 class FinalException(TypeError):
-
     def __init__(self, _type: ta.Type) -> None:
         super().__init__()
 

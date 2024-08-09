@@ -22,11 +22,11 @@ import typing as ta
 import yaml
 
 from .. import rendering as ren
-from ... import check
-from ... import lang  # noqa
-from ... import properties
-from ... import pyasts
-from ...serde import mapping as sm
+from omnibus import check
+from omnibus import lang  # noqa
+from omnibus import properties
+from omnibus import pyasts
+from omnibus.serde import mapping as sm
 from ..pyasts import translate
 
 
@@ -163,15 +163,16 @@ class MarkedFileFnResolver(ta.Iterable[MarkedFn]):
 
 
 def test_gen():
-    for file_name in glob.glob(__package__.split('.')[0] + '/**/*.py', recursive=True):
-        mffr = MarkedFileFnResolver(file_name)
-        for mf in mffr:
-            nr = translate(mf.pyast)
+    for base in ['omnibus', __package__.split('.')[0]]:
+        for file_name in glob.glob(base + '/**/*.py', recursive=True):
+            mffr = MarkedFileFnResolver(file_name)
+            for mf in mffr:
+                nr = translate(mf.pyast)
 
-            print(yaml.dump(sm.serialize(nr)))
-            print()
+                print(yaml.dump(sm.serialize(nr)))
+                print()
 
-            print(ren.render(nr))
-            print()
+                print(ren.render(nr))
+                print()
 
-            print()
+                print()

@@ -4,9 +4,12 @@ import os
 import resource
 import time
 
+import pytest
+
 from ... import dataclasses as odc
 
 
+# @pytest.mark.skip()
 def test_perf():
     @dc.dataclass()
     class CBuiltin:

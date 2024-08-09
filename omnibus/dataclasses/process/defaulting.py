@@ -143,7 +143,7 @@ class Defaulting(Aspect):
             }
 
         @properties.cached
-        def deriver_fn_names_by_deiver_node(self) -> ta.Mapping[DeriverNode, str]:
+        def deriver_fn_names_by_deriver_node(self) -> ta.Mapping[DeriverNode, str]:
             return ocol.IdentityKeyDict(
                 (dn, self.fctx.nsb.put(dn.fn, f'_deriver_{i}'))
                 for i, dn in enumerate(self.aspect.deriver_nodes)
@@ -178,7 +178,7 @@ class Defaulting(Aspect):
                     s2 = f'{s0} and {s1}' if s0 and s1 else (s0 or s1)
                     check.not_empty(s2)
                     s3 = (', '.join(dn.oas) + ' =') if dn.oas else ''
-                    fnn = self.deriver_fn_names_by_deiver_node[dn]
+                    fnn = self.deriver_fn_names_by_deriver_node[dn]
                     s4 = ", ".join(f'{a}={a}' for a in dn.ias)
                     ret.append(f'if {s2}: {s3} {fnn}({s4})')
                 for a in self.aspect.derivable_field_names:

@@ -1,6 +1,6 @@
 import typing as ta
 
-from ... import dataclasses as dc
+from omnibus import dataclasses as dc
 from .base import Annotated
 from .base import Expr
 from .base import Ident

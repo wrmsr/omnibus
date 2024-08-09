@@ -1,5 +1,7 @@
 """
 TODO:
+ - incremental / streaming / async
+  - https://docs.python.org/3/library/codecs.html#incremental-encoding-and-decoding
  - tame the block/stream/fileobj divergence in codecs and elsewhere
   - https://docs.python.org/3/library/codecs.html#incremental-encoding-and-decoding
   - as well as push/pull(/async now)

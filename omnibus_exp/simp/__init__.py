@@ -1,4 +1,4 @@
-from .. import lang as _lang
+from omnibus import lang as _lang
 
 
 _lang.warn_unstable()

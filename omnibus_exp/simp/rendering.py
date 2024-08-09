@@ -5,9 +5,9 @@ TODO:
 import typing as ta
 
 from . import nodes as no
-from .. import check
-from .. import dispatch
-from ..code import rendering as r
+from omnibus import check
+from omnibus import dispatch
+from omnibus.code import rendering as r
 
 
 def needs_paren(node: no.Node) -> bool:

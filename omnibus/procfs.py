@@ -30,6 +30,8 @@ RLIMIT_RESOURCES = {
 
 
 def parse_size(s: str) -> int:
+    if ' ' not in s:
+        return int(s)
     us = {'kB': 1024, 'mB': 1024 * 1024}
     v, u = s.split()
     return int(v) * us[u]

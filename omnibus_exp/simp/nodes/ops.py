@@ -1,10 +1,10 @@
 import string
 import typing as ta
 
-from ... import check
-from ... import collections as col
-from ... import dataclasses as dc
-from ... import properties
+from omnibus import check
+from omnibus import collections as col
+from omnibus import dataclasses as dc
+from omnibus import properties
 
 
 class Op(dc.Enum, abstract=True, reorder=True):

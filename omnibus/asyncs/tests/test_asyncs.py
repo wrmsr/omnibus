@@ -1,5 +1,6 @@
 import asyncio
 import concurrent.futures
+import itertools
 import time
 
 import pytest
@@ -43,7 +44,7 @@ def test_await_futures():
         assert asyncs_.await_futures(futures)
 
     def pairs(l):
-        return [set(p) for p in toolz.partition_all(2, l)]
+        return [set(p) for p in itertools.batch(2, l)]
 
     idxs = [t[0] for t in sorted(list(enumerate(futures)), key=lambda t: t[1].result())]
     assert pairs(idxs) == pairs(range(10))
